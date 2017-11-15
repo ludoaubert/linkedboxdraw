@@ -1,0 +1,2937 @@
+/**
+* \copyright Copyright (c) 2015-2017 Ludovic Aubert
+*            All Rights Reserved
+*            DO NOT ALTER OR REMOVE THIS COPYRIGHT NOTICE
+*
+* \file bombix.cpp
+*
+* - 11/23/2016 by Ludovic Aubert : creation
+*/
+#include <cstdint>
+#include <vector>
+#include <unordered_set>
+#include <unordered_map>
+#include <assert.h>
+#include <algorithm>
+#include <numeric>
+#include <iterator>
+#include <chrono>
+#include <regex>
+#include <omp.h>
+using namespace std;
+using namespace std::chrono;
+
+
+enum Direction : uint16_t
+{
+	HORIZONTAL,
+	VERTICAL
+};
+
+Direction other(Direction direction)
+{
+	switch (direction)
+	{
+	case HORIZONTAL:
+		return VERTICAL;
+	case VERTICAL:
+		return HORIZONTAL;
+	}
+}
+
+enum Way : int16_t
+{
+	DECREASE=-1,
+	INCREASE=+1
+};
+
+void reverse(Way &way)
+{
+	switch (way)
+	{
+	case INCREASE:
+		way = DECREASE;
+		break;
+	case DECREASE:
+		way = INCREASE;
+		break;
+	}
+}
+
+
+struct Range
+{
+	Direction direction;
+	Way way;
+	int16_t value, min, max;
+	
+	int16_t operator[](Way w) const
+	{
+		switch (w)
+		{
+		case INCREASE:
+			return max;
+		case DECREASE:
+			return min;
+		}
+	}
+};
+
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++17 ? C++20 ?
+bool operator==(const Range& r1, const Range& r2)
+{
+	return memcmp(&r1, &r2, sizeof(Range)) == 0;
+}
+
+struct Maille
+{
+	Direction direction;
+	Way way;
+	int16_t value, other;
+};
+
+
+bool operator==(const Maille& m1, const Maille& m2)
+{
+	return memcmp(&m1, &m2, sizeof(Maille)) == 0;
+}
+
+bool operator!=(const Maille& m1, const Maille& m2)
+{
+	return memcmp(&m1, &m2, sizeof(Maille)) != 0;
+}
+
+static_assert(sizeof(Maille)==sizeof(uint64_t),"");
+
+uint64_t serialize(const Maille& m)
+{
+	uint64_t u = 1 + (m.value << 1) + (m.other << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
+	assert(u < 1000 * 1000);
+	return u;
+}
+
+Maille parse(uint64_t u)
+{
+	u -= 1;
+	u >>= 1;
+	Maille m;
+	m.value = u & 0xFF;
+	u >>= 8;
+	m.other = u & 0xFF;
+	u >>= 8;
+	m.direction = (Direction)(u & 0x01);
+	u >>= 1;
+	m.way = (Way)((u & 0x03)-1);
+	return m;
+}
+
+struct Edge
+{
+	uint64_t u,v;
+	int weight;
+};
+
+struct Point
+{
+	int& operator[](Direction direction)
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return x;
+		case VERTICAL:
+			return y;
+		}
+	}
+	int x, y;
+};
+
+bool operator==(const Point& p1, const Point& p2)
+{
+	return memcmp(&p1, &p2, sizeof(Point))==0;
+}
+
+struct Rect
+{
+	int left, right, top, bottom;
+};
+
+struct RectBand
+{
+	Direction direction;
+	int min, max;
+};
+
+RectBand rectband(const Rect& r, Direction direction)
+{
+	switch (direction)
+	{
+	case HORIZONTAL:
+		return { direction, r.top, r.bottom };
+	case VERTICAL:
+		return { direction, r.left, r.right };
+	}
+}
+
+Range intersection(const Range& r, const RectBand& band)
+{
+	assert(r.direction == band.direction);
+	Range rg = r;
+	rg.min = max<int>(rg.min, band.min);
+	rg.max = min<int>(rg.max, band.max);
+	return rg;
+}
+
+//TODO: mauvais nommage
+Rect intersection(const Rect& r, const RectBand& band)
+{
+	Rect rec = r;
+	switch (band.direction)
+	{
+	case HORIZONTAL:
+		//assert(rec.top <= band.min); FAUX
+		//assert(rec.bottom >= band.max); FAUX
+		rec.top = band.min;
+		rec.bottom = band.max;
+		break;
+	case VERTICAL:
+		//assert(rec.left <= band.min); FAUX
+		//assert(rec.right >= band.max); FAUX
+		rec.left = band.min;
+		rec.right = band.max;
+		break;
+	}
+	return rec;
+}
+
+template <typename T>
+struct Matrix
+{
+	Matrix() {}
+	Matrix(int n, int m, T value) : _n(n), _m(m)
+	{
+		_data = new T[n*m];
+		fill(_data, _data + n*m, value);
+	}
+	
+	Matrix(const Matrix& m) : Matrix(m._n, m._m, T())
+	{
+		memcpy(_data, m._data, sizeof(T)*_n*_m);
+	}
+	
+	Matrix& operator=(const Matrix& m)
+	{
+		_n = m._n;
+		_m = m._m;
+		_data = new T[_n*_m];
+		memcpy(_data, m._data, _n*_m*sizeof(T));
+		return *this;
+	}
+	
+	~Matrix()
+	{
+		delete [] _data;
+	}
+	
+	T& operator()(int i, int j)
+	{
+		assert(0 <= i);
+		assert(i < _n);
+		assert(0 <= j);
+		assert(j < _m);
+		return _data[i*_m + j];
+	}
+	
+//suppose implicitement que T=bool.	
+	T operator()(int i, int j) const
+	{
+		if (i < 0)
+			return false;
+		if (i >= _n)
+			return false;
+		if (j < 0)
+			return false;
+		if (j >= _m)
+			return false;
+		return _data[i*_m + j];
+	}
+	
+	T operator()(const Maille& m) const
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
+	}
+	
+	T& operator()(const Maille& m)
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
+	}
+	
+	int _n=0, _m=0;
+	T *_data = nullptr;
+};
+
+
+struct Graph
+{
+	const Matrix<bool> &definition_matrix;
+	const vector<int> (&coords)[2];
+};
+
+enum InputOutputSwitch
+{
+	INPUT,
+	OUTPUT
+};
+
+struct Target
+{
+	int from;
+	int to;
+	vector<Maille> expected_path;
+};
+
+bool operator==(const Target& t1, const Target& t2)
+{
+	return t1.from == t2.from && t1.to == t2.to && t1.expected_path == t2.expected_path;
+}
+
+struct Polyline
+{
+	int from;
+	int to;
+	vector<Point> data;
+};
+
+bool operator==(const Polyline& p1, const Polyline& p2)
+{
+	return p1.from == p2.from && p1.to == p2.to && p1.data == p2.data;
+}
+
+struct Link
+{
+	int from, to;
+};
+
+bool operator==(const Link& lk1, const Link& lk2)
+{
+	return memcmp(&lk1, &lk2, sizeof(Link)) == 0;
+}
+
+//TODO: could use a default compiler generated implementation ? C++17 ? C++20 ?
+namespace std {
+
+	template <>
+	struct hash<Maille> {
+		size_t operator()(const Maille &m) const
+		{
+			uint64_t u = serialize(m);
+			return hash<uint64_t>()(u);
+		}
+	};
+	
+	template <>
+	struct hash<Link> {
+		size_t operator()(const Link &lk) const
+		{
+			const int k = 31;
+			return lk.from + k * lk.to;
+		}
+	};
+	
+	template <>
+	struct hash<Range> {
+		size_t operator()(const Range &r) const
+		{
+			const int k = 31;
+		//TODO: use destructuring
+			return r.direction + k * r.way + k ^ 2 * r.value + k ^ 3 * r.min + k ^ 4 * r.max;
+		}
+	};
+}
+
+
+
+struct FaiceauOutput
+{
+	vector<Target> targets;
+	unordered_map<Maille, Range> enlarged;
+};
+
+bool operator==(const FaiceauOutput& f1, const FaiceauOutput& f2)
+{
+	return f1.targets == f2.targets && f1.enlarged == f2.enlarged;
+}
+
+
+struct FaiceauPath
+{
+	unordered_map<Maille, Range> enlarged;
+	vector<Maille> path;
+};
+
+struct TestContext
+{
+	int testid;
+	vector<Rect> rects;
+	Rect frame;
+	vector<Link> links;
+	
+	vector<FaiceauOutput> faisceau_output;
+	vector<Polyline> polylines;
+};
+
+struct InnerRange
+{
+	int16_t min, max;
+	int32_t range_index;
+};
+
+static_assert(sizeof(InnerRange) == sizeof(uint64_t), "");
+
+struct InnerRangeGraph
+{
+	const vector<Range> &path;
+	const Matrix<bool> &definition_matrix;
+	const vector<int> (&coords)[2];
+};
+
+struct OuterRangeGraph
+{
+	const vector<Range> &path;
+	const Matrix<bool> &definition_matrix;
+	const vector<int> (&coords)[2];
+};
+
+uint64_t serialize(const InnerRange& ir)
+{
+	uint64_t u = *(uint64_t*)&ir;
+	u += 1;
+	return u;
+}
+
+InnerRange parse_ir(uint64_t u)
+{
+	u -= 1;
+	return *(InnerRange*)&u;
+}
+
+
+void print(const vector<Polyline>& polylines, string& serialized)
+{
+	char buffer[100 * 1024];
+	int pos = 0;
+	
+	pos += sprintf(buffer + pos, "\t\t/*polylines*/ {\n");
+	for (const Polyline& polyline : polylines)
+	{
+		pos += sprintf(buffer + pos, "\t\t\t{\n");
+		pos += sprintf(buffer + pos, "\t\t\t\t/*from*/%d,\n", polyline.from);
+		pos += sprintf(buffer + pos, "\t\t\t\t/*to*/%d,\n", polyline.to);
+		pos += sprintf(buffer + pos, "\t\t\t\t/*data*/{");
+		
+		for (const Point& p : polyline.data)
+		{
+			pos += sprintf(buffer + pos, "{%d, %d},", p.x, p.y);
+		}
+		pos--;
+		pos += sprintf(buffer + pos, "}\n");
+		pos += sprintf(buffer + pos, "\t\t\t},\n");
+	}
+	pos += sprintf(buffer + pos, "\t\t}\n");
+	serialized = buffer;
+}
+
+void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
+{
+	char buffer[100 * 1024];
+	int pos = 0;
+	const char* dir[2] = { "HORIZONTAL", "VERTICAL"};
+	const char* way[3] = {"DECREASE",0,"INCREASE"};
+	
+	pos += sprintf(buffer + pos, "\t\t/*faiceau output*/{\n");
+	
+	for (const FaiceauOutput& faiceau : faiceau_output)
+	{
+		pos += sprintf(buffer + pos, "\t\t\t{\n");
+		pos += sprintf(buffer + pos, "\t\t\t\t/*targets*/{\n");
+		
+		for (const Target& target : faiceau.targets)
+		{
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{\n");
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*from*/%d,\n", target.from);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", target.to);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*expected path*/{\n");
+			
+			for (const Maille& m : target.expected_path)
+			{
+				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %d, %d},\n", dir[m.direction], way[1+m.way], m.value, m.other);
+			}
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t}\n");
+			pos += sprintf(buffer + pos, "\t\t\t\t\t}\n");
+		}
+		
+		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
+		
+		pos += sprintf(buffer + pos, "\t\t\t\t/*enlarged*/{\n");
+	//TODO: use destructuring
+		for (const pair<Maille, Range>& p : faiceau.enlarged)
+		{
+			Maille m;
+			Range r;
+			tie(m, r) = p;
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way[1+m.way], m.value, m.other, dir[r.direction], way[1+r.way], r.value, r.min, r.max);
+		}
+		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
+		
+		pos += sprintf(buffer + pos, "\t\t\t},\n");
+	}
+	
+	pos += sprintf(buffer + pos, "\t\t}\n");
+	
+	serialized = buffer;
+}
+
+//TODO: use destructuring when it is available
+
+size_t adj_list(const Graph& graph, uint64_t u, Edge (&adj)[3])
+{
+	const int TURN_PENALTY = 1;
+	const Matrix<bool> & definition_matrix = graph.definition_matrix;
+	const vector<int> (&coords)[2] = graph.coords;
+	
+	Maille r = parse(u);
+	
+	size_t size = 0;
+	
+	Maille next = r;
+	next.value += next.way;
+	
+	if (definition_matrix(next))
+	{
+		uint64_t v = serialize(next);
+		int distance = 0;
+		for (Maille* m : {&r, &next})
+		{
+			auto& tab = coords[m->direction];
+			distance += tab[m->value+1] - tab[m->value];
+		}
+		adj[size++] = {u, v, distance};
+	}
+	
+	for (Way way : { DECREASE, INCREASE})
+	{
+		Maille next = r;
+		next.direction = other(r.direction);
+		next.way = way;
+		swap(next.value, next.other);
+		
+		if (definition_matrix(next))
+		{
+			uint64_t v = serialize(next);
+			adj[size++] = { u, v, TURN_PENALTY };
+		}
+	}
+	
+	return size;
+}
+
+
+int compute_distance(const InnerRange &next, const vector<Range>& path, const vector<int> (&coords)[2])
+{
+	const int FACTOR = 1000 * 100;
+	const Range& next_r = path[next.range_index];
+	auto& tab1 = coords[next_r.direction];
+	float num = tab1[next_r.value + 1] - tab1[next_r.value];
+	auto& tab2 = coords[1 - next_r.direction];
+	float denom = 1 + tab2[next.max+1] - tab2[next.min];
+	int distance = num * FACTOR / denom;
+	return distance;
+}
+
+template <typename Graph>
+vector<Edge> adj_list(const Graph& graph, uint64_t u)
+{
+	static_assert(is_same<Graph, InnerRangeGraph>::value || is_same<Graph, OuterRangeGraph>::value, "");
+	
+//TODO: use destructuring
+	const Matrix<bool>& definition_matrix = graph.definition_matrix;
+	const vector<Range>& path = graph.path;
+	const vector<int> (&coords)[2] = graph.coords;
+	
+	Rect rec = {0,0,0,0};
+	
+	InnerRange ir = parse_ir(u);
+	
+	vector<Edge> adj;
+	
+	if (ir.range_index + 1 == path.size())
+		return adj;
+	
+	if (path[ir.range_index + 1].direction == path[ir.range_index].direction)
+	{
+		InnerRange next = ir;
+		next.range_index++;
+		uint64_t v = serialize(next);
+		adj.push_back({ u, v, compute_distance(next, path, coords)});
+	}
+	else
+	{
+		const Range& r = path[ir.range_index];
+		
+		rec = intersection(rec, RectBand{ r.direction, ir.min, ir.max });
+		
+		const Range& next_r = path[ir.range_index+1];
+		
+		struct Bound
+		{
+			int min, max;
+		};
+		
+		vector<Bound> bounds;
+		
+	//TODO: use C++17 constexpr if
+		if (is_same<Graph, InnerRangeGraph>::value)
+		{
+			for (int16_t min = next_r.min; min <= next_r.max; min++)
+			{
+				for (int16_t max = min; max <= next_r.max; max++)
+				{
+					bounds.push_back({ min, max});
+				}
+			}
+		}
+		if (is_same<Graph, OuterRangeGraph>::value)
+		{
+			bounds.push_back({ next_r.min, next_r.max });
+		}
+	
+		for (const Bound& bound : bounds)
+		{
+			int min = bound.min;
+			int max = bound.max;
+			
+			rec = intersection(rec, RectBand{ next_r.direction, min, max});
+				
+			bool detect = false;
+			for (int i = rec.left; i <= rec.right; i++)
+			{
+				for (int j = rec.top; j <= rec.bottom; j++)
+				{
+				//detect si n'est pas definie
+					detect |= !definition_matrix(i, j);
+				}
+			}
+			if (!detect)
+			{
+				InnerRange next = { min, max, ir.range_index + 1 };
+				uint64_t v = serialize(next);
+				adj.push_back({ u, v, compute_distance(next, path, coords) });
+			}
+		}
+	}
+	
+	return adj;
+}
+
+
+int binary_search(const vector<int>& v, int val)
+{
+	return distance(begin(v), lower_bound(begin(v), end(v), val));
+}
+
+
+//TODO: use destructuring
+Rect index(const vector<int>(&coords)[2], const Rect& r)
+{
+	uint16_t left = binary_search(coords[HORIZONTAL], r.left);
+	uint16_t right = binary_search(coords[HORIZONTAL], r.right);
+	uint16_t top = binary_search(coords[VERTICAL], r.top);
+	uint16_t bottom = binary_search(coords[VERTICAL], r.bottom);
+	
+	return { left, right - 1, top, bottom-1 };
+}
+
+
+Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<int> (&coords)[2])
+{
+	Matrix<bool> m(coords[0].size() - 1, coords[1].size() - 1, true);
+	for (const Rect& r : rects)
+	{
+//TODO: use destructuring
+		Rect ir = index(coords, r);
+		int left = ir.left, right = ir.right, top = ir.top, bottom = ir.bottom;
+		
+		for (int i = left; i <= right; i++)
+		{
+			for (int j = top; j <= bottom; j++)
+			{
+				m(i,j) = false;
+			}
+		}
+	}
+	
+	return m;
+}
+
+Way input_output(InputOutputSwitch input_output_switch, Way normale)
+{
+	switch (input_output_switch)
+	{
+	case INPUT:
+		return Way(-normale);
+	case OUTPUT:
+		return Way(normale);
+	}
+}
+
+
+unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matrix<bool>& definition_matrix, const Rect& r, InputOutputSwitch ioswitch)
+{
+	unordered_set<Maille> result;
+	
+//TODO: use destructuring
+	Rect ir = index(coords, r);
+	int16_t left = ir.left, right = ir.right, top = ir.top, bottom = ir.bottom;
+	
+	for (int16_t i = left; i <= right; i++)
+	{
+		if (top > 1)
+			result.insert({VERTICAL, input_output(ioswitch, DECREASE), top-1, i});
+		if (bottom + 1 < coords[VERTICAL].size())
+			result.insert({VERTICAL, input_output(ioswitch, INCREASE), bottom+1, i});
+	}
+	
+	for (int16_t j = top; j <= bottom; j++)
+	{
+		if (left > 1)
+			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), left-1,j});
+		if (right+1 < coords[HORIZONTAL].size())
+			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), right+1, j});
+	}
+	
+	unordered_set<uint64_t> defined;
+	
+	for (const Maille& m : result)
+	{
+		if (definition_matrix(m))
+			defined.insert(serialize(m));
+	}
+	return defined;
+}
+
+void add_rect(vector<int>(&coords)[2], const Rect& r, int nblink=1)
+{
+	if (nblink == 0)
+		nblink = 1;
+	for (int i=0; i <= nblink; i++)
+	{
+		coords[HORIZONTAL].push_back(r.left + i * (r.right - r.left) / nblink);
+		coords[VERTICAL].push_back(r.top + i * (r.bottom - r.top) / nblink);
+	}
+}
+
+template <typename GraphStruct>
+void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance, 
+				unordered_map<uint64_t,int> &distance, unordered_map<uint64_t, Edge> & predecessor)
+{
+	struct QueuedEdge
+	{
+		uint64_t u,v;
+		int weight;
+		int distance_v;
+	};
+	
+	distance[0] = 0;
+	
+	vector<QueuedEdge> Q;
+	
+	auto order = [](QueuedEdge& e1, QueuedEdge& e2){return e1.distance_v > e2.distance_v;};
+	
+	for (uint64_t u : source_nodes)
+	{
+		int distance_v = source_node_distance.count(u) ? source_node_distance.at(u) : 0;
+		int weight = distance_v;
+		Q.push_back({ 0, u, weight, distance_v});
+		push_heap(begin(Q), end(Q), order);
+	}
+	
+	while (!Q.empty())
+	{
+		pop_heap(begin(Q), end(Q), order);
+	//TODO: use C++17 destructuring
+		QueuedEdge queued_edge = Q.back();
+		Q.pop_back();
+		
+		if (distance.count(queued_edge.v)==0 || queued_edge.distance_v < distance.at(queued_edge.v))
+		{
+			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
+			distance[queued_edge.v] = queued_edge.distance_v;
+			
+			for (const Edge& adj_edge : adj_list(graph, queued_edge.v))
+			{
+				int distance_v = distance.at(adj_edge.u) + adj_edge.weight;
+				if (distance.count(adj_edge.v) == 0 || distance_v < distance.at(adj_edge.v))
+				{
+					Q.push_back({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
+					push_heap(begin(Q), end(Q), order);
+				}
+			}
+		}
+	}
+}
+
+
+template <typename GraphStruct>
+void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance,
+	vector<int> &distance, vector<Edge> & predecessor)
+{
+	struct QueuedEdge
+	{
+		uint64_t u, v;
+		int weight;
+		int distance_v;
+	};
+
+	Edge adj_edges[3];
+
+	distance[0] = 0;
+
+	vector<QueuedEdge> Q;
+
+	auto order = [](QueuedEdge& e1, QueuedEdge& e2) {return e1.distance_v > e2.distance_v; };
+
+	for (uint64_t u : source_nodes)
+	{
+		int distance_v = source_node_distance.count(u) ? source_node_distance.at(u) : 0;
+		int weight = distance_v;
+		Q.push_back({ 0, u, weight, distance_v });
+		push_heap(begin(Q), end(Q), order);
+	}
+
+	while (!Q.empty())
+	{
+		pop_heap(begin(Q), end(Q), order);
+		//TODO: use C++17 destructuring
+		QueuedEdge queued_edge = Q.back();
+		Q.pop_back();
+
+		if (queued_edge.distance_v < distance.at(queued_edge.v))
+		{
+			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight };
+			distance[queued_edge.v] = queued_edge.distance_v;
+
+			size_t size = adj_list(graph, queued_edge.v, adj_edges);
+			for (int i=0; i < size; i++)
+			{
+				const Edge& adj_edge = adj_edges[i];
+				int distance_v = distance.at(adj_edge.u) + adj_edge.weight;
+				if (distance_v < distance.at(adj_edge.v))
+				{
+					Q.push_back({ adj_edge.u, adj_edge.v, adj_edge.weight, distance_v });
+					push_heap(begin(Q), end(Q), order);
+				}
+			}
+		}
+	}
+}
+
+
+void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
+								const unordered_set<uint64_t> &target_nodes,
+								vector<int> &distance,
+								const vector<Edge> &predecessor,
+								vector<uint64_t> &target_candidates)
+{	
+	uint64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](uint64_t u, uint64_t v){return distance.at(u) < distance.at(v);});
+	int min_distance = distance.at(u);
+	
+	for (uint64_t v : target_nodes)
+	{
+		if (distance.at(v) == distance.at(u))
+			target_candidates.push_back(v);
+	}
+}
+
+vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
+{
+	vector<Maille> result;
+	for (const Edge& edge : optimal_path)
+		result.push_back(parse(edge.v));
+	return result;
+}
+
+vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
+{
+	vector<Range> result;
+	
+	for (int i=0; i < path.size();)
+	{
+		vector<int> index_range;
+		
+		int j = i;
+		while (j < path.size() && path[i].direction == path[j].direction)
+		{
+			index_range.push_back(j);
+			j++;
+		}
+		
+	//TODO: use destructuring
+	
+		vector<Range> ranges;
+		for (int k = i; k < j; k++)
+		{
+			const Range &r = path[k];
+			ranges.push_back(r);
+		}
+		
+		for (Way way : {DECREASE, INCREASE})
+		{
+			int other;
+			if (all_of(begin(index_range), end(index_range), [&](int k){
+				
+				other = path[k][way] + way;
+				
+				switch (path[i].direction)
+				{
+				case HORIZONTAL:
+					return 0 <= path[k].min + way && path[k].max + way < m._m && m(path[k].value, other);
+				case VERTICAL:
+					return 0 <= path[k].min + way && path[k].max + way < m._n && m(other, path[k].value);
+				}
+			}))
+			{
+				for (Range &r : ranges)
+				{
+					(way > 0 ? r.max : r.min) = other;
+				}
+			}
+		}
+		
+		if (i == 0)
+		{
+			for (Range &r : ranges)
+			{
+				r = intersection(r, rectband(rfrom, path[i].direction));
+			}
+		}
+		
+		if (j == path.size())
+		{
+			for (Range &r : ranges)
+			{
+				r = intersection(r, rectband(rto, path[i].direction));
+			}
+		}
+		
+		for (Range &r : ranges)
+			result.push_back(r);
+		
+		i = j;
+	}
+	
+	assert(path.size() == result.size());
+	return result;
+}
+
+Range range(const Maille& m)
+{
+	return { m.direction, m.way, m.value, m.other, m.other};
+}
+
+
+vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
+{
+	const vector<Range> &ranges = graph.path;
+	const Matrix<bool> &definition_matrix = graph.definition_matrix;
+	const vector<int>(&coords)[2] = graph.coords;
+	
+	unordered_set<uint64_t> source_nodes;
+	unordered_map<uint64_t, int> distance;
+	unordered_map<uint64_t, Edge> predecessor;
+	const Range &r = ranges.front();
+	for (int16_t min = r.min; min <= r.max; min++)
+	{
+		for (int16_t max = min; max <= r.max; max++)
+		{
+			InnerRange ir = {min, max, 0};
+			source_nodes.insert(serialize(ir));
+		}
+	}
+	unordered_map<uint64_t, int> source_node_distance;
+	for (uint64_t u : source_nodes)
+	{
+		source_node_distance[u] = compute_distance(parse_ir(u), ranges, coords);
+	}
+	dijkstra(InnerRangeGraph{ranges, definition_matrix, coords}, source_nodes, source_node_distance, distance, predecessor);
+	vector<uint64_t> target_nodes;
+//TODO: use destructuring
+	for (auto& p : distance)
+	{
+		int64_t u = p.first;
+		InnerRange ir = parse_ir(u);
+		if (ir.range_index + 1 == ranges.size())
+			target_nodes.push_back(u);
+	}
+	int64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](int64_t u, int64_t v){return distance.at(u) < distance.at(v); });
+	vector<Range> inner_ranges;
+	while (u)
+	{
+		InnerRange ir = parse_ir(u);
+		const Range& r = ranges[ir.range_index];
+		inner_ranges.push_back({r.direction, r.way, r.value, ir.min, ir.max});
+		Edge& edge = predecessor.at(u);
+		assert(edge.v == u);
+		u = edge.u;
+	}
+	reverse(begin(inner_ranges), end(inner_ranges));
+	return inner_ranges;
+}
+
+bool connect_outer_ranges(const OuterRangeGraph& graph)
+{
+	unordered_set<uint64_t> source_nodes;
+	unordered_map<uint64_t, int> distance;
+	unordered_map<uint64_t, Edge> predecessor;
+	
+	const vector<Range> &path = graph.path;
+	const Range &r = path.front();
+	
+	InnerRange ir = {r.min, r.max, 0};
+	source_nodes.insert(serialize(ir));
+	unordered_map<uint64_t, int> source_node_distance;
+	
+	dijkstra(graph, source_nodes, source_node_distance, distance, predecessor);
+	vector<uint64_t> target_nodes;
+	//TODO: use destructuring
+	for (auto& p : distance)
+	{
+		int64_t u = p.first;
+		InnerRange ir = parse_ir(u);
+		if (ir.range_index + 1 == path.size())
+			target_nodes.push_back(u);
+	}
+	return !target_nodes.empty();
+}
+
+vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range>& path)
+{
+	vector<Range> compact_path;
+	
+	for (int i=0; i < path.size(); i++)
+	{
+		if (i==0 || i + 1 == path.size() || path[i].direction != path[i-1].direction)
+			compact_path.push_back(path[i]);
+	}
+	
+	vector<Point> polyline;
+	Point p;
+	
+	Range r = compact_path.front();
+	
+	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
+	
+	for (Range& r : compact_path)
+	{
+		Direction direction = other(r.direction);
+		auto& tab = coords[direction];
+		p[direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+		polyline.push_back(p);
+	}
+	
+	r = compact_path.back();
+	
+	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value : r.value + 1];
+	
+	polyline.push_back(p);
+	
+	auto it = unique(begin(polyline), end(polyline));
+	int n = distance(begin(polyline), it);
+	polyline.resize(n);
+	
+	return polyline;
+}
+
+int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint64_t> >& target_candidates, const vector<Edge>& predecessor)
+{
+	unordered_map<uint64_t, int> hit_count;
+	for (const Link& link : adj_links)
+	{
+		for (uint64_t u : target_candidates.at(link.to))
+		{
+			while (u != 0)
+			{
+				hit_count[u]++;
+				u = predecessor.at(u).u;
+			}
+		}
+	}
+	
+	int n=0;
+//TODO: use C++17 destructuring
+	for (auto p : hit_count)
+	{
+		int c = p.second;
+		if (c >= 2)
+			n += c;
+	}
+	
+	return n;
+}
+
+
+string polyline2json(const vector<Polyline>& polylines)
+{
+	char buffer[10 * 1024];
+	int pos = 0;
+	
+	pos += sprintf(buffer + pos, "[");
+	
+//TODO: use C++17 destructuring
+	for (const Polyline& polyline : polylines)
+	{
+		pos += sprintf(buffer + pos, "{\"polyline\":[");
+//TODO: use C++17 destructuring
+		for (const Point& p : polyline.data)
+		{
+			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", p.x, p.y);
+		}
+		pos--;
+		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},", polyline.from, polyline.to);
+	}
+	
+	pos--;
+	pos += sprintf(buffer + pos, "]");
+	
+	return buffer;
+}
+
+
+const TestContext contexts[] = {
+/*
+                        +-----+
+                        |  1  |
+                        +-----+
+
+ +-----+                +-----+
+ |  0  |                |  2  |
+ +-----+                +-----+
+
+                        +-----+
+                        |  3  |
+                        +-----+
+*/
+{
+    /*testid*/0,
+    /*rectangles*/{
+        {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
+        {/*left*/80,/*right*/100,/*top*/20,/*bottom*/30 },
+        {/*left*/80,/*right*/100,/*top*/40,/*bottom*/60 },
+        {/*left*/80,/*right*/100,/*top*/70,/*bottom*/80 }
+    },
+    /*frame*/{ 0, 120, 0, 100 },
+    /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/2},{/*source*/0,/*target*/3}},
+    /*faiceau output*/{
+     {
+	/*target*/{
+            {
+		/*from*/0,
+		/*to*/1,
+		/*expected path*/{
+                    {HORIZONTAL, INCREASE, 4, 3},
+                    {VERTICAL, DECREASE, 3, 4},
+                    {VERTICAL, DECREASE, 2, 4},
+                    {VERTICAL, DECREASE, 1, 4},
+                    {HORIZONTAL, INCREASE, 4, 1}
+                }
+            },
+            {
+		/*from*/0,
+		/*to*/2,
+		/*expected path*/{
+                    {HORIZONTAL, INCREASE, 4, 4}
+		}
+            },
+            {
+		/*from*/0,
+		/*to*/3,
+		/*expected path*/{
+                    {HORIZONTAL, INCREASE, 4, 5},
+                    {VERTICAL, INCREASE, 5, 4},
+                    {VERTICAL, INCREASE, 6, 4},
+                    {VERTICAL, INCREASE, 7, 4},
+                    {HORIZONTAL, INCREASE, 4, 7}
+		}
+	   }
+        },
+        /*enlarged*/{
+        }
+     }
+    },
+    /*polylines*/{
+          		{
+				/*from*/0,
+				/*to*/1,
+				/*data*/{ { 30, 43 }, {55, 43}, {55, 25}, {80, 25} }
+			},
+			{
+				/*from*/0,
+				/*to*/2,
+				/*data*/{{30, 49},{80,49 } }
+			},
+			{
+				/*from*/0,
+				/*to*/3,
+				/*data*/{{30,56},{55,56},{55,75},{80,75}}
+			}
+       }
+},
+
+/*
+              +-------------+
+   +----+     |             |
+   | 2  |     |      0      |
+   +----+     |             |
+              +-------------+
+
+
+
+              +-------------+
+              |             |
+              |      1      |
+              |             |
+              +-------------+
+
+  +----------------+
+  |                |
+  |       3        |
+  |                |
+  +----------------+
+*/
+
+{
+ /*testid*/1,
+ /*rectangles*/{
+ {/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
+ {/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
+ {/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
+ {/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+ },
+ /*frame*/{ 0, 55, 0, 100 },
+ /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
+       /*faiceau output*/{
+			{
+				/*targets*/{
+					{
+						/*from*/0,
+						/*to*/1,
+						/*expected path*/{
+							{VERTICAL, INCREASE, 4, 5}
+						}
+					},
+					{
+						/*from*/0,
+						/*to*/3,
+						/*expected path*/{
+							{ VERTICAL, INCREASE, 4, 4 },
+							{ HORIZONTAL, DECREASE, 4, 4 },
+							{ HORIZONTAL, DECREASE, 3, 4 },
+							{ VERTICAL, INCREASE, 4, 3 },
+							{ VERTICAL, INCREASE, 5, 3 },
+							{ VERTICAL, INCREASE, 6, 3 }
+						}
+					}
+				},
+				/*enlarged*/{
+					{ { VERTICAL, INCREASE, 4, 5 },{ VERTICAL, INCREASE, 4, 5, 6} },
+					{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE, 4, 1, 3} },
+					{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE, 5, 1, 3} },
+					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE, 6, 1, 3 } }
+				}
+			}
+        },
+       /*polylines*/{
+			{
+				/*from*/0,
+				/*to*/1,
+				/*data*/{ { 37, 35 },{ 37, 45} }
+			},
+			{
+				/*from*/0,
+				/*to*/3,
+				/*data*/{ { 27, 35 },{ 27, 40 },{ 14, 40 }, { 14, 70} }
+			}
+		}
+},
+/*
+                +-------------+
+    +----+      |             |
+    | 2  |      |     0       |
+    +----+      |             |
+                +-------------+
+
+
+
+                +-------------+
+                |             |
+                |     1       |
+                |             |
+                +-------------+
+
+ +----------------+
+ |                |
+ |      3         |
+ |                |
+ +----------------+
+*/
+{
+ /*testid*/2,
+ /*rectangles*/{
+ {/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
+ {/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
+ {/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
+ {/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+ },
+ /*frame*/{ 0, 55, 0, 100 },
+ /*links*/{{/*source*/3,/*target*/0}},
+		/*faiceau output*/{
+			{
+			/*targets*/{
+				{
+					/*from*/0,
+					/*to*/3,
+					/*expected path*/{
+						{ VERTICAL, INCREASE, 4, 4 },
+						{ HORIZONTAL, DECREASE, 4, 4 },
+						{ HORIZONTAL, DECREASE, 3, 4 },
+						{ VERTICAL, INCREASE, 4, 3 },
+						{ VERTICAL, INCREASE, 5, 3 },
+						{ VERTICAL, INCREASE, 6, 3 }
+					}
+				}	
+			},
+			/*enlarged*/{
+				{ { VERTICAL, INCREASE, 4, 4 },{ VERTICAL, INCREASE,4,4,5 } },
+				{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
+				{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE,5,1,3 } },
+				{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } }
+				}
+			}
+		},
+		/*polylines*/{
+			{
+				/*from*/3,
+				/*to*/0,
+				/*data*/{ { 14, 70 },{ 14, 40 }, { 35, 40 },{ 35, 35} }
+			}
+		}
+},
+/*
+                         +------+
+            +------+     |      |
+            |      |     |      |
+            |  2   |     |  6   |
+            |      |     |      |    +-----------------+
+            |      |     |      |    |                 |    +------+
+            +------+     +------+    |                 |    |      |
+                                     |       14        |    |  12  |
+  +-----------------------------+    |                 |    +------+
+  |                             |    +-----------------+
+  |             5               |                           +-------------------+
+  |                             |    +---------------+      |                   |
+  +-----------------------------+    |       0       |      |         1         |
+                                     |               |      |                   |
+      +-----------+   +---------+    +---------------+      +-------------------+
+      |           |   |         |
+      |    17     |   |    7    |    +------------+
+      |           |   |         |    |            |
+      +-----------+   +---------+    |            |
+                                     |            |    +------------------+
+        +-----+   +-------------+    |     3      |    |                  |
+        |     |   |             |    |            |    |        4         |
+        |  18 |   |      16     |    |            |    |                  |
+        |     |   |             |    +------------+    +------------------+
+        +-----+   +-------------+
+                                     +------------------------+   +------------+
+                    +-----------+    |                        |   |            |
+                    |           |    |                        |   |            |
+  +------------+    |           |    |           19           |   |     11     |
+  |            |    |    10     |    |                        |   |            |
+  |     15     |    |           |    |                        |   |            |
+  +------------+    |           |    |                        |   |            |
+                    +-----------+    +------------------------+   +------------+
+  +--------------+
+  |              |  +-------------------------+                   +-------+
+  |       9      |  |                         |                   |       |
+  |              |  |           8             |                   |   13  |
+  |              |  |                         |                   |       |
+  +--------------+  +-------------------------+                   +-------+
+*/
+
+{
+ /*testid*/3,
+ /*rectangles*/{
+ /*0*/{/*left*/329,/*right*/141 + 329,/*top*/250,/*bottom*/40 + 250 },
+ /*1*/{/*left*/523,/*right*/162 + 523,/*top*/235,/*bottom*/56 + 235 },
+ /*2*/{/*left*/114,/*right*/64 + 114,/*top*/42,/*bottom*/104 + 42 },
+ /*3*/{/*left*/329,/*right*/120 + 329,/*top*/330,/*bottom*/120 + 330 },
+ /*4*/{/*left*/489,/*right*/141 + 489,/*top*/394,/*bottom*/56 + 394 },
+ /*5*/{/*left*/22,/*right*/267 + 22,/*top*/186,/*bottom*/72 + 186 },
+ /*6*/{/*left*/218,/*right*/71 + 218,/*top*/10,/*bottom*/136 + 10 },
+ /*7*/{/*left*/211,/*right*/78 + 211,/*top*/298,/*bottom*/72 + 298 },
+ /*8*/{/*left*/183,/*right*/211 + 183,/*top*/650,/*bottom*/72 + 650 },
+ /*9*/{/*left*/10,/*right*/133 + 10,/*top*/634,/*bottom*/88 + 634 },
+ /*10*/{/*left*/183,/*right*/106 + 183,/*top*/506,/*bottom*/104 + 506 },
+ /*11*/{/*left*/565,/*right*/105 + 565,/*top*/490,/*bottom*/120 + 490 },
+ /*12*/{/*left*/523,/*right*/57 + 523,/*top*/139,/*bottom*/56 + 139 },
+ /*13*/{/*left*/564,/*right*/63 + 564,/*top*/650,/*bottom*/72 + 650 },
+ /*14*/{/*left*/329,/*right*/154 + 329,/*top*/122,/*bottom*/88 + 122 },
+ /*15*/{/*left*/10,/*right*/98 + 10,/*top*/538,/*bottom*/56 + 538 },
+ /*16*/{/*left*/177,/*right*/112 + 177,/*top*/410,/*bottom*/56 + 410 },
+ /*17*/{/*left*/59,/*right*/112 + 59,/*top*/298,/*bottom*/72 + 298 },
+ /*18*/{/*left*/87,/*right*/50 + 87,/*top*/410,/*bottom*/56 + 410 },
+ /*19*/{/*left*/329,/*right*/196 + 329,/*top*/490,/*bottom*/120 + 490 }
+ },
+ /*frame*/{ 0, 707, 0, 744 },
+ /*links*/{
+ {/*source*/1, /*target*/14 },
+ {/*source*/2, /*target*/14 },
+ {/*source*/2, /*target*/5 },
+ {/*source*/3, /*target*/4 },
+ {/*source*/5, /*target*/17 },
+ {/*source*/6, /*target*/14 },
+ {/*source*/6, /*target*/5 },
+ {/*source*/7, /*target*/0 },
+ {/*source*/7, /*target*/16 },
+ {/*source*/8, /*target*/9 },
+ {/*source*/9, /*target*/15 },
+ {/*source*/10, /*target*/18 },
+ {/*source*/10, /*target*/16 },
+ {/*source*/10, /*target*/9 },
+ {/*source*/11, /*target*/13 },
+ {/*source*/12, /*target*/14 },
+ {/*source*/14, /*target*/7 },
+ {/*source*/16, /*target*/3 },
+ {/*source*/17, /*target*/7 },
+ {/*source*/19, /*target*/10 },
+ {/*source*/19, /*target*/7 },
+ {/*source*/19, /*target*/8 },
+ {/*source*/19, /*target*/11 }
+ },
+		/*faiceau output*/{
+			{
+				/*targets*/{
+					{
+						/*from*/7,
+						/*to*/0,
+						/*expected path*/{
+							{HORIZONTAL, INCREASE, 32, 20},
+							{VERTICAL, DECREASE, 20, 32},
+							{VERTICAL, DECREASE, 19, 32},
+							{VERTICAL, DECREASE, 18, 32},
+							{VERTICAL, DECREASE, 17, 32},
+							{HORIZONTAL, INCREASE, 32, 17}
+						}
+					},
+					{
+						/*from*/7,
+						/*to*/16,
+						/*expected path*/{
+							{VERTICAL,INCREASE, 27, 28},
+							{VERTICAL,INCREASE, 28, 28},
+							{VERTICAL,INCREASE, 29, 28}
+						}
+					},
+					{
+						/*from*/7,
+						/*to*/14,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE, 32, 20},
+							{VERTICAL,DECREASE, 20, 32},
+							{VERTICAL,DECREASE, 19, 32},
+							{VERTICAL,DECREASE, 18, 32},
+							{VERTICAL,DECREASE, 17, 32},
+							{VERTICAL,DECREASE, 16, 32},
+							{VERTICAL,DECREASE, 15, 32},
+							{VERTICAL,DECREASE, 14, 32},
+							{VERTICAL,DECREASE, 13, 32},
+							{VERTICAL,DECREASE, 12, 32},
+							{HORIZONTAL,INCREASE,32,12}
+						}
+					},
+					{
+						/*from*/7,
+						/*to*/17,
+						/*expected path*/{
+							{HORIZONTAL, DECREASE, 19, 21},
+							{HORIZONTAL, DECREASE, 18, 21},
+							{HORIZONTAL, DECREASE, 17, 21},
+							{HORIZONTAL, DECREASE, 16, 21},
+							{HORIZONTAL, DECREASE, 15, 21},
+							{HORIZONTAL, DECREASE, 14, 21}
+						}
+					},
+					{
+						/*from*/7,
+						/*to*/19,
+						/*expected path*/{
+							{HORIZONTAL, INCREASE, 32, 26},
+							{VERTICAL, INCREASE, 26, 32},
+							{VERTICAL, INCREASE, 27, 32},
+							{VERTICAL, INCREASE, 28, 32},
+							{VERTICAL, INCREASE, 29, 32},
+							{VERTICAL, INCREASE, 30, 32},
+							{VERTICAL, INCREASE, 31, 32},
+							{VERTICAL, INCREASE, 32, 32},
+							{VERTICAL, INCREASE, 33, 32},
+							{VERTICAL, INCREASE, 34, 32},
+							{VERTICAL, INCREASE, 35, 32},
+							{HORIZONTAL, INCREASE, 32,35}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL, INCREASE,32,12},{HORIZONTAL, INCREASE,32,5,12}},
+					{{HORIZONTAL,INCREASE,32,20},{HORIZONTAL,INCREASE,32,20,24}},
+					{{VERTICAL,INCREASE,27,28},{VERTICAL,INCREASE,27,20,31}},
+					{{HORIZONTAL,DECREASE,17,21},{HORIZONTAL,DECREASE,17,20,26}},
+					{{VERTICAL,INCREASE,28,28},{VERTICAL,INCREASE,28,20,31}},
+					{{HORIZONTAL,INCREASE,32,26},{HORIZONTAL,INCREASE,32,25,26}},
+					{{HORIZONTAL,DECREASE,16,21},{HORIZONTAL,DECREASE,16,20,26}},
+					{{VERTICAL,INCREASE,29,28},{VERTICAL,INCREASE,29,20,31}},
+					{{HORIZONTAL,DECREASE,19,21},{HORIZONTAL,DECREASE,19,20,26}},
+					{{HORIZONTAL,DECREASE,18,21},{HORIZONTAL,DECREASE,18,20,26}},
+					{{HORIZONTAL,DECREASE,15,21},{HORIZONTAL,DECREASE,15,20,26}},
+					{{HORIZONTAL,DECREASE,14,21},{HORIZONTAL,DECREASE,14,20,26}},
+					{{HORIZONTAL,INCREASE,32,35},{HORIZONTAL,INCREASE,32,35,44}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/14,
+						/*to*/1,
+						/*expected path*/{
+							{VERTICAL,INCREASE,13,44},
+							{VERTICAL,INCREASE,14,44},
+							{VERTICAL,INCREASE,15,44},
+							{HORIZONTAL,INCREASE,44,15},
+							{HORIZONTAL,INCREASE,45,15},
+							{HORIZONTAL,INCREASE,46,15}
+						}
+					},
+					{
+						/*from*/14,
+						/*to*/2,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,32,7},
+							{HORIZONTAL,DECREASE,31,7},
+							{HORIZONTAL,DECREASE,30,7},
+							{HORIZONTAL,DECREASE,29,7},
+							{HORIZONTAL,DECREASE,28,7},
+							{HORIZONTAL,DECREASE,27,7},
+							{HORIZONTAL,DECREASE,26,7},
+							{HORIZONTAL,DECREASE,25,7},
+							{HORIZONTAL,DECREASE,24,7},
+							{HORIZONTAL,DECREASE,23,7},
+							{HORIZONTAL,DECREASE,22,7},
+							{HORIZONTAL,DECREASE,21,7},
+							{HORIZONTAL,DECREASE,20,7},
+							{HORIZONTAL,DECREASE,19,7},
+							{HORIZONTAL,DECREASE,18,7},
+							{HORIZONTAL,DECREASE,17,7},
+							{HORIZONTAL,DECREASE,16,7},
+							{HORIZONTAL,DECREASE,15,7},
+							{VERTICAL,DECREASE,7,15}
+						}
+					},
+					{
+						/*from*/14,
+						/*to*/6,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,32,6}
+						}
+					},
+					{
+						/*from*/14,
+						/*to*/12,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,45,8},
+							{HORIZONTAL,INCREASE,46,8}
+						}
+					},
+					{
+						/*from*/14,
+						/*to*/7,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,32,12},
+							{VERTICAL,INCREASE,12,32},
+							{VERTICAL,INCREASE,13,32},
+							{VERTICAL,INCREASE,14,32},
+							{VERTICAL,INCREASE,15,32},
+							{VERTICAL,INCREASE,16,32},
+							{VERTICAL,INCREASE,17,32},
+							{VERTICAL,INCREASE,18,32},
+							{VERTICAL,INCREASE,19,32},
+							{VERTICAL,INCREASE,20,32},
+							{HORIZONTAL,DECREASE,32,20}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,DECREASE,18,7},{HORIZONTAL,DECREASE,18,7,9}},
+					{{HORIZONTAL,INCREASE,45,15},{HORIZONTAL,INCREASE,45,15,18}},
+					{{VERTICAL,INCREASE,13,44},{VERTICAL,INCREASE,13,43,44}},
+					{{HORIZONTAL,INCREASE,46,15},{HORIZONTAL,INCREASE,46,15,18}},
+					{{VERTICAL,INCREASE,14,44},{VERTICAL,INCREASE,14,43,44}},
+					{{HORIZONTAL,DECREASE,32,7},{HORIZONTAL,DECREASE,32,7,9}},
+					{{VERTICAL,INCREASE,15,44},{VERTICAL,INCREASE,15,43,44}},
+					{{HORIZONTAL,INCREASE,44,15},{HORIZONTAL,INCREASE,44,15,18}},
+					{{HORIZONTAL,DECREASE,31,7},{HORIZONTAL,DECREASE,31,7,9}},
+					{{HORIZONTAL,DECREASE,30,7},{HORIZONTAL,DECREASE,30,7,9}},
+					{{HORIZONTAL,DECREASE,29,7},{HORIZONTAL,DECREASE,29,7,9}},
+					{{HORIZONTAL,DECREASE,28,7},{HORIZONTAL,DECREASE,28,7,9}},
+					{{HORIZONTAL,DECREASE,27,7},{HORIZONTAL,DECREASE,27,7,9}},
+					{{HORIZONTAL,DECREASE,26,7},{HORIZONTAL,DECREASE,26,7,9}},
+					{{HORIZONTAL,DECREASE,25,7},{HORIZONTAL,DECREASE,25,7,9}},
+					{{VERTICAL,DECREASE,7,15},{VERTICAL,DECREASE,7,9,15}},
+					{{HORIZONTAL,DECREASE,24,7},{HORIZONTAL,DECREASE,24,7,9}},
+					{{HORIZONTAL,DECREASE,23,7},{HORIZONTAL,DECREASE,23,7,9}},
+					{{HORIZONTAL,DECREASE,22,7},{HORIZONTAL,DECREASE,22,7,9}},
+					{{HORIZONTAL,DECREASE,21,7},{HORIZONTAL,DECREASE,21,7,9}},
+					{{HORIZONTAL,DECREASE,20,7},{HORIZONTAL,DECREASE,20,7,9}},
+					{{HORIZONTAL,DECREASE,19,7},{HORIZONTAL,DECREASE,19,7,9}},
+					{{HORIZONTAL,DECREASE,17,7},{HORIZONTAL,DECREASE,17,7,9}},
+					{{HORIZONTAL,DECREASE,16,7},{HORIZONTAL,DECREASE,16,7,9}},
+					{{HORIZONTAL,DECREASE,15,7},{HORIZONTAL,DECREASE,15,7,9}},
+					{{HORIZONTAL,DECREASE,32,6},{HORIZONTAL,DECREASE,32,5,6}},
+					{{HORIZONTAL,INCREASE,45,8},{HORIZONTAL,INCREASE,45,6,11}},
+					{{HORIZONTAL,INCREASE,46,8},{HORIZONTAL,INCREASE,46,6,11}},
+					{{HORIZONTAL,DECREASE,32,12},{HORIZONTAL,DECREASE,32,10,12}},
+					{{HORIZONTAL,DECREASE,32,20},{HORIZONTAL,DECREASE,32,20,26}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/10,
+						/*to*/18,
+						/*expected path*/{
+							{VERTICAL,DECREASE,35,17},
+							{VERTICAL,DECREASE,34,17},
+							{HORIZONTAL,DECREASE,17,34},
+							{HORIZONTAL,DECREASE,16,34},
+							{HORIZONTAL,DECREASE,15,34},
+							{HORIZONTAL,DECREASE,14,34},
+							{HORIZONTAL,DECREASE,13,34},
+							{HORIZONTAL,DECREASE,12,34},
+							{HORIZONTAL,DECREASE,11,34},
+							{HORIZONTAL,DECREASE,10,34},
+							{VERTICAL,DECREASE,34,10}
+						}
+                                        },
+                                        {
+						/*from*/10,
+						/*to*/16,
+						/*expected path*/{
+							{VERTICAL,DECREASE,35,31},
+							{VERTICAL,DECREASE,34,31}
+						}
+					},
+					{
+						/*from*/10,
+						/*to*/9,
+						/*expected path*/{
+							{VERTICAL,INCREASE,45,17},
+							{HORIZONTAL,DECREASE,17,45},
+							{HORIZONTAL,DECREASE,16,45},
+							{HORIZONTAL,DECREASE,15,45},
+							{HORIZONTAL,DECREASE,14,45},
+							{HORIZONTAL,DECREASE,13,45},
+							{HORIZONTAL,DECREASE,12,45},
+							{HORIZONTAL,DECREASE,11,45},
+							{VERTICAL,INCREASE,45,11}
+						}
+					},
+					{
+						/*from*/10,
+						/*to*/19,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,32,36}
+						}
+					}
+				},
+				/*enlarged*/{
+						{{HORIZONTAL,DECREASE,15,34},{HORIZONTAL,DECREASE,15,34,35}},
+						{{VERTICAL,DECREASE,35,17},{VERTICAL,DECREASE,35,17,24}},
+						{{VERTICAL,DECREASE,34,17},{VERTICAL,DECREASE,34,17,24}},
+						{{HORIZONTAL,DECREASE,14,34},{HORIZONTAL,DECREASE,14,34,35}},
+						{{HORIZONTAL,DECREASE,17,34},{HORIZONTAL,DECREASE,17,34,35}},
+						{{HORIZONTAL,DECREASE,16,34},{HORIZONTAL,DECREASE,16,34,35}},
+						{{VERTICAL,DECREASE,34,10},{VERTICAL,DECREASE,34,5,10}},
+						{{HORIZONTAL,DECREASE,13,34},{HORIZONTAL,DECREASE,13,34,35}},
+						{{HORIZONTAL,DECREASE,12,34},{HORIZONTAL,DECREASE,12,34,35}},
+						{{HORIZONTAL,DECREASE,11,34},{HORIZONTAL,DECREASE,11,34,35}},
+						{{HORIZONTAL,DECREASE,10,34},{HORIZONTAL,DECREASE,10,34,35}},
+						{{VERTICAL,DECREASE,35,31},{VERTICAL,DECREASE,35,25,31}},
+						{{VERTICAL,DECREASE,34,31},{VERTICAL,DECREASE,34,25,31}},
+						{{VERTICAL,INCREASE,45,17},{VERTICAL,INCREASE,45,17,31}},
+						{{VERTICAL,INCREASE,45,11},{VERTICAL,INCREASE,45,1,11}},
+						{{HORIZONTAL,INCREASE,32,36},{HORIZONTAL,INCREASE,32,36,44}}
+					}
+				},
+				{
+					/*targets*/{
+						{
+							/*from*/19,
+							/*to*/10,
+							/*expected path*/{
+								{HORIZONTAL,DECREASE,32,43}
+							}
+						},
+						{
+							/*from*/19,
+							/*to*/7,
+							/*expected path*/{
+								{HORIZONTAL,DECREASE,32,35},
+								{VERTICAL,DECREASE,35,32},
+								{VERTICAL,DECREASE,34,32},
+								{VERTICAL,DECREASE,33,32},
+								{VERTICAL,DECREASE,32,32},
+								{VERTICAL,DECREASE,31,32},
+								{VERTICAL,DECREASE,30,32},
+								{VERTICAL,DECREASE,29,32},
+								{VERTICAL,DECREASE,28,32},
+								{VERTICAL,DECREASE,27,32},
+								{VERTICAL,DECREASE,26,32},
+								{HORIZONTAL,DECREASE,32,26}
+							}
+						},
+						{
+							/*from*/19,
+							/*to*/8,
+							/*expected path*/{
+								{VERTICAL,INCREASE,45,33},
+								{VERTICAL,INCREASE,46,33}
+							}
+						},
+						{
+							/*from*/19,
+							/*to*/11,
+							/*expected path*/{
+								{HORIZONTAL,INCREASE,48,40},
+								{HORIZONTAL,INCREASE,49,40}
+							}
+						}
+					},
+					/*enlarged*/{
+						{{VERTICAL,INCREASE,46,33},{VERTICAL,INCREASE,46,33,37}},
+						{{HORIZONTAL,DECREASE,32,35},{HORIZONTAL,DECREASE,32,35,38}},
+						{{HORIZONTAL,DECREASE,32,43},{HORIZONTAL,DECREASE,32,39,44}},
+						{{HORIZONTAL,DECREASE,32,26},{HORIZONTAL,DECREASE,32,20,26}},
+						{{VERTICAL,INCREASE,45,33},{VERTICAL,INCREASE,45,33,37}},
+						{{HORIZONTAL,INCREASE,48,40},{HORIZONTAL,INCREASE,48,35,44}},
+						{{HORIZONTAL,INCREASE,49,40},{HORIZONTAL,INCREASE,49,35,44}}
+					}
+				},
+				{
+					/*targets*/{
+						{
+							/*from*/5,
+							/*to*/2,
+							/*expected path*/{
+								{VERTICAL,DECREASE,9,12},
+								{VERTICAL,DECREASE,8,12},
+								{VERTICAL,DECREASE,7,12}
+							}
+						},
+						{
+							/*from*/5,
+							/*to*/17,
+							/*expected path*/{
+								{VERTICAL,INCREASE,17,4},
+								{VERTICAL,INCREASE,18,4},
+								{VERTICAL,INCREASE,19,4}
+							}
+						},
+						{
+							/*from*/5,
+							/*to*/6,
+							/*expected path*/{
+								{VERTICAL,DECREASE,9,22},
+								{VERTICAL,DECREASE,8,22},
+								{VERTICAL,DECREASE,7,22}
+							}
+						}
+					},
+				   /*enlarged*/{
+					{{VERTICAL,INCREASE,18,4},{VERTICAL,INCREASE,18,4,13}},
+					{{VERTICAL,DECREASE,9,12},{VERTICAL,DECREASE,9,9,15}},
+					{{VERTICAL,INCREASE,19,4},{VERTICAL,INCREASE,19,4,13}},
+					{{VERTICAL,DECREASE,8,12},{VERTICAL,DECREASE,8,9,15}},
+					{{VERTICAL,DECREASE,7,12},{VERTICAL,DECREASE,7,9,15}},
+					{{VERTICAL,DECREASE,8,22},{VERTICAL,DECREASE,8,22,31}},
+					{{VERTICAL,INCREASE,17,4},{VERTICAL,INCREASE,17,4,13}},
+					{{VERTICAL,DECREASE,9,22},{VERTICAL,DECREASE,9,22,31}},
+					{{VERTICAL,DECREASE,7,22},{VERTICAL,DECREASE,7,22,31}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/9,
+						/*to*/8,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,12,49},
+							{HORIZONTAL,INCREASE,13,49},
+							{HORIZONTAL,INCREASE,14,49},
+							{HORIZONTAL,INCREASE,15,49},
+							{HORIZONTAL,INCREASE,16,49}
+						}
+					},
+					{
+						/*from*/9,
+						/*to*/15,
+						/*expected path*/{
+							{VERTICAL,DECREASE,45,1},
+							{VERTICAL,DECREASE,44,1}
+						}
+					},
+					{
+						/*from*/9,
+						/*to*/10,
+						/*expected path*/{
+							{VERTICAL,DECREASE,45,11},
+							{HORIZONTAL,INCREASE,11,45},
+							{HORIZONTAL,INCREASE,12,45},
+							{HORIZONTAL,INCREASE,13,45},
+							{HORIZONTAL,INCREASE,14,45},
+							{HORIZONTAL,INCREASE,15,45},
+							{HORIZONTAL,INCREASE,16,45},
+							{HORIZONTAL,INCREASE,17,45},
+							{VERTICAL,DECREASE,45,17}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{VERTICAL,DECREASE,44,1},{VERTICAL,DECREASE,44,1,6}},
+					{{HORIZONTAL,INCREASE,12,49},{HORIZONTAL,INCREASE,12,47,50}},
+					{{VERTICAL,DECREASE,45,17},{VERTICAL,DECREASE,45,17,31}},
+					{{VERTICAL,DECREASE,45,1},{VERTICAL,DECREASE,45,1,6}},
+					{{HORIZONTAL,INCREASE,13,49},{HORIZONTAL,INCREASE,13,47,50}},
+					{{HORIZONTAL,INCREASE,14,49},{HORIZONTAL,INCREASE,14,47,50}},
+					{{VERTICAL,DECREASE,45,11},{VERTICAL,DECREASE,45,7,11}},
+					{{HORIZONTAL,INCREASE,15,49},{HORIZONTAL,INCREASE,15,47,50}},
+					{{HORIZONTAL,INCREASE,16,49},{HORIZONTAL,INCREASE,16,47,50}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/16,
+						/*to*/7,
+						/*expected path*/{
+							{VERTICAL,DECREASE,29,23},
+							{VERTICAL,DECREASE,28,23},
+							{VERTICAL,DECREASE,27,23}
+						}
+					},
+					{
+						/*from*/16,
+						/*to*/10,
+						/*expected path*/{
+							{VERTICAL,INCREASE,34,17},
+							{VERTICAL,INCREASE,35,17}
+						}
+					},
+					{
+						/*from*/16,
+						/*to*/3,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,32,30}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{VERTICAL,DECREASE,29,23},{VERTICAL,DECREASE,29,20,31}},
+					{{VERTICAL,DECREASE,28,23},{VERTICAL,DECREASE,28,20,31}},
+					{{VERTICAL,DECREASE,27,23},{VERTICAL,DECREASE,27,20,31}},
+					{{VERTICAL,INCREASE,34,17},{VERTICAL,INCREASE,34,17,31}},
+					{{VERTICAL,INCREASE,35,17},{VERTICAL,INCREASE,35,17,31}},
+					{{HORIZONTAL,INCREASE,32,30},{HORIZONTAL,INCREASE,32,30,32}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/2,
+						/*to*/14,
+						/*expected path*/{
+							{VERTICAL,INCREASE,7,15},
+							{HORIZONTAL,INCREASE,15,7},
+							{HORIZONTAL,INCREASE,16,7},
+							{HORIZONTAL,INCREASE,17,7},
+							{HORIZONTAL,INCREASE,18,7},
+							{HORIZONTAL,INCREASE,19,7},
+							{HORIZONTAL,INCREASE,20,7},
+							{HORIZONTAL,INCREASE,21,7},
+							{HORIZONTAL,INCREASE,22,7},
+							{HORIZONTAL,INCREASE,23,7},
+							{HORIZONTAL,INCREASE,24,7},
+							{HORIZONTAL,INCREASE,25,7},
+							{HORIZONTAL,INCREASE,26,7},
+							{HORIZONTAL,INCREASE,27,7},
+							{HORIZONTAL,INCREASE,28,7},
+							{HORIZONTAL,INCREASE,29,7},
+							{HORIZONTAL,INCREASE,30,7},
+							{HORIZONTAL,INCREASE,31,7},
+							{HORIZONTAL,INCREASE,32,7}
+						}
+					},
+					{
+						/*from*/2,
+						/*to*/5,
+						/*expected path*/{
+							{VERTICAL,INCREASE,7,9},
+							{VERTICAL,INCREASE,8,9},
+							{VERTICAL,INCREASE,9,9}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,INCREASE,20,7},{HORIZONTAL,INCREASE,20,7,9}},
+					{{VERTICAL,INCREASE,7,15},{VERTICAL,INCREASE,7,12,15}},
+					{{HORIZONTAL,INCREASE,15,7},{HORIZONTAL,INCREASE,15,7,9}},
+					{{HORIZONTAL,INCREASE,16,7},{HORIZONTAL,INCREASE,16,7,9}},
+					{{HORIZONTAL,INCREASE,17,7},{HORIZONTAL,INCREASE,17,7,9}},
+					{{HORIZONTAL,INCREASE,18,7},{HORIZONTAL,INCREASE,18,7,9}},
+					{{HORIZONTAL,INCREASE,19,7},{HORIZONTAL,INCREASE,19,7,9}},
+					{{VERTICAL,INCREASE,8,9},{VERTICAL,INCREASE,8,9,11}},
+					{{HORIZONTAL,INCREASE,21,7},{HORIZONTAL,INCREASE,21,7,9}},
+					{{HORIZONTAL,INCREASE,22,7},{HORIZONTAL,INCREASE,22,7,9}},
+					{{HORIZONTAL,INCREASE,23,7},{HORIZONTAL,INCREASE,23,7,9}},
+					{{HORIZONTAL,INCREASE,24,7},{HORIZONTAL,INCREASE,24,7,9}},
+					{{HORIZONTAL,INCREASE,25,7},{HORIZONTAL,INCREASE,25,7,9}},
+					{{HORIZONTAL,INCREASE,26,7},{HORIZONTAL,INCREASE,26,7,9}},
+					{{HORIZONTAL,INCREASE,27,7},{HORIZONTAL,INCREASE,27,7,9}},
+					{{HORIZONTAL,INCREASE,28,7},{HORIZONTAL,INCREASE,28,7,9}},
+					{{HORIZONTAL,INCREASE,29,7},{HORIZONTAL,INCREASE,29,7,9}},
+					{{HORIZONTAL,INCREASE,30,7},{HORIZONTAL,INCREASE,30,7,9}},
+					{{HORIZONTAL,INCREASE,31,7},{HORIZONTAL,INCREASE,31,7,9}},
+					{{HORIZONTAL,INCREASE,32,7},{HORIZONTAL,INCREASE,32,7,9}},
+					{{VERTICAL,INCREASE,7,9},{VERTICAL,INCREASE,7,9,11}},
+					{{VERTICAL,INCREASE,9,9},{VERTICAL,INCREASE,9,9,11}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/3,
+						/*to*/4,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,41,29},
+							{HORIZONTAL,INCREASE,42,29},
+							{HORIZONTAL,INCREASE,43,29},
+							{HORIZONTAL,INCREASE,44,29},
+							{HORIZONTAL,INCREASE,45,29}
+						}
+					},
+					{
+						/*from*/3,
+						/*to*/16,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,32,31}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,INCREASE,41,29},{HORIZONTAL,INCREASE,41,29,32}},
+					{{HORIZONTAL,INCREASE,42,29},{HORIZONTAL,INCREASE,42,29,32}},
+					{{HORIZONTAL,INCREASE,43,29},{HORIZONTAL,INCREASE,43,29,32}},
+					{{HORIZONTAL,INCREASE,44,29},{HORIZONTAL,INCREASE,44,29,32}},
+					{{HORIZONTAL,DECREASE,32,31},{HORIZONTAL,DECREASE,32,30,32}},
+					{{HORIZONTAL,INCREASE,45,29},{HORIZONTAL,INCREASE,45,29,32}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/6,
+						/*to*/14,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,32,5}
+						}
+					},
+					{
+						/*from*/6,
+						/*to*/5,
+						/*expected path*/{
+							{VERTICAL,INCREASE,7,22},
+							{VERTICAL,INCREASE,8,22},
+							{VERTICAL,INCREASE,9,22}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{VERTICAL,INCREASE,8,22},{VERTICAL,INCREASE,8,22,31}},
+					{{HORIZONTAL,INCREASE,32,5},{HORIZONTAL,INCREASE,32,5,6}},
+					{{VERTICAL,INCREASE,7,22},{VERTICAL,INCREASE,7,22,31}},
+					{{VERTICAL,INCREASE,9,22},{VERTICAL,INCREASE,9,22,31}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/8,
+						/*to*/9,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,16,47},
+							{HORIZONTAL,DECREASE,15,47},
+							{HORIZONTAL,DECREASE,14,47},
+							{HORIZONTAL,DECREASE,13,47},
+							{HORIZONTAL,DECREASE,12,47}
+						}
+					},
+					{
+						/*from*/8,
+						/*to*/19,
+						/*expected path*/{
+							{VERTICAL,DECREASE,46,33},
+							{VERTICAL,DECREASE,45,33}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,DECREASE,16,47},{HORIZONTAL,DECREASE,16,47,50}},
+					{{VERTICAL,DECREASE,46,33},{VERTICAL,DECREASE,46,33,37}},
+					{{HORIZONTAL,DECREASE,15,47},{HORIZONTAL,DECREASE,15,47,50}},
+					{{HORIZONTAL,DECREASE,14,47},{HORIZONTAL,DECREASE,14,47,50}},
+					{{HORIZONTAL,DECREASE,13,47},{HORIZONTAL,DECREASE,13,47,50}},
+					{{VERTICAL,DECREASE,45,33},{VERTICAL,DECREASE,45,33,37}},
+					{{HORIZONTAL,DECREASE,12,47},{HORIZONTAL,DECREASE,12,47,50}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/11,
+						/*to*/13,
+						/*expected path*/{
+							{ VERTICAL,INCREASE,45,50 },
+							{ VERTICAL,INCREASE,46,50 }
+						}
+					},
+					{
+						/*from*/11,
+						/*to*/19,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,49,35},
+							{HORIZONTAL,DECREASE,48,35}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,DECREASE,48,35},{HORIZONTAL,DECREASE,48,35,44}},
+					{{VERTICAL,INCREASE,45,50},{VERTICAL,INCREASE,45,50,52}},
+					{{VERTICAL,INCREASE,46,50},{VERTICAL,INCREASE,46,50,52}},
+					{{HORIZONTAL,DECREASE,49,35},{HORIZONTAL,DECREASE,49,35,44}}
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/17,
+						/*to*/5,
+						/*expected path*/{
+							{VERTICAL,DECREASE,19,4},
+							{VERTICAL,DECREASE,18,4},
+							{VERTICAL,DECREASE,17,4}
+						}
+					},
+					{
+						/*from*/17,
+						/*to*/7,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,14,23},
+							{HORIZONTAL,INCREASE,15,23},
+							{HORIZONTAL,INCREASE,16,23},
+							{HORIZONTAL,INCREASE,17,23},
+							{HORIZONTAL,INCREASE,18,23},
+							{HORIZONTAL,INCREASE,19,23}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,INCREASE,16,23},{HORIZONTAL,INCREASE,16,20,26}},
+					{{VERTICAL,DECREASE,19,4},{VERTICAL,DECREASE,19,4,13}},
+					{{HORIZONTAL,INCREASE,17,23},{HORIZONTAL,INCREASE,17,20,26}},
+					{{VERTICAL,DECREASE,18,4},{VERTICAL,DECREASE,18,4,13}},
+					{{HORIZONTAL,INCREASE,18,23},{HORIZONTAL,INCREASE,18,20,26}},
+					{{VERTICAL,DECREASE,17,4},{VERTICAL,DECREASE,17,4,13}},
+					{{HORIZONTAL,INCREASE,14,23},{HORIZONTAL,INCREASE,14,20,26}},
+					{{HORIZONTAL,INCREASE,15,23},{HORIZONTAL,INCREASE,15,20,26}},
+					{{HORIZONTAL,INCREASE,19,23},{HORIZONTAL,INCREASE,19,20,26}}
+				}
+			}
+		},
+	
+/*polylines*/ {
+ {
+ /*from*/1,
+ /*to*/14,
+ /*data*/{{523, 263},{476, 263},{476, 210}}
+ },
+ {
+ /*from*/2,
+ /*to*/14,
+ /*data*/{{160, 146},{160, 166},{329, 166}}
+ },
+ {
+ /*from*/2,
+ /*to*/5,
+ /*data*/{{128, 146},{128, 186}}
+ },
+ {
+ /*from*/3,
+ /*to*/4,
+ /*data*/{{449, 422},{489, 422}}
+ },
+ {
+ /*from*/5,
+ /*to*/17,
+ /*data*/{{115, 258},{115, 298}}
+ },
+ {
+ /*from*/6,
+ /*to*/14,
+ /*data*/{{289, 134},{329, 134}}
+ },
+ {
+ /*from*/6,
+ /*to*/5,
+ /*data*/{{253, 146},{253, 186}}
+ },
+ {
+ /*from*/7,
+ /*to*/0,
+ /*data*/{{289, 319},{309, 319},{309, 274},{329, 274}}
+ },
+ {
+ /*from*/7,
+ /*to*/16,
+ /*data*/{{250, 370},{250, 410}}
+ },
+ {
+ /*from*/8,
+ /*to*/9,
+ /*data*/{{183, 686},{143, 686}}
+ },
+ {
+ /*from*/9,
+ /*to*/15,
+ /*data*/{{59, 634},{59, 594}}
+ },
+ {
+ /*from*/10,
+ /*to*/18,
+ /*data*/{{212, 506},{212, 486},{112, 486},{112, 466}}
+ },
+ {
+ /*from*/10,
+ /*to*/16,
+ /*data*/{{265, 506},{265, 466}}
+ },
+ {
+ /*from*/10,
+ /*to*/9,
+ /*data*/{{236, 610},{236, 622},{125, 622},{125, 634}}
+ },
+ {
+ /*from*/11,
+ /*to*/13,
+ /*data*/{{596, 610},{596, 650}}
+ },
+ {
+ /*from*/12,
+ /*to*/14,
+ /*data*/{{523, 167},{483, 167}}
+ },
+ {
+ /*from*/14,
+ /*to*/7,
+ /*data*/{{329, 198},{309, 198},{309, 319},{289, 319}}
+ },
+ {
+ /*from*/16,
+ /*to*/3,
+ /*data*/{{289, 430},{329, 430}}
+ },
+ {
+ /*from*/17,
+ /*to*/7,
+ /*data*/{{171, 334},{211, 334}}
+ },
+ {
+ /*from*/19,
+ /*to*/10,
+ /*data*/{{329, 574},{289, 574}}
+ },
+ {
+ /*from*/19,
+ /*to*/7,
+ /*data*/{{329, 514},{309, 514},{309, 355},{289, 355}}
+ },
+ {
+ /*from*/19,
+ /*to*/8,
+ /*data*/{{361, 610},{361, 650}}
+ },
+ {
+ /*from*/19,
+ /*to*/11,
+ /*data*/{{525, 550},{565, 550}}
+ }
+ }
+},
+
+
+/*
+      +--------+ 
+      |        |
+      |   0    |     +---------+
+      |        |     |         |
+      +--------+     |    1    |    +--------+
+                     |         |    |        |
+                     +---------+    |   2    |
+                                    |        |
+                                    +--------+
+*/
+
+{
+        /*testid*/4,
+        /*rectangles*/{
+            { 2/*left*/,4/*right*/,2/*top*/,4/*bottom*/ },
+            { 6/*left*/,8/*right*/,3/*top*/,5/*bottom*/ },
+            { 10/*left*/,12/*right*/,4/*top*/,6/*bottom*/ }
+        },
+        /*frame*/{ 0/*left*/,14/*right*/,0/*top*/,10/*bottom*/ },
+        /*links*/{{/*source*/0,/*target*/2}},
+        /*faiceau output*/{
+                       {
+				/*targets*/{
+					{
+						/*from*/0,
+						/*to*/2,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,2,2},
+							{VERTICAL,INCREASE,2,2},
+							{VERTICAL,INCREASE,3,2},
+							{VERTICAL,INCREASE,4,2},
+							{HORIZONTAL,INCREASE,2,4},
+							{HORIZONTAL,INCREASE,3,4},
+							{HORIZONTAL,INCREASE,4,4}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{HORIZONTAL,INCREASE,2,2},{HORIZONTAL,INCREASE,2,1,2}}
+				}
+			}
+		},
+		/*polylines*/{
+			{
+				/*from*/0,
+				/*to*/2,
+				/*data*/{{4,3},{5,3},{5,5},{10,5}}
+			}
+		}
+},
+/*
+                     +-------+
+                     |       |
+                     |       |
+                     |   0   |
+                     |       |
+                     |       |
+                     +-------+
+
+
+       +-------------------------------------+
+       |                                     |
+       |                                     |
+       |                1                    |
+       |                                     |
+       |                                     |
+       +-------------------------------------+
+
+
+               +----------------------+
+               |                      |
+               |                      |
+               |          2           |
+               |                      |
+               |                      |
+               +----------------------+
+*/
+
+{
+        /*testid*/5,
+        /*rectangles*/{
+            { 8/*left*/,10/*right*/,4/*top*/,8/*bottom*/ },
+            { 4/*left*/,14/*right*/,12/*top*/,16/*bottom*/ },
+            { 6/*left*/,12/*right*/,20/*top*/,24/*bottom*/ }
+        },
+        /*frame*/{ 0/*left*/,20/*right*/,0/*top*/,30/*bottom*/ },
+        /*links*/{{/*source*/2,/*target*/1},{/*source*/2,/*target*/0}},
+		/*faiceau output*/{
+			{
+				/*target*/{
+					{
+						/*from*/2,
+						/*to*/1,
+						/*expected path*/{
+							{VERTICAL,DECREASE,4,4}
+						}
+					},
+					{
+						/*from*/2,
+						/*to*/0,
+						/*expected path*/{
+							{VERTICAL,DECREASE,4,2},
+							{HORIZONTAL,DECREASE,2,4},
+							{HORIZONTAL,DECREASE,1,4},
+							{HORIZONTAL,DECREASE,0,4},
+							{VERTICAL,DECREASE,4,0},
+							{VERTICAL,DECREASE,3,0},
+							{VERTICAL,DECREASE,2,0},
+							{HORIZONTAL,INCREASE,0,2},
+							{HORIZONTAL,INCREASE,1,2},
+							{HORIZONTAL,INCREASE,2,2},
+							{HORIZONTAL,INCREASE,3,2},
+							{VERTICAL,DECREASE,2,3}
+						}
+					}
+				},
+				/*enlarged*/{
+					{{VERTICAL,DECREASE,4,4},{VERTICAL,DECREASE,4,3,5}},
+					{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}
+				}
+			}
+                },
+                /*polylines*/{
+			{
+				/*from*/2,
+				/*to*/1,
+				/*data*/{{10,20},{10,16}}
+			},
+			{
+				/*from*/2,
+				/*to*/0,
+				/*data*/{{7,20},{7,18},{2,18},{2,10},{9,10},{9,8}}
+			}
+		}
+},
+/*
++----------+
+|          |
+|    0     |
+|          |
++----------+
+
+
+
+                      +-----+
+                      |  1  |
+                      +-----+
+*/
+{
+        /*testid*/6,
+        /*rectangles*/{
+            { /*left*/0, /*right*/2, /*top*/0, /*bottom*/2 },
+            { /*left*/4, /*right*/5, /*top*/4, /*bottom*/5 }
+        },
+        /*frame*/{0/*left*/, 5/*right*/,0/*top*/,5/*bottom*/},
+        /*links*/{{/*source*/0,/*target*/1}},
+        /*faiceau output*/{
+			{
+				/*targets*/{
+					{
+						/*from*/0,
+						/*to*/1,
+						/*expected path*/{
+							{HORIZONTAL,INCREASE,1,0},
+							{HORIZONTAL,INCREASE,2,0},
+							{VERTICAL,INCREASE,0,2},
+							{VERTICAL,INCREASE,1,2}
+						}
+					}
+				},
+				/*enlarged*/{}
+			}
+		},
+		/*polylines*/{
+			{
+				/*from*/0,
+				/*to*/1,
+				/*data*/{{2,1},{4,1},{4,4}}
+			}
+		}
+},
+
+/*
+    +------------+                                  +------------+
+    |            |                                  |            |
+    |            |                                  |            |
+    |      0     |                                  |      2     |
+    |            |                                  |            |
+    +------------+                                  +------------+
+
+
+
+
+
+
+
+
+
+
+
+    +------------+                                  +------------+
+    |            |                                  |            |
+    |            |                                  |            |
+    |      1     |                                  |      3     |
+    |            |                                  |            |
+    +------------+                                  +------------+
+*/
+{
+        /*testid*/7,
+        /*rectangles*/{
+            { /*left*/2, /*right*/6, /*top*/2, /*bottom*/6 },
+            { /*left*/2, /*right*/6, /*top*/20, /*bottom*/24 },
+            { /*left*/36, /*right*/40, /*top*/2, /*bottom*/6 },
+            { /*left*/36, /*right*/40, /*top*/20, /*bottom*/24 }
+        },
+        /*frame*/{0/*left*/,80/*right*/,0/*top*/,60/*bottom*/},
+        /*links*/{{/*source*/0,/*target*/3}},
+        /*faiceau output*/{
+            {
+          /*targets*/{
+                 {
+                        /*from*/0,
+                        /*to*/3,
+			/*expected path*/{
+                            {HORIZONTAL,INCREASE,2,1},
+                            {VERTICAL,INCREASE,1,2},
+                            {VERTICAL,INCREASE,2,2},
+                            {VERTICAL,INCREASE,3,2},
+                            {HORIZONTAL,INCREASE,2,3}
+                        }
+                   }
+		},
+                /*enlarged*/{}
+            }
+        },
+        /*polylines*/{
+            {
+                /*from*/0,
+                /*to*/3,
+                /*data*/{{6,4},{21,4},{21,22},{36,22}}
+            }
+        }
+},
+/*
+   +------------+                                    +------------+
+   |            |                                    |            |
+   |            |                                    |            |
+   |      0     |                                    |      2     |
+   |            |                                    |            |
+   +------------+                                    +------------+
+
+
+
+
+
+
+
+
+
+
+
+   +------------+                                    +------------+
+   |            |                                    |            |
+   |            |                                    |            |
+   |      1     |                                    |      3     |
+   |            |                                    |            |
+   +------------+                                    +------------+
+*/
+{
+        /*testid*/8,
+        /*rectangles*/{
+            { /*left*/20, /*right*/60, /*top*/20, /*bottom*/60 },
+            { /*left*/20, /*right*/60, /*top*/200, /*bottom*/240 },
+            { /*left*/360, /*right*/400, /*top*/20, /*bottom*/60 },
+            { /*left*/360, /*right*/400, /*top*/200, /*bottom*/240 }
+        },
+        /*frame*/{0/*left*/,800/*right*/,0/*top*/,600/*bottom*/},
+        /*links*/{{/*source*/3,/*target*/0},{/*source*/3,/*target*/1}},
+		/*faiceau output*/{
+			{
+				/*targets*/{
+					{
+						/*from*/3,
+						/*to*/0,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,2,3},
+							{VERTICAL,DECREASE,3,2},
+							{VERTICAL,DECREASE,2,2},
+							{VERTICAL,DECREASE,1,2},
+							{HORIZONTAL,DECREASE,2,1}
+						}
+					},
+					{
+						/*from*/3,
+						/*to*/1,
+						/*expected path*/{
+							{HORIZONTAL,DECREASE,2,4}
+						}
+					}
+				},
+				/*enlarged*/{}
+			}
+		},
+		/*polylines*/{
+			{
+				/*from*/3,
+				/*to*/0,
+				/*data*/{{360,210},{210,210},{210,40},{60,40}}
+			},
+			{
+				/*from*/3,
+				/*to*/1,
+				/*data*/{{360,230},{60,230}}
+			}
+		}
+}
+};
+
+/*
+1/ Pour chaque rectangle, creer plusieurs entrees dans coords, suivant le nombre de liens connectes a ce rectangle.
+Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par rectangle)
+2/ Garder plusieurs meilleurs chemins, si il y en a plusieurs pour la meme distance.
+3/ enlarge() elargit chaque path de 1 unit. Lorsqu'ils y a plusieurs chemins, certains sont elimins. Le meilleur reste.
+*/
+
+
+FaiceauOutput compute_faiceau(const vector<Link>& links, 
+				const Matrix<bool>& definition_matrix_, 
+				const vector<int>(&coords)[2], 
+				const vector<Rect>& rects,
+				int from)
+{
+	vector<Target> targets;
+
+	vector<Link> adj_links;
+	for (const Link& link : links)
+	{
+		if (link.from == from)
+			adj_links.push_back({ link.from, link.to });
+		else if (link.to == from)
+			adj_links.push_back({ link.to, link.from });
+	}
+
+	vector<int> distance(1000*1000, INT16_MAX);
+	vector<Edge> predecessor(1000*1000);
+	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
+	unordered_map<uint64_t, int> source_node_distance;
+
+	dijkstra(Graph{ definition_matrix_, coords }, source_nodes, source_node_distance, distance, predecessor);
+
+	unordered_map<int, vector<uint64_t> > target_candidates_;
+	unordered_map<int, uint64_t> best_target_candidate;
+
+	//TODO: use destructuring
+	for (const Link& link : adj_links)
+	{
+		unordered_set<uint64_t> target_nodes = compute_nodes(coords, definition_matrix_, rects[link.to], INPUT);
+		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[link.to]);
+	}
+
+	//Selection of the best candidate
+	for (const Link& link : adj_links)
+	{
+		vector<uint64_t> &candidates = target_candidates_[link.to];
+		uint64_t u = *min_element(begin(candidates), end(candidates), [&](uint64_t u, uint64_t v) {
+			unordered_map<int, vector<uint64_t> > target_candidates = target_candidates_;
+			target_candidates[link.to] = { u };
+			int n1 = overlap(adj_links, target_candidates, predecessor);
+			target_candidates[link.to] = { v };
+			int n2 = overlap(adj_links, target_candidates, predecessor);
+			return n1 < n2;
+		}
+		);
+		best_target_candidate[link.to] = { u };
+	}
+
+	//enlarge the faiceau - BEGIN
+
+	unordered_map<Maille, Range> enlarged;
+
+	while (true)
+	{
+		unordered_map<Maille, Range> enlarged_update = enlarged;
+
+		for (const Link& link : adj_links)
+		{
+			vector<Maille> result;
+			for (uint64_t u = best_target_candidate[link.to]; u != 0; u = predecessor.at(u).u)
+			{
+				result.push_back(parse(u));
+			}
+			reverse(begin(result), end(result));
+
+			Target target = { link.from, link.to, result };
+
+			if (find(begin(targets), end(targets), target) == end(targets))
+				targets.push_back(target);
+			Matrix<bool> definition_matrix = definition_matrix_;
+			for (const Link& other_link : adj_links)
+			{
+				if (other_link.to == link.to)
+					continue;
+				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
+				{
+					Maille m = parse(u);
+					//TODO: use destructuring
+					Direction direction = m.direction;
+					Way way = m.way;
+					int16_t value = m.value;
+					int16_t other = m.other;
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other, other };
+					for (int16_t other = r.min; other <= r.max; other++)
+					{
+						definition_matrix(Maille{ m.direction, m.way, m.value, other }) = false;
+					}
+				}
+			}
+			vector<Range> ranges;
+			for (Maille& m : result)
+			{
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,m.value,m.other,m.other });
+			}
+			ranges = enlarge(ranges, definition_matrix, index(coords, rects[link.from]), index(coords, rects[link.to]));
+
+			if (!connect_outer_ranges(OuterRangeGraph{ ranges, definition_matrix_, coords }))
+				ranges = compute_inner_ranges(InnerRangeGraph{ ranges, definition_matrix_, coords });
+
+			for (Maille& m : result)
+			{
+				int i = std::distance(&result[0], &m);
+				Range& r = ranges[i];
+				if (r.min < r.max)
+					enlarged_update[m] = r;
+			}
+		}
+
+		if (enlarged_update == enlarged)
+			break;
+		enlarged = enlarged_update;
+	}
+
+	// enlarge the faiceau - END
+
+	return{ targets, enlarged };
+}
+
+void compute_polylines(const vector<Rect>& rects,
+						const Rect& frame,
+						const vector<Link>& links,
+						vector<FaiceauOutput>& faiceau_output,
+						vector<Polyline>& polylines)
+{
+	int n = rects.size();
+	vector<int> nblinks(n,0 );
+	
+	//TODO: use destructuring
+	for (const Link& link : links)
+	{
+		int from = link.from, to = link.to;
+		nblinks[from]++;
+		nblinks[to]++;
+	}
+	
+	vector<int> coords[2];
+	
+	for (const Rect& r : rects)
+	{
+		int i = distance(&rects[0], &r);
+		add_rect(coords, r, nblinks[i]);
+	}
+	
+	add_rect(coords, frame);
+	
+	for (vector<int>& coords_ : coords)
+	{
+		sort(begin(coords_), end(coords_));
+		auto it = unique(begin(coords_), end(coords_));
+		coords_.resize(distance(begin(coords_), it));
+	}
+	
+	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
+
+	vector<int> origins;
+	while (int &nn = *max_element(begin(nblinks), end(nblinks)))
+	{
+		int from = distance(&nblinks[0], &nn);
+		origins.push_back(from);
+
+		vector<Link> adj_links;
+		for (const Link& link : links)
+		{
+			if (link.from == from)
+				adj_links.push_back({ link.from, link.to });
+			else if (link.to == from)
+				adj_links.push_back({ link.to, link.from });
+		}
+
+		nblinks[from] = 0;
+		for (const Link& link : adj_links)
+		{
+			for (int n : {link.from, link.to})
+			{
+				if (nblinks[n] == 1)
+					nblinks[n] = 0;
+			}
+		}
+	}
+
+	faiceau_output.resize(origins.size());
+
+	#pragma omp parallel for
+	for (int i = 0; i < origins.size(); i++)
+	{
+		faiceau_output[i] = compute_faiceau(links, definition_matrix_, coords, rects, origins[i]);
+	}
+	
+	unordered_map<Link, FaiceauPath> faiceau_paths;
+	for (FaiceauOutput & faiceau : faiceau_output)
+	{
+	//TODO: use destructuring
+		for (Target &target : faiceau.targets)
+		{
+			faiceau_paths[{target.from, target.to}] = {faiceau.enlarged, target.expected_path};
+		}
+	}
+	
+	//TODO: use destructuring
+	for (const Link& link : links)
+	{
+		int from = link.from, to = link.to;
+		
+		vector<Range> mypath;
+		
+		if (!faiceau_paths.count({from,to}))
+		{
+			FaiceauPath &fp = faiceau_paths[{to,from}];
+			unordered_map<Maille,Range>& enlarged = fp.enlarged;
+			for (Maille &maille : fp.path)
+			{
+			//TODO: use destructuring
+				Direction direction = maille.direction;
+				Way way = maille.way;
+				int16_t value = maille.value;
+				int16_t other = maille.other;
+				mypath.push_back({enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other}});
+			}
+			reverse(begin(mypath),end(mypath));
+			for (Range &r : mypath)
+				reverse(r.way);
+		}
+		else if(!faiceau_paths.count({to,from}))
+		{
+			FaiceauPath &fp = faiceau_paths[{from,to}];
+			unordered_map<Maille,Range>& enlarged = fp.enlarged;
+			for (Maille &maille : fp.path)
+			{
+				//TODO: destructuring
+				Direction direction = maille.direction;
+				Way way = maille.way;
+				int16_t value = maille.value;
+				int16_t other = maille.other;
+				mypath.push_back(enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other});
+			}
+		}
+		else
+		{
+			unordered_map<Range, int> entgegen_ranges;
+			
+			//TODO: use destructuring
+			FaiceauPath &rfp = faiceau_paths[{to,from}];
+			for (Maille &maille : rfp.path)
+			{
+				//TODO: use destructuring
+				Direction direction = maille.direction;
+				Way way = maille.way;
+				int16_t value = maille.value;
+				int16_t other = maille.other;
+				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
+				reverse(range.way);
+				entgegen_ranges[range] = distance(&rfp.path[0], &maille);
+			}
+			
+			int i = -1;
+			
+			FaiceauPath &fp = faiceau_paths[{from,to}];
+			for (Maille &maille : fp.path)
+			{
+				//TODO: use destructuring
+				Direction direction = maille.direction;
+				Way way = maille.way;
+				int16_t value = maille.value;
+				int16_t other = maille.other;
+				Range range = fp.enlarged.count(maille) ? fp.enlarged[maille] : Range{direction, way, value, other, other};
+				mypath.push_back(range);
+				if (entgegen_ranges.count(range))
+				{
+					i = entgegen_ranges[range] - 1;
+					break;
+				}
+			}
+			
+			for (; i >= 0; i--)
+			{
+				Maille &maille = rfp.path[i];
+				//TODO: use destructuring
+				Direction direction = maille.direction;
+				Way way = maille.way;
+				int16_t value = maille.value;
+				int16_t other = maille.other;
+				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
+				reverse(range.way);
+				mypath.push_back(range);
+			}
+		}
+		
+		polylines.push_back({from, to, compute_polyline(coords, mypath)});
+	}
+	
+	assert(nblinks == vector<int>(n,0));
+}
+
+
+bool parse_command(int argc,
+		   char* argv[],
+		   Rect &frame,
+		   vector<Rect> &rects,
+		   vector<Link> &links)
+{
+	const regex hexa("^[0-9a-z]+$");
+
+        unordered_map<string, const char*> args={
+             {"--rectdim", 0},
+             {"--translations", 0},
+             {"--frame", 0},
+             {"--links", 0}
+        };
+	
+	for (int i=1; i+1 < argc; i+=2)
+	{
+                if (args.count(argv[i]))
+                     args[argv[i]] = argv[i + 1];
+	}
+	
+	bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
+	             strlen(args["--translations"]) == strlen(args["--rectdim"]) &&regex_match(args["--translations"], hexa) &&
+				 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);
+				 
+	if (!check)
+		return false;
+	
+	int pos;
+	
+	pos = 0;
+	int width, height, x, y;
+	while (sscanf(args["--rectdim"] + pos, "%3x%3x", &width, &height) == 2 &&
+	      sscanf(args["--translations"] + pos, "%3x%3x", &x, &y) == 2)
+	{
+		rects.push_back({x, x + width, y, y + height});
+		pos += 6;
+	}
+	
+	pos = 0;
+	int from, to;
+	while (sscanf(args["--links"] + pos, "%2x%2x", &from, &to) == 2)
+	{
+		links.push_back({from, to});
+		pos += 4;
+	}
+	
+	sscanf(args["--frame"], "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
+	
+	return true;
+}
+
+int main(int argc, char* argv[])
+{
+	Maille m1 = { VERTICAL, DECREASE,16,3 };
+	uint64_t u = serialize(m1);
+	Maille m2 = parse(u);
+	assert(m1 == m2);
+
+	Rect frame;
+	vector<Rect> rects;
+	vector<Link> links;
+	
+	if (argc == 1)
+	{
+		printf("testing bombix ...\n");
+	//TODO: use destructuring
+		for (const TestContext &ctx : contexts)
+		{
+			high_resolution_clock::time_point t1 = high_resolution_clock::now();
+			
+			vector<FaiceauOutput> faiceau_output;
+			vector<Polyline> polylines;
+			
+			compute_polylines(ctx.rects, ctx.frame, ctx.links, faiceau_output, polylines);
+			
+			string serialized;
+			print(faiceau_output, serialized);
+
+			printf("%s faisceaux.\n", faiceau_output == ctx.faisceau_output ? "OK":"KO");
+			
+			print(polylines, serialized);
+			duration<double> time_span = high_resolution_clock::now() - t1;
+			printf("%s polylines. %f seconds elapsed.\n", polylines == ctx.polylines ? "OK":"KO", time_span.count());
+			
+			string json = polyline2json(polylines);
+		}
+		
+		return 0;
+	}
+	else if (parse_command(argc, argv, frame, rects, links))
+	{
+		vector<FaiceauOutput> faiceau_output;
+		vector<Polyline> polylines;
+		
+		compute_polylines(rects, frame, links, faiceau_output, polylines);
+		string json = polyline2json(polylines);
+		printf("%s", json.c_str());
+	}
+	else if (argc == 2 && strcmp(argv[1], "--help") == 0)
+	{
+		printf("example commmand\n");
+		printf("--frame 000002c3000002e8 --rectdim 008d002800a200380040006800780078008d0038010b004800470088004e004800d3004800850058006a00680069007800390038003f0048009a00580062003800700038007000480032003800c40078 --translations 014900fa020b00eb0072002a0149014a01e9018a001600ba00da000a00d3012a00b7028a000a027a00b701fa023501ea020b008b0234028a0149007a000a021a00b1019a003b012a0057019a014901ea --links 010e020e020503040511060e0605070007100809090f0a120a100a090b0d0c0e0e0710031107130a13071308130b");
+	}
+}
