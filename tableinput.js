@@ -1,0 +1,845 @@
+
+
+var myBoxes = [];
+var box2fields = {};
+var field2values = {};
+var box2comment = {};
+var field2comment = {};
+
+
+var editTitle = document.getElementById("title");
+var boxCombo = document.getElementById("boxes");
+var fieldCombo = document.getElementById("fields");
+var valueCombo = document.getElementById("values");
+var boxCommentTextArea = document.getElementById("box comment");	
+var fieldCommentTextArea = document.getElementById("field comment");
+var isPrimaryKeyCheckBox = document.getElementById("PK");
+var isForeignKeyCheckBox = document.getElementById("FK");
+var linkCombo = document.getElementById("links");
+var newBoxEditField = document.getElementById("new box");
+var newFieldEditField = document.getElementById("new field");
+var fromBoxCombo = document.getElementById("from boxes");
+var fromFieldCombo = document.getElementById("from fields");
+var toBoxCombo = document.getElementById("to boxes");
+var toFieldCombo = document.getElementById("to fields");
+var newValueEditField = document.getElementById("new value");
+var json_io = document.getElementById("json_input_output");
+
+
+function sortSelect(selElem) 
+{
+    let tmpAry = [];
+    for (let {text, value} of selElem.options) 
+	{
+        tmpAry.push([text, value]);
+    }
+    tmpAry.sort();
+	removeOptions(selElem);
+   
+    for (let [text, value] of tmpAry) 
+	{
+        selElem.add(new Option(text, value));
+    }
+}
+
+function removeOptions(selElem) 
+{
+    while (selElem.options.length) 
+	{
+        selElem.remove(0);
+    }
+}
+
+function copyOptions(sourceElem, targetElem)
+{
+	removeOptions(targetElem);
+	for (let {text, value} of sourceElem.options)
+	{
+		targetElem.add(new Option(text, value));
+    }
+	sortSelect(targetElem);
+}
+
+function selectCascadeBox()
+{
+	copyOptions(boxCombo, fromBoxCombo);
+	selectBox(fromBoxCombo, fromFieldCombo);
+	copyOptions(boxCombo, toBoxCombo);
+	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(boxCombo, fieldCombo);
+	updateFieldAttributes();
+	selectField();	
+}
+
+function addNewBox()
+{
+	const text = newBoxEditField.value;
+	boxCombo.add(new Option(text,text));
+	boxCombo.value = newBoxEditField.value;
+	myBoxes.push(newBoxEditField.value);
+	box2fields[newBoxEditField.value] = [];
+	newBoxEditField.value='';
+	selectCascadeBox();
+	alert(JSON.stringify(box2fields));
+}
+
+function dropBox()
+{
+	alert("dropBox");
+
+	const box = boxCombo.value;
+	alert (box);
+	let index = myBoxes.indexOf(box);
+	myBoxes.splice(index,1);
+	for (const {name, isPrimaryKey, isForeignKey} in box2fields[box])
+	{
+		const field = name;
+		delete field2values[`${box}.${field}`];
+		delete field2comment[`${box}.${field}`];
+	}
+	delete box2fields[box];
+	boxCombo.remove(boxCombo.selectedIndex);
+	
+	selectCascadeBox();
+	
+	alert(JSON.stringify(box2fields));
+	
+	for (let i=linkCombo.options.length-1; i >= 0; i--) 
+	{
+	//Split a string with multiple parameters: Pass in a regexp as the parameter.
+		let [fromBoxTitle, , toBoxTitle, ] = linkCombo.options[i].text.split(/ -> |\./);
+		if (fromBoxTitle == box || toBoxTitle == box)
+		{
+			alert ("Cascade dropping link: " + linkCombo.options[i].text);
+			linkCombo.remove(i);
+		}
+	}		
+}
+
+
+function updateBox()
+{
+	alert("updateBox");
+	const box = boxCombo.value;
+	
+	boxCombo.remove(boxCombo.selectedIndex);
+	
+	alert(JSON.stringify(box2fields[box]));
+	
+	let index = myBoxes.indexOf(box);
+	myBoxes[index] = newBoxEditField.value;
+		
+	box2fields[newBoxEditField.value] = box2fields[box];
+	delete box2fields[box];
+	
+	for (const {name, isPrimaryKey, isForeignKey} of box2fields[newBoxEditField.value])
+	{
+		const field = name;
+		alert(field);
+		if (`${box}.${field}` in field2values)
+		{
+			alert("Cascade updating values: " + JSON.stringify(field2values[`${box}.${field}`]));
+			field2values[`${newBoxEditField.value}.${field}`] = field2values[`${box}.${field}`];
+			delete field2values[`${box}.${field}`];
+		}
+	
+
+		if (`${box}.${field}` in field2comment)
+		{
+			alert("Cascade updating comment: " + field2comment[`${box}.${field}`]);
+			field2comment[`${newBoxEditField.value}.${field}`] = field2comment[`${box}.${field}`];
+			delete field2comment[`${box}.${field}`];
+		}
+	}
+	
+	for (let option of linkCombo.options)
+	{
+	//Split a string with multiple parameters: Pass in a regexp as the parameter.
+		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		let replace = false;
+		if (fromBoxTitle == box)
+		{
+			replace = true;
+			fromBoxTitle = newBoxEditField.value;
+		}
+		if (toBoxTitle == box)
+		{
+			replace = true;
+			toBoxTitle = newBoxEditField.value;
+		}
+		if (replace)
+		{
+			alert ("Cascade updating link: " + option.text);
+			option.text = `${fromBoxTitle}.${fromFieldName} -> ${toBoxTitle}.${toFieldName}`;
+		}
+	}	
+
+	sortSelect(linkCombo);	
+	
+	const text = newBoxEditField.value
+	boxCombo.add(new Option(text,text));
+	boxCombo.value = newBoxEditField.value;
+	newBoxEditField.value = '';
+	
+	copyOptions(boxCombo, fromBoxCombo);
+	copyOptions(boxCombo, toBoxCombo);	
+	
+	alert(JSON.stringify(box2fields));
+}
+
+
+function updateFieldAttributes()
+{	
+	if (fieldCombo.selectedIndex != -1)
+	{
+		const box = boxCombo.value;
+		const fields = box2fields[box];
+		
+		isPrimaryKeyCheckBox.checked = false;
+		isForeignKeyCheckBox.checked = false ;
+		
+		const {isPrimaryKey, isForeignKey} = fields.find( f => f.name == fieldCombo.value );
+
+		isPrimaryKeyCheckBox.checked = isPrimaryKey;
+		isForeignKeyCheckBox.checked = isForeignKey;
+	}
+	
+	selectField();
+}
+
+function selectBox(boxCombo, fieldCombo)
+{
+	if (boxCombo.selectedIndex != -1)
+	{
+		removeOptions(fieldCombo);
+		var box = boxCombo.value;
+		var fields = box2fields[box];
+
+		for (let {name} of fields)
+		{
+			fieldCombo.add(new Option(name,name));
+		}
+		sortSelect(fieldCombo);
+	}
+}
+
+
+function selectField()
+{
+	if (boxCombo.selectedIndex != -1 && fieldCombo.selectedIndex != -1)
+	{	
+		removeOptions(valueCombo);
+		var box = boxCombo.value;
+		var field = fieldCombo.value;
+		var values = [];
+		if (`${box}.${field}` in field2values)
+			values = field2values[`${box}.${field}`];
+
+		for (let value in values)
+		{
+			valueCombo.add(new Option(value,value));
+		}
+		
+		sortSelect(valueCombo);
+		
+		boxCommentTextArea.value = "";
+		if (box in box2comment)
+		{
+			boxCommentTextArea.value = box2comment[box];
+		}
+		
+		fieldCommentTextArea.value = "";
+		if (`${box}.${field}` in field2comment)
+		{
+			fieldCommentTextArea.value = field2comment[`${box}.${field}`];
+		}
+	}
+}
+
+function addNewFieldToBox()
+{
+	alert("addNewFieldToBox");
+	var box = boxCombo.value;
+	box2fields[box].push({"name":newFieldEditField.value,"isPrimaryKey":isPrimaryKeyCheckBox.checked,"isForeignKey":isForeignKeyCheckBox.checked});
+	const text = newFieldEditField.value;
+	fieldCombo.add(new Option(text,text));
+	sortSelect(fieldCombo);
+	fieldCombo.value = newFieldEditField.value;
+	newFieldEditField.value = '';
+	alert(JSON.stringify(box2fields));
+	selectBox(fromBoxCombo, fromFieldCombo);
+	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(boxCombo,fieldCombo);
+	updateFieldAttributes();
+	selectField();
+}
+
+function updateField()
+{
+	alert("updateField");
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+	Object.assign(box2fields[box].find( f => f.name == field ), {
+		"name":newFieldEditField.value.length!=0 ? newFieldEditField.value : field,
+		"isPrimaryKey":isPrimaryKeyCheckBox.checked,
+		"isForeignKey":isForeignKeyCheckBox.checked
+	});
+
+	fieldCombo.remove(fieldCombo.selectedIndex);
+	
+	alert(JSON.stringify(box2fields[box]));
+	if (`${box}.${field}` in field2values)
+	{
+		alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
+		field2values[`${box}.${newFieldEditField.value}`] = field2values[`${box}.${field}`];
+		delete field2values[`${box}.${field}`];
+	}
+	if (`${box}.${field}` in field2comment)
+	{
+		alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
+		field2comment[`${box}.${newFieldEditField.value}`] = field2comment[`${box}.${field}`];
+		delete field2comment[`${box}.${field}`];
+	}
+	selectField();
+	
+	for (let option of linkCombo.options)
+	{
+	//Split a string with multiple parameters: Pass in a regexp as the parameter.
+		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		let replace = false;
+		if (fromBoxTitle == box && fromFieldName == field)
+		{
+			replace = true;
+			fromFieldName = newFieldEditField.value;
+		}
+		if (toBoxTitle == box && toFieldName == field)
+		{
+			replace = true;
+			toFieldName = newFieldEditField.value;
+		}
+		if (replace)
+		{
+			alert ("Cascade dropping link: " + option.text);
+			option.text = `${fromBoxTitle}.${fromFieldName} -> ${toBoxTitle}.${toFieldName}`;
+		}
+	}	
+
+	sortSelect(linkCombo);	
+
+	const text = newFieldEditField.value;
+	fieldCombo.add(new Option(text,text));
+	sortSelect(fieldCombo);
+	fieldCombo.value = newFieldEditField.value;
+	newFieldEditField.value = '';
+	alert(JSON.stringify(box2fields));
+	selectBox(fromBoxCombo, fromFieldCombo);
+	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(boxCombo,fieldCombo);
+	updateFieldAttributes();
+	selectField();
+}
+
+
+function dropFieldFromBox()
+{
+	alert("dropFieldFromBox");
+	var box = boxCombo.value;
+	var field = fieldCombo.value;
+	let index = box2fields[box].findIndex(f => f.name == field);
+	box2fields[box].splice(index,1);
+	fieldCombo.remove(fieldCombo.selectedIndex);
+	updateFieldAttributes();
+	alert(JSON.stringify(box2fields[box]));
+	if (`${box}.${field}` in field2values)
+	{
+		alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
+		delete field2values[`${box}.${field}`];
+	}
+	if (`${box}.${field}` in field2comment)
+	{
+		alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
+		delete field2comment[`${box}.${field}`];
+	}
+	selectField();
+	
+	for (let i=linkCombo.options.length-1; i >= 0; i--) 
+	{
+	//Split a string with multiple parameters: Pass in a regexp as the parameter.
+		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = linkCombo.options[i].text.split(/ -> |\./);
+		if ((fromBoxTitle == box && fromFieldName == field) || (toBoxTitle == box && toFieldName == field))
+		{
+			alert ("Cascade dropping link: " + linkCombo.options[i].text);
+			linkCombo.remove(i);
+		}
+	}		
+}
+
+function editValueFromField()
+{
+	alert("editValueFromField");
+	newValueEditField.value = valueCombo.value;
+}
+
+function addNewValueToField()
+{
+	alert("addNewValueToField");
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+
+	if (!(`${box}.${field}` in field2values))
+		field2values[`${box}.${field}`] = [];
+	field2values[`${box}.${field}`].push(newValueEditField.value);
+	field2values[`${box}.${field}`].sort();
+	const text = newValueEditField.value;
+	valueCombo.add(new Option(text,text));
+	sortSelect(valueCombo);
+	valueCombo.value = newValueEditField.value;
+	newValueEditField.value = '';
+	alert(JSON.stringify(field2values));
+}
+
+function updateValue()
+{
+	alert("updateValue");
+	dropValueFromField();
+	addNewValueToField();
+}
+
+function dropValueFromField()
+{
+	alert("dropValueFromField");
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+	const value = valueCombo.value;
+	valueCombo.remove(valueCombo.selectedIndex);
+	let values = field2values[`${box}.${field}`];
+	const index = values.indexOf(value);
+	values.splice(index,1);
+	selectField();
+}
+
+function addNewLink()
+{
+	alert("addNewLink");
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} -> ${toBoxCombo.value}.${toFieldCombo.value}`;					
+	linkCombo.add(new Option(text, text));
+	sortSelect(linkCombo);
+	linkCombo.value = text;
+}
+
+function dropLink()
+{
+	alert("dropLink");
+	if (linkCombo.selectedIndex != -1)
+		linkCombo.remove(linkCombo.selectedIndex);
+}
+
+
+
+function dropBoxComment()
+{
+	alert("dropBoxComment");
+	const box = boxCombo.value;
+	delete box2comment[box];
+	boxCommentTextArea.value = "";
+}
+
+function updateBoxComment()
+{
+	alert("updateBoxComment");
+	const box = boxCombo.value;
+	alert(boxCommentTextArea.value);
+	box2comment[box] = boxCommentTextArea.value;
+}
+
+function dropFieldComment()
+{
+	alert("dropFieldComment");
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+	delete field2comment[`${box}.${field}`];
+	fieldCommentTextArea.value = "";
+}
+
+function updateFieldComment()
+{
+	alert("updateFieldComment");
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+	alert(fieldCommentTextArea.value);
+	field2comment[`${box}.${field}`] = fieldCommentTextArea.value;
+}
+
+
+function refreshJsonFromEditData()
+{	
+	var boxes = [];
+
+	for (let box of myBoxes)
+	{
+		boxes.push({"title":box, "fields":box2fields[box]})
+	}
+	
+	let values = [];
+	for (let boxfield in field2values)
+	{
+		[box, field] = boxfield.split(".");
+		for (let value of field2values[boxfield])
+		{
+			values.push({box, field, value});
+		}
+	}
+	
+	let boxComments = [];
+	for (let box in box2comment)
+	{
+		comment = box2comment[box];
+		boxComments.push({box, comment});
+	}
+	
+	let fieldComments = [];
+	for (let boxfield in field2comment)
+	{
+		comment = field2comment[boxfield];
+		[box, field] = boxfield.split(".");
+		fieldComments.push({box, field, comment});
+	}
+
+	let links = [];
+
+	let i=0;
+	for (let option of linkCombo.options)
+	{
+	//Split a string with multiple parameters: Pass in a regexp as the parameter.
+		const [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName});
+		const fromBoxIndex = boxes.findIndex( box => box.title == fromBoxTitle );
+		if (fromBoxIndex == -1)
+			alert(`link ${i}: No Box named ${fromBoxTitle}!`);
+		const fromFieldIndex = boxes[fromBoxIndex].fields.findIndex( field => field.name == fromFieldName );
+		if (fromFieldIndex == -1)
+			alert(`link ${i}: Box ${fromBoxTitle} has no field named ${fromFieldName}!`);
+		const toBoxIndex = boxes.findIndex( box => box.title == toBoxTitle );
+		if (toBoxIndex == -1)
+			alert(`link ${i}: No Box named ${toBoxTitle}`);
+		const toFieldIndex = boxes[toBoxIndex].fields.findIndex( field => field.name == toFieldName );
+		if (toFieldIndex == -1)
+			alert(`link ${i}: Box ${toBoxTitle} has no field named ${toFieldName}!`);
+		links.push(
+			{
+			"from":fromBoxIndex, 
+			"fromField":fromFieldIndex,
+			"to":toBoxIndex,
+			"toField":toFieldIndex
+			}
+		);
+		i++;
+    }
+	
+	const rectangles = compute_box_rectangles(boxes);
+	
+	const http_get_param = encode_http_get_parameter(rectangles, links);
+	const default_filter = Array(rectangles.length).fill(true);
+	const http_get_request = encodeRequest(http_get_param, default_filter) ;
+	
+	const title = editTitle.value;
+	
+	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
+	alert(json);
+	json_io.value = escapeSpecialChars(json); // Indented 4 spaces
+	alert(json_io.value);
+}
+
+
+function encodeRequest(http_get_param, filter)
+{
+	var encoded_filter = "" ;
+	var n = filter.length ;
+	for (let i=0; i < Math.ceil(n/4.0); i++)
+	{
+		let hex_value = 0 ;
+		for (let j=0; j < 4 && 4*i+j<n; j++)
+		{
+			var checkbox_checked = filter[4*i+j] ;
+			hex_value += checkbox_checked << j ;
+		}
+		encoded_filter = encoded_filter + hex_value.toString(16) ;
+	}
+	return `http://localhost:8080/getFilter?${http_get_param}${encoded_filter}` ;
+}
+
+
+function escapeSpecialChars(value) 
+{
+    return value.replace(/\\n/g, "\\\\n")
+               .replace(/\\'/g, "\\'")
+               .replace(/\\"/g, '\\"')
+               .replace(/\\&/g, "\\&")
+               .replace(/\\r/g, "\\r")
+               .replace(/\\t/g, "\\t")
+               .replace(/\\b/g, "\\b")
+               .replace(/\\f/g, "\\f");
+};
+
+function unescapeSpecialChars(value)
+{
+	return value.replace(/\\n/g, "\n");
+}
+
+
+function compute_key_distrib(fields)
+{
+	var key_distrib = {"PK":0,"FK":0,"PKFK":0};
+	
+	for (let {name,isPrimaryKey,isForeignKey} of fields)
+	{
+		if (isPrimaryKey && isForeignKey)
+			key_distrib["PKFK"]++;
+		else if (isPrimaryKey)
+			key_distrib["PK"]++;
+		else if (isForeignKey)
+			key_distrib["FK"]++;
+	}
+
+	return key_distrib;
+}
+
+const MONOSPACE_FONT_PIXEL_HEIGHT=11;
+const MONOSPACE_FONT_PIXEL_WIDTH=7;
+const CHAR_RECT_HEIGHT=16;
+
+function compute_box_rectangles(boxes)
+{
+	var rectangles = []
+	for (let title of myBoxes)
+	{
+		let fields = box2fields[title];
+		var key_distrib = compute_key_distrib(fields) ;
+
+		var nr_col = 0 ;
+		var width = 2*4 + title.length * MONOSPACE_FONT_PIXEL_WIDTH ;
+		var max_width = width;
+		
+		for (let field of fields)
+		{
+			nr_col++ ;
+			var column_name = field.name;
+
+			var column_width=0;
+
+			if (key_distrib["PKFK"])
+			{
+		//at least one 'PK FK' is present
+				column_width = ("PK FK " + column_name).length ;
+			}
+			else if (key_distrib["PK"] || key_distrib["FK"])
+			{
+		//no 'PK FK' is present, but at least one PK|FK is present.
+				column_width = ("PK " + column_name).length ;
+			}
+			else
+			{
+		//no 'PK FK' is present. no PK|FK either.
+				column_width = column_name.length ;
+			}
+
+			max_width = Math.max(column_width * MONOSPACE_FONT_PIXEL_WIDTH, max_width);
+		}
+
+		rectangles.push({"left":0, "right":max_width, "top":0, "bottom":8 + CHAR_RECT_HEIGHT * (nr_col+1)}) ;
+	}
+	return rectangles;
+}
+
+
+function refreshEditDataFromJson()
+{
+	alert(toHex(15));
+	alert("refreshEditDataFromJson");
+
+	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(json_io.value);
+	
+	editTitle.value = title;
+	
+	removeOptions(boxCombo);
+	removeOptions(fieldCombo);
+	removeOptions(fromBoxCombo);
+	removeOptions(toBoxCombo);
+	removeOptions(linkCombo);
+	
+	myBoxes = [];
+	for (const {title, fields} of boxes)
+	{
+		myBoxes.push(title);
+	}
+	
+	console.log(myBoxes);
+	
+	for (const {from,fromField,to,toField} of links)
+	{
+		let text = boxes[from].title +
+					"." +
+					(fromField != -1 ? boxes[from].fields[fromField].name : '') +
+					" -> " + 
+					boxes[to].title +
+					"." +
+					(toField != -1 ? boxes[to].fields[toField].name : '') ;
+					
+		linkCombo.add(new Option(text, text));
+    }
+	sortSelect(linkCombo);
+
+	for (const box of boxes) 
+	{
+		boxCombo.add(new Option(box.title, box.title));
+	}
+	sortSelect(boxCombo);
+	
+	copyOptions(boxCombo, fromBoxCombo);
+	copyOptions(boxCombo, toBoxCombo);
+	
+	box2fields = {};
+	for (const box of boxes)
+		box2fields[box.title] = box.fields;
+	
+	field2values = {};
+	for (const {box,field,value} of values)
+	{
+		if (!(`${box}.${field}` in field2values))
+			field2values[`${box}.${field}`] = [];
+		field2values[`${box}.${field}`].push(value);
+	}
+	
+	box2comment = {};
+	for (let {box,comment} of boxComments)
+	{
+		box2comment[box] = unescapeSpecialChars(comment);
+	}
+	
+	field2comment = {};
+	for (let {box,field,comment} of fieldComments)
+	{
+		field2comment[`${box}.${field}`] = unescapeSpecialChars(comment);
+	}
+	
+	selectBox(boxCombo, fieldCombo);
+	updateFieldAttributes();
+	selectBox(fromBoxCombo, fromFieldCombo);
+	selectBox(toBoxCombo, toFieldCombo);
+	selectField();
+}
+
+
+function width(r)
+{
+	return r.right - r.left;
+}
+
+function height(r)
+{
+	return r.bottom - r.top;
+}
+
+function toHex(x)
+{
+	return ("000" + x.toString(16)).slice(-3);
+}
+
+
+function encode_http_get_parameter(rectangles, edges)
+{
+	let buffer = "";
+	buffer += toHex(rectangles.length);
+	
+	for (let r of rectangles)
+	{
+		buffer += toHex(width(r)) ;
+		buffer += toHex(height(r)) ;
+	}
+	
+	buffer += toHex(edges.length) ;
+	for (let {from, to} of edges)
+	{
+		buffer += toHex(from) ;
+		buffer += toHex(to) ;
+        console.assert(from < rectangles.length);
+		console.assert(to < rectangles.length);
+	}
+	return buffer ;
+}
+
+
+function createHtmlTab()
+{
+	var wnd = window.open("about:blank", "", "_blank");
+	var data = "<p>This is 'myWindow'</p>";
+	wnd.document.write(data);
+}
+
+function enable_disable()
+{
+	const box = boxCombo.value;
+	const field = fieldCombo.value;
+	const boxComment = boxCommentTextArea.value;
+	const fieldComment = fieldCommentTextArea.value;
+	var fieldIndex = -1;
+	var name = newFieldEditField.value;
+	var isPrimaryKey = isPrimaryKeyCheckBox.checked;
+	var isForeignKey = isForeignKeyCheckBox.checked;
+	if (box in box2fields)
+	{
+		let myfield = box2fields[box].find( f => f.name == field );
+		if (myfield !== undefined)
+		{
+			({isPrimaryKey, isForeignKey} = myfield);
+			console.log(myfield);
+		}
+	}
+	
+	document.getElementById("add box").disabled = newBoxEditField.value.length == 0 || myBoxes.indexOf(newBoxEditField.value) != -1;
+	document.getElementById("drop box").disabled = boxCombo.selectedIndex == -1 ||
+												newBoxEditField.value.length != 0;
+	document.getElementById("update box").disabled = boxCombo.selectedIndex == -1 ||
+														newBoxEditField.value.length == 0 ||
+														boxCombo.value == newBoxEditField.value ||
+														myBoxes.indexOf(newBoxEditField.value) != -1 ;
+	
+	document.getElementById("add field").disabled = newFieldEditField.value.length == 0 || box2fields[box].findIndex(f => f.name == newFieldEditField.value) != -1;
+	document.getElementById("drop field").disabled = fieldCombo.selectedIndex == -1 ||
+													newFieldEditField.value.length != 0;
+	
+	document.getElementById("update field").disabled = fieldCombo.selectedIndex == -1 ||
+														//newFieldEditField.value.length == 0 ||
+														(newFieldEditField.value.length != 0 && newFieldEditField.value == fieldCombo.value) ||
+														(isPrimaryKey == isPrimaryKeyCheckBox.checked && isForeignKey == isForeignKeyCheckBox.checked) ||
+														box2fields[box].findIndex(f => f.name == newFieldEditField.value) != -1;	
+
+	
+	document.getElementById("edit value").disabled = valueCombo.selectedIndex == -1;
+
+	const isExistingValue = `${box}.${field}` in field2values && field2values[`${box}.${field}`].indexOf(newValueEditField.value) != -1;
+	document.getElementById("add value").disabled = newValueEditField.value.length == 0 || isExistingValue;
+	document.getElementById("drop value").disabled = valueCombo.selectedIndex == -1 ||
+													newValueEditField.value.length != 0;
+	document.getElementById("update value").disabled = (valueCombo.selectedIndex == -1 || newValueEditField.value.length == 0) || isExistingValue;
+	
+	document.getElementById("drop link").disabled = linkCombo.selectedIndex == -1;
+
+	document.getElementById("update box comment").disabled = boxComment.length == 0 || (box in box2comment && box2comment[box] == boxComment);
+	document.getElementById("drop box comment").disabled = !(box in box2comment);
+	document.getElementById("update field comment").disabled = fieldComment.length == 0 || (`${box}.${field}` in field2comment && field2comment[`${box}.${field}`] == fieldComment);
+	document.getElementById("drop field comment").disabled = !(`${box}.${field}` in field2comment);	
+
+	document.getElementById("add link").disabled = fromBoxCombo.selectedIndex == -1 ||
+													toBoxCombo.selectedIndex == -1;
+													
+	try {
+        const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param} = JSON.parse(json_io.value);
+        document.getElementById("edit data from json").disabled = false;
+    } catch(e){
+        document.getElementById("edit data from json").disabled = true;
+    }
+ 
+}
+
+setInterval("enable_disable()", 100);

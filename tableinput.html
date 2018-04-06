@@ -1,0 +1,126 @@
+<html>
+
+<head>
+
+	<title>Connected Boxes Input Interface</title>
+
+	<link rel="stylesheet" type="text/css" href="diagstyle.css">
+	<link rel="stylesheet" type="text/css" href="tableinput.css">
+
+</head>
+
+<body>
+
+	<ul>
+      <li>
+        <svg width="80" height="70">
+
+          <a xlink:href="http://www.scmlite.com" title="StructureXpress" />
+          <polygon points="10,30 50,30 50,60 10,60" />
+          <line x1="50" y1="45" x2="60" y2="45" />
+          <polygon points="60,50 70,45 60,40" />
+          <line x1="30" y1="30" x2="30" y2="20" />
+          <polygon points="25,20 35,20 30,10" />
+          </a>
+
+        </svg>
+      </li>
+
+      <li>
+        <a href = "centered_rectangles.html">connected rectangles</a>
+      </li>
+      <li>
+        <a href = "http://localhost:8080/fan_in.html">fan in</a>
+      </li>
+      <li>
+        <a href = "http://localhost:8080/fan_out.html">fan out</a>
+      </li>
+      <li>
+        <a href = "http://localhost:8080/rectangle_filter.html">filter rectangles</a>
+      </li>
+    </ul>
+
+<fieldset>
+	<legend>Diagram Title</legend>
+	<input type="text" id="title" class="bigtextfield">
+</fieldset>
+
+<fieldset>
+	<legend>Boxes</legend>
+	Boxes: <select id="boxes" onchange="selectBox(boxCombo, fieldCombo);updateFieldAttributes();"></select>
+
+	<input type="text" id="new box">
+
+	<button type="button" id="add box" onclick="addNewBox()">Add New Box</button>
+	<button type="button" id="drop box" onclick="dropBox()">Drop Box</button>
+	<button type="button" id="update box" title="update box name" onclick="updateBox()">Update Box</button>
+
+	<p>Box Comments</p>
+	<textarea id="box comment" cols="80" rows="5"></textarea>
+	<br>
+	<button type="button" id="update box comment" onclick="updateBoxComment()">Update Box Comment</button>
+	<button type="button" id="drop box comment" onclick="dropBoxComment()">Drop Box Comment</button>
+</fieldset>
+
+<fieldset>
+	<legend>Box Fields</legend>
+	Fields: <select id="fields" onchange="updateFieldAttributes()"></select>
+
+	<input type="text" id="new field">
+	<input type="checkbox" id="PK">Primary Key</input>
+	<input type="checkbox" id="FK">Foreign Key</input>
+	<button type="button" id="add field" onclick="addNewFieldToBox()">Add New Field To Box</button>
+	<button type="button" id="drop field" onclick="dropFieldFromBox()">Drop Field From Box</button>
+	<button type="button" id="update field" title="update field name" onclick="updateField()">Update Field</button>
+	
+	<p>Field Comment</p>
+	<textarea id="field comment" cols="80" rows="5"></textarea>
+	<br>
+	<button type="button" id="update field comment" onclick="updateFieldComment()">Update Field Comment</button>
+	<button type="button" id="drop field comment" onclick="dropFieldComment()">Drop Field Comment</button>
+</fieldset>
+	
+<fieldset>
+	<legend>Field Values</legend>
+
+	Values: <select id="values" onchange="updateValueAttributes()"></select>
+
+	<input type="text" id="new value">
+	<button type="button" id="edit value" title="load combo value into edit field" onclick="editValueFromField()">Edit Value From Field</button>
+	<button type="button" id="add value" onclick="addNewValueToField()">Add New Value To Field</button>
+	<button type="button" id="drop value" onclick="dropValueFromField()">Drop Value From Field</button>
+	<button type="button" id="update value" onclick="updateValue()">Update Value</button>
+</fieldset>
+
+
+<fieldset>
+	<legend>Box Links</legend>
+	Links: <select id="links" class="bigselect"></select>
+	<button type="button" id="drop link" onclick="dropLink()">Drop Link</button>
+	<br>
+	From Box: <select id="from boxes" onchange="selectBox(fromBoxCombo, fromFieldCombo)"></select>
+	From Field: <select id="from fields"></select>
+	To Box: <select id="to boxes"  onchange="selectBox(toBoxCombo, toFieldCombo)"></select>
+	To Field: <select id="to fields"></select>
+	<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
+</fieldset>
+
+<fieldset>
+	<legend>JSON Input Output</legend>
+
+    <button type="button" id="json from edit data" onclick="refreshJsonFromEditData()">Refresh JSON From Edit Data</button>
+    <button type="button" id="edit data from json" onclick="refreshEditDataFromJson()">Refesh Edit Data From JSON</button>
+
+	<textarea rows="30" cols="180" id="json_input_output"></textarea>
+</fieldset>
+
+<fieldset>
+	<legend>HTML Tab</legend>
+	<button type="button" onclick="createHtmlTab()">Create HTML Tab</button>	
+</fieldset>
+
+	<script type="text/javascript" src="tableinput.js"></script>
+	
+</body>
+</html>
+

@@ -1,0 +1,108 @@
+<html>
+<header>
+<title>filter rectangles</title>
+<style>
+svg{display: inline-block; vertical-align: middle;}
+ul{
+ list-style-type:none;
+ }
+li{
+ display:inline;
+}
+ul li a{
+ background-color:#6495ED;
+ color:black;
+ text-decoration:none;
+ text-align:center;
+ padding:5px;
+ border:2px solid;
+}
+ul li a:hover{
+ background-color:#D3D3D3;
+ border-color:#696969 #DCDCDC #DCDCDC #696969;
+}
+table, td, th {
+ cellspacing:2px;
+ cellpadding:3px;
+ border:solid 1px black;
+};
+li{
+	overflow:hidden;
+};
+</style>
+<script>
+
+function getFilter()
+{
+	var mydata = JSON.parse(data);
+	var n = mydata.boxes.length ;
+	var filter = [];
+	for (let i=0; i<n; i++)
+	{
+		let checkbox = document.getElementById((i).toString()) ;
+		filter.push(checkbox.checked);
+	}
+	return filter;
+}
+
+function selectAll()
+{
+	var mydata = JSON.parse(data);
+	var n = mydata.boxes.length ;
+	for (let i=0; i < n; i++)
+	{
+		var checkbox = document.getElementById(i.toString()) ;
+		checkbox.checked = true ;
+	}
+}
+function clearAll()
+{
+	var mydata = JSON.parse(data);
+	var n = mydata.boxes.length ;
+	for (i=0; i < n; i++)
+	{
+		var checkbox = document.getElementById(i.toString()) ;
+		checkbox.checked = false ;
+	}
+}
+function load() {
+	alert("belles fesses!");
+	var mydata = JSON.parse(data);
+	alert(mydata.http_get_param);
+	
+	for (var id=0; id < mydata.boxes.length; id++)
+	{
+		var box = mydata.boxes[id];
+		document.getElementById("filter").innerHTML += `<li><input type="checkbox" id=${id} checked> ${box.title}</li>`;
+	}
+}
+</script>
+<script type="text/javascript" src="diagdata.js"></script>
+<script type="text/javascript" src="tableinput.js"></script><!-- for function encodeRequest(http_get_param, filter) -->
+</header>
+<body onload="load()">
+<ul>
+<li>
+<svg width="80" height="70">
+<a xlink:href="http://www.scmlite.com" title="StructureXpress">
+<polygon points="10,30 50,30 50,60 10,60" stroke="black" stroke-width="4" fill="lightgray" />
+<line x1="50" y1="45" x2="60" y2="45" stroke="black" stroke-width="4" />
+<polygon points="60,50 70,45 60,40" stroke="black" stroke-width="4" />
+<line x1="30" y1="30" x2="30" y2="20" stroke="black" stroke-width="4" />
+<polygon points="25,20 35,20 30,10" stroke="black" stroke-width="4" />
+</a>
+</svg>
+</li>
+<li><a href = "connected_rectangles.html">connected rectangles</a></li>
+<li><a href = "fan_in.html">fan in</a></li>
+<li><a href = "fan_out.html">fan out</a></li>
+<li><a href = "rectangle_filter.html">filter rectangles</a></li>
+</ul>
+<button onclick="selectAll()">Select All</button>
+<button onclick="clearAll()">Clear All</button>
+<button onclick="window.open(encodeRequest(JSON.parse(data).http_get_param, getFilter()));">Get Filtered Rectangles</button>
+<ul id="filter">
+
+</ul>
+</body>
+</html>

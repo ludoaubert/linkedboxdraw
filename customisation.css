@@ -1,0 +1,43 @@
+table#mdb{
+	background-color: yellow;
+}
+
+
+table#persistTo{
+	background-color: pink;
+}
+
+table#socket, table#messagesSet, table#line, table#AggregatorsRegistry, table#PersistenceRegistry, table#PersistenceActor{
+	background-color: palegreen;
+}
+
+
+table#line  tr#sourceIp, table#line tr#interface, table#socket tr#ip, table#socket tr#port, table#TcpSource tr#ip, table#TcpSource tr#port{
+	background-color: red;
+}
+
+table#channelsOutput tr#role, table#channel tr#role {
+	background-color: orange;
+}
+
+table#channelsOutput tr#speed, table#channel tr#\[realTimeSpeeds\], table#channel tr#\[snapshotSpeeds\], table#businessChannelsOrganizations tr#\[speeds\]
+{
+	background-color: skyblue;
+}
+
+table#usage tr#businessChannelsOrganization, table#businessChannelsOrganizations tr#name {
+	background-color: olive;
+}
+
+table#persistTo tr#persistenceActor, table#persistenceActor tr#name {
+	background-color: hotpink;
+}
+
+table#emitter tr#name {
+	background-color: darkviolet;
+}
+
+table#usage tr#\{emitters\} {
+	height: 100%;
+	background: linear-gradient(90deg, skyblue 50%, darkviolet 50%);
+}
