@@ -1,43 +1,43 @@
-table#mdb{
+table#euf{
 	background-color: yellow;
 }
 
 
-table#persistTo{
+table#KeneVeugra{
 	background-color: pink;
 }
 
-table#socket, table#messagesSet, table#line, table#AggregatorsRegistry, table#PersistenceRegistry, table#PersistenceActor{
+table#keusse, table#zedouZicmus, table#mefu, table#GuedraTeucheTipeu, table#ChanmeBlemeproPec, table#PouilledePotecaCaillerag{
 	background-color: palegreen;
 }
 
 
-table#line  tr#sourceIp, table#line tr#interface, table#socket tr#ip, table#socket tr#port, table#TcpSource tr#ip, table#TcpSource tr#port{
+table#mefu  tr#youvoiUc, table#mefu tr#zeberyeb, table#keusse tr#al, table#keusse tr#zeto, table#Lassedege tr#al, table#Lassedege tr#yepe{
 	background-color: red;
 }
 
-table#channelsOutput tr#role, table#channel tr#role {
+table#channelsOutput tr#role, table#zomblou tr#role {
 	background-color: orange;
 }
 
-table#channelsOutput tr#speed, table#channel tr#\[realTimeSpeeds\], table#channel tr#\[snapshotSpeeds\], table#businessChannelsOrganizations tr#\[speeds\]
+table#channelsOutput tr#speed, table#zomblou tr#\[mifaOideOiteOe\], table#zomblou tr#\[zessegonNeuthu\], table#ZetiNoichNeuthuZincMeucaYoce tr#\[yecous\]
 {
 	background-color: skyblue;
 }
 
-table#usage tr#businessChannelsOrganization, table#businessChannelsOrganizations tr#name {
+table#usage tr#lancebaVeucheYeuveZarbiZeu, table#ZetiNoichNeuthuZincMeucaYoce tr#zebe {
 	background-color: olive;
 }
 
-table#persistTo tr#persistenceActor, table#persistenceActor tr#name {
+table#vessause tr#persistenceYeche, table#TassepeTcheubi tr#telmor {
 	background-color: hotpink;
 }
 
-table#emitter tr#name {
+table#youvoi tr#yepe {
 	background-color: darkviolet;
 }
 
-table#usage tr#\{emitters\} {
+table#usage tr#\{youvois\} {
 	height: 100%;
 	background: linear-gradient(90deg, skyblue 50%, darkviolet 50%);
 }
