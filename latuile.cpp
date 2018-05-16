@@ -23,6 +23,8 @@
 #include "binpack.h"
 #include "FunctionTimer.h"
 #include <chrono>
+#include <cmath>
+#include <numeric>
 using namespace std ;
 using namespace std::chrono;
 
