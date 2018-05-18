@@ -18,7 +18,6 @@
 #include <chrono>
 #include <regex>
 #include <omp.h>
-#include <cstdint>
 using namespace std;
 using namespace std::chrono;
 
