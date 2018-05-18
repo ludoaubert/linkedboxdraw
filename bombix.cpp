@@ -747,38 +747,38 @@ void add_rect(vector<int>(&coords)[2], const Rect& r, int nblink=1)
 	}
 }
 
+struct QueuedEdge
+{
+	uint64_t u,v;
+	int weight;
+	int distance_v;
+};
+
+/*
+It is important to have a strong ordering here. (!(A < B) and !(B < A)) => A=B.
+Before Mai 18th, 2018, order used to be e1.distance_v > e2.distance_v, and so it was not deterministic
+in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
+all OK on 32 bit platforms but some were KO on 64 bit platforms.
+*/
+bool order(QueuedEdge& e1, QueuedEdge& e2)
+{		
+	if (e1.distance_v != e2.distance_v)
+		return e1.distance_v > e2.distance_v;
+	else if (e1.u != e2.u)
+		return e1.u > e2.u;
+	else if (e1.v != e2.v)
+		return e1.v > e2.v;
+	else
+		return e1.weight > e2.weight;
+};
+
 template <typename GraphStruct>
 void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance, 
 				unordered_map<uint64_t,int> &distance, unordered_map<uint64_t, Edge> & predecessor)
-{
-	struct QueuedEdge
-	{
-		uint64_t u,v;
-		int weight;
-		int distance_v;
-	};
-	
+{	
 	distance[0] = 0;
 	
 	vector<QueuedEdge> Q;
-	
-	/*
-	It is important to have a strong ordering here. (!(A < B) and !(B < A)) => A=B.
-	Before Mai 18th, 2018, order used to be e1.distance_v > e2.distance_v, and so it was not deterministic
-	in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
-	all OK on 32 bit platforms but some were KO on 64 bit platforms.
-	*/
-	auto order = [](QueuedEdge& e1, QueuedEdge& e2){
-		
-		if (e1.distance_v != e2.distance_v)
-			return e1.distance_v > e2.distance_v;
-		else if (e1.u != e2.u)
-			return e1.u > e2.u;
-		else if (e1.v != e2.v)
-			return e1.v > e2.v;
-		else
-			return e1.weight > e2.weight;
-	};
 	
 	for (uint64_t u : source_nodes)
 	{
@@ -818,20 +818,11 @@ template <typename GraphStruct>
 void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance,
 	vector<int> &distance, vector<Edge> & predecessor)
 {
-	struct QueuedEdge
-	{
-		uint64_t u, v;
-		int weight;
-		int distance_v;
-	};
-
 	Edge adj_edges[3];
 
 	distance[0] = 0;
 
 	vector<QueuedEdge> Q;
-
-	auto order = [](QueuedEdge& e1, QueuedEdge& e2) {return e1.distance_v > e2.distance_v; };
 
 	for (uint64_t u : source_nodes)
 	{
