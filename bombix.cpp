@@ -18,6 +18,7 @@
 #include <chrono>
 #include <regex>
 #include <omp.h>
+#include <cstdint>
 using namespace std;
 using namespace std::chrono;
 
@@ -106,6 +107,8 @@ static_assert(sizeof(Maille)==sizeof(uint64_t),"");
 
 uint64_t serialize(const Maille& m)
 {
+	assert(m.value <= UINT8_MAX);
+	assert(m.other <= UINT8_MAX);
 	uint64_t u = 1 + (m.value << 1) + (m.other << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
 	assert(u < 1000 * 1000);
 	return u;
@@ -117,8 +120,10 @@ Maille parse(uint64_t u)
 	u >>= 1;
 	Maille m;
 	m.value = u & 0xFF;
+	assert(m.value <= UINT8_MAX);
 	u >>= 8;
 	m.other = u & 0xFF;
+	assert(m.other <= UINT8_MAX);
 	u >>= 8;
 	m.direction = (Direction)(u & 0x01);
 	u >>= 1;
