@@ -756,7 +756,7 @@ struct QueuedEdge
 
 /*
 It is important to have a strong ordering here. (!(A < B) and !(B < A)) => A=B.
-Before Mai 18th, 2018, order used to be e1.distance_v > e2.distance_v, and so it was not deterministic
+Before Mai 18th 2018, order used to be e1.distance_v > e2.distance_v, and so it was not deterministic
 in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
 all OK on 32 bit platforms but some were KO on 64 bit platforms.
 */
