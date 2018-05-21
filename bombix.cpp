@@ -1119,11 +1119,13 @@ string polyline2json(const vector<Polyline>& polylines)
 		{
 			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", p.x, p.y);
 		}
-		pos--;
+		if (buffer[pos-1]==',')
+			pos--;
 		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},", polyline.from, polyline.to);
 	}
 	
-	pos--;
+	if (buffer[pos-1]==',')
+		pos--;
 	pos += sprintf(buffer + pos, "]");
 	
 	return buffer;
@@ -2846,7 +2848,7 @@ bool parse_command(int argc,
 		   vector<Rect> &rects,
 		   vector<Link> &links)
 {
-	const regex hexa("^[0-9a-z]+$");
+	const regex hexa("^[0-9a-z]*$");
 
         unordered_map<string, const char*> args={
              {"--rectdim", 0},
@@ -2860,7 +2862,7 @@ bool parse_command(int argc,
                 if (args.count(argv[i]))
                      args[argv[i]] = argv[i + 1];
 	}
-	
+
 	bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
 	             strlen(args["--translations"]) == strlen(args["--rectdim"]) &&regex_match(args["--translations"], hexa) &&
 				 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);

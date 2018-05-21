@@ -2,7 +2,7 @@ import re
 import os
 import json
 import socket
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 
 HOST, PORT = '', 8080
 
@@ -34,14 +34,10 @@ while True:
 #"http_get_param":"01408d0280a203804006807807808d03810b04804708804e0480d304808505806a06806907803903803f04809a0580620380700380700480320380c407801700100e00200e00200500300400501100600e00600500700000701000800900900f00a01200a01000a00900b00d00c00e00e00701000301100701300a01300701300801300b"
 #http://localhost:8080/getFilter?0110af0880940180550180b00180940280850580a10880a20880940380b70180940180c40d811118808603807806806303807805801200300100c00b00c00800e00800d00800a00800a00900100000700800700500700600700200700100700200900700f00801000f002004ffff1
 
-    command=['/home/eddi/Téléchargements/latuile', '--rectdim', rectdim, '--links', links, '--filter', filtre, '--reqkind', 'getFilter']
+    command=['build/latuile', '--rectdim', rectdim, '--links', links, '--filter', filtre, '--reqkind', 'getFilter']
     print(str(command))
-    proc = Popen(command, stdout=PIPE)
-    json1 = ""
-    for line in proc.stdout:
-       json1 += line.decode('ascii')
-    print(json1)
-
+    json1 = check_output(command).decode("ascii")
+    
     rectdim = [rectdim[6*i:6*i+6] for i in range(nr_rects)]
     print('rectdim')
     print(str(rectdim))
@@ -84,12 +80,9 @@ while True:
         print('links_')
         print(links_)
 
-        command=['/home/eddi/Téléchargements/bombix','--frame', frame,'--rectdim', rectdim_,'--translations', translations,'--links', links_]
+        command=['build/bombix','--frame', frame,'--rectdim', rectdim_,'--translations', translations,'--links', links_]
         print(str(command))
-        proc = Popen(command, stdout=PIPE)
-        json2 = ""
-        for line in proc.stdout:
-           json2 += line.decode('ascii')
+        json2 = check_output(command).decode("ascii")
         print('json2')
         print(json2)
         polylines = json.loads(json2)
