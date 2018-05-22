@@ -42,9 +42,9 @@ while True:
     rectdim = [rectdim[6*i:6*i+6] for i in range(nr_rects)]
     print('rectdim')
     print(str(rectdim))
-    links = [(int(links[6*i:6*i+3],16), int(links[6*i+3:6*i+6],16)) for i in range(nr_links)]
+    edges = [(int(links[6*i:6*i+3],16), int(links[6*i+3:6*i+6],16)) for i in range(nr_links)]
     print('links')
-    print(str(links))
+    print(str(edges))
 
     data = json.loads(json1)
     for context in data['contexts']:
@@ -77,7 +77,7 @@ while True:
         print('translations')
         print(translations)
 
-        links_ = "".join(["{:02x}{:02x}".format(idmap[s],idmap[t]) for s,t in links if s in idmap and t in idmap])
+        links_ = "".join(["{:02x}{:02x}".format(idmap[s],idmap[t]) for s,t in edges if s in idmap and t in idmap])
         print('links_')
         print(links_)
 
@@ -95,11 +95,6 @@ while True:
     print('contexts')
     print(json.dumps(data))
 
-#    http_response = b"""\
-#HTTP/1.1 200 OK
-#
-#Hello, World!
-#"""
     http_response = bytearray(json.dumps(data),'ascii')
     client_connection.sendall(b'HTTP/1.0 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
     client_connection.close()
