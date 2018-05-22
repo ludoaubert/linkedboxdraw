@@ -89,7 +89,13 @@ while True:
         json2 = check_output(command).decode("ascii")
         print('json2')
         print(json2)
+        
         polylines = json.loads(json2)
+
+        reduced_edges=[{"from":polyline["from"], "to": polyline["to"]} for polyline in polylines]
+        print("reduced_edges=" + json.dumps(reduced_edges))
+        context['reduced_edges'] = reduced_edges
+        
         for polyline in polylines:
             for u in ['from','to']:
                 polyline[u] = reverse_idmap[ polyline[u] ]
