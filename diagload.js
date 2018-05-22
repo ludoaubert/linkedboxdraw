@@ -79,7 +79,7 @@ function loadDiag() {
 	
 	var innerHTML = '';
 	
-	for (const {title, frame, translatedBoxes, links} of mycontexts.contexts)
+	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
 	{
 		alert("context title=" + title);
 		

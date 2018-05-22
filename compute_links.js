@@ -116,7 +116,7 @@ function deselectElement(evt)
 	console.log("selectedContextIndex=" + selectedContextIndex)
 	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	let mycontexts = JSON.parse(contexts);
-	console.log("edges=" + JSON.stringify(mycontexts.contexts[selectedContextIndex].links))
+	console.log("edges=" + JSON.stringify(mycontexts.contexts[selectedContextIndex].reduced_edges))
 
 	selectedElement.removeAttributeNS(null, "onmousemove");
 	selectedElement.removeAttributeNS(null, "onmouseout");
