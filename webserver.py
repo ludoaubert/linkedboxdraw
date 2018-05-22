@@ -16,20 +16,23 @@ while True:
     request = client_connection.recv(1024)
     print(str(request))
     m = re.search(r'GET /getFilter\?([^ ]*) HTTP', str(request))
-    if m:
-        data = m.group(1)
-        nr_rects = int(data[:3], 16)
-        print('nr_rects')
-        print(str(nr_rects))
-        rectdim = data[3:3+nr_rects*6]
-        nr_links = int(data[3+nr_rects*6:3+nr_rects*6+3],16)
-        print('nr_links')
-        print(str(nr_links))
-        links = data[3+nr_rects*6+3:3+nr_rects*6+3+nr_links*6]
-        filtre = data[3+nr_rects*6+3+nr_links*6:]
-        print(rectdim)
-        print(links)
-        print(filtre)
+
+    if not m:
+        continue
+    
+    data = m.group(1)
+    nr_rects = int(data[:3], 16)
+    print('nr_rects')
+    print(str(nr_rects))
+    rectdim = data[3:3+nr_rects*6]
+    nr_links = int(data[3+nr_rects*6:3+nr_rects*6+3],16)
+    print('nr_links')
+    print(str(nr_links))
+    links = data[3+nr_rects*6+3:3+nr_rects*6+3+nr_links*6]
+    filtre = data[3+nr_rects*6+3+nr_links*6:]
+    print(rectdim)
+    print(links)
+    print(filtre)
 
 #"http_get_param":"01408d0280a203804006807807808d03810b04804708804e0480d304808505806a06806907803903803f04809a0580620380700380700480320380c407801700100e00200e00200500300400501100600e00600500700000701000800900900f00a01200a01000a00900b00d00c00e00e00701000301100701300a01300701300801300b"
 #http://localhost:8080/getFilter?0110af0880940180550180b00180940280850580a10880a20880940380b70180940180c40d811118808603807806806303807805801200300100c00b00c00800e00800d00800a00800a00900100000700800700500700600700200700100700200900700f00801000f002004ffff1
