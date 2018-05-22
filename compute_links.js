@@ -1,21 +1,4 @@
 
-function handleLoad(e) 
-{
-	console.log('Loaded import: ' + e.target.href) ;
-	var doc= document.querySelector('link[rel="import"]').import;
-	for (var i=0; i < 1000; i++)
-	{
-		var group = document.getElementById('box'+i) ;
-		if (group != null)
-		{
-			group.appendChild(doc.getElementById(i)) ;
-		}
-	}
-}
-function handleError(e)
-{
-	console.log('Error loading import: ' + e.target.href) ;
-}
 
 var selectedSVGElement = 0;
 var selectedElement = 0;
