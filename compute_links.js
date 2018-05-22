@@ -127,26 +127,6 @@ function deselectElement(evt)
 	console.log("rectangles=" + JSON.stringify(rectangles));
 	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	console.log("selectedRectangleName=" + getRectangleNameFromIndex(selectedSVGElement, selectedRectangleIndex));
-	
-	var path_elements = selectedSVGElement.getElementsByTagName("path");
-	for (var i=0; i<path_elements.length; i++)
-	{
-		var pathElement = path_elements[i];
-		var edge = pathElement.id;
-		rectangleFromIndex = parseInt(edge.substr(0,4));
-		rectangleToIndex = parseInt(edge.substr(4,4));
-		console.log("rectangleFromIndex=" + rectangleFromIndex);
-		console.log("rectangleFromName=" + getRectangleNameFromIndex(selectedSVGElement, rectangleFromIndex));
-		console.log("rectangleToIndex=" + rectangleToIndex);
-		console.log("RectangleToName=" + getRectangleNameFromIndex(selectedSVGElement, rectangleToIndex));
-	  
-		if (selectedRectangleIndex == rectangleFromIndex || selectedRectangleIndex == rectangleToIndex)
-		{
-			var polyline = compute_polyline(rectangle_names, rectangles, rectangleFromIndex, rectangleToIndex);
-			
-			pathElement.setAttribute("d", encode_polyline(polyline));
-		}
-	}
 
 	selectedElement.removeAttributeNS(null, "onmousemove");
 	selectedElement.removeAttributeNS(null, "onmouseout");
