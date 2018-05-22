@@ -1,5 +1,5 @@
 # linkedboxdraw
-position connected boxes and draw the links
+position connected boxes (latuile) and draw the links (bombix)
 
 bombix and latuile are independant algorithms. They both contain a complete test suite, with a list of input and expected results.
 They can be compiled independantly. If you run bombix (resp. latuile) on the command line with no argument, the test suite will be executed
