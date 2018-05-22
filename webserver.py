@@ -100,5 +100,5 @@ while True:
 #Hello, World!
 #"""
     http_response = bytearray(json.dumps(data),'ascii')
-    client_connection.sendall(http_response)
+    client_connection.sendall(b'HTTP/1.0 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
     client_connection.close()
