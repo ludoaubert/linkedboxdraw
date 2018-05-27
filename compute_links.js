@@ -117,7 +117,8 @@ function deselectElement(evt)
 	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	let mycontexts = JSON.parse(contexts);
 	let reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
-	let data={rectangles,reduced_edges}
+	let frame = mycontexts.contexts[selectedContextIndex].frame;
+	let data={rectangles,reduced_edges, frame}
 	let url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
 	console.log("data=" + JSON.stringify(data));
 	console.log(url);

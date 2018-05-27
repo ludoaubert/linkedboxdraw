@@ -14,10 +14,10 @@ listen_socket.listen(1)
 print ('Serving HTTP on port %s ...' % PORT)
 while True:
     client_connection, client_address = listen_socket.accept()
-    request = client_connection.recv(1024)
+    request = client_connection.recv(2048)
     print(str(request))
     m1 = re.search(r'GET /getFilter\?([^ ]*) HTTP', str(request))
-    m2 = re.search(r'GET /getReducedEdges\?data=([0-9a-zA-Z]*)', str(request))    
+    m2 = re.search(r'GET /getReducedEdges\?data=([^ ]*) HTTP', str(request))    
 
     if m1:
         data = m1.group(1)
@@ -111,8 +111,31 @@ while True:
     elif m2:
         data = m2.group(1)
         print(data)
+        missing_padding = len(data) % 4
+        if missing_padding != 0:
+            data += '='* (4 - missing_padding)
         data = base64.b64decode(data)
         print(data)
-        http_response = bytearray(json.dumps(data),'ascii')
+        data = json.loads(data.decode('utf-8'))
+        rectdim = "".join("{:03x}{:03x}".format(rec['right']-rec['left'],rec['bottom']-rec['top']) for rec in data['rectangles'])
+        print('rectdim')
+        print(rectdim)
+        translations = "".join("{:03x}{:03x}".format(rec['left'],rec['top']) for rec in data['rectangles'])
+        print('translations')
+        print(translations)
+        links = "".join(["{:02x}{:02x}".format(edge['from'],edge['to']) for edge in data['reduced_edges']])
+        print('links')
+        print(links)
+        frame = data['frame']
+        frame = "{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
+        print('frame')
+        print(frame)
+        command=['build/debug/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
+        print(str(command))
+        json2 = check_output(command).decode("ascii")
+        print('json2')
+        print(json2)
+        
+        http_response = bytearray(json2,'ascii')
         client_connection.sendall(b'HTTP/1.0 200 OK\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
         client_connection.close()       
