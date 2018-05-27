@@ -112,11 +112,29 @@ function deselectElement(evt)
 		rectangles.push({left, right, top, bottom});
 	}
 
-	console.log("rectangles=" + JSON.stringify(rectangles));
+
 	console.log("selectedContextIndex=" + selectedContextIndex)
 	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	let mycontexts = JSON.parse(contexts);
-	console.log("edges=" + JSON.stringify(mycontexts.contexts[selectedContextIndex].reduced_edges))
+	let reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
+	let data={rectangles,reduced_edges}
+	let url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
+	console.log("data=" + JSON.stringify(data));
+	console.log(url);
+
+        var xhr = new XMLHttpRequest();
+    	xhr.open("GET", url, true);
+    	xhr.onload = function(e)	{
+        	if (xhr.readyState==4)	{
+			if (xhr.status==200)	{
+            			console.log("response=" + xhr.responseText);
+	        	} else	{
+				console.error(xhr.statusText);
+			}
+		}
+    	}
+
+    	xhr.send(null);    
 
 	selectedElement.removeAttributeNS(null, "onmousemove");
 	selectedElement.removeAttributeNS(null, "onmouseout");
