@@ -130,8 +130,12 @@ function deselectElement(evt)
 			if (xhr.status==200)	{
 				console.log("attention!");
             			console.log("responseText=" + xhr.responseText);
-				console.log("selectedContextIndex=" + selectedContextIndex);		
-				mycontexts.contexts[selectedContextIndex].links = JSON.parse(xhr.responseText);
+				console.log("selectedContextIndex=" + selectedContextIndex);
+				const ctx = mycontexts.contexts[selectedContextIndex];		
+				ctx.links = JSON.parse(xhr.responseText);
+				const translatedBox = ctx.translatedBoxes[selectedRectangleIndex];
+				translatedBox.translation.x = currentTranslateX;
+				translatedBox.translation.y = currentTranslateY;
 				drawDiag();
 				selectedElement.removeAttributeNS(null, "onmousemove");
 				selectedElement.removeAttributeNS(null, "onmouseout");
