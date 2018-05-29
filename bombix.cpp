@@ -986,7 +986,7 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 	{
 		source_node_distance[u] = compute_distance(parse_ir(u), ranges, coords);
 	}
-	dijkstra(InnerRangeGraph{ranges, definition_matrix, coords}, source_nodes, source_node_distance, distance, predecessor);
+	dijkstra(graph, source_nodes, source_node_distance, distance, predecessor);
 	vector<uint64_t> target_nodes;
 //TODO: use destructuring
 	for (auto& p : distance)
