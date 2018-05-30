@@ -781,7 +781,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	vector<QueuedEdge> Q;
 	
 	//TODO: use C++17 structured binding
-	for (const auto kv : source_node_distance)
+	for (const auto& kv : source_node_distance)
 	{
 		uint64_t u = kv.first;
 		int distance_v = kv.second;
@@ -827,7 +827,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	vector<QueuedEdge> Q;
 
 	//TODO: use C++17 structured binding
-	for (const auto kv : source_node_distance)
+	for (const auto& kv : source_node_distance)
 	{
 		uint64_t u = kv.first;
 		int distance_v = kv.second;
