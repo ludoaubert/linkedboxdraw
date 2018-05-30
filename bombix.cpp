@@ -790,10 +790,13 @@ struct Distance
 };
 
 
-template <typename GraphStruct>
+template <typename GraphStruct, typename DistanceMap, typename PredecessorMap>
 void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance, 
-				unordered_map<uint64_t,Distance> &distance, unordered_map<uint64_t, Edge> & predecessor)
+			DistanceMap &distance, PredecessorMap & predecessor)
 {	
+	static_assert(is_same<DistanceMap, vector<int> >::value || is_same<DistanceMap, unordered_map<uint64_t, Distance> >::value, "");
+	static_assert(is_same<PredecessorMap, vector<Edge> >::value || is_same<PredecessorMap, unordered_map<uint64_t, Edge> >::value, "");
+
 	distance[0] = 0;
 	
 	vector<QueuedEdge> Q;
@@ -826,50 +829,6 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 				if (distance_v < distance[adj_edge.v])
 				{
 					Q.push_back({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
-					push_heap(begin(Q), end(Q), order);
-				}
-			}
-		}
-	}
-}
-
-
-template <typename GraphStruct>
-void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance,
-	vector<int> &distance, vector<Edge> & predecessor)
-{
-	distance[0] = 0;
-
-	vector<QueuedEdge> Q;
-
-	//TODO: use C++17 structured binding
-	for (const auto& kv : source_node_distance)
-	{
-		uint64_t u = kv.first;
-		int distance_v = kv.second;
-		int weight = distance_v;
-		Q.push_back({ 0, u, weight, distance_v });
-		push_heap(begin(Q), end(Q), order);
-	}
-
-	while (!Q.empty())
-	{
-		pop_heap(begin(Q), end(Q), order);
-		//TODO: use C++17 structured binding
-		QueuedEdge queued_edge = Q.back();
-		Q.pop_back();
-
-		if (queued_edge.distance_v < distance[queued_edge.v])
-		{
-			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight };
-			distance[queued_edge.v] = queued_edge.distance_v;
-
-			for (const Edge& adj_edge : adj_list(graph, queued_edge.v))
-			{
-				int distance_v = distance[adj_edge.u] + adj_edge.weight;
-				if (distance_v < distance[adj_edge.v])
-				{
-					Q.push_back({ adj_edge.u, adj_edge.v, adj_edge.weight, distance_v });
 					push_heap(begin(Q), end(Q), order);
 				}
 			}
