@@ -772,9 +772,25 @@ bool order(QueuedEdge& e1, QueuedEdge& e2)
 		return e1.weight > e2.weight;
 };
 
+
+struct Distance
+{
+	operator int&()
+	{
+		return i;
+	}
+	Distance& operator=(int ii){
+		i=ii;
+		return *this;
+	}
+
+	int i=INT16_MAX; 
+};
+
+
 template <typename GraphStruct>
 void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance, 
-				unordered_map<uint64_t,int> &distance, unordered_map<uint64_t, Edge> & predecessor)
+				unordered_map<uint64_t,Distance> &distance, unordered_map<uint64_t, Edge> & predecessor)
 {	
 	distance[0] = 0;
 	
@@ -797,15 +813,15 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 		QueuedEdge queued_edge = Q.back();
 		Q.pop_back();
 		
-		if (distance.count(queued_edge.v)==0 || queued_edge.distance_v < distance.at(queued_edge.v))
+		if (queued_edge.distance_v < distance[queued_edge.v])
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
 			distance[queued_edge.v] = queued_edge.distance_v;
 			
 			for (const Edge& adj_edge : adj_list(graph, queued_edge.v))
 			{
-				int distance_v = distance.at(adj_edge.u) + adj_edge.weight;
-				if (distance.count(adj_edge.v) == 0 || distance_v < distance.at(adj_edge.v))
+				int distance_v = distance[adj_edge.u] + adj_edge.weight;
+				if (distance_v < distance[adj_edge.v])
 				{
 					Q.push_back({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
 					push_heap(begin(Q), end(Q), order);
@@ -974,7 +990,7 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 	const vector<int>(&coords)[2] = graph.coords;
 	
 	unordered_map<uint64_t, int> source_node_distance;
-	unordered_map<uint64_t, int> distance;
+	unordered_map<uint64_t, Distance> distance;
 	unordered_map<uint64_t, Edge> predecessor;
 	const Range &r = ranges.front();
 	for (int16_t min = r.min; min <= r.max; min++)
@@ -1020,7 +1036,7 @@ bool connect_outer_ranges(const OuterRangeGraph& graph)
 	int64_t u = serialize(ir);
 
 	unordered_map<uint64_t, int> source_node_distance = {{u,0}};
-	unordered_map<uint64_t, int> distance;
+	unordered_map<uint64_t, Distance> distance;
 	unordered_map<uint64_t, Edge> predecessor;
 	
 	dijkstra(graph, source_node_distance, distance, predecessor);
