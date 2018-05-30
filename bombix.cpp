@@ -859,7 +859,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 		QueuedEdge queued_edge = Q.back();
 		Q.pop_back();
 
-		if (queued_edge.distance_v < distance.at(queued_edge.v))
+		if (queued_edge.distance_v < distance[queued_edge.v])
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight };
 			distance[queued_edge.v] = queued_edge.distance_v;
@@ -868,8 +868,8 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 			for (int i=0; i < size; i++)
 			{
 				const Edge& adj_edge = adj_edges[i];
-				int distance_v = distance.at(adj_edge.u) + adj_edge.weight;
-				if (distance_v < distance.at(adj_edge.v))
+				int distance_v = distance[adj_edge.u] + adj_edge.weight;
+				if (distance_v < distance[adj_edge.v])
 				{
 					Q.push_back({ adj_edge.u, adj_edge.v, adj_edge.weight, distance_v });
 					push_heap(begin(Q), end(Q), order);
