@@ -775,16 +775,16 @@ bool order(QueuedEdge& e1, QueuedEdge& e2)
 
 struct Distance
 {
-	operator int&()
+	operator int64_t&()
 	{
 		return i;
 	}
-	Distance& operator=(int ii){
+	Distance& operator=(int64_t ii){
 		i=ii;
 		return *this;
 	}
 
-	int i=INT16_MAX; 
+	int64_t i= INT32_MAX;
 };
 
 
