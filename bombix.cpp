@@ -773,16 +773,18 @@ bool order(QueuedEdge& e1, QueuedEdge& e2)
 };
 
 template <typename GraphStruct>
-void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance, 
+void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance, 
 				unordered_map<uint64_t,int> &distance, unordered_map<uint64_t, Edge> & predecessor)
 {	
 	distance[0] = 0;
 	
 	vector<QueuedEdge> Q;
 	
-	for (uint64_t u : source_nodes)
+	//TODO: use C++17 structured binding
+	for (const auto kv : source_node_distance)
 	{
-		int distance_v = source_node_distance.count(u) ? source_node_distance.at(u) : 0;
+		uint64_t u = kv.first;
+		int distance_v = kv.second;
 		int weight = distance_v;
 		Q.push_back({ 0, u, weight, distance_v});
 		push_heap(begin(Q), end(Q), order);
@@ -791,7 +793,7 @@ void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_no
 	while (!Q.empty())
 	{
 		pop_heap(begin(Q), end(Q), order);
-	//TODO: use C++17 destructuring
+	//TODO: use C++17 structured binding
 		QueuedEdge queued_edge = Q.back();
 		Q.pop_back();
 		
@@ -815,7 +817,7 @@ void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_no
 
 
 template <typename GraphStruct>
-void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_nodes, const unordered_map<uint64_t, int> &source_node_distance,
+void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance,
 	vector<int> &distance, vector<Edge> & predecessor)
 {
 	Edge adj_edges[3];
@@ -824,9 +826,11 @@ void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_no
 
 	vector<QueuedEdge> Q;
 
-	for (uint64_t u : source_nodes)
+	//TODO: use C++17 structured binding
+	for (const auto kv : source_node_distance)
 	{
-		int distance_v = source_node_distance.count(u) ? source_node_distance.at(u) : 0;
+		uint64_t u = kv.first;
+		int distance_v = kv.second;
 		int weight = distance_v;
 		Q.push_back({ 0, u, weight, distance_v });
 		push_heap(begin(Q), end(Q), order);
@@ -835,7 +839,7 @@ void dijkstra(const GraphStruct& graph, const unordered_set<uint64_t> &source_no
 	while (!Q.empty())
 	{
 		pop_heap(begin(Q), end(Q), order);
-		//TODO: use C++17 destructuring
+		//TODO: use C++17 structured binding
 		QueuedEdge queued_edge = Q.back();
 		Q.pop_back();
 
@@ -969,7 +973,7 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 	const Matrix<bool> &definition_matrix = graph.definition_matrix;
 	const vector<int>(&coords)[2] = graph.coords;
 	
-	unordered_set<uint64_t> source_nodes;
+	unordered_map<uint64_t, int> source_node_distance;
 	unordered_map<uint64_t, int> distance;
 	unordered_map<uint64_t, Edge> predecessor;
 	const Range &r = ranges.front();
@@ -978,15 +982,12 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 		for (int16_t max = min; max <= r.max; max++)
 		{
 			InnerRange ir = {min, max, 0};
-			source_nodes.insert(serialize(ir));
+			int64_t u = serialize(ir);
+			source_node_distance[u] = compute_distance(ir, ranges, coords);
 		}
 	}
-	unordered_map<uint64_t, int> source_node_distance;
-	for (uint64_t u : source_nodes)
-	{
-		source_node_distance[u] = compute_distance(parse_ir(u), ranges, coords);
-	}
-	dijkstra(graph, source_nodes, source_node_distance, distance, predecessor);
+
+	dijkstra(graph, source_node_distance, distance, predecessor);
 	vector<uint64_t> target_nodes;
 //TODO: use destructuring
 	for (auto& p : distance)
@@ -1013,18 +1014,16 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 
 bool connect_outer_ranges(const OuterRangeGraph& graph)
 {
-	unordered_set<uint64_t> source_nodes;
+	const vector<Range> &path = graph.path;
+	const Range &r = path.front();
+	InnerRange ir = {r.min, r.max, 0};
+	int64_t u = serialize(ir);
+
+	unordered_map<uint64_t, int> source_node_distance = {{u,0}};
 	unordered_map<uint64_t, int> distance;
 	unordered_map<uint64_t, Edge> predecessor;
 	
-	const vector<Range> &path = graph.path;
-	const Range &r = path.front();
-	
-	InnerRange ir = {r.min, r.max, 0};
-	source_nodes.insert(serialize(ir));
-	unordered_map<uint64_t, int> source_node_distance;
-	
-	dijkstra(graph, source_nodes, source_node_distance, distance, predecessor);
+	dijkstra(graph, source_node_distance, distance, predecessor);
 	vector<uint64_t> target_nodes;
 	//TODO: use destructuring
 	for (auto& p : distance)
@@ -2567,8 +2566,10 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
 	unordered_map<uint64_t, int> source_node_distance;
+	for (uint64_t u : source_nodes)
+		source_node_distance[u] = 0;
 
-	dijkstra(Graph{ definition_matrix_, coords }, source_nodes, source_node_distance, distance, predecessor);
+	dijkstra(Graph{ definition_matrix_, coords }, source_node_distance, distance, predecessor);
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
 	unordered_map<int, uint64_t> best_target_candidate;
