@@ -510,8 +510,10 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 
 //TODO: use destructuring when it is available
 
-size_t adj_list(const Graph& graph, uint64_t u, Edge (&adj)[3])
+vector<Edge> adj_list(const Graph& graph, uint64_t u)
 {
+	vector<Edge> adj;
+
 	const int TURN_PENALTY = 1;
 	const Matrix<bool> & definition_matrix = graph.definition_matrix;
 	const vector<int> (&coords)[2] = graph.coords;
@@ -532,7 +534,7 @@ size_t adj_list(const Graph& graph, uint64_t u, Edge (&adj)[3])
 			auto& tab = coords[m->direction];
 			distance += tab[m->value+1] - tab[m->value];
 		}
-		adj[size++] = {u, v, distance};
+		adj.push_back({u, v, distance});
 	}
 	
 	for (Way way : { DECREASE, INCREASE})
@@ -545,11 +547,11 @@ size_t adj_list(const Graph& graph, uint64_t u, Edge (&adj)[3])
 		if (definition_matrix(next))
 		{
 			uint64_t v = serialize(next);
-			adj[size++] = { u, v, TURN_PENALTY };
+			adj.push_back({ u, v, TURN_PENALTY });
 		}
 	}
 	
-	return size;
+	return adj;
 }
 
 
@@ -836,8 +838,6 @@ template <typename GraphStruct>
 void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance,
 	vector<int> &distance, vector<Edge> & predecessor)
 {
-	Edge adj_edges[3];
-
 	distance[0] = 0;
 
 	vector<QueuedEdge> Q;
@@ -864,10 +864,8 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight };
 			distance[queued_edge.v] = queued_edge.distance_v;
 
-			size_t size = adj_list(graph, queued_edge.v, adj_edges);
-			for (int i=0; i < size; i++)
+			for (const Edge& adj_edge : adj_list(graph, queued_edge.v))
 			{
-				const Edge& adj_edge = adj_edges[i];
 				int distance_v = distance[adj_edge.u] + adj_edge.weight;
 				if (distance_v < distance[adj_edge.v])
 				{
