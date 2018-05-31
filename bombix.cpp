@@ -84,6 +84,11 @@ bool operator==(const Range& r1, const Range& r2)
 	return memcmp(&r1, &r2, sizeof(Range)) == 0;
 }
 
+bool operator!=(const Range& r1, const Range& r2)
+{
+	return memcmp(&r1, &r2, sizeof(Range)) != 0;
+}
+
 struct Maille
 {
 	Direction direction;
@@ -154,6 +159,11 @@ struct Point
 bool operator==(const Point& p1, const Point& p2)
 {
 	return memcmp(&p1, &p2, sizeof(Point))==0;
+}
+
+bool operator!=(const Point& p1, const Point& p2)
+{
+	return memcmp(&p1, &p2, sizeof(Point)) != 0;
 }
 
 struct Rect
@@ -322,6 +332,11 @@ struct Polyline
 bool operator==(const Polyline& p1, const Polyline& p2)
 {
 	return p1.from == p2.from && p1.to == p2.to && p1.data == p2.data;
+}
+
+bool operator!=(const Polyline& p1, const Polyline& p2)
+{
+	return p1.from != p2.from || p1.to != p2.to || p1.data != p2.data;
 }
 
 struct Link
@@ -839,7 +854,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 
 void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const unordered_set<uint64_t> &target_nodes,
-								vector<int> &distance,
+								const vector<int> &distance,
 								const vector<Edge> &predecessor,
 								vector<uint64_t> &target_candidates)
 {	
@@ -851,6 +866,8 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 		if (distance.at(v) == distance.at(u))
 			target_candidates.push_back(v);
 	}
+
+	sort(begin(target_candidates), end(target_candidates));
 }
 
 vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
@@ -1129,44 +1146,44 @@ const TestContext contexts[] = {
     /*frame*/{ 0, 120, 0, 100 },
     /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/2},{/*source*/0,/*target*/3}},
     /*faiceau output*/{
-     {
-	/*target*/{
-            {
-		/*from*/0,
-		/*to*/1,
-		/*expected path*/{
-                    {HORIZONTAL, INCREASE, 4, 3},
-                    {VERTICAL, DECREASE, 3, 4},
-                    {VERTICAL, DECREASE, 2, 4},
-                    {VERTICAL, DECREASE, 1, 4},
-                    {HORIZONTAL, INCREASE, 4, 1}
-                }
-            },
-            {
-		/*from*/0,
-		/*to*/2,
-		/*expected path*/{
-                    {HORIZONTAL, INCREASE, 4, 4}
-		}
-            },
-            {
-		/*from*/0,
-		/*to*/3,
-		/*expected path*/{
-                    {HORIZONTAL, INCREASE, 4, 5},
-                    {VERTICAL, INCREASE, 5, 4},
-                    {VERTICAL, INCREASE, 6, 4},
-                    {VERTICAL, INCREASE, 7, 4},
-                    {HORIZONTAL, INCREASE, 4, 7}
-		}
-	   }
-        },
-        /*enlarged*/{
-        }
-     }
-    },
-    /*polylines*/{
-          		{
+			{
+				/*target*/{
+					{
+						/*from*/0,
+						/*to*/1,
+						/*expected path*/{
+							{HORIZONTAL, INCREASE, 4, 3},
+							{VERTICAL, DECREASE, 3, 4},
+							{VERTICAL, DECREASE, 2, 4},
+							{VERTICAL, DECREASE, 1, 4},
+							{HORIZONTAL, INCREASE, 4, 1}
+						}
+					},
+					{
+						/*from*/0,
+						/*to*/2,
+						/*expected path*/{
+							{HORIZONTAL, INCREASE, 4, 4}
+						}
+					},
+					{
+						/*from*/0,
+						/*to*/3,
+						/*expected path*/{
+							{HORIZONTAL, INCREASE, 4, 5},
+							{VERTICAL, INCREASE, 5, 4},
+							{VERTICAL, INCREASE, 6, 4},
+							{VERTICAL, INCREASE, 7, 4},
+							{HORIZONTAL, INCREASE, 4, 7}
+						}
+					}
+				},
+				/*enlarged*/{
+				}
+			}
+		},
+		/*polylines*/{
+          	{
 				/*from*/0,
 				/*to*/1,
 				/*data*/{ { 30, 43 }, {55, 43}, {55, 25}, {80, 25} }
@@ -1181,7 +1198,7 @@ const TestContext contexts[] = {
 				/*to*/3,
 				/*data*/{{30,56},{55,56},{55,75},{80,75}}
 			}
-       }
+		}
 },
 
 /*
@@ -1207,23 +1224,23 @@ const TestContext contexts[] = {
 */
 
 {
- /*testid*/1,
- /*rectangles*/{
- {/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
- {/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
- {/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
- {/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
- },
- /*frame*/{ 0, 55, 0, 100 },
- /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
-/*faiceau output*/{
+	/*testid*/1,
+	/*rectangles*/{
+		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
+		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
+		{/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
+		{/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+	},
+	/*frame*/{ 0, 55, 0, 100 },
+	/*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
+	/*faiceau output*/{
 			{
 				/*targets*/{
 					{
 						/*from*/0,
 						/*to*/1,
 						/*expected path*/{
-							{ VERTICAL, INCREASE, 4, 6 },
+							{ VERTICAL, INCREASE, 4, 5 }
 						}
 					},
 					{
@@ -1240,7 +1257,7 @@ const TestContext contexts[] = {
 					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,INCREASE,4,6 },{ VERTICAL,INCREASE,4,5,6 } },
+					{ { VERTICAL,INCREASE,4,5 },{ VERTICAL,INCREASE,4,5,6 } },
 					{ { VERTICAL,INCREASE,4,3 },{ VERTICAL,INCREASE,4,1,3 } },
 					{ { VERTICAL,INCREASE,5,3 },{ VERTICAL,INCREASE,5,1,3 } },
 					{ { VERTICAL,INCREASE,6,3 },{ VERTICAL,INCREASE,6,1,3 } }
@@ -1282,36 +1299,36 @@ const TestContext contexts[] = {
  +----------------+
 */
 {
- /*testid*/2,
- /*rectangles*/{
- {/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
- {/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
- {/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
- {/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
- },
- /*frame*/{ 0, 55, 0, 100 },
- /*links*/{{/*source*/3,/*target*/0}},
-		/*faiceau output*/{
+	/*testid*/2,
+	/*rectangles*/{
+		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
+		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
+		{/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
+		{/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+	},
+	/*frame*/{ 0, 55, 0, 100 },
+	/*links*/{{/*source*/3,/*target*/0}},
+	/*faiceau output*/{
 			{
-			/*targets*/{
-				{
-					/*from*/0,
-					/*to*/3,
-					/*expected path*/{
-						{ VERTICAL, INCREASE, 4, 4 },
-						{ HORIZONTAL, DECREASE, 4, 4 },
-						{ HORIZONTAL, DECREASE, 3, 4 },
-						{ VERTICAL, INCREASE, 4, 3 },
-						{ VERTICAL, INCREASE, 5, 3 },
-						{ VERTICAL, INCREASE, 6, 3 }
-					}
-				}	
-			},
-			/*enlarged*/{
-				{ { VERTICAL, INCREASE, 4, 4 },{ VERTICAL, INCREASE,4,4,5 } },
-				{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
-				{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE,5,1,3 } },
-				{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } }
+				/*targets*/{
+					{
+						/*from*/0,
+						/*to*/3,
+						/*expected path*/{
+							{ VERTICAL, INCREASE, 4, 4 },
+							{ HORIZONTAL, DECREASE, 4, 4 },
+							{ HORIZONTAL, DECREASE, 3, 4 },
+							{ VERTICAL, INCREASE, 4, 3 },
+							{ VERTICAL, INCREASE, 5, 3 },
+							{ VERTICAL, INCREASE, 6, 3 }
+						}
+					}	
+				},
+				/*enlarged*/{
+					{ { VERTICAL, INCREASE, 4, 4 },{ VERTICAL, INCREASE,4,4,5 } },
+					{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
+					{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE,5,1,3 } },
+					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } }
 				}
 			}
 		},
@@ -1427,7 +1444,7 @@ const TestContext contexts[] = {
 							{ VERTICAL, DECREASE, 19, 32 },
 							{ VERTICAL, DECREASE, 18, 32 },
 							{ VERTICAL, DECREASE, 17, 32 },
-							{ HORIZONTAL, INCREASE, 32, 17 },
+							{ HORIZONTAL, INCREASE, 32, 17 }
 						}
 					},
 					{
@@ -1436,7 +1453,7 @@ const TestContext contexts[] = {
 						/*expected path*/{
 							{ VERTICAL, INCREASE, 27, 20 },
 							{ VERTICAL, INCREASE, 28, 20 },
-							{ VERTICAL, INCREASE, 29, 20 },
+							{ VERTICAL, INCREASE, 29, 20 }
 						}
 					},
 					{
@@ -1453,19 +1470,19 @@ const TestContext contexts[] = {
 							{ VERTICAL, DECREASE, 14, 32 },
 							{ VERTICAL, DECREASE, 13, 32 },
 							{ VERTICAL, DECREASE, 12, 32 },
-							{ HORIZONTAL, INCREASE, 32, 12 },
+							{ HORIZONTAL, INCREASE, 32, 12 }
 						}
 					},
 					{
 						/*from*/7,
 						/*to*/17,
 						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 19, 24 },
-							{ HORIZONTAL, DECREASE, 18, 24 },
-							{ HORIZONTAL, DECREASE, 17, 24 },
-							{ HORIZONTAL, DECREASE, 16, 24 },
-							{ HORIZONTAL, DECREASE, 15, 24 },
-							{ HORIZONTAL, DECREASE, 14, 24 },
+							{ HORIZONTAL, DECREASE, 19, 20 },
+							{ HORIZONTAL, DECREASE, 18, 20 },
+							{ HORIZONTAL, DECREASE, 17, 20 },
+							{ HORIZONTAL, DECREASE, 16, 20 },
+							{ HORIZONTAL, DECREASE, 15, 20 },
+							{ HORIZONTAL, DECREASE, 14, 20 }
 						}
 					},
 					{
@@ -1488,17 +1505,17 @@ const TestContext contexts[] = {
 					}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,DECREASE,16,24 },{ HORIZONTAL,DECREASE,16,20,26 } },
+					{ { HORIZONTAL,DECREASE,16,20 },{ HORIZONTAL,DECREASE,16,20,26 } },
 					{ { HORIZONTAL,INCREASE,32,12 },{ HORIZONTAL,INCREASE,32,5,12 } },
 					{ { VERTICAL,INCREASE,29,20 },{ VERTICAL,INCREASE,29,20,31 } },
 					{ { HORIZONTAL,INCREASE,32,20 },{ HORIZONTAL,INCREASE,32,20,24 } },
 					{ { VERTICAL,INCREASE,27,20 },{ VERTICAL,INCREASE,27,20,31 } },
-					{ { HORIZONTAL,DECREASE,18,24 },{ HORIZONTAL,DECREASE,18,20,26 } },
-					{ { HORIZONTAL,DECREASE,17,24 },{ HORIZONTAL,DECREASE,17,20,26 } },
+					{ { HORIZONTAL,DECREASE,18,20 },{ HORIZONTAL,DECREASE,18,20,26 } },
+					{ { HORIZONTAL,DECREASE,17,20 },{ HORIZONTAL,DECREASE,17,20,26 } },
 					{ { VERTICAL,INCREASE,28,20 },{ VERTICAL,INCREASE,28,20,31 } },
-					{ { HORIZONTAL,DECREASE,19,24 },{ HORIZONTAL,DECREASE,19,20,26 } },
-					{ { HORIZONTAL,DECREASE,15,24 },{ HORIZONTAL,DECREASE,15,20,26 } },
-					{ { HORIZONTAL,DECREASE,14,24 },{ HORIZONTAL,DECREASE,14,20,26 } },
+					{ { HORIZONTAL,DECREASE,19,20 },{ HORIZONTAL,DECREASE,19,20,26 } },
+					{ { HORIZONTAL,DECREASE,15,20 },{ HORIZONTAL,DECREASE,15,20,26 } },
+					{ { HORIZONTAL,DECREASE,14,20 },{ HORIZONTAL,DECREASE,14,20,26 } },
 					{ { HORIZONTAL,INCREASE,32,26 },{ HORIZONTAL,INCREASE,32,25,26 } },
 					{ { HORIZONTAL,INCREASE,32,35 },{ HORIZONTAL,INCREASE,32,35,44 } }
 				}
@@ -1514,7 +1531,7 @@ const TestContext contexts[] = {
 							{ VERTICAL, INCREASE, 15, 44 },
 							{ HORIZONTAL, INCREASE, 44, 15 },
 							{ HORIZONTAL, INCREASE, 45, 15 },
-							{ HORIZONTAL, INCREASE, 46, 15 },
+							{ HORIZONTAL, INCREASE, 46, 15 }
 						}
 					},
 					{
@@ -1546,7 +1563,7 @@ const TestContext contexts[] = {
 						/*from*/14,
 						/*to*/6,
 						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 32, 5 },
+							{ HORIZONTAL, DECREASE, 32, 5 }
 						}
 					},
 					{
@@ -1631,8 +1648,8 @@ const TestContext contexts[] = {
 						/*from*/10,
 						/*to*/16,
 						/*expected path*/{
-							{ VERTICAL, DECREASE, 35, 22 },
-							{ VERTICAL, DECREASE, 34, 22 },
+							{ VERTICAL, DECREASE, 35, 18 },
+							{ VERTICAL, DECREASE, 34, 18 }
 						}
 					},
 					{
@@ -1654,123 +1671,120 @@ const TestContext contexts[] = {
 						/*from*/10,
 						/*to*/19,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 32, 44 },
+							{ HORIZONTAL, INCREASE, 32, 36 }
 						}
 					}
 				},
 				/*enlarged*/{
-						{ { HORIZONTAL,DECREASE,11,34 },{ HORIZONTAL,DECREASE,11,34,35 } },
-						{ { HORIZONTAL,DECREASE,15,34 },{ HORIZONTAL,DECREASE,15,34,35 } },
-						{ { VERTICAL,INCREASE,45,11 },{ VERTICAL,INCREASE,45,1,11 } },
-						{ { VERTICAL,DECREASE,35,17 },{ VERTICAL,DECREASE,35,17,19 } },
-						{ { HORIZONTAL,DECREASE,14,34 },{ HORIZONTAL,DECREASE,14,34,35 } },
-						{ { VERTICAL,DECREASE,34,17 },{ VERTICAL,DECREASE,34,17,19 } },
-						{ { HORIZONTAL,DECREASE,13,34 },{ HORIZONTAL,DECREASE,13,34,35 } },
-						{ { HORIZONTAL,DECREASE,17,34 },{ HORIZONTAL,DECREASE,17,34,35 } },
-						{ { HORIZONTAL,DECREASE,12,34 },{ HORIZONTAL,DECREASE,12,34,35 } },
-						{ { HORIZONTAL,DECREASE,16,34 },{ HORIZONTAL,DECREASE,16,34,35 } },
-						{ { HORIZONTAL,DECREASE,10,34 },{ HORIZONTAL,DECREASE,10,34,35 } },
-						{ { VERTICAL,DECREASE,34,10 },{ VERTICAL,DECREASE,34,5,10 } },
-						{ { VERTICAL,DECREASE,35,22 },{ VERTICAL,DECREASE,35,20,31 } },
-						{ { VERTICAL,DECREASE,34,22 },{ VERTICAL,DECREASE,34,20,31 } },
-						{ { VERTICAL,INCREASE,45,17 },{ VERTICAL,INCREASE,45,17,31 } },
-						{ { HORIZONTAL,INCREASE,32,44 },{ HORIZONTAL,INCREASE,32,36,44 } }
-					}
-				},
-				{
-					/*targets*/{
-						{
-							/*from*/19,
-							/*to*/10,
-							/*expected path*/{
-								{ HORIZONTAL, DECREASE, 32, 43 },
-							}
-						},
-						{
-							/*from*/19,
-							/*to*/7,
+					{ { HORIZONTAL,DECREASE,11,34 },{ HORIZONTAL,DECREASE,11,34,35 } },
+					{ { HORIZONTAL,DECREASE,15,34 },{ HORIZONTAL,DECREASE,15,34,35 } },
+					{ { VERTICAL,INCREASE,45,11 },{ VERTICAL,INCREASE,45,1,11 } },
+					{ { HORIZONTAL,DECREASE,14,34 },{ HORIZONTAL,DECREASE,14,34,35 } },
+					{ { HORIZONTAL,DECREASE,13,34 },{ HORIZONTAL,DECREASE,13,34,35 } },
+					{ { HORIZONTAL,DECREASE,17,34 },{ HORIZONTAL,DECREASE,17,34,35 } },
+					{ { HORIZONTAL,DECREASE,12,34 },{ HORIZONTAL,DECREASE,12,34,35 } },
+					{ { HORIZONTAL,DECREASE,16,34 },{ HORIZONTAL,DECREASE,16,34,35 } },
+					{ { HORIZONTAL,DECREASE,10,34 },{ HORIZONTAL,DECREASE,10,34,35 } },
+					{ { VERTICAL,DECREASE,34,10 },{ VERTICAL,DECREASE,34,5,10 } },
+					{ { VERTICAL,DECREASE,35,18 },{ VERTICAL,DECREASE,35,18,31 } },
+					{ { VERTICAL,DECREASE,34,18 },{ VERTICAL,DECREASE,34,18,31 } },
+					{ { VERTICAL,INCREASE,45,17 },{ VERTICAL,INCREASE,45,17,31 } },
+					{ { HORIZONTAL,INCREASE,32,36 },{ HORIZONTAL,INCREASE,32,36,44 } }
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/19,
+						/*to*/10,
 						/*expected path*/{
-								{ HORIZONTAL, DECREASE, 32, 35 },
-								{ VERTICAL, DECREASE, 35, 32 },
-								{ VERTICAL, DECREASE, 34, 32 },
-								{ VERTICAL, DECREASE, 33, 32 },
-								{ VERTICAL, DECREASE, 32, 32 },
-								{ VERTICAL, DECREASE, 31, 32 },
-								{ VERTICAL, DECREASE, 30, 32 },
-								{ VERTICAL, DECREASE, 29, 32 },
-								{ VERTICAL, DECREASE, 28, 32 },
-								{ VERTICAL, DECREASE, 27, 32 },
-								{ VERTICAL, DECREASE, 26, 32 },
-								{ HORIZONTAL, DECREASE, 32, 26 }
-							}
-						},
-						{
-							/*from*/19,
-							/*to*/8,
-							/*expected path*/{
-								{ VERTICAL, INCREASE, 45, 34 },
-								{ VERTICAL, INCREASE, 46, 34 },
-							}
-						},
-						{
-							/*from*/19,
-							/*to*/11,
-							/*expected path*/{
-								{ HORIZONTAL, INCREASE, 48, 36 },
-								{ HORIZONTAL, INCREASE, 49, 36 },
-							}
+							{ HORIZONTAL, DECREASE, 32, 36 }
 						}
 					},
-					/*enlarged*/{
-						{ { HORIZONTAL,INCREASE,49,36 },{ HORIZONTAL,INCREASE,49,35,44 } },
-						{ { VERTICAL,INCREASE,46,34 },{ VERTICAL,INCREASE,46,33,37 } },
-						{ { HORIZONTAL,DECREASE,32,35 },{ HORIZONTAL,DECREASE,32,35,38 } },
-						{ { HORIZONTAL,DECREASE,32,43 },{ HORIZONTAL,DECREASE,32,39,44 } },
-						{ { VERTICAL,INCREASE,45,34 },{ VERTICAL,INCREASE,45,33,37 } },
-						{ { HORIZONTAL,DECREASE,32,26 },{ HORIZONTAL,DECREASE,32,20,26 } },
-						{ { HORIZONTAL,INCREASE,48,36 },{ HORIZONTAL,INCREASE,48,35,44 } }
+					{
+						/*from*/19,
+						/*to*/7,
+						/*expected path*/{
+							{ HORIZONTAL, DECREASE, 32, 35 },
+							{ VERTICAL, DECREASE, 35, 32 },
+							{ VERTICAL, DECREASE, 34, 32 },
+							{ VERTICAL, DECREASE, 33, 32 },
+							{ VERTICAL, DECREASE, 32, 32 },
+							{ VERTICAL, DECREASE, 31, 32 },
+							{ VERTICAL, DECREASE, 30, 32 },
+							{ VERTICAL, DECREASE, 29, 32 },
+							{ VERTICAL, DECREASE, 28, 32 },
+							{ VERTICAL, DECREASE, 27, 32 },
+							{ VERTICAL, DECREASE, 26, 32 },
+							{ HORIZONTAL, DECREASE, 32, 26 }
+						}
+					},
+					{
+						/*from*/19,
+						/*to*/8,
+						/*expected path*/{
+							{ VERTICAL, INCREASE, 45, 33 },
+							{ VERTICAL, INCREASE, 46, 33 }
+						}
+					},
+					{
+						/*from*/19,
+						/*to*/11,
+						/*expected path*/{
+							{ HORIZONTAL, INCREASE, 48, 35 },
+							{ HORIZONTAL, INCREASE, 49, 35 }
+						}
 					}
 				},
-				{
-					/*targets*/{
-						{
-							/*from*/5,
-							/*to*/2,
-							/*expected path*/{
-								{ VERTICAL, DECREASE, 9, 11 },
-								{ VERTICAL, DECREASE, 8, 11 },
-								{ VERTICAL, DECREASE, 7, 11 }
-							}
-						},
-						{
-							/*from*/5,
-							/*to*/17,
-							/*expected path*/{
-								{ VERTICAL, INCREASE, 17, 4 },
-								{ VERTICAL, INCREASE, 18, 4 },
-								{ VERTICAL, INCREASE, 19, 4 }
-							}
-						},
-						{
-							/*from*/5,
-							/*to*/6,
-							/*expected path*/{
-								{ VERTICAL, DECREASE, 9, 22 },
-								{ VERTICAL, DECREASE, 8, 22 },
-								{ VERTICAL, DECREASE, 7, 22 },
-							}
+				/*enlarged*/{
+					{ { HORIZONTAL,INCREASE,49,35 },{ HORIZONTAL,INCREASE,49,35,44 } },
+					{ { VERTICAL,INCREASE,46,33 },{ VERTICAL,INCREASE,46,33,37 } },
+					{ { VERTICAL,INCREASE,45,33 },{ VERTICAL,INCREASE,45,33,37 } },
+					{ { HORIZONTAL,DECREASE,32,26 },{ HORIZONTAL,DECREASE,32,20,26 } },
+					{ { HORIZONTAL,INCREASE,48,35 },{ HORIZONTAL,INCREASE,48,35,44 } },
+					{ { HORIZONTAL, DECREASE, 32, 36 },{ HORIZONTAL, DECREASE, 32, 36, 44 } }
+				}
+			},
+			{
+				/*targets*/{
+					{
+						/*from*/5,
+						/*to*/2,
+						/*expected path*/{
+							{ VERTICAL, DECREASE, 9, 9 },
+							{ VERTICAL, DECREASE, 8, 9 },
+							{ VERTICAL, DECREASE, 7, 9 }
 						}
 					},
-					/*enlarged*/{
-					{ { VERTICAL,DECREASE,9,11 },{ VERTICAL,DECREASE,9,9,15 } },
+					{
+						/*from*/5,
+						/*to*/17,
+						/*expected path*/{
+							{ VERTICAL, INCREASE, 17, 4 },
+							{ VERTICAL, INCREASE, 18, 4 },
+							{ VERTICAL, INCREASE, 19, 4 }
+						}
+					},
+					{
+						/*from*/5,
+						/*to*/6,
+						/*expected path*/{
+							{ VERTICAL, DECREASE, 9, 22 },
+							{ VERTICAL, DECREASE, 8, 22 },
+							{ VERTICAL, DECREASE, 7, 22 }
+						}
+					}
+				},
+				/*enlarged*/{
+					{ { VERTICAL,DECREASE,9,9 },{ VERTICAL,DECREASE,9,9,15 } },
 					{ { VERTICAL,DECREASE,7,22 },{ VERTICAL,DECREASE,7,22,31 } },
 					{ { VERTICAL,INCREASE,17,4 },{ VERTICAL,INCREASE,17,4,13 } },
-					{ { VERTICAL,DECREASE,8,11 },{ VERTICAL,DECREASE,8,9,15 } },
+					{ { VERTICAL,DECREASE,8,9 },{ VERTICAL,DECREASE,8,9,15 } },
 					{ { VERTICAL,INCREASE,18,4 },{ VERTICAL,INCREASE,18,4,13 } },
 					{ { VERTICAL,DECREASE,8,22 },{ VERTICAL,DECREASE,8,22,31 } },
-					{ { VERTICAL,DECREASE,7,11 },{ VERTICAL,DECREASE,7,9,15 } },
+					{ { VERTICAL,DECREASE,7,9 },{ VERTICAL,DECREASE,7,9,15 } },
 					{ { VERTICAL,DECREASE,9,22 },{ VERTICAL,DECREASE,9,22,31 } },
-					{ { VERTICAL,INCREASE,19,4 },{ VERTICAL,INCREASE,19,4,13 } },
+					{ { VERTICAL,INCREASE,19,4 },{ VERTICAL,INCREASE,19,4,13 } }
 				}
 			},
 			{
@@ -1790,8 +1804,8 @@ const TestContext contexts[] = {
 						/*from*/9,
 						/*to*/15,
 						/*expected path*/{
-							{ VERTICAL, DECREASE, 45, 3 },
-							{ VERTICAL, DECREASE, 44, 3 },
+							{ VERTICAL, DECREASE, 45, 1 },
+							{ VERTICAL, DECREASE, 44, 1 },
 						}
 					},
 					{
@@ -1813,9 +1827,9 @@ const TestContext contexts[] = {
 				/*enlarged*/{
 					{ { VERTICAL,DECREASE,45,11 },{ VERTICAL,DECREASE,45,7,11 } },
 					{ { HORIZONTAL,INCREASE,12,47 },{ HORIZONTAL,INCREASE,12,47,50 } },
-					{ { VERTICAL,DECREASE,45,3 },{ VERTICAL,DECREASE,45,1,6 } },
+					{ { VERTICAL,DECREASE,45,1 },{ VERTICAL,DECREASE,45,1,6 } },
 					{ { HORIZONTAL,INCREASE,16,47 },{ HORIZONTAL,INCREASE,16,47,50 } },
-					{ { VERTICAL,DECREASE,44,3 },{ VERTICAL,DECREASE,44,1,6 } },
+					{ { VERTICAL,DECREASE,44,1 },{ VERTICAL,DECREASE,44,1,6 } },
 					{ { HORIZONTAL,INCREASE,13,47 },{ HORIZONTAL,INCREASE,13,47,50 } },
 					{ { VERTICAL,DECREASE,45,17 },{ VERTICAL,DECREASE,45,17,31 } },
 					{ { HORIZONTAL,INCREASE,14,47 },{ HORIZONTAL,INCREASE,14,47,50 } },
@@ -1838,21 +1852,21 @@ const TestContext contexts[] = {
 						/*to*/10,
 						/*expected path*/{
 							{ VERTICAL, INCREASE, 34, 17 },
-							{ VERTICAL, INCREASE, 35, 17 },
+							{ VERTICAL, INCREASE, 35, 17 }
 						}
 					},
 					{
 						/*from*/16,
 						/*to*/3,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 32, 31 }
+							{ HORIZONTAL, INCREASE, 32, 30 }
 						}
 					}
 				},
 				/*enlarged*/{
 					{ { VERTICAL,INCREASE,34,17 },{ VERTICAL,INCREASE,34,17,31 } },
 					{ { VERTICAL,DECREASE,29,20 },{ VERTICAL,DECREASE,29,20,31 } },
-					{ { HORIZONTAL,INCREASE,32,31 },{ HORIZONTAL,INCREASE,32,30,32 } },
+					{ { HORIZONTAL,INCREASE,32,30 },{ HORIZONTAL,INCREASE,32,30,32 } },
 					{ { VERTICAL,INCREASE,35,17 },{ VERTICAL,INCREASE,35,17,31 } },
 					{ { VERTICAL,DECREASE,28,20 },{ VERTICAL,DECREASE,28,20,31 } },
 					{ { VERTICAL,DECREASE,27,20 },{ VERTICAL,DECREASE,27,20,31 } }
@@ -1889,16 +1903,16 @@ const TestContext contexts[] = {
 						/*from*/2,
 						/*to*/5,
 						/*expected path*/{
-							{ VERTICAL, INCREASE, 7, 11 },
-							{ VERTICAL, INCREASE, 8, 11 },
-							{ VERTICAL, INCREASE, 9, 11 }
+							{ VERTICAL, INCREASE, 7, 9 },
+							{ VERTICAL, INCREASE, 8, 9 },
+							{ VERTICAL, INCREASE, 9, 9 }
 						}
 					}
 				},
 				/*enlarged*/{
 					{ { HORIZONTAL,INCREASE,22,7 },{ HORIZONTAL,INCREASE,22,7,9 } },
 					{ { HORIZONTAL,INCREASE,18,7 },{ HORIZONTAL,INCREASE,18,7,9 } },
-					{ { VERTICAL,INCREASE,7,15 },{ VERTICAL,INCREASE,7,13,15 } },
+					{ { VERTICAL,INCREASE,7,15 },{ VERTICAL,INCREASE,7,12,15 } },
 					{ { HORIZONTAL,INCREASE,19,7 },{ HORIZONTAL,INCREASE,19,7,9 } },
 					{ { HORIZONTAL,INCREASE,15,7 },{ HORIZONTAL,INCREASE,15,7,9 } },
 					{ { HORIZONTAL,INCREASE,20,7 },{ HORIZONTAL,INCREASE,20,7,9 } },
@@ -1908,7 +1922,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,23,7 },{ HORIZONTAL,INCREASE,23,7,9 } },
 					{ { HORIZONTAL,INCREASE,24,7 },{ HORIZONTAL,INCREASE,24,7,9 } },
 					{ { HORIZONTAL,INCREASE,25,7 },{ HORIZONTAL,INCREASE,25,7,9 } },
-					{ { VERTICAL,INCREASE,7,11 },{ VERTICAL,INCREASE,7,9,12 } },
+					{ { VERTICAL,INCREASE,7,9 },{ VERTICAL,INCREASE,7,9,11 } },
 					{ { HORIZONTAL,INCREASE,26,7 },{ HORIZONTAL,INCREASE,26,7,9 } },
 					{ { HORIZONTAL,INCREASE,27,7 },{ HORIZONTAL,INCREASE,27,7,9 } },
 					{ { HORIZONTAL,INCREASE,28,7 },{ HORIZONTAL,INCREASE,28,7,9 } },
@@ -1916,8 +1930,8 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,30,7 },{ HORIZONTAL,INCREASE,30,7,9 } },
 					{ { HORIZONTAL,INCREASE,31,7 },{ HORIZONTAL,INCREASE,31,7,9 } },
 					{ { HORIZONTAL,INCREASE,32,7 },{ HORIZONTAL,INCREASE,32,7,9 } },
-					{ { VERTICAL,INCREASE,8,11 },{ VERTICAL,INCREASE,8,9,12 } },
-					{ { VERTICAL,INCREASE,9,11 },{ VERTICAL,INCREASE,9,9,12 } }
+					{ { VERTICAL,INCREASE,8,9 },{ VERTICAL,INCREASE,8,9,11 } },
+					{ { VERTICAL,INCREASE,9,9 },{ VERTICAL,INCREASE,9,9,11 } }
 				}
 			},
 			{
@@ -1926,28 +1940,28 @@ const TestContext contexts[] = {
 						/*from*/3,
 						/*to*/4,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 41, 30 },
-							{ HORIZONTAL, INCREASE, 42, 30 },
-							{ HORIZONTAL, INCREASE, 43, 30 },
-							{ HORIZONTAL, INCREASE, 44, 30 },
-							{ HORIZONTAL, INCREASE, 45, 30 }
+							{ HORIZONTAL, INCREASE, 41, 29 },
+							{ HORIZONTAL, INCREASE, 42, 29 },
+							{ HORIZONTAL, INCREASE, 43, 29 },
+							{ HORIZONTAL, INCREASE, 44, 29 },
+							{ HORIZONTAL, INCREASE, 45, 29 }
 						}
 					},
 					{
 						/*from*/3,
 						/*to*/16,
 						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 32, 30 },
+							{ HORIZONTAL, DECREASE, 32, 30 }
+						}
 					}
-				}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,INCREASE,45,30 },{ HORIZONTAL,INCREASE,45,29,32 } },
-					{ { HORIZONTAL,INCREASE,41,30 },{ HORIZONTAL,INCREASE,41,29,32 } },
-					{ { HORIZONTAL,INCREASE,42,30 },{ HORIZONTAL,INCREASE,42,29,32 } },
-					{ { HORIZONTAL,INCREASE,43,30 },{ HORIZONTAL,INCREASE,43,29,32 } },
+					{ { HORIZONTAL,INCREASE,45,29 },{ HORIZONTAL,INCREASE,45,29,32 } },
+					{ { HORIZONTAL,INCREASE,41,29 },{ HORIZONTAL,INCREASE,41,29,32 } },
+					{ { HORIZONTAL,INCREASE,42,29 },{ HORIZONTAL,INCREASE,42,29,32 } },
+					{ { HORIZONTAL,INCREASE,43,29 },{ HORIZONTAL,INCREASE,43,29,32 } },
 					{ { HORIZONTAL,DECREASE,32,30 },{ HORIZONTAL,DECREASE,32,30,32 } },
-					{ { HORIZONTAL,INCREASE,44,30 },{ HORIZONTAL,INCREASE,44,29,32 } }
+					{ { HORIZONTAL,INCREASE,44,29 },{ HORIZONTAL,INCREASE,44,29,32 } }
 				}
 			},
 			{
@@ -1956,24 +1970,24 @@ const TestContext contexts[] = {
 						/*from*/6,
 						/*to*/14,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 32, 6 },
+							{ HORIZONTAL, INCREASE, 32, 5 }
 						}
 					},
 					{
 						/*from*/6,
 						/*to*/5,
 						/*expected path*/{
-							{ VERTICAL, INCREASE, 7, 28 },
-							{ VERTICAL, INCREASE, 8, 28 },
-							{ VERTICAL, INCREASE, 9, 28 },
+							{ VERTICAL, INCREASE, 7, 22 },
+							{ VERTICAL, INCREASE, 8, 22 },
+							{ VERTICAL, INCREASE, 9, 22 }
 						}
 					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,INCREASE,7,28 },{ VERTICAL,INCREASE,7,22,31 } },
-					{ { HORIZONTAL,INCREASE,32,6 },{ HORIZONTAL,INCREASE,32,5,6 } },
-					{ { VERTICAL,INCREASE,8,28 },{ VERTICAL,INCREASE,8,22,31 } },
-					{ { VERTICAL,INCREASE,9,28 },{ VERTICAL,INCREASE,9,22,31 } }
+					{ { VERTICAL,INCREASE,7,22 },{ VERTICAL,INCREASE,7,22,31 } },
+					{ { HORIZONTAL,INCREASE,32,5 },{ HORIZONTAL,INCREASE,32,5,6 } },
+					{ { VERTICAL,INCREASE,8,22 },{ VERTICAL,INCREASE,8,22,31 } },
+					{ { VERTICAL,INCREASE,9,22 },{ VERTICAL,INCREASE,9,22,31 } }
 				}
 			},
 			{
@@ -1982,30 +1996,30 @@ const TestContext contexts[] = {
 						/*from*/8,
 						/*to*/9,
 						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 16, 49 },
-							{ HORIZONTAL, DECREASE, 15, 49 },
-							{ HORIZONTAL, DECREASE, 14, 49 },
-							{ HORIZONTAL, DECREASE, 13, 49 },
-							{ HORIZONTAL, DECREASE, 12, 49 }
+							{ HORIZONTAL, DECREASE, 16, 47 },
+							{ HORIZONTAL, DECREASE, 15, 47 },
+							{ HORIZONTAL, DECREASE, 14, 47 },
+							{ HORIZONTAL, DECREASE, 13, 47 },
+							{ HORIZONTAL, DECREASE, 12, 47 }
 						}
 					},
 					{
 						/*from*/8,
 						/*to*/19,
 						/*expected path*/{
-							{ VERTICAL, DECREASE, 46, 36 },
-							{ VERTICAL, DECREASE, 45, 36 },
+							{ VERTICAL, DECREASE, 46, 33 },
+							{ VERTICAL, DECREASE, 45, 33 }
 						}
 					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,DECREASE,46,36 },{ VERTICAL,DECREASE,46,33,37 } },
-					{ { HORIZONTAL,DECREASE,12,49 },{ HORIZONTAL,DECREASE,12,47,50 } },
-					{ { HORIZONTAL,DECREASE,16,49 },{ HORIZONTAL,DECREASE,16,47,50 } },
-					{ { VERTICAL,DECREASE,45,36 },{ VERTICAL,DECREASE,45,33,37 } },
-					{ { HORIZONTAL,DECREASE,15,49 },{ HORIZONTAL,DECREASE,15,47,50 } },
-					{ { HORIZONTAL,DECREASE,14,49 },{ HORIZONTAL,DECREASE,14,47,50 } },
-					{ { HORIZONTAL,DECREASE,13,49 },{ HORIZONTAL,DECREASE,13,47,50 } },
+					{ { VERTICAL,DECREASE,46,33 },{ VERTICAL,DECREASE,46,33,37 } },
+					{ { HORIZONTAL,DECREASE,12,47 },{ HORIZONTAL,DECREASE,12,47,50 } },
+					{ { HORIZONTAL,DECREASE,16,47 },{ HORIZONTAL,DECREASE,16,47,50 } },
+					{ { VERTICAL,DECREASE,45,33 },{ VERTICAL,DECREASE,45,33,37 } },
+					{ { HORIZONTAL,DECREASE,15,47 },{ HORIZONTAL,DECREASE,15,47,50 } },
+					{ { HORIZONTAL,DECREASE,14,47 },{ HORIZONTAL,DECREASE,14,47,50 } },
+					{ { HORIZONTAL,DECREASE,13,47 },{ HORIZONTAL,DECREASE,13,47,50 } }
 				}
 			},
 			{
@@ -2015,23 +2029,23 @@ const TestContext contexts[] = {
 						/*to*/13,
 						/*expected path*/{
 							{ VERTICAL, INCREASE, 45, 50 },
-							{ VERTICAL, INCREASE, 46, 50 },
+							{ VERTICAL, INCREASE, 46, 50 }
 						}
 					},
 					{
 						/*from*/11,
 						/*to*/19,
 						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 49, 36 },
-							{ HORIZONTAL, DECREASE, 48, 36 }
+							{ HORIZONTAL, DECREASE, 49, 35 },
+							{ HORIZONTAL, DECREASE, 48, 35 }
 						}
 					}
 				},
 				/*enlarged*/{
 					{ { VERTICAL,INCREASE,45,50 },{ VERTICAL,INCREASE,45,50,52 } },
-					{ { HORIZONTAL,DECREASE,49,36 },{ HORIZONTAL,DECREASE,49,35,44 } },
+					{ { HORIZONTAL,DECREASE,49,35 },{ HORIZONTAL,DECREASE,49,35,44 } },
 					{ { VERTICAL,INCREASE,46,50 },{ VERTICAL,INCREASE,46,50,52 } },
-					{ { HORIZONTAL,DECREASE,48,36 },{ HORIZONTAL,DECREASE,48,35,44 } }
+					{ { HORIZONTAL,DECREASE,48,35 },{ HORIZONTAL,DECREASE,48,35,44 } }
 				}
 			},
 			{
@@ -2049,145 +2063,145 @@ const TestContext contexts[] = {
 						/*from*/17,
 						/*to*/7,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 14, 22 },
-							{ HORIZONTAL, INCREASE, 15, 22 },
-							{ HORIZONTAL, INCREASE, 16, 22 },
-							{ HORIZONTAL, INCREASE, 17, 22 },
-							{ HORIZONTAL, INCREASE, 18, 22 },
-							{ HORIZONTAL, INCREASE, 19, 22 }
+							{ HORIZONTAL, INCREASE, 14, 20 },
+							{ HORIZONTAL, INCREASE, 15, 20 },
+							{ HORIZONTAL, INCREASE, 16, 20 },
+							{ HORIZONTAL, INCREASE, 17, 20 },
+							{ HORIZONTAL, INCREASE, 18, 20 },
+							{ HORIZONTAL, INCREASE, 19, 20 }
 						}
 					}
 				},
 				/*enlarged*/{
 					{ { VERTICAL,DECREASE,19,4 },{ VERTICAL,DECREASE,19,4,13 } },
-					{ { HORIZONTAL,INCREASE,16,22 },{ HORIZONTAL,INCREASE,16,20,26 } },
-					{ { HORIZONTAL,INCREASE,17,22 },{ HORIZONTAL,INCREASE,17,20,26 } },
+					{ { HORIZONTAL,INCREASE,16,20 },{ HORIZONTAL,INCREASE,16,20,26 } },
+					{ { HORIZONTAL,INCREASE,17,20 },{ HORIZONTAL,INCREASE,17,20,26 } },
 					{ { VERTICAL,DECREASE,18,4 },{ VERTICAL,DECREASE,18,4,13 } },
 					{ { VERTICAL,DECREASE,17,4 },{ VERTICAL,DECREASE,17,4,13 } },
-					{ { HORIZONTAL,INCREASE,18,22 },{ HORIZONTAL,INCREASE,18,20,26 } },
-					{ { HORIZONTAL,INCREASE,14,22 },{ HORIZONTAL,INCREASE,14,20,26 } },
-					{ { HORIZONTAL,INCREASE,19,22 },{ HORIZONTAL,INCREASE,19,20,26 } },
-					{ { HORIZONTAL,INCREASE,15,22 },{ HORIZONTAL,INCREASE,15,20,26 } }
-				}
+					{ { HORIZONTAL,INCREASE,18,20 },{ HORIZONTAL,INCREASE,18,20,26 } },
+					{ { HORIZONTAL,INCREASE,14,20 },{ HORIZONTAL,INCREASE,14,20,26 } },
+					{ { HORIZONTAL,INCREASE,19,20 },{ HORIZONTAL,INCREASE,19,20,26 } },
+					{ { HORIZONTAL,INCREASE,15,20 },{ HORIZONTAL,INCREASE,15,20,26 } }
+				}/*enlarged*/
 			}
-		},	
-/*polylines*/ {
- {
- /*from*/1,
- /*to*/14,
- /*data*/{{523, 263},{476, 263},{476, 210}}
- },
- {
- /*from*/2,
- /*to*/14,
- /*data*/{{162, 146},{162, 166},{329, 166}}
- },
- {
- /*from*/2,
- /*to*/5,
- /*data*/{{130, 146},{130, 186}}
- },
- {
- /*from*/3,
- /*to*/4,
- /*data*/{{449, 422},{489, 422}}
- },
- {
- /*from*/5,
- /*to*/17,
- /*data*/{{115, 258},{115, 298}}
- },
- {
- /*from*/6,
- /*to*/14,
- /*data*/{{289, 134},{329, 134}}
- },
- {
- /*from*/6,
- /*to*/5,
- /*data*/{{253, 146},{253, 186}}
- },
- {
- /*from*/7,
- /*to*/0,
- /*data*/{{289, 319},{309, 319},{309, 274},{329, 274}}
- },
- {
- /*from*/7,
- /*to*/16,
- /*data*/{{250, 370},{250, 410}}
- },
- {
- /*from*/8,
- /*to*/9,
- /*data*/{{183, 686},{143, 686}}
- },
- {
- /*from*/9,
- /*to*/15,
- /*data*/{{59, 634},{59, 594}}
- },
- {
- /*from*/10,
- /*to*/18,
- /*data*/{{197, 506},{197, 486},{112, 486},{112, 466}}
- },
- {
- /*from*/10,
- /*to*/16,
- /*data*/{{250, 506},{250, 466}}
- },
- {
- /*from*/10,
- /*to*/9,
- /*data*/{{236, 610},{236, 622},{125, 622},{125, 634}}
- },
- {
- /*from*/11,
- /*to*/13,
- /*data*/{{596, 610},{596, 650}}
- },
- {
- /*from*/12,
- /*to*/14,
- /*data*/{{523, 167},{483, 167}}
- },
- {
- /*from*/14,
- /*to*/7,
- /*data*/{{329, 198},{309, 198},{309, 319},{289, 319}}
- },
- {
- /*from*/16,
- /*to*/3,
- /*data*/{{289, 430},{329, 430}}
- },
- {
- /*from*/17,
- /*to*/7,
- /*data*/{{171, 334},{211, 334}}
- },
- {
- /*from*/19,
- /*to*/10,
- /*data*/{{329, 574},{289, 574}}
- },
- {
- /*from*/19,
- /*to*/7,
- /*data*/{{329, 514},{309, 514},{309, 355},{289, 355}}
- },
- {
- /*from*/19,
- /*to*/8,
- /*data*/{{361, 610},{361, 650}}
- },
- {
- /*from*/19,
- /*to*/11,
- /*data*/{{525, 550},{565, 550}}
- }
- }
+		},
+		/*polylines*/ {
+			{
+				/*from*/1,
+				/*to*/14,
+				/*data*/{{523, 263},{476, 263},{476, 210}}
+			},
+			{
+				/*from*/2,
+				/*to*/14,
+				/*data*/{{160, 146},{160, 166},{329, 166}}
+			},
+			{
+				/*from*/2,
+				/*to*/5,
+				/*data*/{{128, 146},{128, 186}}
+			},
+			{
+				/*from*/3,
+				/*to*/4,
+				/*data*/{{449, 422},{489, 422}}
+			},
+			{
+				/*from*/5,
+				/*to*/17,
+				/*data*/{{115, 258},{115, 298}}
+			},
+			{
+				/*from*/6,
+				/*to*/14,
+				/*data*/{{289, 134},{329, 134}}
+			},
+			{
+				/*from*/6,
+				/*to*/5,
+				/*data*/{{253, 146},{253, 186}}
+			},
+			{
+				/*from*/7,
+				/*to*/0,
+				/*data*/{{289, 319},{309, 319},{309, 274},{329, 274}}
+			},
+			{
+				/*from*/7,
+				/*to*/16,
+				/*data*/{{250, 370},{250, 410}}
+			},
+			{
+				/*from*/8,
+				/*to*/9,
+				/*data*/{{183, 686},{143, 686}}
+			},
+			{
+				/*from*/9,
+				/*to*/15,
+				/*data*/{{59, 634},{59, 594}}
+			},
+			{
+				/*from*/10,
+				/*to*/18,
+				/*data*/{{191, 506},{191, 486},{112, 486},{112, 466}}
+			},
+			{
+				/*from*/10,
+				/*to*/16,
+				/*data*/{{244, 506},{244, 466}}
+			},
+			{
+				/*from*/10,
+				/*to*/9,
+				/*data*/{{236, 610},{236, 622},{125, 622},{125, 634}}
+			},
+			{
+				/*from*/11,
+				/*to*/13,
+				/*data*/{{596, 610},{596, 650}}
+			},
+			{
+				/*from*/12,
+				/*to*/14,
+				/*data*/{{523, 167},{483, 167}}
+			},
+			{
+				/*from*/14,
+				/*to*/7,
+				/*data*/{{329, 198},{309, 198},{309, 319},{289, 319}}
+			},
+			{
+				/*from*/16,
+				/*to*/3,
+				/*data*/{{289, 430},{329, 430}}
+			},
+			{
+				/*from*/17,
+				/*to*/7,
+				/*data*/{{171, 334},{211, 334}}
+			},
+			{
+				/*from*/19,
+				/*to*/10,
+				/*data*/{{329, 558},{289, 558}}
+			},
+			{
+				/*from*/19,
+				/*to*/7,
+				/*data*/{{329, 498},{309, 498},{309, 355},{289, 355}}
+			},
+			{
+				/*from*/19,
+				/*to*/8,
+				/*data*/{{361, 610},{361, 650}}
+			},
+			{
+				/*from*/19,
+				/*to*/11,
+				/*data*/{{525, 550},{565, 550}}
+			}
+		}/*polylines*/
 },
 
 
@@ -2219,18 +2233,18 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/2,
 						/*expected path*/{
-							{HORIZONTAL,INCREASE,2,2},
-							{VERTICAL,INCREASE,2,2},
-							{VERTICAL,INCREASE,3,2},
-							{VERTICAL,INCREASE,4,2},
-							{HORIZONTAL,INCREASE,2,4},
-							{HORIZONTAL,INCREASE,3,4},
-							{HORIZONTAL,INCREASE,4,4}
+							{ HORIZONTAL, INCREASE, 2, 1 },
+							{ HORIZONTAL, INCREASE, 3, 1 },
+							{ HORIZONTAL, INCREASE, 4, 1 },
+							{ VERTICAL, INCREASE, 1, 4 },
+							{ VERTICAL, INCREASE, 2, 4 },
+							{ VERTICAL, INCREASE, 3, 4 },
+							{ HORIZONTAL, INCREASE, 4, 3 }
 						}
 					}
 				},
 				/*enlarged*/{
-					{{HORIZONTAL,INCREASE,2,2},{HORIZONTAL,INCREASE,2,1,2}}
+						{ {HORIZONTAL, INCREASE, 4, 3},{ HORIZONTAL, INCREASE, 4, 3, 4 }}
 				}
 			}
 		},
@@ -2411,19 +2425,19 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/0,/*target*/3}},
         /*faiceau output*/{
             {
-          /*targets*/{
-                 {
+				/*targets*/{
+					{
                         /*from*/0,
                         /*to*/3,
-			/*expected path*/{
+						/*expected path*/{
                             {HORIZONTAL,INCREASE,2,1},
                             {VERTICAL,INCREASE,1,2},
                             {VERTICAL,INCREASE,2,2},
                             {VERTICAL,INCREASE,3,2},
                             {HORIZONTAL,INCREASE,2,3}
                         }
-                   }
-		},
+					}
+				},
                 /*enlarged*/{}
             }
         },
@@ -2890,15 +2904,65 @@ int main(int argc, char* argv[])
 			vector<FaiceauOutput> faisceau_output;
 			vector<Polyline> polylines;
 			
+			printf("testid=%d\n", ctx.testid);
+
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			
 			string serialized;
 			print(faisceau_output, serialized);
 
+			const char* dir[2] = { "HORIZONTAL", "VERTICAL" };
+			const char* way[3] = { "DECREASE",0,"INCREASE" };
+
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			if (faisceau_output != ctx.faisceau_output)
+			{
+				for (int i = 0; i < faisceau_output.size(); i++)
+				{
+					if (faisceau_output[i].targets != ctx.faisceau_output[i].targets)
+						printf("faisceau_output[%d].targets does not match expected!\n", i);
+					if (faisceau_output[i].enlarged != ctx.faisceau_output[i].enlarged)
+					{
+						printf("faisceau_output[%d].enlarged does not match expected!\n", i);
+						for (auto kv : faisceau_output[i].enlarged)
+						{
+							Maille m = kv.first;
+							Range r = kv.second;
+							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
+							{
+								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
+									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
+							}
+						}
+						for (auto kv : ctx.faisceau_output[i].enlarged)
+						{
+							Maille m = kv.first;
+							Range r = kv.second;
+							if (faisceau_output[i].enlarged.count(m) == 0)
+							{
+								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
+									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
+							}
+						}
+						for (auto kv : faisceau_output[i].enlarged)
+						{
+							Maille maille = kv.first;
+							Range r = kv.second;
+							if (ctx.faisceau_output[i].enlarged.count(maille) == 1 && ctx.faisceau_output[i].enlarged.at(maille) != faisceau_output[i].enlarged.at(maille))
+							{
+								Range r2 = ctx.faisceau_output[i].enlarged.at(maille);
+								printf("(%s, %s, %hu,%hu,%hu) in expected but (%s, %s,%hu,%hu,%hu) in output.\n", 
+									dir[r2.direction], way[1+r2.way], r2.value, r2.min, r2.max,
+									dir[r.direction], way[1+r.way], r.value, r.min, r.max);
+							}
+						}
+					}
+				}
 				printf("%s\n", serialized.c_str());
-			
+			}
+
 			print(polylines, serialized);
 			duration<double> time_span = high_resolution_clock::now() - t1;
 			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
@@ -2906,7 +2970,21 @@ int main(int argc, char* argv[])
 			string json = polyline2json(polylines);
 			
 			if (polylines != ctx.polylines)
+			{
+				for (int i = 0; i < polylines.size(); i++)
+				{
+					if (polylines[i] != ctx.polylines[i])
+					{
+						printf("polylines[%d] != ctx.polylines[%d]. from=%d to=%d\n", i, i, polylines[i].from, polylines[i].to);
+						for (const Point& p : polylines[i].data)
+						{
+							printf("{\"x\":%d,\"y\":%d},", p.x, p.y);
+						}
+						printf("\n");
+					}
+				}
 				printf("%s\n", json.c_str());
+			}
 			
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
