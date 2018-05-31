@@ -38,7 +38,7 @@ while True:
     #http://localhost:8080/getFilter?0110af0880940180550180b00180940280850580a10880a20880940380b70180940180c40d811118808603807806806303807805801200300100c00b00c00800e00800d00800a00800a00900100000700800700500700600700200700100700200900700f00801000f002004ffff1
     #http://localhost:8080/getFilter?01a04e06807f08808510807104808d0380630180860180860180710180b618807801809401806301809401807f0280780380a90580550180470180710380780580710180a901806a02808d02807107802201000201001301401601401500e00900e00d01700401901501901601901801800400900800900600900700900a00900b00900400901000900400900400900f00901400900200900e00901900900000900c000002000001002001003004004000004002006005ffffff3
 
-        command=['build/release/latuile', '--rectdim', rectdim, '--links', links, '--filter', filtre, '--reqkind', 'getFilter']
+        command=['build/latuile', '--rectdim', rectdim, '--links', links, '--filter', filtre, '--reqkind', 'getFilter']
         print(str(command))
         json1 = check_output(command).decode("ascii")
         
@@ -84,7 +84,7 @@ while True:
             print('links_')
             print(links_)
 
-            command=['build/debug/bombix','--frame', frame,'--rectdim', rectdim_,'--translations', translations,'--links', links_]
+            command=['build/bombix','--frame', frame,'--rectdim', rectdim_,'--translations', translations,'--links', links_]
             print(str(command))
             json2 = check_output(command).decode("ascii")
             print('json2')
@@ -130,7 +130,7 @@ while True:
         frame = "{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
         print('frame')
         print(frame)
-        command=['build/debug/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
+        command=['build/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
         print(str(command))
         json2 = check_output(command).decode("ascii")
         print('json2')
