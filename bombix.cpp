@@ -2897,7 +2897,7 @@ int main(int argc, char* argv[])
 
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			if (faisceau_output != ctx.faisceau_output)
-				printf("%s\n", faisceau_output.c_str());
+				printf("%s\n", serialized.c_str());
 			
 			print(polylines, serialized);
 			duration<double> time_span = high_resolution_clock::now() - t1;
