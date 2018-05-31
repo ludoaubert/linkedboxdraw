@@ -2887,21 +2887,28 @@ int main(int argc, char* argv[])
 		{
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 			
-			vector<FaiceauOutput> faiceau_output;
+			vector<FaiceauOutput> faisceau_output;
 			vector<Polyline> polylines;
 			
-			compute_polylines(ctx.rects, ctx.frame, ctx.links, faiceau_output, polylines);
+			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			
 			string serialized;
-			print(faiceau_output, serialized);
+			print(faisceau_output, serialized);
 
-			printf("%s faisceaux.\n", faiceau_output == ctx.faisceau_output ? "OK":"KO");
+			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
+			if (faisceau_output != ctx.faisceau_output)
+				printf("%s\n", faisceau_output.c_str());
 			
 			print(polylines, serialized);
 			duration<double> time_span = high_resolution_clock::now() - t1;
-			printf("%s polylines. %f seconds elapsed.\n", polylines == ctx.polylines ? "OK":"KO", time_span.count());
-			
+			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
+
 			string json = polyline2json(polylines);
+			
+			if (polylines != ctx.polylines)
+				printf("%s\n", json.c_str());
+			
+			printf("%f seconds elapsed.\n", time_span.count());
 		}
 		
 		return 0;
