@@ -2369,10 +2369,10 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/1,
 						/*expected path*/{
-							{HORIZONTAL,INCREASE,1,0},
-							{HORIZONTAL,INCREASE,2,0},
-							{VERTICAL,INCREASE,0,2},
-							{VERTICAL,INCREASE,1,2}
+							{VERTICAL,INCREASE,1,0},
+							{VERTICAL,INCREASE,2,0},
+							{HORIZONTAL,INCREASE,0,2},
+							{HORIZONTAL,INCREASE,1,2}
 						}
 					}
 				},
@@ -2383,7 +2383,7 @@ const TestContext contexts[] = {
 			{
 				/*from*/0,
 				/*to*/1,
-				/*data*/{{2,1},{4,1},{4,4}}
+				/*data*/{{1,2},{1,4},{4,4}}
 			}
 		}
 },
