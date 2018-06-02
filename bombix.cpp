@@ -9,6 +9,7 @@
 */
 #include <cstdint>
 #include <vector>
+#include <queue>
 #include <unordered_set>
 #include <unordered_map>
 #include <assert.h>
@@ -777,7 +778,7 @@ Before Mai 18th 2018, order used to be e1.distance_v > e2.distance_v, and so it 
 in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
 all OK on 32 bit platforms but some were KO on 64 bit platforms.
 */
-bool order(QueuedEdge& e1, QueuedEdge& e2)
+bool operator<(const QueuedEdge& e1, const QueuedEdge& e2)
 {		
 	if (e1.distance_v != e2.distance_v)
 		return e1.distance_v > e2.distance_v;
@@ -814,7 +815,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 
 	distance[0] = 0;
 	
-	vector<QueuedEdge> Q;
+	priority_queue<QueuedEdge> Q;
 	
 	//TODO: use C++17 structured binding
 	for (const auto& kv : source_node_distance)
@@ -822,16 +823,14 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 		uint64_t u = kv.first;
 		int distance_v = kv.second;
 		int weight = distance_v;
-		Q.push_back({ 0, u, weight, distance_v});
-		push_heap(begin(Q), end(Q), order);
+		Q.push({ 0, u, weight, distance_v});
 	}
 	
 	while (!Q.empty())
 	{
-		pop_heap(begin(Q), end(Q), order);
 	//TODO: use C++17 structured binding
-		QueuedEdge queued_edge = Q.back();
-		Q.pop_back();
+		QueuedEdge queued_edge = Q.top();
+		Q.pop();
 		
 		if (queued_edge.distance_v < distance[queued_edge.v])
 		{
@@ -843,8 +842,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 				int distance_v = distance[adj_edge.u] + adj_edge.weight;
 				if (distance_v < distance[adj_edge.v])
 				{
-					Q.push_back({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
-					push_heap(begin(Q), end(Q), order);
+					Q.push({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
 				}
 			}
 		}
