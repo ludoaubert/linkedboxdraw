@@ -2897,10 +2897,15 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		printf("testing bombix ...\n");
+
+		int nbOK=0;
+
 	//TODO: use destructuring
 		for (const TestContext &ctx : contexts)
 		{
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+			bool OK=true;
 			
 			vector<FaiceauOutput> faisceau_output;
 			vector<Polyline> polylines;
@@ -2916,6 +2921,7 @@ int main(int argc, char* argv[])
 			const char* way[3] = { "DECREASE",0,"INCREASE" };
 
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
+			OK &= faisceau_output == ctx.faisceau_output;
 			if (faisceau_output != ctx.faisceau_output)
 			{
 				for (int i = 0; i < faisceau_output.size(); i++)
@@ -2967,6 +2973,7 @@ int main(int argc, char* argv[])
 			print(polylines, serialized);
 			duration<double> time_span = high_resolution_clock::now() - t1;
 			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
+			OK &= polylines == ctx.polylines;
 
 			string json = polyline2json(polylines);
 			
@@ -2986,9 +2993,14 @@ int main(int argc, char* argv[])
 				}
 				printf("%s\n", json.c_str());
 			}
+
+			if (OK)
+				nbOK++;
 			
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
+
+		printf("bombix: %d/%d tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
 		
 		return 0;
 	}
