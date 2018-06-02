@@ -859,13 +859,14 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								vector<uint64_t> &target_candidates)
 {	
 	uint64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](uint64_t u, uint64_t v){return distance.at(u) < distance.at(v);});
-	int min_distance = distance.at(u);
-	
-	for (uint64_t v : target_nodes)
-	{
-		if (distance.at(v) == distance.at(u))
-			target_candidates.push_back(v);
-	}
+
+	copy_if(begin(target_nodes),
+		end(target_nodes),
+		back_inserter(target_candidates),
+		[&](uint64_t v){
+			return distance.at(v) == distance.at(u);
+		}
+	);
 
 	sort(begin(target_candidates), end(target_candidates));
 }
