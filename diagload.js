@@ -212,7 +212,7 @@ function drawDiag() {
 		source_boxes[i].sort();
 	alert(JSON.stringify(source_boxes));
 	//TODO: deduplicate source_boxes[i]
-	
+	mycontexts
 	let field2values = {};
 	for (let {box, field, value} of values)
 	{
@@ -389,52 +389,14 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 function refreshJsonFromEditData()
 {
 	alert("refreshJsonFromEditData");
-	let contexts = [];
+	let json_io = document.getElementById("json_input_output");
+	json_io.value = JSON.stringify({mycontexts}/*, null, 4*/); // Indented 4 spaces
+}
 
-	const svgTags = document.getElementsByTagName("svg");
-	
-	//start loop at 1 instead of 0 to skip the icon.
-	for (let i=1; i < svgTags.length; i++)
-	{
-		const svgTag = svgTags[i];
-		const title = svgTag.getAttribute("title");
-		alert(title);
-		const frame = {left:0, right:svgTag.width.baseVal.value, top:0, bottom:svgTag.height.baseVal.value};
-		let translatedBoxes = [];
-		
-		const gTags = svgTag.getElementsByTagName("g");
-		for (let j=0; j < gTags.length; j++)
-		{
-			const gTag = gTags[j];
-			const xforms = gTag.transform.baseVal; // an SVGTransformList
-			const firstXForm = xforms.getItem(0);	// an SVGTransform
-			const foreignObject = gTag.getElementsByTagName("foreignObject")[0];
-			translatedBoxes.push({id:parseInt(foreignObject.id.substr("box".length)), translation:{ x:firstXForm.matrix.e, y:firstXForm.matrix.f}});
-		}
-		
-		let links = [];
-		const pathTags = svgTag.getElementsByTagName("path");
-		for (const pathTag of pathTags)
-		{
-			const id = pathTag.id;
-			if (id.length != 2*ZERO_PADDING_SIZE)
-				continue;
-			const segments = pathTag.getAttribute("d") ;
-			let polyline = [];
-			const re = /(M|L)(\d+),(\d+)/g;
-			do{
-				m = re.exec(segments);
-				if (m){
-					polyline.push({x:parseInt(m[2]), y:parseInt(m[3])});
-				}
-			} while (m);
-
-			links.push({polyline, from:parseInt(id.substring(0,ZERO_PADDING_SIZE)), to:parseInt(id.substring(ZERO_PADDING_SIZE, 2*ZERO_PADDING_SIZE))});
-		}
-		
-		contexts.push({title, frame, translatedBoxes, links})
-	}
-
-	json_io = document.getElementById("json_input_output");
-	json_io.value = JSON.stringify({contexts}/*, null, 4*/); // Indented 4 spaces
+function refreshEditDataFromJson()
+{
+	alert("refreshEditDataFromJson");
+	let json_io = document.getElementById("json_input_output");
+	context = json_io.value;
+	loadDiag();
 }
