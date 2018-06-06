@@ -212,7 +212,7 @@ function drawDiag() {
 		source_boxes[i].sort();
 	alert(JSON.stringify(source_boxes));
 	//TODO: deduplicate source_boxes[i]
-	mycontexts
+
 	let field2values = {};
 	for (let {box, field, value} of values)
 	{
