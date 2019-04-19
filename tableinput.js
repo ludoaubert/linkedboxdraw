@@ -1,5 +1,4 @@
 
-const cardinalities = ["0","1","N","0,1","0,N","1,N"];
 
 var myBoxes = [];
 var box2fields = {};
@@ -21,10 +20,23 @@ var newBoxEditField = document.getElementById("new box");
 var newFieldEditField = document.getElementById("new field");
 var fromBoxCombo = document.getElementById("from boxes");
 var fromFieldCombo = document.getElementById("from fields");
+var fromCardinality = document.getElementById("from cardinality");
 var toBoxCombo = document.getElementById("to boxes");
 var toFieldCombo = document.getElementById("to fields");
+var toCardinality = document.getElementById("to cardinality");
 var newValueEditField = document.getElementById("new value");
 var json_io = document.getElementById("json_input_output");
+
+
+function init(e) {
+	for (let cardinality of ["0","1","N","0,1","0,N","1,N"])
+	{
+		fromCardinality.add(new Option(cardinality,cardinality));
+		toCardinality.add(new Option(cardinality,cardinality));
+	}
+}
+
+document.addEventListener('DOMContentLoaded', init, false);
 
 
 function sortSelect(selElem) 
