@@ -29,7 +29,7 @@ var json_io = document.getElementById("json_input_output");
 
 
 function init(e) {
-	for (let cardinality of ["0","1","N","0,1","0,N","1,N"])
+	for (let cardinality of ["","0","1","N","0,1","0,N","1,N"])
 	{
 		fromCardinality.add(new Option(cardinality,cardinality));
 		toCardinality.add(new Option(cardinality,cardinality));
