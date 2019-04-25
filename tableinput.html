@@ -95,7 +95,7 @@
 
 <fieldset>
 	<legend>Box Links</legend>
-	Links: <select id="links" class="bigselect"></select>
+	Links: <select id="links" onchange="selectLink()" class="bigselect"></select>
 	<button type="button" id="drop link" onclick="dropLink()">Drop Link</button>
 	<br>
 	From Box: <select id="from boxes" onchange="selectBox(fromBoxCombo, fromFieldCombo)"></select>
@@ -105,6 +105,7 @@
 	To Field: <select id="to fields"></select>
 	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
 	<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
+	<button id="update link" type="button" onclick="updateLink()">Update Link</button>
 </fieldset>
 
 <fieldset>

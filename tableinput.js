@@ -431,10 +431,31 @@ function dropValueFromField()
 	selectField();
 }
 
+function selectLink()
+{
+	const myRegexp = /([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\s]+)/g;
+	const match = myRegexp.exec(linkCombo.value);
+	alert(match[1]);
+	alert(match[2]);
+	alert(match[3]);
+	alert(match[4]);
+	fromBoxCombo.value = match[1];
+	selectBox(fromBoxCombo, fromFieldCombo);
+	fromFieldCombo.value = match[2];
+	toBoxCombo.value = match[3];
+	selectBox(toBoxCombo, toFieldCombo);
+	toFieldCombo.value = match[4];
+}
+
+function updateLink()
+{
+
+}
+
 function addNewLink()
 {
 	alert("addNewLink");
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} -> ${toBoxCombo.value}.${toFieldCombo.value}`;					
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}`;					
 	linkCombo.add(new Option(text, text));
 	sortSelect(linkCombo);
 	linkCombo.value = text;
