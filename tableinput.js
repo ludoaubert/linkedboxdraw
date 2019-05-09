@@ -449,7 +449,8 @@ function selectLink()
 
 function updateLink()
 {
-
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}`;
+	linkCombo.options[linkCombo.selectedIndex].innerHTML = text;
 }
 
 function addNewLink()
