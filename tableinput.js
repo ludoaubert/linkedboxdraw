@@ -20,10 +20,10 @@ var newBoxEditField = document.getElementById("new box");
 var newFieldEditField = document.getElementById("new field");
 var fromBoxCombo = document.getElementById("from boxes");
 var fromFieldCombo = document.getElementById("from fields");
-var fromCardinality = document.getElementById("from cardinality");
+var fromCardinalityCombo = document.getElementById("from cardinality");
 var toBoxCombo = document.getElementById("to boxes");
 var toFieldCombo = document.getElementById("to fields");
-var toCardinality = document.getElementById("to cardinality");
+var toCardinalityCombo = document.getElementById("to cardinality");
 var newValueEditField = document.getElementById("new value");
 var json_io = document.getElementById("json_input_output");
 
@@ -31,8 +31,8 @@ var json_io = document.getElementById("json_input_output");
 function init(e) {
 	for (let cardinality of ["","0","1","N","0,1","0,N","1,N"])
 	{
-		fromCardinality.add(new Option(cardinality,cardinality));
-		toCardinality.add(new Option(cardinality,cardinality));
+		fromCardinalityCombo.add(new Option(cardinality,cardinality));
+		toCardinalityCombo.add(new Option(cardinality,cardinality));
 	}
 }
 
@@ -120,7 +120,7 @@ function dropBox()
 	for (let i=linkCombo.options.length-1; i >= 0; i--) 
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		let [fromBoxTitle, , toBoxTitle, ] = linkCombo.options[i].text.split(/ -> |\./);
+		let [fromBoxTitle, , ,toBoxTitle, ,] = linkCombo.options[i].text.split(/ -> |\./);
 		if (fromBoxTitle == box || toBoxTitle == box)
 		{
 			alert ("Cascade dropping link: " + linkCombo.options[i].text);
@@ -168,7 +168,7 @@ function updateBox()
 	for (let option of linkCombo.options)
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		let [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = option.text.split(/ -> |\./);
 		let replace = false;
 		if (fromBoxTitle == box)
 		{
@@ -183,7 +183,7 @@ function updateBox()
 		if (replace)
 		{
 			alert ("Cascade updating link: " + option.text);
-			option.text = `${fromBoxTitle}.${fromFieldName} -> ${toBoxTitle}.${toFieldName}`;
+			option.text = `${fromBoxTitle}.${fromFieldName}.${fromCardinality} -> ${toBoxTitle}.${toFieldName}.${toCardinality}`;
 		}
 	}	
 
@@ -318,7 +318,7 @@ function updateField()
 	for (let option of linkCombo.options)
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		let [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = option.text.split(/ -> |\./);
 		let replace = false;
 		if (fromBoxTitle == box && fromFieldName == field)
 		{
@@ -333,7 +333,7 @@ function updateField()
 		if (replace)
 		{
 			alert ("Cascade dropping link: " + option.text);
-			option.text = `${fromBoxTitle}.${fromFieldName} -> ${toBoxTitle}.${toFieldName}`;
+			option.text = `${fromBoxTitle}.${fromFieldName}.${fromCardinality} -> ${toBoxTitle}.${toFieldName}.${toCardinality}`;
 		}
 	}	
 
@@ -378,7 +378,7 @@ function dropFieldFromBox()
 	for (let i=linkCombo.options.length-1; i >= 0; i--) 
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		let [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = linkCombo.options[i].text.split(/ -> |\./);
+		let [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = linkCombo.options[i].text.split(/ -> |\./);
 		if ((fromBoxTitle == box && fromFieldName == field) || (toBoxTitle == box && toFieldName == field))
 		{
 			alert ("Cascade dropping link: " + linkCombo.options[i].text);
@@ -433,30 +433,34 @@ function dropValueFromField()
 
 function selectLink()
 {
-	const myRegexp = /([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\s]+)/g;
+	const myRegexp = /([^\.]+)\.([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\.]+)\.([^\s]+)/g;
 	const match = myRegexp.exec(linkCombo.value);
 	alert(match[1]);
 	alert(match[2]);
 	alert(match[3]);
 	alert(match[4]);
+	alert(match[5]);
+	alert(match[6]);
 	fromBoxCombo.value = match[1];
 	selectBox(fromBoxCombo, fromFieldCombo);
 	fromFieldCombo.value = match[2];
-	toBoxCombo.value = match[3];
+	fromCardinalityCombo.value = match[3];
+	toBoxCombo.value = match[4];
 	selectBox(toBoxCombo, toFieldCombo);
-	toFieldCombo.value = match[4];
+	toFieldCombo.value = match[5];
+	toCardinalityCombo.value = match[6];
 }
 
 function updateLink()
 {
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}`;
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;
 	linkCombo.options[linkCombo.selectedIndex].innerHTML = text;
 }
 
 function addNewLink()
 {
 	alert("addNewLink");
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}`;					
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;					
 	linkCombo.add(new Option(text, text));
 	sortSelect(linkCombo);
 	linkCombo.value = text;
@@ -546,7 +550,7 @@ function refreshJsonFromEditData()
 	for (let option of linkCombo.options)
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		const [fromBoxTitle, fromFieldName, toBoxTitle, toFieldName] = option.text.split(/ -> |\./);
+		const [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = option.text.split(/ -> |\./);
 		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName});
 		const fromBoxIndex = boxes.findIndex( box => box.title == fromBoxTitle );
 		if (fromBoxIndex == -1)
@@ -564,8 +568,10 @@ function refreshJsonFromEditData()
 			{
 			"from":fromBoxIndex, 
 			"fromField":fromFieldIndex,
+			"fromCardinality":fromCardinality,
 			"to":toBoxIndex,
-			"toField":toFieldIndex
+			"toField":toFieldIndex,
+			"toCardinality":toCardinality
 			}
 		);
 		i++;
@@ -710,15 +716,19 @@ function refreshEditDataFromJson()
 	
 	console.log(myBoxes);
 	
-	for (const {from,fromField,to,toField} of links)
+	for (const {from,fromField,fromCardinality,to,toField,toCardinality} of links)
 	{
 		let text = boxes[from].title +
 					"." +
 					(fromField != -1 ? boxes[from].fields[fromField].name : '') +
+					"." +
+					fromCardinality +
 					" -> " + 
 					boxes[to].title +
 					"." +
-					(toField != -1 ? boxes[to].fields[toField].name : '') ;
+					(toField != -1 ? boxes[to].fields[toField].name : '') +
+					"." +
+					toCardinality;
 					
 		linkCombo.add(new Option(text, text));
     }
