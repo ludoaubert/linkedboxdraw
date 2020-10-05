@@ -93,15 +93,15 @@ function addNewBox()
 	box2fields[newBoxEditField.value] = [];
 	newBoxEditField.value='';
 	selectCascadeBox();
-	alert(JSON.stringify(box2fields));
+	//alert(JSON.stringify(box2fields));
 }
 
 function dropBox()
 {
-	alert("dropBox");
+	//alert("dropBox");
 
 	const box = boxCombo.value;
-	alert (box);
+	//alert (box);
 	let index = myBoxes.indexOf(box);
 	myBoxes.splice(index,1);
 	for (const {name, isPrimaryKey, isForeignKey} in box2fields[box])
@@ -132,12 +132,12 @@ function dropBox()
 
 function updateBox()
 {
-	alert("updateBox");
+	//alert("updateBox");
 	const box = boxCombo.value;
 	
 	boxCombo.remove(boxCombo.selectedIndex);
 	
-	alert(JSON.stringify(box2fields[box]));
+	//alert(JSON.stringify(box2fields[box]));
 	
 	let index = myBoxes.indexOf(box);
 	myBoxes[index] = newBoxEditField.value;
@@ -148,10 +148,10 @@ function updateBox()
 	for (const {name, isPrimaryKey, isForeignKey} of box2fields[newBoxEditField.value])
 	{
 		const field = name;
-		alert(field);
+		//alert(field);
 		if (`${box}.${field}` in field2values)
 		{
-			alert("Cascade updating values: " + JSON.stringify(field2values[`${box}.${field}`]));
+			//alert("Cascade updating values: " + JSON.stringify(field2values[`${box}.${field}`]));
 			field2values[`${newBoxEditField.value}.${field}`] = field2values[`${box}.${field}`];
 			delete field2values[`${box}.${field}`];
 		}
@@ -159,7 +159,7 @@ function updateBox()
 
 		if (`${box}.${field}` in field2comment)
 		{
-			alert("Cascade updating comment: " + field2comment[`${box}.${field}`]);
+			//alert("Cascade updating comment: " + field2comment[`${box}.${field}`]);
 			field2comment[`${newBoxEditField.value}.${field}`] = field2comment[`${box}.${field}`];
 			delete field2comment[`${box}.${field}`];
 		}
@@ -182,7 +182,7 @@ function updateBox()
 		}
 		if (replace)
 		{
-			alert ("Cascade updating link: " + option.text);
+			//alert ("Cascade updating link: " + option.text);
 			option.text = `${fromBoxTitle}.${fromFieldName}.${fromCardinality} -> ${toBoxTitle}.${toFieldName}.${toCardinality}`;
 		}
 	}	
@@ -197,7 +197,7 @@ function updateBox()
 	copyOptions(boxCombo, fromBoxCombo);
 	copyOptions(boxCombo, toBoxCombo);	
 	
-	alert(JSON.stringify(box2fields));
+	//alert(JSON.stringify(box2fields));
 }
 
 
@@ -271,7 +271,7 @@ function selectField()
 
 function addNewFieldToBox()
 {
-	alert("addNewFieldToBox");
+	//alert("addNewFieldToBox");
 	var box = boxCombo.value;
 	box2fields[box].push({"name":newFieldEditField.value,"isPrimaryKey":isPrimaryKeyCheckBox.checked,"isForeignKey":isForeignKeyCheckBox.checked});
 	const text = newFieldEditField.value;
@@ -279,7 +279,7 @@ function addNewFieldToBox()
 	sortSelect(fieldCombo);
 	fieldCombo.value = newFieldEditField.value;
 	newFieldEditField.value = '';
-	alert(JSON.stringify(box2fields));
+	//alert(JSON.stringify(box2fields));
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
 	selectBox(boxCombo,fieldCombo);
@@ -289,7 +289,7 @@ function addNewFieldToBox()
 
 function updateField()
 {
-	alert("updateField");
+	//alert("updateField");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
 	Object.assign(box2fields[box].find( f => f.name == field ), {
@@ -300,16 +300,16 @@ function updateField()
 
 	fieldCombo.remove(fieldCombo.selectedIndex);
 	
-	alert(JSON.stringify(box2fields[box]));
+	//alert(JSON.stringify(box2fields[box]));
 	if (`${box}.${field}` in field2values)
 	{
-		alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
+		//alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
 		field2values[`${box}.${newFieldEditField.value}`] = field2values[`${box}.${field}`];
 		delete field2values[`${box}.${field}`];
 	}
 	if (`${box}.${field}` in field2comment)
 	{
-		alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
+		//alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
 		field2comment[`${box}.${newFieldEditField.value}`] = field2comment[`${box}.${field}`];
 		delete field2comment[`${box}.${field}`];
 	}
@@ -332,7 +332,7 @@ function updateField()
 		}
 		if (replace)
 		{
-			alert ("Cascade dropping link: " + option.text);
+			//alert ("Cascade dropping link: " + option.text);
 			option.text = `${fromBoxTitle}.${fromFieldName}.${fromCardinality} -> ${toBoxTitle}.${toFieldName}.${toCardinality}`;
 		}
 	}	
@@ -344,7 +344,7 @@ function updateField()
 	sortSelect(fieldCombo);
 	fieldCombo.value = newFieldEditField.value;
 	newFieldEditField.value = '';
-	alert(JSON.stringify(box2fields));
+	//alert(JSON.stringify(box2fields));
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
 	selectBox(boxCombo,fieldCombo);
@@ -355,22 +355,22 @@ function updateField()
 
 function dropFieldFromBox()
 {
-	alert("dropFieldFromBox");
+	//alert("dropFieldFromBox");
 	var box = boxCombo.value;
 	var field = fieldCombo.value;
 	let index = box2fields[box].findIndex(f => f.name == field);
 	box2fields[box].splice(index,1);
 	fieldCombo.remove(fieldCombo.selectedIndex);
 	updateFieldAttributes();
-	alert(JSON.stringify(box2fields[box]));
+	//alert(JSON.stringify(box2fields[box]));
 	if (`${box}.${field}` in field2values)
 	{
-		alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
+		//alert("Cascade dropping values: " + JSON.stringify(field2values[`${box}.${field}`]));
 		delete field2values[`${box}.${field}`];
 	}
 	if (`${box}.${field}` in field2comment)
 	{
-		alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
+		//alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
 		delete field2comment[`${box}.${field}`];
 	}
 	selectField();
@@ -381,7 +381,7 @@ function dropFieldFromBox()
 		let [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = linkCombo.options[i].text.split(/ -> |\./);
 		if ((fromBoxTitle == box && fromFieldName == field) || (toBoxTitle == box && toFieldName == field))
 		{
-			alert ("Cascade dropping link: " + linkCombo.options[i].text);
+			//alert ("Cascade dropping link: " + linkCombo.options[i].text);
 			linkCombo.remove(i);
 		}
 	}		
@@ -389,13 +389,13 @@ function dropFieldFromBox()
 
 function editValueFromField()
 {
-	alert("editValueFromField");
+	//alert("editValueFromField");
 	newValueEditField.value = valueCombo.value;
 }
 
 function addNewValueToField()
 {
-	alert("addNewValueToField");
+	//alert("addNewValueToField");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
 
@@ -408,19 +408,19 @@ function addNewValueToField()
 	sortSelect(valueCombo);
 	valueCombo.value = newValueEditField.value;
 	newValueEditField.value = '';
-	alert(JSON.stringify(field2values));
+	//alert(JSON.stringify(field2values));
 }
 
 function updateValue()
 {
-	alert("updateValue");
+	//alert("updateValue");
 	dropValueFromField();
 	addNewValueToField();
 }
 
 function dropValueFromField()
 {
-	alert("dropValueFromField");
+	//alert("dropValueFromField");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
 	const value = valueCombo.value;
@@ -435,12 +435,12 @@ function selectLink()
 {
 	const myRegexp = /([^\.]+)\.([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\.]+)\.([^\s]+)/g;
 	const match = myRegexp.exec(linkCombo.value);
-	alert(match[1]);
-	alert(match[2]);
-	alert(match[3]);
-	alert(match[4]);
-	alert(match[5]);
-	alert(match[6]);
+	//alert(match[1]);
+	//alert(match[2]);
+	//alert(match[3]);
+	//alert(match[4]);
+	//alert(match[5]);
+	//alert(match[6]);
 	fromBoxCombo.value = match[1];
 	selectBox(fromBoxCombo, fromFieldCombo);
 	fromFieldCombo.value = match[2];
@@ -459,7 +459,7 @@ function updateLink()
 
 function addNewLink()
 {
-	alert("addNewLink");
+	//alert("addNewLink");
 	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;					
 	linkCombo.add(new Option(text, text));
 	sortSelect(linkCombo);
@@ -468,7 +468,7 @@ function addNewLink()
 
 function dropLink()
 {
-	alert("dropLink");
+	//alert("dropLink");
 	if (linkCombo.selectedIndex != -1)
 		linkCombo.remove(linkCombo.selectedIndex);
 }
@@ -477,7 +477,7 @@ function dropLink()
 
 function dropBoxComment()
 {
-	alert("dropBoxComment");
+	//alert("dropBoxComment");
 	const box = boxCombo.value;
 	delete box2comment[box];
 	boxCommentTextArea.value = "";
@@ -485,15 +485,15 @@ function dropBoxComment()
 
 function updateBoxComment()
 {
-	alert("updateBoxComment");
+	//alert("updateBoxComment");
 	const box = boxCombo.value;
-	alert(boxCommentTextArea.value);
+	//alert(boxCommentTextArea.value);
 	box2comment[box] = boxCommentTextArea.value;
 }
 
 function dropFieldComment()
 {
-	alert("dropFieldComment");
+	//alert("dropFieldComment");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
 	delete field2comment[`${box}.${field}`];
@@ -502,10 +502,10 @@ function dropFieldComment()
 
 function updateFieldComment()
 {
-	alert("updateFieldComment");
+	//alert("updateFieldComment");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
-	alert(fieldCommentTextArea.value);
+	//alert(fieldCommentTextArea.value);
 	field2comment[`${box}.${field}`] = fieldCommentTextArea.value;
 }
 
@@ -586,9 +586,9 @@ function refreshJsonFromEditData()
 	const title = editTitle.value;
 	
 	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
-	alert(json);
+	//alert(json);
 	json_io.value = escapeSpecialChars(json); // Indented 4 spaces
-	alert(json_io.value);
+	//alert(json_io.value);
 }
 
 
@@ -695,8 +695,8 @@ function compute_box_rectangles(boxes)
 
 function refreshEditDataFromJson()
 {
-	alert(toHex(15));
-	alert("refreshEditDataFromJson");
+	//alert(toHex(15));
+	//alert("refreshEditDataFromJson");
 
 	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(json_io.value);
 	
