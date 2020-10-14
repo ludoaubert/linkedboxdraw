@@ -141,7 +141,7 @@ while True:
             client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
             client_connection.close()
             
-        except subprocess.CalledProcessError as e:
-            print(e.output)
-        except ValueError:
-            print("Could not convert data to an integer.")            
+    except CalledProcessError as e:
+        print(e.output)
+    except ValueError:
+        print("Could not convert data to an integer.")            
