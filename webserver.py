@@ -19,8 +19,8 @@ while True:
     m1 = re.search(r'GET /getFilter\?([^ ]*) HTTP', str(request))
     m2 = re.search(r'GET /getReducedEdges\?data=([^ ]*) HTTP', str(request))    
 
-    if m1:
-        try:
+    try:
+        if m1:
             data = m1.group(1)
             nr_rects = int(data[:3], 16)
             print('nr_rects')
@@ -108,39 +108,40 @@ while True:
             http_response = bytearray(json.dumps(data),'ascii')
             client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
             client_connection.close()
+
+        elif m2:
+            data = m2.group(1)
+            print(data)
+            missing_padding = len(data) % 4
+            if missing_padding != 0:
+                data += '='* (4 - missing_padding)
+            data = base64.b64decode(data)
+            print(data)
+            data = json.loads(data.decode('utf-8'))
+            rectdim = "".join("{:03x}{:03x}".format(rec['right']-rec['left'],rec['bottom']-rec['top']) for rec in data['rectangles'])
+            print('rectdim')
+            print(rectdim)
+            translations = "".join("{:03x}{:03x}".format(rec['left'],rec['top']) for rec in data['rectangles'])
+            print('translations')
+            print(translations)
+            links = "".join(["{:02x}{:02x}".format(edge['from'],edge['to']) for edge in data['reduced_edges']])
+            print('links')
+            print(links)
+            frame = data['frame']
+            frame = "{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
+            print('frame')
+            print(frame)
+            command=['build/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
+            print(str(command))
+            json2 = check_output(command).decode("ascii")
+            print('json2')
+            print(json2)
+            
+            http_response = bytearray(json2,'ascii')
+            client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
+            client_connection.close()
+            
         except subprocess.CalledProcessError as e:
             print(e.output)
         except ValueError:
-            print("Could not convert data to an integer.")
-
-    elif m2:
-        data = m2.group(1)
-        print(data)
-        missing_padding = len(data) % 4
-        if missing_padding != 0:
-            data += '='* (4 - missing_padding)
-        data = base64.b64decode(data)
-        print(data)
-        data = json.loads(data.decode('utf-8'))
-        rectdim = "".join("{:03x}{:03x}".format(rec['right']-rec['left'],rec['bottom']-rec['top']) for rec in data['rectangles'])
-        print('rectdim')
-        print(rectdim)
-        translations = "".join("{:03x}{:03x}".format(rec['left'],rec['top']) for rec in data['rectangles'])
-        print('translations')
-        print(translations)
-        links = "".join(["{:02x}{:02x}".format(edge['from'],edge['to']) for edge in data['reduced_edges']])
-        print('links')
-        print(links)
-        frame = data['frame']
-        frame = "{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
-        print('frame')
-        print(frame)
-        command=['build/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
-        print(str(command))
-        json2 = check_output(command).decode("ascii")
-        print('json2')
-        print(json2)
-        
-        http_response = bytearray(json2,'ascii')
-        client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
-        client_connection.close()       
+            print("Could not convert data to an integer.")            
