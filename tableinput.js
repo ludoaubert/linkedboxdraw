@@ -94,15 +94,11 @@ function addNewBox()
 	box2fields[newBoxEditField.value] = [];
 	newBoxEditField.value='';
 	selectCascadeBox();
-	//alert(JSON.stringify(box2fields));
 }
 
 function dropBox()
 {
-	//alert("dropBox");
-
 	const box = boxCombo.value;
-	//alert (box);
 	let index = myBoxes.indexOf(box);
 	myBoxes.splice(index,1);
 	for (const {name, isPrimaryKey, isForeignKey} in box2fields[box])
@@ -272,18 +268,15 @@ function selectField()
 
 function addNewFieldToBox()
 {
-	//alert("addNewFieldToBox");
-	var box = boxCombo.value;
+	const box = boxCombo.value;
 	box2fields[box].push({"name":newFieldEditField.value,"isPrimaryKey":isPrimaryKeyCheckBox.checked,"isForeignKey":isForeignKeyCheckBox.checked});
-	const text = newFieldEditField.value;
-	fieldCombo.add(new Option(text,text));
+	const field = newFieldEditField.value;
+	fieldCombo.add(new Option(field,field));
 	sortSelect(fieldCombo);
 	fieldCombo.value = newFieldEditField.value;
 	newFieldEditField.value = '';
-	//alert(JSON.stringify(box2fields));
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
-	selectBox(boxCombo,fieldCombo);
 	updateFieldAttributes();
 	selectField();
 }
