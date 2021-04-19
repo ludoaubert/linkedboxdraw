@@ -88,6 +88,7 @@ function addNewBox()
 {
 	const text = newBoxEditField.value;
 	boxCombo.add(new Option(text,text));
+	sortSelect(boxCombo);
 	boxCombo.value = newBoxEditField.value;
 	myBoxes.push(newBoxEditField.value);
 	box2fields[newBoxEditField.value] = [];
