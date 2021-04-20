@@ -198,7 +198,6 @@ function loadDiag() {
 
 function drawDiag() {
 
-	alert("belles fesses!");
 	const {title, boxes, values, boxComments, fieldComments, links:links_, rectangles, http_get_param} = JSON.parse(data);
 	alert(http_get_param);
 	
