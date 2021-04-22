@@ -1,97 +1,73 @@
 var mycontexts;
 
 
-var selectedSVGElement = 0;
-var selectedElement = 0;
-var selectedRectangleIndex = -1;
-var selectedContextIndex = -1;
+//var selectedRectangleIndex = -1;
 var currentX = 0;
 var currentY = 0;
-var currentTranslateX = 0;
-var currentTranslateY = 0;
+//var currentTranslateX = 0;
+//var currentTranslateY = 0;
+
+var g = 0;
 
 
-function selectElement(evt) 
+function myFunction(elmnt,clr) 
 {
-	console.log("selectElement(evt)");
-	let svg_elements = document.body.getElementsByTagName("svg");
-  	for (let i=0; i < svg_elements.length; i++)
+	elmnt.style.color = clr;
+  
+	switch (clr)
 	{
-    		let svg_element = svg_elements[i];
-    		let r = svg_element.getBoundingClientRect();
-	
-		if (!(r.left <= evt.clientX && evt.clientY <= r.right && r.top <= evt.clientY && evt.clientY <= r.bottom))
-			continue;
+	case 'red':{
+		g = document.getElementById('g_' + elmnt.id);
+		console.log(g.id);
+		console.log(g.parentElement.tagName);
+		break;}
+	case 'green':{
+		deselectElement();
+		currentX=0;
+		currentY=0;
+		g=0;
+		break;}
+	}
 
-		console.log("svg=" + JSON.stringify({left:r.left, right:r.right, top:r.top, bottom:r.bottom}));
-
-		selectedSVGElement = svg_element;
-		group_elements = svg_element.getElementsByTagName("g");
-    		for (let j=0; j < group_elements.length; j++)
-		{
-	  		let group = group_elements[j];
-			let xForms = group.transform.baseVal;// an SVGTransformList
-			let firstXForm = xForms.getItem(0); //an SVGTransform
-			console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-			let translateX = firstXForm.matrix.e;
-			let translateY = firstXForm.matrix.f;
-			console.log("group=" + JSON.stringify({translateX, translateY}));
-		
-			let foreignObj = group.getElementsByTagName("foreignObject")[0];
-			let width = foreignObj.width.baseVal.value;
-			let height = foreignObj.height.baseVal.value;
-			console.log(JSON.stringify({width,height}));
-		
-			let left = r.left + translateX;
-			let right = left + width;
-			let top = r.top + translateY;
-			let bottom = top + height;
-		
-			if (left <= evt.clientX && evt.clientX <= right && top <= evt.clientY && evt.clientY <= bottom)
-			{
-				selectedContextIndex = i;
-				selectedRectangleIndex = j;
-				currentX = evt.clientX;
-				currentY = evt.clientY;
-				console.log(JSON.stringify({currentX, currentY}));
-				selectedElement = group;
-				selectedElement.setAttributeNS(null, "onmousemove", "moveElement(evt)");
-				selectedElement.setAttributeNS(null, "onmouseout", "deselectElement(evt)");
-				selectedElement.setAttributeNS(null, "onmouseup", "deselectElement(evt)");
-				currentTranslateX = translateX;
-				currentTranslateY = translateY;
-				console.log("hit=" + JSON.stringify({left, right, top, bottom}));
-				console.log("currentTranslateX=" + currentTranslateX);
-				console.log("currentTranslateY=" + currentTranslateY);
-				return;
-			}		
-    		}	
-  	}
 }
+
         
 function moveElement(evt) {
 	
-	var dx = evt.clientX - currentX;
-	var dy = evt.clientY - currentY;
-	currentTranslateX += dx;
-	currentTranslateY += dy;
-      
-	console.log("currentTranslateX=" + currentTranslateX);
-	console.log("currentTranslateY=" + currentTranslateY);
-	selectedElement.transform.baseVal.getItem(0).setTranslate(currentTranslateX, currentTranslateY);
+	if (g == 0)
+		return;
+	
+	console.log('moveElement');
+	if (currentX==0 && currentY==0)
+	{
+		currentX = evt.clientX;
+		currentY = evt.clientY;
+	}		
+	
+	const dx = evt.clientX - currentX;
+	const dy = evt.clientY - currentY;
+
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+  
+	g.transform.baseVal.getItem(0).setTranslate(translateX+dx, translateY+dy);
+
 	currentX = evt.clientX;
 	currentY = evt.clientY;
 }
 
         
-function deselectElement(evt) 
+function deselectElement() 
 {
-	console.log("deselectElement(evt)");
-	console.assert(selectedElement != 0, "no element selected!")
-
 	let rectangles=[];
 	
-	let group_elements = selectedSVGElement.getElementsByTagName("g");
+	console.assert(g.parentElement.tagName=='svg')
+	console.log(g.parentElement.id);
+	
+	let group_elements = g.parentElement.getElementsByTagName("g");
 
 	for (let i=0; i < group_elements.length; i++)
 	{
@@ -113,13 +89,14 @@ function deselectElement(evt)
 		rectangles.push({left, right, top, bottom});
 	}
 
-
+	const selectedContextIndex = g.parentElement.id;
 	console.log("selectedContextIndex=" + selectedContextIndex)
-	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
+//	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	let reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	let frame = mycontexts.contexts[selectedContextIndex].frame;
 	let data={rectangles,reduced_edges, frame}
 	let url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
+	url = url.replace('localhost', '192.168.0.27');
 	console.log("data=" + JSON.stringify(data));
 	console.log(url);
 
@@ -129,22 +106,16 @@ function deselectElement(evt)
         	if (xhr.readyState==4)	{
 			if (xhr.status==200)	{
 				console.log("attention!");
-            			console.log("responseText=" + xhr.responseText);
+            	console.log("responseText=" + xhr.responseText);
 				console.log("selectedContextIndex=" + selectedContextIndex);
 				const ctx = mycontexts.contexts[selectedContextIndex];		
 				ctx.links = JSON.parse(xhr.responseText);
-				const translatedBox = ctx.translatedBoxes[selectedRectangleIndex];
-				translatedBox.translation.x = currentTranslateX;
-				translatedBox.translation.y = currentTranslateY;
+//				const translatedBox = ctx.translatedBoxes[selectedRectangleIndex];
+//				translatedBox.translation.x = currentTranslateX;
+//				translatedBox.translation.y = currentTranslateY;
 				drawDiag();
-				selectedElement.removeAttributeNS(null, "onmousemove");
-				selectedElement.removeAttributeNS(null, "onmouseout");
-				selectedElement.removeAttributeNS(null, "onmouseup");
-				selectedElement = 0;
-				selectedContextIndex = -1;
-				selectedRectangleIndex = -1;
-	selectedSVGElement = 0;
-	        	} else	{
+//				selectedRectangleIndex = -1;
+	        } else	{
 				console.error(xhr.statusText);
 			}
 		}
@@ -238,11 +209,13 @@ function drawDiag() {
 	
 	var innerHTML = '';
 	
+	var selectedContextIndex=0;
+	
 	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
 	{
 		alert("context title=" + title);
 		
-		innerHTML += `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
+		innerHTML += `<svg id="${selectedContextIndex}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
       <defs>
 		<marker id="markerArrow"
 	viewBox="0 0 10 10" refX="${9+RECT_STROKE_WIDTH/2}" refY="3" 
@@ -253,6 +226,7 @@ function drawDiag() {
         </marker>
       </defs>`;
 	  
+		selectedContextIndex++;
 /*
 Elements in an SVG document fragment have an implicit drawing order, with the first elements in the SVG document fragment getting "painted" first. 
 Subsequent elements are painted on top of previously painted elements.
@@ -303,13 +277,13 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			const box = boxes[id];
 			const key_distrib = compute_key_distrib(box.fields);
 			
-			innerHTML += `<g class="draggable" transform="translate(${translation.x},${translation.y})" onmousedown="selectElement(evt);">
-			<rect x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
+			innerHTML += `<g id="g_${box.title}" class="draggable" transform="translate(${translation.x},${translation.y})">
+			<rect id="rect_${box.title}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 			
 			const toolbox = source_boxes[id].join(",");
 
-			innerHTML += `<table id="${box.title}">`;
+			innerHTML += `<table id="${box.title}" onmousedown="myFunction(this,'red')" onmouseup="myFunction(this,'green')" onmousemove="moveElement(event)">`;
 			innerHTML += `<tr><th contextmenu="menu${id}" title="${toolbox}">${box.title}</th></tr>`;
 			for (var i=0; i < box.fields.length; i++)
 			{
