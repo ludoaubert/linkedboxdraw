@@ -63,6 +63,7 @@ function moveElement(evt) {
 function deselectElement() 
 {
 	let rectangles=[];
+	let translatedBoxes=[];
 	
 	console.assert(g.parentElement.tagName=='svg')
 	console.log(g.parentElement.id);
@@ -87,7 +88,10 @@ function deselectElement()
 		let top = translateY;
 		let bottom = top + height;
 		rectangles.push({left, right, top, bottom});
+		translatedBoxes.push({"id": group.id.substring(/*'g_'.length()*/2), "translation": {"x": translateX, "y": translateY}});
 	}
+	
+	console.log(JSON.stringify(translatedBoxes));
 
 	const selectedContextIndex = g.parentElement.id;
 	console.log("selectedContextIndex=" + selectedContextIndex)
@@ -107,7 +111,8 @@ function deselectElement()
 	Http.onreadystatechange = (e) => {
 		console.log(Http.responseText);
 		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);
-		mycontexts.contexts[selectedContextIndex].rectangles = rectangles;	//remember one rectangle has changed.
+//il faut mettre translatedBoxes a jour si on veux que le deplacement de la boite ne soit pas resette lors de l'appel de drawDiag
+		mycontexts.contexts[selectedContextIndex].translatedBoxes = translatedBoxes;
 	
 		drawDiag();
 	}
@@ -266,13 +271,13 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			const box = boxes[id];
 			const key_distrib = compute_key_distrib(box.fields);
 			
-			innerHTML += `<g id="g_${box.title}" class="draggable" transform="translate(${translation.x},${translation.y})">
-			<rect id="rect_${box.title}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
+			innerHTML += `<g id="g_${id}" class="draggable" transform="translate(${translation.x},${translation.y})">
+			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 			
 			const toolbox = source_boxes[id].join(",");
 
-			innerHTML += `<table id="${box.title}" onmousedown="myFunction(this,'red')" onmouseup="myFunction(this,'green')" onmousemove="moveElement(event)">`;
+			innerHTML += `<table id="${id}" onmousedown="myFunction(this,'red')" onmouseup="myFunction(this,'green')" onmousemove="moveElement(event)">`;
 			innerHTML += `<tr><th contextmenu="menu${id}" title="${toolbox}">${box.title}</th></tr>`;
 			for (var i=0; i < box.fields.length; i++)
 			{
