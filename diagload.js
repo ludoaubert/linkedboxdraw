@@ -92,36 +92,31 @@ function deselectElement()
 	const selectedContextIndex = g.parentElement.id;
 	console.log("selectedContextIndex=" + selectedContextIndex)
 //	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
-	let reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
-	let frame = mycontexts.contexts[selectedContextIndex].frame;
-	let data={rectangles,reduced_edges, frame}
-	let url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
+	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
+	const frame = mycontexts.contexts[selectedContextIndex].frame;
+	const data={rectangles,reduced_edges, frame}
+	var url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
 	url = url.replace('localhost', '192.168.0.27');
 	console.log("data=" + JSON.stringify(data));
 	console.log(url);
+	
+	var Http = new XMLHttpRequest();
+	Http.open("GET", url);
+	Http.send();
 
-        var xhr = new XMLHttpRequest();
-    	xhr.open("GET", url, true);
-    	xhr.onload = function(e)	{
-        	if (xhr.readyState==4)	{
-			if (xhr.status==200)	{
-				console.log("attention!");
-            	console.log("responseText=" + xhr.responseText);
-				console.log("selectedContextIndex=" + selectedContextIndex);
-				const ctx = mycontexts.contexts[selectedContextIndex];		
-				ctx.links = JSON.parse(xhr.responseText);
-//				const translatedBox = ctx.translatedBoxes[selectedRectangleIndex];
-//				translatedBox.translation.x = currentTranslateX;
-//				translatedBox.translation.y = currentTranslateY;
-				drawDiag();
-//				selectedRectangleIndex = -1;
-	        } else	{
-				console.error(xhr.statusText);
-			}
-		}
-    	}
-
-    	xhr.send(null);    
+	Http.onreadystatechange = (e) => {
+		console.log(Http.responseText);
+		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);
+		mycontexts.contexts[selectedContextIndex].rectangles = rectangles;	//remember one rectangle has changed.
+		
+		const xForms = g.transform.baseVal;// an SVGTransformList
+		const firstXForm = xForms.getItem(0); //an SVGTransform
+		console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+		const translateX = firstXForm.matrix.e;
+		const translateY = firstXForm.matrix.f;
+	
+		drawDiag();
+	}
 }
 
 
