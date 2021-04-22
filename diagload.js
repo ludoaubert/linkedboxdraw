@@ -108,12 +108,6 @@ function deselectElement()
 		console.log(Http.responseText);
 		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);
 		mycontexts.contexts[selectedContextIndex].rectangles = rectangles;	//remember one rectangle has changed.
-		
-		const xForms = g.transform.baseVal;// an SVGTransformList
-		const firstXForm = xForms.getItem(0); //an SVGTransform
-		console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-		const translateX = firstXForm.matrix.e;
-		const translateY = firstXForm.matrix.f;
 	
 		drawDiag();
 	}
