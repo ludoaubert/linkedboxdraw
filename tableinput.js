@@ -808,13 +808,6 @@ function encode_http_get_parameter(rectangles, edges)
 }
 
 
-function createHtmlTab()
-{
-	var wnd = window.open("about:blank", "", "_blank");
-	var data = "<p>This is 'myWindow'</p>";
-	wnd.document.write(data);
-}
-
 function enable_disable()
 {
 	const box = boxCombo.value;
