@@ -1,12 +1,8 @@
 var mycontexts;
 
 
-//var selectedRectangleIndex = -1;
 var currentX = 0;
 var currentY = 0;
-//var currentTranslateX = 0;
-//var currentTranslateY = 0;
-
 var g = 0;
 
 
@@ -95,7 +91,6 @@ function deselectElement()
 
 	const selectedContextIndex = g.parentElement.id;
 	console.log("selectedContextIndex=" + selectedContextIndex)
-//	console.log("selectedRectangleIndex=" + selectedRectangleIndex);
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const data={rectangles,reduced_edges, frame}
@@ -105,10 +100,12 @@ function deselectElement()
 	console.log(url);
 	
 	var Http = new XMLHttpRequest();
-	Http.open("GET", url);
-	Http.send();
-
 	Http.onreadystatechange = (e) => {
+		console.log("Http.response received");
+		console.log(`response size = ${Http.responseText.length}`);
+		const n = Http.responseText.length;
+		if (n==0)
+			return;
 		console.log(Http.responseText);
 		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);
 //il faut mettre translatedBoxes a jour si on veux que le deplacement de la boite ne soit pas resette lors de l'appel de drawDiag
@@ -116,6 +113,8 @@ function deselectElement()
 	
 		drawDiag();
 	}
+	Http.open("GET", url);
+	Http.send();
 }
 
 
@@ -164,7 +163,6 @@ function loadDiag() {
 function drawDiag() {
 
 	const {title, boxes, values, boxComments, fieldComments, links:links_, rectangles, http_get_param} = JSON.parse(data);
-	alert(http_get_param);
 	
 	let source_boxes = boxes.map( () => [] );
 
@@ -174,8 +172,6 @@ function drawDiag() {
 	}
 	for (var i=0; i < source_boxes.length; i++)
 		source_boxes[i].sort();
-	alert(JSON.stringify(source_boxes));
-	//TODO: deduplicate source_boxes[i]
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -207,7 +203,6 @@ function drawDiag() {
 	
 	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
 	{
-		alert("context title=" + title);
 		
 		innerHTML += `<svg id="${selectedContextIndex}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
       <defs>
@@ -368,8 +363,6 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 <li><button type="button" onclick="refreshEditDataFromJson()">Refesh Edit Data From JSON</button></li>
 <li><textarea rows="30" cols="180" id="json_input_output"></textarea></li>
 </ul>`;
-	
-	alert(innerHTML);
 	
 	document.title = title;
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
