@@ -14,7 +14,7 @@ listen_socket.listen(1)
 print ('Serving HTTP on port %s ...' % PORT)
 while True:
     client_connection, client_address = listen_socket.accept()
-    request = client_connection.recv(2048)
+    request = client_connection.recv(2048*8)
     print(str(request))
     m1 = re.search(r'GET /getFilter\?([^ ]*) HTTP', str(request))
     m2 = re.search(r'GET /getReducedEdges\?data=([^ ]*) HTTP', str(request))    
