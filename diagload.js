@@ -5,7 +5,7 @@ var currentX = 0;
 var currentY = 0;
 var g = 0;
 
-const FRAME_MARGIN = 10;
+const FRAME_MARGIN = 20;
 
 
 function selectElement(elmnt,clr) 
@@ -200,13 +200,7 @@ function drawDiag() {
 		field2comment[`${box}.${field}`] = comment;
 	}
 	
-	var innerHTML = `<html>
-
-   <head>
-      <title>Repartition</title>
-   </head>
-	
-   <body>
+	var innerHTML = `<div><h1>Repartition</h1>
       <table id="repartition">`;
 	  
 	var repartitionEntries = [];
@@ -237,8 +231,7 @@ function drawDiag() {
 		
     innerHTML += `</table> 
 	  <button id="apply repartition" type="button" onclick="ApplyRepartition()">Apply Repartition</button>
-   </body>
-</html>
+	  </div>
 `;
 	
 	
