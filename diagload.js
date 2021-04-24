@@ -6,7 +6,7 @@ var currentY = 0;
 var g = 0;
 
 
-function myFunction(elmnt,clr) 
+function selectElement(elmnt,clr) 
 {
 	elmnt.style.color = clr;
   
@@ -197,9 +197,39 @@ function drawDiag() {
 		field2comment[`${box}.${field}`] = comment;
 	}
 	
-	var innerHTML = '';
-	
 	var selectedContextIndex=0;
+	
+	var innerHTML = `<html>
+
+   <head>
+      <title>Repartition</title>
+   </head>
+	
+   <body>
+      <table id="repartition">`;
+	  
+	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
+	{
+		for (const {id, translation} of translatedBoxes)
+		{
+			innerHTML += `
+			<tr>
+			  <td>${id}</td>
+              <td>${boxes[id].title}</td>
+			  <td contenteditable="true">${selectedContextIndex}</td>
+            </tr>
+			`
+		}
+		selectedContextIndex++;
+	}
+		
+    innerHTML += `</table> 
+	  <button id="apply repartition" type="button" onclick="ApplyRepartition()">Apply Repartition</button>
+   </body>
+</html>
+`;
+	
+	selectedContextIndex=0;
 	
 	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
 	{
@@ -272,7 +302,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			
 			const toolbox = source_boxes[id].join(",");
 
-			innerHTML += `<table id="${id}" onmousedown="myFunction(this,'red')" onmouseup="myFunction(this,'green')" onmousemove="moveElement(event)">`;
+			innerHTML += `<table id="${id}" onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
 			innerHTML += `<tr><th contextmenu="menu${id}" title="${toolbox}">${box.title}</th></tr>`;
 			for (var i=0; i < box.fields.length; i++)
 			{

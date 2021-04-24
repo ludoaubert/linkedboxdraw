@@ -1,3 +1,11 @@
+#repartition {
+	border: 3px solid black;
+	border-collapse : collapse;
+}
+#repartition > tbody> tr >td {
+	border : 3px solid black;
+}
+
 .draggable {
     cursor: move;
 }
@@ -58,7 +66,7 @@ marker > path {
 	fill: #0000ff; 
 }
 
-table{
+foreignObject > table{
   border-collapse: collapse;
   vertical-align: middle;
   text-align: left;
@@ -67,7 +75,7 @@ table{
   height: 100%;
 }
 
-td, th {
+foreignObject > td, th {
   font-family: monospace;
   font-style: normal;
   font-size: 12px;
@@ -78,11 +86,11 @@ td, th {
   stroke-width: 0;
 }
 
-td {
+foreignObject > td {
   font-weight: normal;
 }
 
-th {
+foreignObject > th {
   font-weight: bold;
   text-align: center;
 }
