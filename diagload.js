@@ -1,9 +1,11 @@
 var mycontexts;
-
+var mydata;
 
 var currentX = 0;
 var currentY = 0;
 var g = 0;
+
+const FRAME_MARGIN = 10;
 
 
 function selectElement(elmnt,clr) 
@@ -64,25 +66,24 @@ function deselectElement()
 	console.assert(g.parentElement.tagName=='svg')
 	console.log(g.parentElement.id);
 	
-	let group_elements = g.parentElement.getElementsByTagName("g");
+	const group_elements = g.parentElement.getElementsByTagName("g");
 
-	for (let i=0; i < group_elements.length; i++)
+	for (const group of group_elements)
 	{
-		let group = group_elements[i];
-		let xForms = group.transform.baseVal;// an SVGTransformList
-		let firstXForm = xForms.getItem(0); //an SVGTransform
+		const xForms = group.transform.baseVal;// an SVGTransformList
+		const firstXForm = xForms.getItem(0); //an SVGTransform
 		console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-		let translateX = firstXForm.matrix.e;
-		let translateY = firstXForm.matrix.f;
+		const translateX = firstXForm.matrix.e;
+		const translateY = firstXForm.matrix.f;
 		
 		foreignObj = group.getElementsByTagName("foreignObject")[0];
-		let width = foreignObj.width.baseVal.value;
-		let height = foreignObj.height.baseVal.value;
+		const width = foreignObj.width.baseVal.value;
+		const height = foreignObj.height.baseVal.value;
 		
-		let left = translateX;
-		let right = left + width;
-		let top = translateY;
-		let bottom = top + height;
+		const left = translateX;
+		const right = left + width;
+		const top = translateY;
+		const bottom = top + height;
 		rectangles.push({left, right, top, bottom});
 		translatedBoxes.push({"id": group.id.substring(/*'g_'.length()*/2), "translation": {"x": translateX, "y": translateY}});
 	}
@@ -157,8 +158,10 @@ const RECT_STROKE_WIDTH = 6;
 
 function loadDiag() {
 	mycontexts = JSON.parse(contexts);
+	mydata = JSON.parse(data);
 	drawDiag();
 }
+
 
 function drawDiag() {
 
@@ -197,8 +200,6 @@ function drawDiag() {
 		field2comment[`${box}.${field}`] = comment;
 	}
 	
-	var selectedContextIndex=0;
-	
 	var innerHTML = `<html>
 
    <head>
@@ -208,19 +209,30 @@ function drawDiag() {
    <body>
       <table id="repartition">`;
 	  
-	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
+	var repartitionEntries = [];
+	  
+	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
-		for (const {id, translation} of translatedBoxes)
+		for (const {id, translation} of context.translatedBoxes)
 		{
-			innerHTML += `
+			repartitionEntries.push({boxName:boxes[id].title, id, selectedContextIndex});
+		}
+	}
+	
+	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
+		function (a, b) {
+			return a.boxName.localeCompare(b.boxName);
+		}
+		)
+	)
+	{
+		innerHTML += `
 			<tr>
 			  <td>${id}</td>
-              <td>${boxes[id].title}</td>
+              <td>${boxName}</td>
 			  <td contenteditable="true">${selectedContextIndex}</td>
             </tr>
 			`
-		}
-		selectedContextIndex++;
 	}
 		
     innerHTML += `</table> 
@@ -229,9 +241,8 @@ function drawDiag() {
 </html>
 `;
 	
-	selectedContextIndex=0;
 	
-	for (const {title, frame, translatedBoxes, links, reduced_edges} of mycontexts.contexts)
+	for (const [selectedContextIndex, {title, frame, translatedBoxes, links, reduced_edges}] of mycontexts.contexts.entries())
 	{
 		
 		innerHTML += `<svg id="${selectedContextIndex}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
@@ -244,8 +255,7 @@ function drawDiag() {
           <path d="M 0 0 L 0 6 L 9 3 z" />
         </marker>
       </defs>`;
-	  
-		selectedContextIndex++;
+
 /*
 Elements in an SVG document fragment have an implicit drawing order, with the first elements in the SVG document fragment getting "painted" first. 
 Subsequent elements are painted on top of previously painted elements.
@@ -412,4 +422,97 @@ function refreshEditDataFromJson()
 	let json_io = document.getElementById("json_input_output");
 	context = json_io.value;
 	loadDiag();
+}
+
+function ApplyRepartition()
+{
+	alert("ApplyRepartition");
+
+	const repartitionTable = document.getElementById("repartition");
+
+	var repartition = [];
+	
+	for (let row of repartitionTable.rows) 
+	{
+	//iterate through rows
+	//rows would be accessed using the "row" variable assigned in the for loop
+		const id = parseInt(row.cells[0].innerText);
+		const n = parseInt(row.cells[2].innerText);
+		repartition[id]=n;
+	}
+	console.log(JSON.stringify(repartition));
+	
+	const nb = 1 + Math.max(...repartition);
+	var new_contexts = {contexts:[]};
+	for (let i=0; i < nb; i++)
+	{
+		new_contexts.contexts.push({
+			"title":"",
+			"frame":{"left":0,"right":1921,"top":0,"bottom":1488},
+			"translatedBoxes":[],
+			"reduced_edges":[],
+			"links":[]
+			});
+	}
+	console.log(JSON.stringify(new_contexts));
+
+// recopier les frame, les links et redispatcher les translatedBoxes.
+	for (const [i, context] of mycontexts.contexts.entries())
+	{
+		new_contexts.contexts[i].frame = mycontexts.contexts[i].frame;
+		new_contexts.contexts[i].links = mycontexts.contexts[i].links;
+		for (const {id,translation} of context.translatedBoxes)
+		{
+			new_contexts.contexts[ repartition[id] ].translatedBoxes.push({id, translation});
+		}
+	}
+// recalculer ensuite reduced_edges.
+	console.log(JSON.stringify(mydata.links));
+	for (let context of new_contexts.contexts)
+	{
+		const ids = Array.from(context.translatedBoxes, tB => parseInt(tB.id));
+		console.log(JSON.stringify(ids));
+		for (const link of mydata.links)
+		{
+			const index_from = ids.indexOf(parseInt(link.from));
+			const index_to = ids.indexOf(parseInt(link.to));
+			if (index_from != -1 && index_to != -1)
+			{
+				context.reduced_edges.push({from:index_from,to:index_to});
+			}
+		}	
+	}
+
+	
+	for (let context of new_contexts.contexts)
+	{
+		const rectangles = mydata.rectangles;
+
+// calculer le bounding rectangle
+		const bounding_rectangle = {
+			left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => rectangles[parseInt(tB.id)].left + tB.translation.x)),
+			right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => rectangles[parseInt(tB.id)].right + tB.translation.x)),
+			top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => rectangles[parseInt(tB.id)].top + tB.translation.y)),
+			bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => rectangles[parseInt(tB.id)].bottom + tB.translation.y))
+		}				
+		console.log(JSON.stringify(bounding_rectangle));
+
+		for (let {id,translation} of context.translatedBoxes)
+		{
+			translation.x -= bounding_rectangle.left;
+			translation.y -= bounding_rectangle.top;
+		}
+		
+		context.frame = {
+				left:0, 
+				right: bounding_rectangle.right - bounding_rectangle.left,
+				top:0,
+				bottom: bounding_rectangle.bottom - bounding_rectangle.top
+		};
+		
+	}
+	
+	console.log(JSON.stringify(new_contexts));
+	mycontexts = new_contexts;
+	drawDiag();
 }
