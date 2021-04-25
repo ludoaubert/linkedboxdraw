@@ -220,11 +220,6 @@ function drawDiag() {
 		repartitionEntries.push({mydata.boxes[id].title, id, -1});
 	}
 	
-	for (const [id, box] of mydata.boxes.entries())
-	{
-		
-	}
-	
 	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
 		function (a, b) {
 			return a.boxName.localeCompare(b.boxName);
