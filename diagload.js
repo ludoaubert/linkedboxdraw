@@ -213,6 +213,18 @@ function drawDiag() {
 		}
 	}
 	
+// in case a new box has been added:
+
+	for (int id=repartitionEntries.length; id < mydata.boxes.length; id++)
+	{
+		repartitionEntries.push({mydata.boxes[id].title, id, -1});
+	}
+	
+	for (const [id, box] of mydata.boxes.entries())
+	{
+		
+	}
+	
 	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
 		function (a, b) {
 			return a.boxName.localeCompare(b.boxName);
