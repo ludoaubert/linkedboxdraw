@@ -619,7 +619,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		
 		struct Bound
 		{
-			int min, max;
+			int16_t min, max;
 		};
 		
 		vector<Bound> bounds;
@@ -641,11 +641,8 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		}
 	
 		for (const Bound& bound : bounds)
-		{
-			int min = bound.min;
-			int max = bound.max;
-			
-			rec = intersection(rec, RectBand{ next_r.direction, min, max});
+		{	
+			rec = intersection(rec, RectBand{ next_r.direction, bound.min, bound.max});
 				
 			bool detect = false;
 			for (int i = rec.left; i <= rec.right; i++)
@@ -658,7 +655,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 			}
 			if (!detect)
 			{
-				InnerRange next = { min, max, ir.range_index + 1 };
+				InnerRange next = { bound.min, bound.max, ir.range_index + 1 };
 				uint64_t v = serialize(next);
 				adj.push_back({ u, v, compute_distance(next, path, coords) });
 			}
@@ -731,17 +728,17 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	for (int16_t i = left; i <= right; i++)
 	{
 		if (top > 1)
-			result.insert({VERTICAL, input_output(ioswitch, DECREASE), top-1, i});
+			result.insert({VERTICAL, input_output(ioswitch, DECREASE), int16_t(top-1), i});
 		if (bottom + 1 < coords[VERTICAL].size())
-			result.insert({VERTICAL, input_output(ioswitch, INCREASE), bottom+1, i});
+			result.insert({VERTICAL, input_output(ioswitch, INCREASE), int16_t(bottom+1), i});
 	}
 	
 	for (int16_t j = top; j <= bottom; j++)
 	{
 		if (left > 1)
-			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), left-1,j});
+			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), int16_t(left-1),j});
 		if (right+1 < coords[HORIZONTAL].size())
-			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), right+1, j});
+			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), int16_t(right+1), j});
 	}
 	
 	unordered_set<uint64_t> defined;
