@@ -95,6 +95,17 @@ function deselectElement()
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const data={rectangles,reduced_edges, frame}
+//	Following lines will be usefull when wasm import will be available in the future:
+//	const rectdim = rectangles.map(rec => [rec.right-rec.left, rec.bottom-rec.top]).flat().map(i => i.toString().padStart(3, "0")).join('');
+//	const translations = rectangles.map(rec => [rec.left, rec.top]).flat().map(i => i.toString().padStart(3, "0")).join('');
+//	const links = reduced_edges.map(edge => [edge.from, edge.to]).flat().map(i => i.toString().padStart(2, "0")).join('');
+//	const sframe = [frame.left, frame.right, frame.top, frame.bottom].map(i => i.toString().padStart(4, "0")).join('');
+//	(export "_Z6bombixRKNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_S7_S7_" (func $_Z6bombixRKNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEES7_S7_S7_))
+//	WebAssembly.instantiateStreaming(fetch('bombix.wasm'), importObject)
+//		.then(results => {
+//		// Do something with the results!
+//		const json = bombix(rectdim, translations, links, sframe);
+//	});	
 	var url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
 	url = url.replace('localhost', '192.168.0.27');
 	console.log("data=" + JSON.stringify(data));
