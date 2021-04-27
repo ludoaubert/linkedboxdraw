@@ -1424,31 +1424,19 @@ void compute_polylines(const vector<Rect>& rects,
 }
 
 
-bool parse_command(int argc,
-		   char* argv[],
-		   Rect &frame,
-		   vector<Rect> &rects,
-		   vector<Link> &links)
+
+string bombix(const string& rectdim, const string& translations, const string& slinks, const string& sframe)
 {
-    unordered_map<string, const char*> args={
-             {"--rectdim", 0},
-             {"--translations", 0},
-             {"--frame", 0},
-             {"--links", 0}
-        };
-	
-	for (int i=1; i+1 < argc; i+=2)
-	{
-                if (args.count(argv[i]))
-                     args[argv[i]] = argv[i + 1];
-	}
+	Rect frame;
+	vector<Rect> rects;
+	vector<Link> links;
 	
 	int pos;
 	
 	pos = 0;
 	int width, height, x, y;
-	while (sscanf(args["--rectdim"] + pos, "%3x%3x", &width, &height) == 2 &&
-	      sscanf(args["--translations"] + pos, "%3x%3x", &x, &y) == 2)
+	while (sscanf(rectdim.c_str() + pos, "%3x%3x", &width, &height) == 2 &&
+	      sscanf(translations.c_str() + pos, "%3x%3x", &x, &y) == 2)
 	{
 		rects.push_back({x, x + width, y, y + height});
 		pos += 6;
@@ -1456,39 +1444,18 @@ bool parse_command(int argc,
 	
 	pos = 0;
 	int from, to;
-	while (sscanf(args["--links"] + pos, "%2x%2x", &from, &to) == 2)
+	while (sscanf(slinks.c_str() + pos, "%2x%2x", &from, &to) == 2)
 	{
 		links.push_back({from, to});
 		pos += 4;
 	}
 	
-	sscanf(args["--frame"], "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
+	sscanf(sframe.c_str(), "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
 	
-	return true;
-}
-
-int wasm_main(int argc, char* argv[])
-{
-	Maille m1 = { VERTICAL, DECREASE,16,3 };
-	uint64_t u = serialize(m1);
-	Maille m2 = parse(u);
-	assert(m1 == m2);
-
-	Rect frame;
-	vector<Rect> rects;
-	vector<Link> links;
-	
-	if (argc == 1)
-	{
-		return 0;
-	}
-	else if (parse_command(argc, argv, frame, rects, links))
-	{
-		vector<FaiceauOutput> faiceau_output;
-		vector<Polyline> polylines;
+	vector<FaiceauOutput> faiceau_output;
+	vector<Polyline> polylines;
 		
-		compute_polylines(rects, frame, links, faiceau_output, polylines);
-		string json = polyline2json(polylines);
-		printf("%s", json.c_str());
-	}
+	compute_polylines(rects, frame, links, faiceau_output, polylines);
+	string json = polyline2json(polylines);
+	return json;
 }
