@@ -75,7 +75,7 @@ foreignObject table{
   height: 100%;
 }
 
-foreignObject td {
+foreignObject td, foreignObject th{
   font-family: monospace;
   font-style: normal;
   font-size: 12px;
@@ -89,19 +89,6 @@ foreignObject td {
   stroke-width: 0;
 }
 
-foreignObject th {
-  font-family: monospace;
-  font-style: normal;
-  font-size: 12px;
-  padding: 1px;
-  margin: 0;
-  border: 0;
-  fill: #000000;
-  fill-opacity: 1.00;
-  stroke: #000000;
-  stroke-opacity:1.00;
-  stroke-width: 0;
-}
 
 foreignObject td {
   font-weight: normal;
