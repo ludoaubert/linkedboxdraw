@@ -623,9 +623,9 @@ function compute_key_distrib(fields)
 	return key_distrib;
 }
 
-const MONOSPACE_FONT_PIXEL_HEIGHT=11;
+const MONOSPACE_FONT_PIXEL_HEIGHT=12;
 const MONOSPACE_FONT_PIXEL_WIDTH=7;
-const CHAR_RECT_HEIGHT=16;
+const CHAR_RECT_HEIGHT=16;	// in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
 
 function compute_box_rectangles(boxes)
 {
