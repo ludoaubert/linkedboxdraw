@@ -429,12 +429,6 @@ function selectLink()
 {
 	const myRegexp = /([^\.]+)\.([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\.]+)\.([^\s]+)/g;
 	const match = myRegexp.exec(linkCombo.value);
-	//alert(match[1]);
-	//alert(match[2]);
-	//alert(match[3]);
-	//alert(match[4]);
-	//alert(match[5]);
-	//alert(match[6]);
 	fromBoxCombo.value = match[1];
 	selectBox(fromBoxCombo, fromFieldCombo);
 	fromFieldCombo.value = match[2];
@@ -453,7 +447,6 @@ function updateLink()
 
 function addNewLink()
 {
-	//alert("addNewLink");
 	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;					
 	linkCombo.add(new Option(text, text));
 	sortSelect(linkCombo);
@@ -462,7 +455,6 @@ function addNewLink()
 
 function dropLink()
 {
-	//alert("dropLink");
 	if (linkCombo.selectedIndex != -1)
 		linkCombo.remove(linkCombo.selectedIndex);
 }
@@ -471,7 +463,6 @@ function dropLink()
 
 function dropBoxComment()
 {
-	//alert("dropBoxComment");
 	const box = boxCombo.value;
 	delete box2comment[box];
 	boxCommentTextArea.value = "";
@@ -479,15 +470,12 @@ function dropBoxComment()
 
 function updateBoxComment()
 {
-	//alert("updateBoxComment");
 	const box = boxCombo.value;
-	//alert(boxCommentTextArea.value);
 	box2comment[box] = boxCommentTextArea.value;
 }
 
 function dropFieldComment()
 {
-	//alert("dropFieldComment");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
 	delete field2comment[`${box}.${field}`];
@@ -496,10 +484,8 @@ function dropFieldComment()
 
 function updateFieldComment()
 {
-	//alert("updateFieldComment");
 	const box = boxCombo.value;
 	const field = fieldCombo.value;
-	//alert(fieldCommentTextArea.value);
 	field2comment[`${box}.${field}`] = fieldCommentTextArea.value;
 }
 
@@ -580,9 +566,7 @@ function refreshJsonFromEditData()
 	const title = editTitle.value;
 	
 	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
-	//alert(json);
 	json_io.value = escapeSpecialChars(json); // Indented 4 spaces
-	//alert(json_io.value);
 }
 
 
@@ -689,9 +673,6 @@ function compute_box_rectangles(boxes)
 
 function refreshEditDataFromJson()
 {
-	//alert(toHex(15));
-	//alert("refreshEditDataFromJson");
-
 	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(json_io.value);
 	
 	editTitle.value = title;
