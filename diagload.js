@@ -59,42 +59,62 @@ function moveElement(evt) {
 
         
 function deselectElement() 
-{
-	let rectangles=[];
-	let translatedBoxes=[];
+{	
+	console.assert(g.parentElement.tagName=='svg');
+	const id = parseInt(g.id.substring('g_'.length));
+	console.log("id=" + id);
+	const selectedContextIndex = g.parentElement.id;
+	console.log("selectedContextIndex=" + selectedContextIndex);
 	
-	console.assert(g.parentElement.tagName=='svg')
-	console.log(g.parentElement.id);
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 	
-	const group_elements = g.parentElement.getElementsByTagName("g");
+	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
+	console.log("tB=" + JSON.stringify(tB));
+	
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+		
+	tB.translation = {"x": translateX, "y": translateY};
+	
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
+	
+	const bounding_rectangle = {
+		left:-FRAME_MARGIN + Math.min(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].left + tB.translation.x)),
+		right:+FRAME_MARGIN + Math.max(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].right + tB.translation.x)),
+		top:-FRAME_MARGIN + Math.min(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN + Math.max(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y))
+	}				
+	console.log(JSON.stringify(bounding_rectangle));
 
-	for (const group of group_elements)
+	for (let {id,translation} of mycontexts.contexts[selectedContextIndex].translatedBoxes)
 	{
-		const xForms = group.transform.baseVal;// an SVGTransformList
-		const firstXForm = xForms.getItem(0); //an SVGTransform
-		console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-		const translateX = firstXForm.matrix.e;
-		const translateY = firstXForm.matrix.f;
-		
-		foreignObj = group.getElementsByTagName("foreignObject")[0];
-		const width = foreignObj.width.baseVal.value;
-		const height = foreignObj.height.baseVal.value;
-		
-		const left = translateX;
-		const right = left + width;
-		const top = translateY;
-		const bottom = top + height;
-		rectangles.push({left, right, top, bottom});
-		translatedBoxes.push({"id": group.id.substring(/*'g_'.length()*/2), "translation": {"x": translateX, "y": translateY}});
+		translation.x -= bounding_rectangle.left - FRAME_MARGIN/2;
+		translation.y -= bounding_rectangle.top - FRAME_MARGIN/2;
 	}
 	
-	console.log(JSON.stringify(translatedBoxes));
+	mycontexts.contexts[selectedContextIndex].frame = {
+			left:0, 
+			right: bounding_rectangle.right - bounding_rectangle.left,
+			top:0,
+			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
+	
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
-	const selectedContextIndex = g.parentElement.id;
-	console.log("selectedContextIndex=" + selectedContextIndex)
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
+	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => ({
+			left: mydata.rectangles[parseInt(tB.id)].left + tB.translation.x,
+			right: mydata.rectangles[parseInt(tB.id)].right + tB.translation.x,
+			top: mydata.rectangles[parseInt(tB.id)].top + tB.translation.y,
+			bottom: mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y
+		})
+	);
 	const data={rectangles,reduced_edges, frame}
+	
 //	Following lines will be usefull when wasm import will be available in the future:
 //	const rectdim = rectangles.map(rec => [rec.right-rec.left, rec.bottom-rec.top]).flat().map(i => i.toString().padStart(3, "0")).join('');
 //	const translations = rectangles.map(rec => [rec.left, rec.top]).flat().map(i => i.toString().padStart(3, "0")).join('');
@@ -117,12 +137,12 @@ function deselectElement()
 		console.log(`response size = ${Http.responseText.length}`);
 		const n = Http.responseText.length;
 		if (n==0)
+		{
+//			drawDiag();
 			return;
+		}
 		console.log(Http.responseText);
-		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);
-//il faut mettre translatedBoxes a jour si on veux que le deplacement de la boite ne soit pas resette lors de l'appel de drawDiag
-		mycontexts.contexts[selectedContextIndex].translatedBoxes = translatedBoxes;
-	
+		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);			
 		drawDiag();
 	}
 	Http.open("GET", url);
