@@ -107,7 +107,7 @@ while True:
 
             http_response = bytearray(json.dumps(data),'ascii')
             client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
-            client_connection.close()
+#            client_connection.close()
 
         elif m2:
             data = m2.group(1)
@@ -139,7 +139,7 @@ while True:
             
             http_response = bytearray(json2,'ascii')
             client_connection.sendall(b'HTTP/1.0 200 OK\r\nAccess-Control-Allow-Origin:*\r\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\r\nContent-Length: %d\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s\r\n' % (len(http_response), http_response))
-            client_connection.close()
+#            client_connection.close()
             
     except CalledProcessError as e:
         http_response = bytearray(e.output,'ascii')
