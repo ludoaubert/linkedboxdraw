@@ -133,17 +133,19 @@ function deselectElement()
 	
 	var Http = new XMLHttpRequest();
 	Http.onreadystatechange = (e) => {
-		console.log("Http.response received");
-		console.log(`response size = ${Http.responseText.length}`);
-		const n = Http.responseText.length;
-		if (n==0)
-		{
-//			drawDiag();
-			return;
+		if (Http.readyState==4 && Http.status==200){
+			console.log("Http.response received");
+			console.log(`response size = ${Http.responseText.length}`);
+			const n = Http.responseText.length;
+			if (n==0)
+			{
+	//			drawDiag();
+				return;
+			}
+			console.log(Http.responseText);
+			mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);			
+			drawDiag();
 		}
-		console.log(Http.responseText);
-		mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);			
-		drawDiag();
 	}
 	Http.open("GET", url);
 	Http.send();
