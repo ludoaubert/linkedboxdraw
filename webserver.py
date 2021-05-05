@@ -20,7 +20,7 @@ print ('Serving HTTP on port %s ...' % PORT)
 while True:
     # accept connections from outside
     client_connection, client_address = listen_socket.accept()
-    request = client_connection.recv(2048*8*8)
+    request = client_connection.recv(2048)
     #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
     #la connexion. Vous ne recevrez plus de données sur cette connexion. Jamais
     #if len(request)==0:
