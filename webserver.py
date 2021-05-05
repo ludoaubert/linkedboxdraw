@@ -7,14 +7,24 @@ import base64
 
 HOST, PORT = '', 8080
 
+#https://docs.python.org/fr/3/howto/sockets.html
+#INET:IPV4, STREAM:TCP
 listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 listen_socket.bind((HOST, PORT))
+#l'argument passé à listen indique à la bibliothèque de connecteurs que nous voulons
+#mettre en file d'attente jusqu'à 5 requêtes de connexion (le maximum normal) avant
+#de refuser les connexions externes. Si le reste du code est écrit correctement, cela devrait suffire.
 listen_socket.listen(1)
 print ('Serving HTTP on port %s ...' % PORT)
 while True:
+    # accept connections from outside
     client_connection, client_address = listen_socket.accept()
     request = client_connection.recv(2048*8*8)
+    #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
+    #la connexion. Vous ne recevrez plus de données sur cette connexion. Jamais
+    #if len(request)==0:
+    #    continue
     print(str(request))
     m1 = re.search(r'GET /getFilter\?([^ ]*) HTTP', str(request))
     m2 = re.search(r'GET /getReducedEdges\?data=([^ ]*) HTTP', str(request))    
