@@ -13,7 +13,7 @@ listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 listen_socket.bind((HOST, PORT))
 #l'argument passé à listen indique à la bibliothèque de connecteurs que nous voulons
-#mettre en file d'attente jusqu'à 5 requêtes de connexion (le maximum normal) avant
+#mettre en file d'attente jusqu'à 5 (1 ici) requêtes de connexion (le maximum normal) avant
 #de refuser les connexions externes. Si le reste du code est écrit correctement, cela devrait suffire.
 listen_socket.listen(1)
 print ('Serving HTTP on port %s ...' % PORT)
