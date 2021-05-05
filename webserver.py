@@ -1,3 +1,4 @@
+#usefull explantions pasted from https://realpython.com/python-sockets/#communication-breakdown
 import re
 import os
 import json
