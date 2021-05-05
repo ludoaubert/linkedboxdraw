@@ -5,6 +5,10 @@ import socket
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 import base64
 
+#host can be a hostname, IP address, or empty string. If an IP address is used, host should
+#be an IPv4-formatted address string. The IP address 127.0.0.1 is the standard IPv4 address
+#for the loopback interface, so only processes on the host will be able to connect to the server.
+#If you pass an empty string, the server will accept connections on all available IPv4 interfaces.
 HOST, PORT = '', 8080
 
 #https://docs.python.org/fr/3/howto/sockets.html
