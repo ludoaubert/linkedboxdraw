@@ -30,6 +30,8 @@ while True:
     # listening socket that the server is using to accept new connections.
     # To see the current state of sockets on your host, use netstat -an
     client_connection, client_address = listen_socket.accept()
+    # The bufsize argument of 2048 used below is the maximum amount of data to be received at once. 
+    # It doesn’t mean that recv() will return 2048 bytes.
     request = client_connection.recv(2048)
     #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
     #la connexion. Vous ne recevrez plus de données sur cette connexion. Jamais
