@@ -14,6 +14,7 @@ HOST, PORT = '', 8080
 
 #https://docs.python.org/fr/3/howto/sockets.html
 #INET:IPV4, STREAM:TCP
+#By default, sockets are always created in blocking mode
 listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 listen_socket.bind((HOST, PORT))
