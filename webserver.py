@@ -28,6 +28,7 @@ while True:
     # One thing that’s imperative to understand is that we now have a new socket object from accept(). This is
     # important since it’s the socket that you’ll use to communicate with the client. It’s distinct from the
     # listening socket that the server is using to accept new connections.
+    # To see the current state of sockets on your host, use netstat -an
     client_connection, client_address = listen_socket.accept()
     request = client_connection.recv(2048)
     #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
