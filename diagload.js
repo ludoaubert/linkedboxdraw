@@ -499,6 +499,27 @@ function ApplyRepartition()
 			new_contexts.contexts[ repartition[id] ].translatedBoxes.push({id, translation});
 		}
 	}
+	console.log(JSON.stringify(new_contexts));
+	
+// case when a new box was created. It has not been assigned to a context by the previous algorithm.
+// Below is the code that will detect it and assign it to its context.
+	
+// https://mariusschulz.com/blog/returning-object-literals-from-arrow-functions-in-javascript
+// The issue with the arrow function is that the parser doesn't interpret the two braces as an 
+// object literal, but as a block statement.
+// What you need to do is force the parser to treat the object literal as an expression so that 
+// it's not treated as a block statement. The trick is to add parentheses around the entire body:
+// let square = n => ({ square: n * n });
+
+	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => parseInt(tB.id));
+	console.log(JSON.stringify(ids));
+	arr = [...repartition.keys()]	
+		.map(id => ({id, i:repartition[id]}))
+		.filter( ({id,i}) => i!=-1 && !ids.includes(id) )
+		.forEach( ({id,i}) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:0,y:0}}) );
+
+	console.log(JSON.stringify(new_contexts));
+	
 // recalculer ensuite reduced_edges.
 	console.log(JSON.stringify(mydata.links));
 	for (let context of new_contexts.contexts)
