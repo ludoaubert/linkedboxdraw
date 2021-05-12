@@ -484,20 +484,13 @@ function ApplyRepartition()
 	
 // case when a new box was created. It has not been assigned to a context by the previous algorithm.
 // Below is the code that will detect it and assign it to its context.
-	
-// https://mariusschulz.com/blog/returning-object-literals-from-arrow-functions-in-javascript
-// The issue with the arrow function is that the parser doesn't interpret the two braces as an 
-// object literal, but as a block statement.
-// What you need to do is force the parser to treat the object literal as an expression so that 
-// it's not treated as a block statement. The trick is to add parentheses around the entire body:
-// let square = n => ({ square: n * n });
 
 	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => parseInt(tB.id));
 	console.log(JSON.stringify(ids));
-	arr = [...repartition.keys()]	
-		.map(id => ({id, i:repartition[id]}))
-		.filter( ({id,i}) => i!=-1 && !ids.includes(id) )
-		.forEach( ({id,i}) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
+	
+	[...repartition.entries()]
+		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
+		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
 	console.log(JSON.stringify(new_contexts));
 	
@@ -550,5 +543,12 @@ function enforce_bounding_rectangle(context)
 			right: bounding_rectangle.right - bounding_rectangle.left,
 			top:0,
 			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
+	
+	return {
+			left:0, 
+			right: width(bounding_rectangle),
+			top:0,
+			bottom: height(bounding_rectangle)
 	};
 }
