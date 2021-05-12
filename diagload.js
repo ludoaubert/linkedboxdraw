@@ -544,11 +544,4 @@ function enforce_bounding_rectangle(context)
 			top:0,
 			bottom: bounding_rectangle.bottom - bounding_rectangle.top
 	};
-	
-	return {
-			left:0, 
-			right: width(bounding_rectangle),
-			top:0,
-			bottom: height(bounding_rectangle)
-	};
 }
