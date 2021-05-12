@@ -81,27 +81,7 @@ function deselectElement()
 	
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 	
-// calculer le bounding rectangle. This code is duplicated	
-	const bounding_rectangle = {
-		left:-FRAME_MARGIN + Math.min(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].left + tB.translation.x)),
-		right:+FRAME_MARGIN + Math.max(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].right + tB.translation.x)),
-		top:-FRAME_MARGIN + Math.min(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN + Math.max(...Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y))
-	}				
-	console.log(JSON.stringify(bounding_rectangle));
-
-	for (let {id,translation} of mycontexts.contexts[selectedContextIndex].translatedBoxes)
-	{
-		translation.x -= bounding_rectangle.left - FRAME_MARGIN/2;
-		translation.y -= bounding_rectangle.top - FRAME_MARGIN/2;
-	}
-	
-	mycontexts.contexts[selectedContextIndex].frame = {
-			left:0, 
-			right: bounding_rectangle.right - bounding_rectangle.left,
-			top:0,
-			bottom: bounding_rectangle.bottom - bounding_rectangle.top
-	};
+	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);	
 	
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
@@ -541,31 +521,34 @@ function ApplyRepartition()
 	
 	for (let context of new_contexts.contexts)
 	{
-// calculer le bounding rectangle. This code is duplicated
-		const bounding_rectangle = {
-			left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].left + tB.translation.x)),
-			right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].right + tB.translation.x)),
-			top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].top + tB.translation.y)),
-			bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y))
-		}				
-		console.log(JSON.stringify(bounding_rectangle));
-
-		for (let {id,translation} of context.translatedBoxes)
-		{
-			translation.x -= bounding_rectangle.left - FRAME_MARGIN/2;
-			translation.y -= bounding_rectangle.top - FRAME_MARGIN/2;
-		}
-		
-		context.frame = {
-				left:0, 
-				right: bounding_rectangle.right - bounding_rectangle.left,
-				top:0,
-				bottom: bounding_rectangle.bottom - bounding_rectangle.top
-		};
-		
+		enforce_bounding_rectangle(context);
 	}
 	
 	console.log(JSON.stringify(new_contexts));
 	mycontexts = new_contexts;
 	drawDiag();
+}
+
+function enforce_bounding_rectangle(context)
+{
+	const bounding_rectangle = {
+		left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].left + tB.translation.x)),
+		right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].right + tB.translation.x)),
+		top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y))
+	}				
+	console.log(JSON.stringify(bounding_rectangle));
+
+	for (let {id,translation} of context.translatedBoxes)
+	{
+		translation.x -= bounding_rectangle.left - FRAME_MARGIN/2;
+		translation.y -= bounding_rectangle.top - FRAME_MARGIN/2;
+	}
+	
+	context.frame = {
+			left:0, 
+			right: bounding_rectangle.right - bounding_rectangle.left,
+			top:0,
+			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
 }
