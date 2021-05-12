@@ -2054,16 +2054,19 @@ perm * A : permute rows
 		int frame_border = RECT_BORDER*2 ;
 
 		MyRect frame = compute_frame(ctx.rectangles) ;
+		
+		const int FRAME_MARGIN = 20 // consistent with diagload.js head of file.
 
-		const int stroke_width = 6;
-		expand_by(frame, THIN_FRAME_BORDER + stroke_width) ;
+// consistent with function encode_bounding_rectangle(context) in diagload.js bottom of file.
+
+		expand_by(frame, FRAME_MARGIN) ;
 		MyPoint translation = {-frame.m_left , -frame.m_top} ;
 		translate(frame, translation) ;
 		assert(frame.m_left == 0) ;
 		assert(frame.m_top == 0) ;
 
-		translation.x -= stroke_width ;
-		translation.y -= stroke_width ;
+		translation.x = -frame.m_left + FRAME_MARGIN/2 ;
+		translation.y = -frame.m_top + FRAME_MARGIN/2 ;
 
 		for (MyRect &rec : ctx.rectangles)
 			translate(rec, translation) ;
