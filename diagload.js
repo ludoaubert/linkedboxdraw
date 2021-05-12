@@ -490,7 +490,7 @@ function ApplyRepartition()
 	
 	[...repartition.entries()]
 		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
-		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
+		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id:`${id}`,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
 	console.log(JSON.stringify(new_contexts));
 	
