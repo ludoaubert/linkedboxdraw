@@ -413,28 +413,64 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	innerHTML += `<h1>JSON Output</h1>
 
 <ul>
-<li><button type="button" onclick="refreshJsonFromEditData()">Refresh JSON From Edit Data</button></li>
-<li><button type="button" onclick="refreshEditDataFromJson()">Refesh Edit Data From JSON</button></li>
-<li><textarea rows="30" cols="180" id="json_input_output"></textarea></li>
+<li>Load File</li>
+<li><input type="file" id="myFile" value="Load"></li>
+<li>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="test.txt">
+	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+	</form>
+</li>
 </ul>`;
 	
 	document.title = title;
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
+	
+	var input = document.getElementById("myFile");
+
+	input.addEventListener("change", function () {
+	  if (this.files && this.files[0]) {
+		var myFile = this.files[0];
+		var reader = new FileReader();
+		
+		alert("belles fesses!");
+		
+		reader.addEventListener('load', function (e) {
+		  const buffer = e.target.result;
+		  console.assert(buffer.slice(0,"contexts='".length)=="contexts='");
+		  console.assert(buffer.slice(-"';".length)==-"';");
+		  const Json = buffer.slice("contexts='".length, -"';".length);
+		  refreshEditDataFromJson(Json);
+		});
+		
+		reader.readAsBinaryString(myFile);
+	  }   
+	});
+}
+
+function download(filename) {
+  var element = document.createElement('a');
+  const Json = refreshJsonFromEditData();
+  const Js = `data='${Json}';`  
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
 }
 
 
 function refreshJsonFromEditData()
 {
 	alert("refreshJsonFromEditData");
-	let json_io = document.getElementById("json_input_output");
-	json_io.value = JSON.stringify({mycontexts}/*, null, 4*/); // Indented 4 spaces
+	return JSON.stringify({mycontexts}/*, null, 4*/); // Indented 4 spaces
 }
 
-function refreshEditDataFromJson()
+function refreshEditDataFromJson(Json)
 {
 	alert("refreshEditDataFromJson");
-	let json_io = document.getElementById("json_input_output");
-	context = json_io.value;
+	context = Json;
 	loadDiag();
 }
 
