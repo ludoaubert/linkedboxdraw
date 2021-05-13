@@ -38,9 +38,9 @@
 
 <fieldset>
 	<legend>File Output</legend>
-	<form onsubmit="download(this['name'].value)">
+	<form onsubmit="return false">
 	  <input type="text" name="name" value="test.txt">
-	  <input type="submit" value="Save As">
+	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
 	</form>
 </fieldset>
 
