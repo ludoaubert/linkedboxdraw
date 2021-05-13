@@ -22,3 +22,8 @@ legend {
 	text-transform: uppercase;
 	color: #000;
 }
+
+form * {
+  display: block;
+  margin: 10px;
+}

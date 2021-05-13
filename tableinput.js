@@ -7,6 +7,7 @@ var box2comment = {};
 var field2comment = {};
 
 
+var input = document.getElementById("myFile");
 var editTitle = document.getElementById("title");
 var boxCombo = document.getElementById("boxes");
 var fieldCombo = document.getElementById("fields");
@@ -25,7 +26,35 @@ var toBoxCombo = document.getElementById("to boxes");
 var toFieldCombo = document.getElementById("to fields");
 var toCardinalityCombo = document.getElementById("to cardinality");
 var newValueEditField = document.getElementById("new value");
-var json_io = document.getElementById("json_input_output");
+
+
+input.addEventListener("change", function () {
+  if (this.files && this.files[0]) {
+    var myFile = this.files[0];
+    var reader = new FileReader();
+    
+    reader.addEventListener('load', function (e) {
+	  const buffer = e.target.result;
+	  const Json = buffer.slice("data='".length, -"';".length);
+	  refreshEditDataFromJson(Json);
+    });
+    
+    reader.readAsBinaryString(myFile);
+  }   
+});
+
+
+function download(filename) {
+  var element = document.createElement('a');
+  const Json = refreshJsonFromEditData();
+  const Js = `data='${Json}';`  
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
 
 
 function init(e) {
@@ -566,7 +595,7 @@ function refreshJsonFromEditData()
 	const title = editTitle.value;
 	
 	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
-	json_io.value = escapeSpecialChars(json); // Indented 4 spaces
+	return escapeSpecialChars(json); // Indented 4 spaces
 }
 
 
@@ -670,9 +699,9 @@ function compute_box_rectangles(boxes)
 }
 
 
-function refreshEditDataFromJson()
+function refreshEditDataFromJson(Json)
 {
-	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(json_io.value);
+	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(Json/*json_io.value*/);
 	
 	editTitle.value = title;
 	
@@ -844,14 +873,6 @@ function enable_disable()
 
 	document.getElementById("add link").disabled = fromBoxCombo.selectedIndex == -1 ||
 													toBoxCombo.selectedIndex == -1;
-													
-	try {
-        const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param} = JSON.parse(json_io.value);
-        document.getElementById("edit data from json").disabled = false;
-    } catch(e){
-        document.getElementById("edit data from json").disabled = true;
-    }
- 
 }
 
 setInterval("enable_disable()", 100);

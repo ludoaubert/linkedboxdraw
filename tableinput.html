@@ -32,6 +32,18 @@
     </ul>
 
 <fieldset>
+	<legend>File Input</legend>
+	<input type="file" id="myFile" value="Load">
+</fieldset>
+
+<fieldset>
+	<legend>File Output</legend>
+	<form onsubmit="download(this['name'].value)">
+	  <input type="submit" value="Save As">
+	</form>
+</fieldset>
+
+<fieldset>
 	<legend>Diagram Title</legend>
 	<input type="text" id="title" class="bigtextfield">
 </fieldset>
@@ -97,15 +109,6 @@
 	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
 	<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
 	<button id="update link" type="button" onclick="updateLink()">Update Link</button>
-</fieldset>
-
-<fieldset>
-	<legend>JSON Input Output</legend>
-
-    <button type="button" id="json from edit data" onclick="refreshJsonFromEditData()">Refresh JSON From Edit Data</button>
-    <button type="button" id="edit data from json" onclick="refreshEditDataFromJson()">Refesh Edit Data From JSON</button>
-
-	<textarea rows="30" cols="180" id="json_input_output"></textarea>
 </fieldset>
 
 	<script type="text/javascript" src="tableinput.js"></script>
