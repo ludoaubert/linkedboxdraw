@@ -701,7 +701,7 @@ function compute_box_rectangles(boxes)
 
 function refreshEditDataFromJson(Json)
 {
-	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(Json/*json_io.value*/);
+	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(Json);
 	
 	editTitle.value = title;
 	
