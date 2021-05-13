@@ -433,8 +433,6 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		var myFile = this.files[0];
 		var reader = new FileReader();
 		
-		alert("belles fesses!");
-		
 		reader.addEventListener('load', function (e) {
 		  const buffer = e.target.result;
 		  console.assert(buffer.slice(0,"contexts='".length)=="contexts='");
