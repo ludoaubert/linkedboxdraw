@@ -449,7 +449,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 function download(filename) {
   var element = document.createElement('a');
   const Json = refreshJsonFromEditData();
-  const Js = `data='${Json}';`  
+  const Js = `contexts='${Json}';`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
   element.style.display = 'none';
@@ -462,7 +462,7 @@ function download(filename) {
 function refreshJsonFromEditData()
 {
 	alert("refreshJsonFromEditData");
-	return JSON.stringify({mycontexts}/*, null, 4*/); // Indented 4 spaces
+	return JSON.stringify({contexts:mycontexts.contexts}/*, null, 4*/); // Indented 4 spaces
 }
 
 function refreshEditDataFromJson(Json)
