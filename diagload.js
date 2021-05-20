@@ -180,15 +180,6 @@ function loadDiag() {
 function drawDiag() {
 
 	const {title, boxes, values, boxComments, fieldComments, links:links_, rectangles, http_get_param} = JSON.parse(data);
-	
-	let source_boxes = boxes.map( () => [] );
-
-	for (let link of links_)
-	{
-		source_boxes[link.to].push( boxes[link.from].title );
-	}
-	for (var i=0; i < source_boxes.length; i++)
-		source_boxes[i].sort();
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -323,11 +314,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			innerHTML += `<g id="g_${id}" class="draggable" transform="translate(${translation.x},${translation.y})">
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
-			
-			const toolbox = source_boxes[id].join(",");
 
 			innerHTML += `<table id="${id}" onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
-			innerHTML += `<tr><th contextmenu="menu${id}" title="${toolbox}">${box.title}</th></tr>`;
+			innerHTML += `<tr><th>${box.title}</th></tr>`;
 			for (var i=0; i < box.fields.length; i++)
 			{
 				const field = box.fields[i];
@@ -394,14 +383,6 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			}
 
 			innerHTML += `</table>`;
-			
-			innerHTML += `<menu type="popup" id="menu${box.title}">` ;
-			innerHTML += `<menuitem label="centered_diagram" onclick="window.open(urlEncode('{id}'));"></menuitem>` ;
-			for (let source_box of source_boxes[id])
-			{
-				innerHTML += `<menuitem label="${source_box}" onclick="window.location='#${source_box}';"></menuitem>` ;
-			}
-			innerHTML += `</menu>` ;
 			
 			innerHTML += `</foreignObject>
 			</g>`;
