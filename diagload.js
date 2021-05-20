@@ -381,7 +381,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 				prefix = prefix.substring(leading_blanks.length);
 				
-				const titleAttribute= tooltip.length!=0 ? `title="{tooltip.join('\n')}"` : '';
+				const titleAttribute= tooltip.length!=0 ? `title="${tooltip.join('\n')}"` : '';
 				innerHTML += `<tr id="${field.name}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 			}
 
