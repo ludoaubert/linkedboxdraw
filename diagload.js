@@ -315,7 +315,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 
-			innerHTML += `<table id="${id}" onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
+			const titleAttribute = box.title in box2comment ? `title="${box2comment[box.title]}"` : '';
+
+			innerHTML += `<table id="${id}" ${titleAttribute} onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
 			innerHTML += `<tr><th>${box.title}</th></tr>`;
 			for (var i=0; i < box.fields.length; i++)
 			{
@@ -379,7 +381,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 				prefix = prefix.substring(leading_blanks.length);
 				
-				innerHTML += `<tr id="${field.name}"><td ${font_weight} title="${tooltip.join('\n')}">${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+				const titleAttribute= tooltip.length!=0 ? `title="{tooltip.join('\n')}"` : '';
+				innerHTML += `<tr id="${field.name}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 			}
 
 			innerHTML += `</table>`;
