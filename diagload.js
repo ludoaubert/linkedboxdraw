@@ -115,7 +115,7 @@ function deselectElement()
 	console.log(tr);
 	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => i.toString(16).padStart(2,'0'));
 	console.log(lk);
-	const payload = [...f, rec.length.toString(16).padStart(3,'0'), ...rec, ...tr, lk.length.toString(16).padStart(3,'0'), ...lk];
+	const payload = [...f, rectangles.length.toString(16).padStart(3,'0'), ...rec, ...tr, reduced_edges.length.toString(16).padStart(3,'0'), ...lk];
 	console.log(payload);
 
 	var url = 'http://localhost:8080/getReducedEdges?data=' + payload.join('');
