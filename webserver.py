@@ -34,7 +34,9 @@ while True:
     client_connection, client_address = listen_socket.accept()
     # The bufsize argument of 2048 used below is the maximum amount of data to be received at once. 
     # It doesn’t mean that recv() will return 2048 bytes.
-    request = client_connection.recv(2048)
+    header_request = client_connection.recv(2048)
+    header = header_request[:5]
+    request = header_request[5:]
     #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
     #la connexion. Vous ne recevrez plus de données sur cette connexion. Jamais
     #if len(request)==0:
