@@ -107,7 +107,9 @@ function deselectElement()
 //		// Do something with the results!
 //		const json = bombix(rectdim, translations, links, sframe);
 //	});	
-	var url = 'http://localhost:8080/getReducedEdges?data=' + btoa(JSON.stringify(data));
+	const payload = btoa(JSON.stringify(data));
+	const header = ('00000' + payload.length).slice(-5);
+	var url = 'http://localhost:8080/getReducedEdges?data=' + header + payload;
 	url = url.replace('localhost', '192.168.0.27');
 	console.log("data=" + JSON.stringify(data));
 	console.log(url);
