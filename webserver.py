@@ -137,12 +137,14 @@ while True:
             print(frame)
             data = data[16:]
             nr_rects = int(data[:3], 16)
+            print('nr_rects');
+            print(nr_rects);
             data = data[3:]
             rectdim = data[:6*nr_rects]
             print('rectdim')
             print(rectdim)
             data = data[6*nr_rects:]
-            translation = data[:6*nr_rects]
+            translations = data[:6*nr_rects]
             print('translations')
             print(translations)
             data = data[6*nr_rects:]
