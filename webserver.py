@@ -1,4 +1,3 @@
-#usefull explantions pasted from https://realpython.com/python-sockets/#communication-breakdown
 import re
 import os
 import json
@@ -6,10 +5,6 @@ import socket
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 import base64
 
-#host can be a hostname, IP address, or empty string. If an IP address is used, host should
-#be an IPv4-formatted address string. The IP address 127.0.0.1 is the standard IPv4 address
-#for the loopback interface, so only processes on the host will be able to connect to the server.
-#If you pass an empty string, the server will accept connections on all available IPv4 interfaces.
 HOST, PORT = '', 8080
 
 #https://docs.python.org/fr/3/howto/sockets.html
@@ -34,9 +29,7 @@ while True:
     client_connection, client_address = listen_socket.accept()
     # The bufsize argument of 2048 used below is the maximum amount of data to be received at once. 
     # It doesn’t mean that recv() will return 2048 bytes.
-    header_request = client_connection.recv(2048)
-    header = header_request[:5]
-    request = header_request[5:]
+    request = client_connection.recv(2048)
     #Lorsqu'un recv renvoie 0 octet, cela signifie que l'autre partie a fermé (ou est en train de fermer)
     #la connexion. Vous ne recevrez plus de données sur cette connexion. Jamais
     #if len(request)==0:
@@ -138,23 +131,24 @@ while True:
         elif m2:
             data = m2.group(1)
             print(data)
-            missing_padding = len(data) % 4
-            if missing_padding != 0:
-                data += '='* (4 - missing_padding)
-            data = base64.b64decode(data)
-            print(data)
-            data = json.loads(data.decode('utf-8'))
-            rectdim = "".join("{:03x}{:03x}".format(rec['right']-rec['left'],rec['bottom']-rec['top']) for rec in data['rectangles'])
+
+            frame = data[:16]
+            data = data[16:]
+            nr_rects = int(data[:3], 16)
+            data = data[3:]
+            rectdim = data[:6*nr_rects]
+            data = data[6*nr_rects:]
+            translation = data[:6*nr_rects]
+            data = data[6*nr_rects:]
+            nr_links = int(data[:3],16)
+            links = data[3:]
+
             print('rectdim')
             print(rectdim)
-            translations = "".join("{:03x}{:03x}".format(rec['left'],rec['top']) for rec in data['rectangles'])
             print('translations')
             print(translations)
-            links = "".join(["{:02x}{:02x}".format(edge['from'],edge['to']) for edge in data['reduced_edges']])
             print('links')
             print(links)
-            frame = data['frame']
-            frame = "{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
             print('frame')
             print(frame)
             command=['Release/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]

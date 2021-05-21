@@ -107,9 +107,18 @@ function deselectElement()
 //		// Do something with the results!
 //		const json = bombix(rectdim, translations, links, sframe);
 //	});	
-	const payload = btoa(JSON.stringify(data));
-	const header = ('00000' + payload.length).slice(-5);
-	var url = 'http://localhost:8080/getReducedEdges?data=' + header + payload;
+	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => i.toString(16).padStart(4, '0'));
+	console.log(f);
+	const rec = rectangles.map(r => [r.right-r.left, r.bottom-r.top]).flat().map(i => i.toString(16).padStart(3,'0'));
+	console.log(rec);
+	const tr = rectangles.map(r => [r.left, r.top]).flat().map(i => i.toString(16).padStart(3,'0'));
+	console.log(tr);
+	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => i.toString(16).padStart(2,'0'));
+	console.log(lk);
+	const payload = [...f, rec.length.toString(16).padStart(3,'0'), ...rec, ...tr, lk.length.toString(16).padStart(3,'0'), ...lk];
+	console.log(payload);
+
+	var url = 'http://localhost:8080/getReducedEdges?data=' + payload.join('');
 	url = url.replace('localhost', '192.168.0.27');
 	console.log("data=" + JSON.stringify(data));
 	console.log(url);
