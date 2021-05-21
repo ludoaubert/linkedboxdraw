@@ -133,24 +133,24 @@ while True:
             print(data)
 
             frame = data[:16]
+            print('frame')
+            print(frame)
             data = data[16:]
             nr_rects = int(data[:3], 16)
             data = data[3:]
             rectdim = data[:6*nr_rects]
+            print('rectdim')
+            print(rectdim)
             data = data[6*nr_rects:]
             translation = data[:6*nr_rects]
+            print('translations')
+            print(translations)
             data = data[6*nr_rects:]
             nr_links = int(data[:3],16)
             links = data[3:]
-
-            print('rectdim')
-            print(rectdim)
-            print('translations')
-            print(translations)
             print('links')
             print(links)
-            print('frame')
-            print(frame)
+
             command=['Release/bombix','--frame', frame,'--rectdim', rectdim,'--translations', translations,'--links', links]
             print(str(command))
             json2 = check_output(command).decode("ascii")
