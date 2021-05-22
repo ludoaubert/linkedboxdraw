@@ -109,13 +109,17 @@ function deselectElement()
 //	});	
 	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => i.toString(16).padStart(4, '0'));
 	console.log(f);
-	const rec = rectangles.map(r => [r.right-r.left, r.bottom-r.top]).flat().map(i => i.toString(16).padStart(3,'0'));
-	console.log(rec);
-	const tr = rectangles.map(r => [r.left, r.top]).flat().map(i => i.toString(16).padStart(3,'0'));
-	console.log(tr);
+	
+	const rec_tr = [...rectangles.map(r => [r.right-r.left, r.bottom-r.top]), 
+					...rectangles.map(r => [r.left, r.top])]
+					.flat()
+					.map(i => i.toString(16).padStart(3,'0'));
+
+	console.log(rec_tr);
+	
 	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => i.toString(16).padStart(2,'0'));
 	console.log(lk);
-	const payload = [...f, rectangles.length.toString(16).padStart(3,'0'), ...rec, ...tr, reduced_edges.length.toString(16).padStart(3,'0'), ...lk];
+	const payload = [...f, rectangles.length.toString(16).padStart(3,'0'), ...rec_tr, lk.length.toString(16).padStart(3,'0'), ...lk];
 	console.log(payload);
 
 	var url = 'http://localhost:8080/getReducedEdges?data=' + payload.join('');
