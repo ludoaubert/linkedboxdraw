@@ -527,6 +527,9 @@ function ApplyRepartition()
 
 	console.log(JSON.stringify(new_contexts));
 	
+// if a context has become empty, remove it.
+	new_contexts.contexts = new_contexts.contexts.filter(context => context.translatedBoxes.length != 0);
+	
 // recalculer ensuite reduced_edges.
 	console.log(JSON.stringify(mydata.links));
 	for (let context of new_contexts.contexts)
