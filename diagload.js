@@ -107,19 +107,22 @@ function deselectElement()
 //		// Do something with the results!
 //		const json = bombix(rectdim, translations, links, sframe);
 //	});	
-	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => i.toString(16).padStart(4, '0'));
+
+	const hex = (i,n) => i.toString(16).padStart(n,'0');
+
+	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => hex(i,4));
 	console.log(f);
 	
 	const rec_tr = [...rectangles.map(r => [r.right-r.left, r.bottom-r.top]), 
 					...rectangles.map(r => [r.left, r.top])]
 					.flat()
-					.map(i => i.toString(16).padStart(3,'0'));
+					.map(i => hex(i,3));
 
 	console.log(rec_tr);
 	
-	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => i.toString(16).padStart(2,'0'));
+	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => hex(i,2));
 	console.log(lk);
-	const payload = [...f, rectangles.length.toString(16).padStart(3,'0'), ...rec_tr, lk.length.toString(16).padStart(3,'0'), ...lk];
+	const payload = [...f, hex(rectangles.length,3), ...rec_tr, hex(lk.length,3), ...lk];
 	console.log(payload);
 
 	var url = 'http://localhost:8080/getReducedEdges?data=' + payload.join('');
