@@ -52,8 +52,6 @@ while True:
             print('nr_links')
             print(str(nr_links))
             links = data[:nr_links*6]
-            data = data[nr_links*6:]
-            links = data[:nr_links*6]
             print(rectdim)
             print(links)
 
@@ -61,7 +59,7 @@ while True:
         #http://localhost:8080/getFilter?0110af0880940180550180b00180940280850580a10880a20880940380b70180940180c40d811118808603807806806303807805801200300100c00b00c00800e00800d00800a00800a00900100000700800700500700600700200700100700200900700f00801000f002004ffff1
         #http://localhost:8080/getFilter?01a04e06807f08808510807104808d0380630180860180860180710180b618807801809401806301809401807f0280780380a90580550180470180710380780580710180a901806a02808d02807107802201000201001301401601401500e00900e00d01700401901501901601901801800400900800900600900700900a00900b00900400901000900400900400900f00901400900200900e00901900900000900c000002000001002001003004004000004002006005ffffff3
 
-            command=['Release/latuile', '--rectdim', rectdim, '--links', links, '--filter', filtre, '--reqkind', 'getFilter']
+            command=['Release/latuile', '--rectdim', rectdim, '--links', links, '--reqkind', 'getFilter']
             print(str(command))
             json1 = check_output(command).decode("ascii")
             
