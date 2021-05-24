@@ -328,112 +328,19 @@ int main(int argc, char* argv[])
 	}
 	else if (parse_command(argc, argv, request_kind, frame, rectangles, edges, filter, center))
 	{
-
-		if (request_kind == "getdiag")
-		{
-			int n = rectangles.size();
-			//use variable 'MyRect.no_sequence' to keep the original position of the box.
-			//keep in mind that variable 'MyRect.i' is used internally by some algorithms and cannot be used for that purpose.
-			for (int i = 0; i < n; i++)
-			{
-				MyRect &r = rectangles[i];
-				r.no_sequence = r.i = i;
-			}
-
-			if (center < 0 || center >= rectangles.size())
-			{
-				printf("center=%d is out of bound !\n", center);
-				return -1;
-			}
-
-			int no_sequence_from_center = rectangles[center].no_sequence;
-
-			filter = vector<bool>(n, false);
-			filter[center] = true;
-			select_neighbours(edges, filter);
-
-			int count = std::count(filter.begin(), filter.end(), true);
-			vector<int> permutation(n);
-			iota(permutation.begin(), permutation.end(), 0);
-			sort(permutation.begin(), permutation.end(), [&](int i, int j) { return filter[i] > filter[j]; });
-			permutation = compute_reverse_permutation(permutation);
-
-			vector<MyRect> selected_rectangles(count);
-			for (int i = 0; i < n; i++)
-			{
-				int pi = permutation[i];
-				if (pi < count)
-					selected_rectangles[pi] = rectangles[i];
-			}
-
-			vector<MPD_Arc> selected_edges;
-			for (MPD_Arc &edge : edges)
-			{
-				int pi = permutation[edge._i];
-				int pj = permutation[edge._j];
-				if (pi < count && pj < count)
-				{
-					MPD_Arc edge;
-					edge._i = pi;
-					edge._j = pj;
-					selected_edges.push_back(edge);
-				}
-			}
-			vector<vector<MPD_Arc> > adjacency_list(count);
-			for (MPD_Arc &edge : selected_edges)
-				adjacency_list[edge._i].push_back(edge);
-                        vector<Context> contexts ;
-                        compute_contexts(selected_rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+		assert (request_kind == "getFilter") ;
+		vector<vector<MPD_Arc> > adjacency_list(count);
+		for (MPD_Arc &edge : edges)
+			adjacency_list[edge._i].push_back(edge);
+		int no_sequence_from_center = -1;
+                vector<Context> contexts ;
+                compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
 //on ne conserve que les rectangles
-                        for (Context &ctx : contexts)
-                        {
-                            sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
-                        }
-                        write_json(contexts);
-		}
-		else if (request_kind == "getFilter")
-		{
-			int n = rectangles.size();
-			int count = count_if(filter.begin(), filter.end(), [](bool b) {return b; });
-			vector<int> permutation(n);
-			iota(permutation.begin(), permutation.end(), 0);
-			sort(permutation.begin(), permutation.end(), [&](int i, int j) { return filter[i] > filter[j]; });
-			permutation = compute_reverse_permutation(permutation);
-
-			vector<MyRect> selected_rectangles(count);
-			for (int i = 0; i < n; i++)
-			{
-				int pi = permutation[i];
-				if (pi < count)
-					selected_rectangles[pi] = rectangles[i];
-			}
-
-			vector<MPD_Arc> selected_edges;
-			for (MPD_Arc &edge : edges)
-			{
-				int pi = permutation[edge._i];
-				int pj = permutation[edge._j];
-				if (pi < count && pj < count)
-				{
-					MPD_Arc edge;
-					edge._i = pi;
-					edge._j = pj;
-					selected_edges.push_back(edge);
-				}
-			}
-			vector<vector<MPD_Arc> > adjacency_list(count);
-			for (MPD_Arc &edge : selected_edges)
-				adjacency_list[edge._i].push_back(edge);
-			int no_sequence_from_center = -1;
-                        vector<Context> contexts ;
-                        compute_contexts(selected_rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
-//on ne conserve que les rectangles
-                        for (Context &ctx : contexts)
-                        {
-                            sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
-                        }
-                        write_json(contexts);
-		}
+                for (Context &ctx : contexts)
+                {
+                      sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+                }
+                write_json(contexts);
 	}
 
 	return 0;
