@@ -588,7 +588,15 @@ function refreshJsonFromEditData()
 	
 	const rectangles = compute_box_rectangles(boxes);
 	
-	const http_get_param = encode_http_get_parameter(rectangles, links);
+	const http_get_param = [
+			rectangles.length,
+			...rectangles.map(r => [r.right-r.left, r.bottom-r.top]),
+			links.length,
+			...links.map(lk => [lk.from, lk.to])
+		]
+		.flat()
+		.map(i => i.toString(16).padStart(3,'0'));
+	
 	const default_filter = Array(rectangles.length).fill(true);
 	const http_get_request = encodeRequest(http_get_param, default_filter) ;
 	
@@ -775,45 +783,6 @@ function refreshEditDataFromJson(Json)
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
 	selectField();
-}
-
-
-function width(r)
-{
-	return r.right - r.left;
-}
-
-function height(r)
-{
-	return r.bottom - r.top;
-}
-
-function toHex(x)
-{
-	return ("000" + x.toString(16)).slice(-3);
-}
-
-
-function encode_http_get_parameter(rectangles, edges)
-{
-	let buffer = "";
-	buffer += toHex(rectangles.length);
-	
-	for (let r of rectangles)
-	{
-		buffer += toHex(width(r)) ;
-		buffer += toHex(height(r)) ;
-	}
-	
-	buffer += toHex(edges.length) ;
-	for (let {from, to} of edges)
-	{
-		buffer += toHex(from) ;
-		buffer += toHex(to) ;
-        console.assert(from < rectangles.length);
-		console.assert(to < rectangles.length);
-	}
-	return buffer ;
 }
 
 
