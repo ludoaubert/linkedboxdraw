@@ -81,10 +81,7 @@ while True:
                 frame="{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
                 print('frame')
                 print(frame)
-                id_x_y = [(translatedBoxes['id'], translatedBoxes['translation']['x'], translatedBoxes['translation']['y']) for translatedBoxes in context['translatedBoxes']]
-                print('id_x_y')
-                print(str(id_x_y))
-                translations = "".join("{:03x}{:03x}".format(x,y) for id,x,y in id_x_y)
+                translations = "".join("{:03x}{:03x}".format(x,y) for id,tr in context['translatedBoxes'])
                 print(translations)
 
                 idmap={}
