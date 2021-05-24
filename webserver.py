@@ -44,12 +44,16 @@ while True:
             nr_rects = int(data[:3], 16)
             print('nr_rects')
             print(str(nr_rects))
-            rectdim = data[3:3+nr_rects*6]
-            nr_links = int(data[3+nr_rects*6:3+nr_rects*6+3],16)
+            data = data[3:]
+            rectdim = data[:nr_rects*6]
+            data = data[nr_rects*6:]
+            nr_links = int(data[:3],16)
             print('nr_links')
             print(str(nr_links))
-            links = data[3+nr_rects*6+3:3+nr_rects*6+3+nr_links*6]
-            filtre = data[3+nr_rects*6+3+nr_links*6:]
+            data = data[3:]
+            links = data[:nr_links*6]
+            data = data[nr_links*6:]
+            filtre = data
             print(rectdim)
             print(links)
             print(filtre)
