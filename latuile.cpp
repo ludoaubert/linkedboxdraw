@@ -214,9 +214,7 @@ bool parse_command(int argc,
 		   string& request_kind,
 		   MyRect &frame,
 		   vector<MyRect> &rectangles,
-		   vector<MPD_Arc> &edges,
-		   vector<bool> &filter,
-		   int &center)
+		   vector<MPD_Arc> &edges)
 {
 	const regex hexa("^[0-9a-z]+$");
 
@@ -278,27 +276,6 @@ bool parse_command(int argc,
 	if (args["--frame"])
 		sscanf(args["--frame"], "%4hx%4hx%4hx%4hx", &frame.m_left, &frame.m_right, &frame.m_top, &frame.m_bottom);
 
-	filter = vector<bool>(n, false);
-
-	if (strlen(args["--filter"]) < ceil(n / 4))
-	{
-		printf("URL does not contain a valid filter.\n");
-		return false;
-	}
-
-	for (int i = 0; i < ceil(n / 4.0); i++)
-	{
-		char ch = args["--filter"][i];
-		unsigned int hex_value = ch >= 'A' ? ch - 'A' + 10 : ch - '0';
-		for (int j = 0; j < 4 && 4 * i + j < n; j++)
-		{
-			filter[4 * i + j] = hex_value & (1 << j);
-		}
-	}
-
-	if (args["--center"])
-		sscanf(args["--center"], "%d", &center);
-
 	return true;
 }
 
@@ -310,8 +287,6 @@ int main(int argc, char* argv[])
 	MyRect frame;
 	vector<MyRect> rectangles;
 	vector<MPD_Arc> edges;
-	vector<bool> filter;
-	int center = -1;
 
 	if (argc == 1)
 	{
@@ -326,7 +301,7 @@ int main(int argc, char* argv[])
 		test_stair_steps(RECT_BORDER);
 		test_stair_steps_layout();
 	}
-	else if (parse_command(argc, argv, request_kind, frame, rectangles, edges, filter, center))
+	else if (parse_command(argc, argv, request_kind, frame, rectangles, edges))
 	{
 		assert (request_kind == "getFilter") ;
 		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
