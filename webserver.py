@@ -88,7 +88,7 @@ while True:
                 print(translations)
 
                 idmap={}
-                for id,x,y in id_x_y:
+                for id,tr in context['translatedBoxes']:
                     idmap[id] = len(idmap)
                 print('idmap')
                 print(idmap)
@@ -97,7 +97,7 @@ while True:
                 print('reverse_idmap')
                 print(reverse_idmap)
 
-                rectdim_ = "".join([rectdim[id] for id,x,y in id_x_y])
+                rectdim_ = "".join([rectdim[id] for id,tr in context['translatedBoxes']])
                 print('rectdim_')
                 print(rectdim_)
                 assert(len(rectdim_)==len(translations))
