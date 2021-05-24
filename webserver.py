@@ -81,12 +81,12 @@ while True:
                 frame="{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
                 print('frame')
                 print(frame)
-                translations = "".join("{:03x}{:03x}".format(tB.translation.x,tB.translation.y) for tB in context['translatedBoxes'])
+                translations = "".join("{:03x}{:03x}".format(tB['translation']['x'],tB['translation']['y']) for tB in context['translatedBoxes'])
                 print(translations)
 
                 idmap={}
                 for tB in context['translatedBoxes']:
-                    idmap[tB.id] = len(idmap)
+                    idmap[tB['id']] = len(idmap)
                 print('idmap')
                 print(idmap)
 
@@ -94,7 +94,7 @@ while True:
                 print('reverse_idmap')
                 print(reverse_idmap)
 
-                rectdim_ = "".join([rectdim[tB.id] for tB in context['translatedBoxes']])
+                rectdim_ = "".join([rectdim[tB['id']] for tB in context['translatedBoxes']])
                 print('rectdim_')
                 print(rectdim_)
                 assert(len(rectdim_)==len(translations))
