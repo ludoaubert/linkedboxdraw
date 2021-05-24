@@ -66,10 +66,10 @@ while True:
             print(str(command))
             json1 = check_output(command).decode("ascii")
             
-            rectdim = [rectdim[6*i:6*i+6] for i in range(nr_rects)]
+            rectdim = [rectdim[i:i+6] for i in range(0, nr_rects, 6)]
             print('rectdim')
             print(str(rectdim))
-            edges = [(int(links[6*i:6*i+3],16), int(links[6*i+3:6*i+6],16)) for i in range(nr_links)]
+            edges = [(int(links[i:i+3],16), int(links[i+3:i+6],16)) for i in range(0, nr_links, 6)]
             print('links')
             print(str(edges))
 
