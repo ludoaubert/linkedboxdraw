@@ -595,33 +595,14 @@ function refreshJsonFromEditData()
 			...links.map(lk => [lk.from, lk.to])
 		]
 		.flat()
-		.map(i => i.toString(16).padStart(3,'0'));
-	
-	const default_filter = Array(rectangles.length).fill(true);
-	const http_get_request = encodeRequest(http_get_param, default_filter) ;
+		.map(i => i.toString(16).padStart(3,'0')).join('');
+		
+	const http_get_request = 'http://localhost:8080/getFilter?' + http_get_param;
 	
 	const title = editTitle.value;
 	
 	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
 	return escapeSpecialChars(json); // Indented 4 spaces
-}
-
-
-function encodeRequest(http_get_param, filter)
-{
-	var encoded_filter = "" ;
-	var n = filter.length ;
-	for (let i=0; i < Math.ceil(n/4.0); i++)
-	{
-		let hex_value = 0 ;
-		for (let j=0; j < 4 && 4*i+j<n; j++)
-		{
-			var checkbox_checked = filter[4*i+j] ;
-			hex_value += checkbox_checked << j ;
-		}
-		encoded_filter = encoded_filter + hex_value.toString(16) ;
-	}
-	return `http://localhost:8080/getFilter?${http_get_param}${encoded_filter}` ;
 }
 
 

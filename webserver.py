@@ -48,12 +48,13 @@ while True:
             rectdim = data[:nr_rects*6]
             data = data[nr_rects*6:]
             nr_links = int(data[:3],16)
+            data = data[3:]
             print('nr_links')
             print(str(nr_links))
-            data = data[3:]
             links = data[:nr_links*6]
             data = data[nr_links*6:]
-            filtre = data
+            links = data[:nr_links*6]
+            filtre = data[nr_links*6:]
             print(rectdim)
             print(links)
             print(filtre)
@@ -66,10 +67,10 @@ while True:
             print(str(command))
             json1 = check_output(command).decode("ascii")
             
-            rectdim = [rectdim[i:i+6] for i in range(0, len(rectdim), 6)]
+            rectdim = [rectdim[i:i+6] for i in range(0, nr_rects, 6)]
             print('rectdim')
             print(str(rectdim))
-            edges = [(int(links[i:i+3],16), int(links[i+3:i+6],16)) for i in range(0, len(links), 6)]
+            edges = [(int(links[i:i+3],16), int(links[i+3:i+6],16)) for i in range(0, nr_links, 6)]
             print('links')
             print(str(edges))
 
@@ -81,12 +82,15 @@ while True:
                 frame="{:04x}{:04x}{:04x}{:04x}".format(frame['left'],frame['right'],frame['top'],frame['bottom'])
                 print('frame')
                 print(frame)
-                translations = "".join("{:03x}{:03x}".format(tB['translation']['x'],tB['translation']['y']) for tB in context['translatedBoxes'])
+                id_x_y = [(translatedBoxes['id'], translatedBoxes['translation']['x'], translatedBoxes['translation']['y']) for translatedBoxes in context['translatedBoxes']]
+                print('id_x_y')
+                print(str(id_x_y))
+                translations = "".join("{:03x}{:03x}".format(x,y) for id,x,y in id_x_y)
                 print(translations)
 
                 idmap={}
-                for tB in context['translatedBoxes']:
-                    idmap[int(tB['id'])] = len(idmap)
+                for id,x,y in id_x_y:
+                    idmap[id] = len(idmap)
                 print('idmap')
                 print(idmap)
 
@@ -94,7 +98,7 @@ while True:
                 print('reverse_idmap')
                 print(reverse_idmap)
 
-                rectdim_ = "".join([rectdim[int(tB['id'])] for tB in context['translatedBoxes']])
+                rectdim_ = "".join([rectdim[id] for id,x,y in id_x_y])
                 print('rectdim_')
                 print(rectdim_)
                 assert(len(rectdim_)==len(translations))
