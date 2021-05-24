@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
 	else if (parse_command(argc, argv, request_kind, frame, rectangles, edges, filter, center))
 	{
 		assert (request_kind == "getFilter") ;
-		vector<vector<MPD_Arc> > adjacency_list(count);
+		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 		for (MPD_Arc &edge : edges)
 			adjacency_list[edge._i].push_back(edge);
 		int no_sequence_from_center = -1;
