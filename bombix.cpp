@@ -2826,12 +2826,47 @@ void compute_polylines(const vector<Rect>& rects,
 }
 
 
-bool parse_command(int argc,
-		   char* argv[],
-		   Rect &frame,
-		   vector<Rect> &rects,
-		   vector<Link> &links)
+void parse_command(const char* recdim,
+					const char* translations,
+					const char* sframe,
+					const char* slinks,
+					Rect &frame,
+					vector<Rect> &rects,
+					vector<Link> &links)
 {
+	int pos;
+	
+	pos = 0;
+	int width, height, x, y;
+	while (sscanf(rectdim + pos, "%3x%3x", &width, &height) == 2 &&
+	      sscanf(translations + pos, "%3x%3x", &x, &y) == 2)
+	{
+		rects.push_back({x, x + width, y, y + height});
+		pos += 6;
+	}
+	
+	pos = 0;
+	int from, to;
+	while (sscanf(slinks + pos, "%2x%2x", &from, &to) == 2)
+	{
+		links.push_back({from, to});
+		pos += 4;
+	}
+	
+	sscanf(sframe, "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
+}
+
+int main(int argc, char* argv[])
+{
+	Maille m1 = { VERTICAL, DECREASE,16,3 };
+	uint64_t u = serialize(m1);
+	Maille m2 = parse(u);
+	assert(m1 == m2);
+
+	Rect frame;
+	vector<Rect> rects;
+	vector<Link> links;
+	
 	const regex hexa("^[0-9a-z]*$");
 
         unordered_map<string, const char*> args={
@@ -2852,42 +2887,7 @@ bool parse_command(int argc,
 				 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);
 				 
 	if (!check)
-		return false;
-	
-	int pos;
-	
-	pos = 0;
-	int width, height, x, y;
-	while (sscanf(args["--rectdim"] + pos, "%3x%3x", &width, &height) == 2 &&
-	      sscanf(args["--translations"] + pos, "%3x%3x", &x, &y) == 2)
-	{
-		rects.push_back({x, x + width, y, y + height});
-		pos += 6;
-	}
-	
-	pos = 0;
-	int from, to;
-	while (sscanf(args["--links"] + pos, "%2x%2x", &from, &to) == 2)
-	{
-		links.push_back({from, to});
-		pos += 4;
-	}
-	
-	sscanf(args["--frame"], "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
-	
-	return true;
-}
-
-int main(int argc, char* argv[])
-{
-	Maille m1 = { VERTICAL, DECREASE,16,3 };
-	uint64_t u = serialize(m1);
-	Maille m2 = parse(u);
-	assert(m1 == m2);
-
-	Rect frame;
-	vector<Rect> rects;
-	vector<Link> links;
+		return -1;
 	
 	if (argc == 1)
 	{
@@ -2999,8 +2999,10 @@ int main(int argc, char* argv[])
 		
 		return 0;
 	}
-	else if (parse_command(argc, argv, frame, rects, links))
+	else if (argc == 9)
 	{
+		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["links"], frame, rects, links))
+
 		vector<FaiceauOutput> faiceau_output;
 		vector<Polyline> polylines;
 		
@@ -3017,25 +3019,20 @@ int main(int argc, char* argv[])
 
 //interface for emscripten wasm
 void bombix(char *rectdim,
-		char *translations,
-		char *frame,
-		char *links,
-		char *json_output)
+			char *translations,
+			char *sframe,
+			char *slinks)
 {
-	const int argc=9;
-	char* argv[argc]={"bombix","--rectdim", rectdim, "--translations", translations, "--frame", frame, "--links", links};
-	
 	Rect frame;
 	vector<Rect> rects;
 	vector<Link> links;
 	
-	if (parse_command(argc, argv, frame, rects, links))
-	{
-		vector<FaiceauOutput> faiceau_output;
-		vector<Polyline> polylines;
+	parse_command(rectdim, translations, sframe, slinks, frame, rects, links);
+
+	vector<FaiceauOutput> faiceau_output;
+	vector<Polyline> polylines;
 		
-		compute_polylines(rects, frame, links, faiceau_output, polylines);
-		string json = polyline2json(polylines);
-		printf("%s", json.c_str());
-	}	
+	compute_polylines(rects, frame, links, faiceau_output, polylines);
+	string json = polyline2json(polylines);
+	printf("%s", json.c_str());	
 }
