@@ -3014,3 +3014,27 @@ int main(int argc, char* argv[])
 		printf("--frame 000002c3000002e8 --rectdim 008d002800a200380040006800780078008d0038010b004800470088004e004800d3004800850058006a00680069007800390038003f0048009a00580062003800700038007000480032003800c40078 --translations 014900fa020b00eb0072002a0149014a01e9018a001600ba00da000a00d3012a00b7028a000a027a00b701fa023501ea020b008b0234028a0149007a000a021a00b1019a003b012a0057019a014901ea --links 010e020e020503040511060e0605070007100809090f0a120a100a090b0d0c0e0e0710031107130a13071308130b");
 	}
 }
+
+//interface for emscripten wasm
+int bombix(char *rectdim,
+		char *translations,
+		char *frame,
+		char *links,
+		char *json_output)
+{
+	const int argc=9;
+	char* argv[argc]={"bombix","--rectdim", rectdim, "--translations", translations, "--frame", frame, "--links", links};
+	
+	Rect frame;
+	vector<Rect> rects;
+	vector<Link> links;
+	
+	if (parse_command(argc, argv, frame, rects, links))
+	{
+		vector<FaiceauOutput> faiceau_output;
+		vector<Polyline> polylines;
+		
+		compute_polylines(rects, frame, links, faiceau_output, polylines);
+		string json = polyline2json(polylines);
+	}	
+}
