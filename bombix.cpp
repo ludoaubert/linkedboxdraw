@@ -3016,7 +3016,7 @@ int main(int argc, char* argv[])
 }
 
 //interface for emscripten wasm
-int bombix(char *rectdim,
+void bombix(char *rectdim,
 		char *translations,
 		char *frame,
 		char *links,
@@ -3036,5 +3036,6 @@ int bombix(char *rectdim,
 		
 		compute_polylines(rects, frame, links, faiceau_output, polylines);
 		string json = polyline2json(polylines);
+		printf("%s", json.c_str());
 	}	
 }
