@@ -96,16 +96,27 @@ function deselectElement()
 	);
 	const data={rectangles,reduced_edges, frame}
 	
-//	Following lines will be usefull when wasm import will be available in the future:
-/*
-	Module example
-	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
-*/
-
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
+	
+	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
+				.flat()
+				.map(i => hex(i,3));
+	
+	const translations = rectangles.map(r => [r.left, r.top])
+					.flat()
+					.map(i => hex(i,3));
 
 	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => hex(i,4));
 	console.log(f);
+	
+	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => hex(i,2));
+	console.log(lk);
+	
+	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
+	const jsonResponse = bombix(rectdim, translations, f, lk);
+	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
+	drawDiag();
+	return;
 	
 	const rec_tr = [...rectangles.map(r => [r.right-r.left, r.bottom-r.top]), 
 					...rectangles.map(r => [r.left, r.top])]
@@ -114,8 +125,6 @@ function deselectElement()
 
 	console.log(rec_tr);
 	
-	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => hex(i,2));
-	console.log(lk);
 	const payload = [...f, hex(rectangles.length,3), ...rec_tr, hex(lk.length,3), ...lk];
 	console.log(payload);
 
