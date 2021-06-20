@@ -3019,30 +3019,33 @@ int main(int argc, char* argv[])
 
 //interface for emscripten wasm
 extern "C" {
-void bombix(char *rectdim,
-			char *translations,
-			char *sframe,
-			char *slinks)
+const char* bombix(const char *rectdim,
+                        const char *translations,
+                        const char *sframe,
+                        const char *slinks)
 {
-	Rect frame;
-	vector<Rect> rects;
-	vector<Link> links;
-	
-	parse_command(rectdim, translations, sframe, slinks, frame, rects, links);
+        Rect frame;
+        vector<Rect> rects;
+        vector<Link> links;
 
-	vector<FaiceauOutput> faiceau_output;
-	vector<Polyline> polylines;
-		
-	compute_polylines(rects, frame, links, faiceau_output, polylines);
-	string json = polyline2json(polylines);
-	printf("%s", json.c_str());	
+        parse_command(rectdim, translations, sframe, slinks, frame, rects, links);
+
+        vector<FaiceauOutput> faiceau_output;
+        vector<Polyline> polylines;
+
+        compute_polylines(rects, frame, links, faiceau_output, polylines);
+        string json = polyline2json(polylines);
+        char res[100000];
+        std::copy(json.c_str(), json.c_str()+json.size(), res);
+        res[json.size()]=0;
+        return res;
 }
 }
 /*
 /var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix.cpp -o bombix.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
 puis dans https://dev.diskloud.fr/ludo/bombix.html
 
-bombix=Module.cwrap("bombix","void",["string","string","string","string"])
+bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 exemple: 
 2 rectangles taille (56,56)=("038,"038") en hexa. 
 translations: (10,10) et (100,10) = ("00a","00a") et ("064","00a"). 
