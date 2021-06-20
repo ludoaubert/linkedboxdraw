@@ -3038,3 +3038,12 @@ void bombix(char *rectdim,
 	printf("%s", json.c_str());	
 }
 }
+/*
+bombix=Module.cwrap("bombix","void",["string","string","string","string"])
+exemple: 
+2 rectangles taille (56,56)=("038,"038") en hexa. 
+translations: (10,10) et (100,10) = ("00a","00a") et ("064","00a"). 
+frame=(left,right,top,bottom):(0,200,0,100)=("0000","00c8","0000","0064").
+links=(0,1):("00","01").
+bombix("038038038038","00a00a06400a","000000c800000064","0001")
+*/
