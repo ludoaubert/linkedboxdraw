@@ -3039,8 +3039,7 @@ void bombix(char *rectdim,
 }
 }
 /*
-/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix.cpp -o bombix.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXP
-ORTED_RUNTIME_METHODS='["ccall","cwrap"]'
+/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix.cpp -o bombix.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
 puis dans https://dev.diskloud.fr/ludo/bombix.html
 
 bombix=Module.cwrap("bombix","void",["string","string","string","string"])
