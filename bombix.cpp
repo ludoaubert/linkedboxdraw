@@ -2826,7 +2826,7 @@ void compute_polylines(const vector<Rect>& rects,
 }
 
 
-void parse_command(const char* recdim,
+void parse_command(const char* rectdim,
 					const char* translations,
 					const char* sframe,
 					const char* slinks,
