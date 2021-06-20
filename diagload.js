@@ -98,8 +98,8 @@ function deselectElement()
 	
 //	Following lines will be usefull when wasm import will be available in the future:
 /*
-	Module
-
+	Module example
+	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 */
 
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
