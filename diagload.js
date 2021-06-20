@@ -113,7 +113,7 @@ function deselectElement()
 	console.log(lk);
 	
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
-	const jsonResponse = bombix(rectdim, translations, f, lk);
+	const jsonResponse = bombix(rectdim.join(''), translations.join(''), f.join(''), lk.join(''));
 	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
 	drawDiag();
 	return;
