@@ -3001,7 +3001,7 @@ int main(int argc, char* argv[])
 	}
 	else if (argc == 9)
 	{
-		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["links"], frame, rects, links))
+		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["links"], frame, rects, links);
 
 		vector<FaiceauOutput> faiceau_output;
 		vector<Polyline> polylines;
