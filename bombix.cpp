@@ -3039,6 +3039,10 @@ void bombix(char *rectdim,
 }
 }
 /*
+/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix.cpp -o bombix.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXP
+ORTED_RUNTIME_METHODS='["ccall","cwrap"]'
+puis dans https://dev.diskloud.fr/ludo/bombix.html
+
 bombix=Module.cwrap("bombix","void",["string","string","string","string"])
 exemple: 
 2 rectangles taille (56,56)=("038,"038") en hexa. 
