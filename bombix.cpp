@@ -3018,6 +3018,7 @@ int main(int argc, char* argv[])
 }
 
 //interface for emscripten wasm
+extern "C" {
 void bombix(char *rectdim,
 			char *translations,
 			char *sframe,
@@ -3035,4 +3036,5 @@ void bombix(char *rectdim,
 	compute_polylines(rects, frame, links, faiceau_output, polylines);
 	string json = polyline2json(polylines);
 	printf("%s", json.c_str());	
+}
 }
