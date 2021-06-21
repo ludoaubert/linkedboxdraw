@@ -200,7 +200,7 @@ function loadDiag() {
 
 function drawDiag() {
 
-	const {title, boxes, values, boxComments, fieldComments, links:links_, rectangles, http_get_param} = JSON.parse(data);
+	const {title, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles, http_get_param} = JSON.parse(data);
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -430,6 +430,15 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	document.title = title;
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
+	
+	var sheet = document.createElement('style')
+	const style = fieldColors
+		.map(({index,box,field,color})=>
+			`foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`
+			)
+		.join('\n');
+	sheet.innerHTML = style;
+	document.body.appendChild(sheet);
 	
 	var input = document.getElementById("myFile");
 
