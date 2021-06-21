@@ -5,6 +5,7 @@ var box2fields = {};
 var field2values = {};
 var box2comment = {};
 var field2comment = {};
+var field2color = {};
 
 
 var input = document.getElementById("myFile");
@@ -26,7 +27,13 @@ var toBoxCombo = document.getElementById("to boxes");
 var toFieldCombo = document.getElementById("to fields");
 var toCardinalityCombo = document.getElementById("to cardinality");
 var newValueEditField = document.getElementById("new value");
+var colorBoxCombo = document.getElementById("color boxes");
+var colorFieldCombo = document.getElementById("color fields");
+var colorCombo = document.getElementById("colors");
 
+const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
+
+colors.forEach(color => colorCombo.add(new Option(color, color)));
 
 input.addEventListener("change", function () {
   if (this.files && this.files[0]) {
@@ -110,6 +117,8 @@ function selectCascadeBox()
 	selectBox(toBoxCombo, toFieldCombo);
 	selectBox(boxCombo, fieldCombo);
 	updateFieldAttributes();
+	copyOptions(boxCombo, colorBoxCombo);
+	selectBox(colorBoxCombo, colorFieldCombo);
 	selectField();	
 }
 
@@ -188,6 +197,13 @@ function updateBox()
 			//alert("Cascade updating comment: " + field2comment[`${box}.${field}`]);
 			field2comment[`${newBoxEditField.value}.${field}`] = field2comment[`${box}.${field}`];
 			delete field2comment[`${box}.${field}`];
+		}
+		
+		if (`${box}.${field}` in field2color)
+		{
+			//alert("Cascade updating comment: " + field2color[`${box}.${field}`]);
+			field2color[`${newBoxEditField.value}.${field}`] = field2color[`${box}.${field}`];
+			delete field2color[`${box}.${field}`];
 		}
 	}
 	
@@ -306,6 +322,7 @@ function addNewFieldToBox()
 	newFieldEditField.value = '';
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(colorBoxCombo, colorFieldCombo);
 	updateFieldAttributes();
 	selectField();
 }
@@ -371,6 +388,7 @@ function updateField()
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
 	selectBox(boxCombo,fieldCombo);
+	selectBox(colorBoxCombo, colorFieldCombo);
 	updateFieldAttributes();
 	selectField();
 }
@@ -396,6 +414,11 @@ function dropFieldFromBox()
 		//alert("Cascade dropping comment: " + field2comment[`${box}.${field}`]);
 		delete field2comment[`${box}.${field}`];
 	}
+	if (`${box}.${field}` in field2color)
+	{
+		//alert("Cascade dropping comment: " + field2color[`${box}.${field}`]);
+		delete field2color[`${box}.${field}`];
+	}	
 	selectField();
 	
 	for (let i=linkCombo.options.length-1; i >= 0; i--) 
@@ -518,6 +541,28 @@ function updateFieldComment()
 	field2comment[`${box}.${field}`] = fieldCommentTextArea.value;
 }
 
+function addNewColor()
+{
+	const box = colorBoxCombo.value;
+	const field = colorFieldCombo.value;
+	const color = colorCombo.value;
+	field2color[`${box}.${field}`] = color;
+}
+
+function updateColor()
+{
+	const box = colorBoxCombo.value;
+	const field = colorFieldCombo.value;
+	const color = colorCombo.value;
+	field2color[`${box}.${field}`] = color;	
+}
+
+function dropColor()
+{
+	const box = colorBoxCombo.value;
+	const field = colorFieldCombo.value;
+	delete field2color[`${box}.${field}`];
+}
 
 function refreshJsonFromEditData()
 {	
@@ -551,6 +596,15 @@ function refreshJsonFromEditData()
 		comment = field2comment[boxfield];
 		[box, field] = boxfield.split(".");
 		fieldComments.push({box, field, comment});
+	}
+	
+	let fieldColors = [];
+	for (let boxfield in field2color)
+	{
+		const color = field2color[boxfield];
+		[box, field] = boxfield.split(".");
+		let index = myBoxes.indexOf(box);
+		fieldColors.push({index, box, field, color});
 	}
 
 	let links = [];
@@ -601,7 +655,7 @@ function refreshJsonFromEditData()
 	
 	const title = editTitle.value;
 	
-	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request}/*, null, 4*/);
+	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles, http_get_param, http_get_request}/*, null, 4*/);
 	return escapeSpecialChars(json); // Indented 4 spaces
 }
 
@@ -690,7 +744,7 @@ function compute_box_rectangles(boxes)
 
 function refreshEditDataFromJson(Json)
 {
-	const {title, boxes, values, boxComments, fieldComments, links, rectangles, http_get_param, http_get_request} = JSON.parse(Json);
+	const {title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles, http_get_param, http_get_request} = JSON.parse(Json);
 	
 	editTitle.value = title;
 	
@@ -699,6 +753,8 @@ function refreshEditDataFromJson(Json)
 	removeOptions(fromBoxCombo);
 	removeOptions(toBoxCombo);
 	removeOptions(linkCombo);
+	removeOptions(colorBoxCombo);
+	removeOptions(colorFieldCombo);
 	
 	myBoxes = [];
 	for (const {title, fields} of boxes)
@@ -734,6 +790,7 @@ function refreshEditDataFromJson(Json)
 	
 	copyOptions(boxCombo, fromBoxCombo);
 	copyOptions(boxCombo, toBoxCombo);
+	copyOptions(boxCombo, colorBoxCombo);
 	
 	box2fields = {};
 	for (const box of boxes)
@@ -759,10 +816,17 @@ function refreshEditDataFromJson(Json)
 		field2comment[`${box}.${field}`] = unescapeSpecialChars(comment);
 	}
 	
+	field2color = {};
+	for (let {index,box,field,color} of fieldColors)
+	{
+		field2color[`${box}.${field}`] = color;
+	}
+	
 	selectBox(boxCombo, fieldCombo);
 	updateFieldAttributes();
 	selectBox(fromBoxCombo, fromFieldCombo);
 	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(colorBoxCombo, colorFieldCombo);
 	selectField();
 }
 

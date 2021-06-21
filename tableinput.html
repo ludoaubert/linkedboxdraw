@@ -114,6 +114,17 @@
 	<button id="update link" type="button" onclick="updateLink()">Update Link</button>
 </fieldset>
 
+<fieldset>
+	<legend>Field Colors</legend>
+	Box: <select id="color boxes" onchange="selectBox(colorBoxCombo, colorFieldCombo)"></select>
+	Field: <select id="color fields"></select>
+	Color: <select id="colors"></select>
+
+	<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
+	<button id="update color" type="button" onclick="updateColor()">Update Color</button>
+	<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>	
+</fieldset>
+
 	<script type="text/javascript" src="tableinput.js"></script>
 	
 </body>
