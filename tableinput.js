@@ -29,7 +29,8 @@ var toCardinalityCombo = document.getElementById("to cardinality");
 var newValueEditField = document.getElementById("new value");
 var colorBoxCombo = document.getElementById("color boxes");
 var colorFieldCombo = document.getElementById("color fields");
-var colorCombo = document.getElementById("colors");
+var colorCombo = document.getElementById("color");
+var colorsCombo = document.getElementById("colors");
 
 const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 
@@ -547,6 +548,11 @@ function addNewColor()
 	const field = colorFieldCombo.value;
 	const color = colorCombo.value;
 	field2color[`${box}.${field}`] = color;
+	
+	const text = `${box}.${field}=>${color}`;
+	colorsCombo.add(new Option(text, text));
+	sortSelect(colorsCombo);
+	colorsCombo.value = text;
 }
 
 function updateColor()
@@ -554,14 +560,16 @@ function updateColor()
 	const box = colorBoxCombo.value;
 	const field = colorFieldCombo.value;
 	const color = colorCombo.value;
-	field2color[`${box}.${field}`] = color;	
+	field2color[`${box}.${field}`] = color;
+	
+	const text = `${box}.${field}=>${color}`;
+	colorsCombo.options[colorsCombo.selectedIndex].innerHTML = text;
 }
 
 function dropColor()
 {
-	const box = colorBoxCombo.value;
-	const field = colorFieldCombo.value;
-	delete field2color[`${box}.${field}`];
+	if (colorsCombo.selectedIndex != -1)
+		colorsCombo.remove(colorsCombo.selectedIndex);
 }
 
 function refreshJsonFromEditData()
@@ -755,6 +763,7 @@ function refreshEditDataFromJson(Json)
 	removeOptions(linkCombo);
 	removeOptions(colorBoxCombo);
 	removeOptions(colorFieldCombo);
+	removeOptions(colorsCombo);
 	
 	myBoxes = [];
 	for (const {title, fields} of boxes)
@@ -821,6 +830,13 @@ function refreshEditDataFromJson(Json)
 	{
 		field2color[`${box}.${field}`] = color;
 	}
+	
+	for (const {index,box,field,color} of fieldColors)
+	{
+		let text = `${box}.${field}=>${color}`;
+		colorsCombo.add(new Option(text, text));
+    }
+	sortSelect(colorsCombo);
 	
 	selectBox(boxCombo, fieldCombo);
 	updateFieldAttributes();
