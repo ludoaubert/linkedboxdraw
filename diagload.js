@@ -426,6 +426,15 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
 	</form>
 </li>
+
+<li>Load Data File</li>
+<li><input type="file" id="myDataFile" value="Load"></li>
+<li>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="test.txt">
+	</form>
+</li>
+
 </ul>`;
 	
 	document.title = title;
@@ -456,6 +465,25 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		});
 		
 		reader.readAsBinaryString(myFile);
+	  }   
+	});
+	
+	var input = document.getElementById("myDataFile");
+
+	input.addEventListener("change", function () {
+	  if (this.files && this.files[0]) {
+		var myDataFile = this.files[0];
+		var reader = new FileReader();
+		
+		reader.addEventListener('load', function (e) {
+		  const buffer = e.target.result;
+		  console.assert(buffer.slice(0,"data='".length)=="data='");
+		  console.assert(buffer.slice(-"';".length)==-"';");
+		  const Json = buffer.slice("data='".length, -"';".length);
+		  data = Json;
+		});
+		
+		reader.readAsBinaryString(myDataFile);
 	  }   
 	});
 }
