@@ -429,6 +429,11 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 <li>Load Data File</li>
 <li><input type="file" id="myDataFile" value="Load"></li>
+<li>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="test.txt">
+	</form>
+</li>
 
 </ul>`;
 	
