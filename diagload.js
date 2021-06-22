@@ -458,8 +458,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		
 		reader.addEventListener('load', function (e) {
 		  const buffer = e.target.result;
-		  console.assert(buffer.slice(0,"contexts='".length)=="contexts='");
-		  console.assert(buffer.slice(-"';".length)==-"';");
+		  console.assert(buffer.slice(0,"contexts='".length) == "contexts='");
+		  console.assert(buffer.slice(-"';".length) == "';");
 		  const Json = buffer.slice("contexts='".length, -"';".length);
 		  refreshEditDataFromJson(Json);
 		});
@@ -477,8 +477,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		
 		reader.addEventListener('load', function (e) {
 		  const buffer = e.target.result;
-		  console.assert(buffer.slice(0,"data='".length)=="data='");
-		  console.assert(buffer.slice(-"';".length)==-"';");
+		  console.assert(buffer.slice(0,"data='".length) == "data='");
+		  console.assert(buffer.slice(-"';".length) == "';");
 		  const Json = buffer.slice("data='".length, -"';".length);
 		  data = Json;
 		});
