@@ -468,9 +468,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	  }   
 	});
 	
-	var input = document.getElementById("myDataFile");
+	var dataInput = document.getElementById("myDataFile");
 
-	input.addEventListener("change", function () {
+	dataInput.addEventListener("change", function () {
 	  if (this.files && this.files[0]) {
 		var myDataFile = this.files[0];
 		var reader = new FileReader();
