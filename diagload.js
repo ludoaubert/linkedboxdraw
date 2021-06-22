@@ -94,63 +94,35 @@ function deselectElement()
 			bottom: mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y
 		})
 	);
-	const data={rectangles,reduced_edges, frame}
 	
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
 	
 	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
 				.flat()
-				.map(i => hex(i,3));
+				.map(i => hex(i,3))
+				.join('');
 	
 	const translations = rectangles.map(r => [r.left, r.top])
 					.flat()
-					.map(i => hex(i,3));
+					.map(i => hex(i,3))
+					.join('');
 
-	const f = [frame.left, frame.right, frame.top, frame.bottom].map(i => hex(i,4));
-	console.log(f);
+	const sframe = [frame.left, frame.right, frame.top, frame.bottom]
+				.map(i => hex(i,4))
+				.join('');
+	console.log(sframe);
 	
-	const lk = reduced_edges.map(ln => [ln.from, ln.to]).flat().map(i => hex(i,2));
-	console.log(lk);
+	const slinks = reduced_edges
+				.map(ln => [ln.from, ln.to])
+				.flat()
+				.map(i => hex(i,2))
+				.join('');
+	console.log(slinks);
 	
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
-	const jsonResponse = bombix(rectdim.join(''), translations.join(''), f.join(''), lk.join(''));
+	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
 	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
 	drawDiag();
-	return;
-	
-	const rec_tr = [...rectangles.map(r => [r.right-r.left, r.bottom-r.top]), 
-					...rectangles.map(r => [r.left, r.top])]
-					.flat()
-					.map(i => hex(i,3));
-
-	console.log(rec_tr);
-	
-	const payload = [...f, hex(rectangles.length,3), ...rec_tr, hex(lk.length,3), ...lk];
-	console.log(payload);
-
-	var url = 'http://localhost:8080/getReducedEdges?data=' + payload.join('');
-	url = url.replace('localhost', '192.168.0.27');
-	console.log("data=" + JSON.stringify(data));
-	console.log(url);
-	
-	var Http = new XMLHttpRequest();
-	Http.onreadystatechange = (e) => {
-		if (Http.readyState==4 && Http.status==200){
-			console.log("Http.response received");
-			console.log(`response size = ${Http.responseText.length}`);
-			const n = Http.responseText.length;
-			if (n==0)
-			{
-	//			drawDiag();
-				return;
-			}
-			console.log(Http.responseText);
-			mycontexts.contexts[selectedContextIndex].links = JSON.parse(Http.responseText);			
-			drawDiag();
-		}
-	}
-	Http.open("GET", url);
-	Http.send();
 }
 
 
