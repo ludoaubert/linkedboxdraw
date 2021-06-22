@@ -512,7 +512,7 @@ function refreshJsonFromEditData()
 function refreshEditDataFromJson(Json)
 {
 	alert("refreshEditDataFromJson");
-	context = Json;
+	contexts = Json;
 	loadDiag();
 }
 
