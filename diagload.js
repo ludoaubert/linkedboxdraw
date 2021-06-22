@@ -477,7 +477,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		
 		reader.addEventListener('load', function (e) {
 		  const buffer = e.target.result;
+		  console.log(buffer.slice(0,"data='".length));
 		  console.assert(buffer.slice(0,"data='".length) == "data='");
+		  console.log(buffer.slice(-"';".length));
 		  console.assert(buffer.slice(-"';".length) == "';");
 		  const Json = buffer.slice("data='".length, -"';".length);
 		  data = Json;
