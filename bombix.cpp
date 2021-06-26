@@ -2995,7 +2995,7 @@ int main(int argc, char* argv[])
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
-		printf("bombix: %d/%d tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
+		printf("bombix: %ld/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
 		
 		return 0;
 	}
