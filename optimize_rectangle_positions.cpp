@@ -101,9 +101,9 @@ void generate_candidate_nodes(int parent_node_index,
 	
 	for (MyPoint& translation : generate_candidate_translations(rectangles, r))
 	{
-		int _diameter = diameter_ ;
-		int _distance = distance_ ;
-		int _intersection_penalty = intersection_penalty_ ;
+		int16_t _diameter = diameter_ ;
+		int16_t _distance = distance_ ;
+		int16_t _intersection_penalty = intersection_penalty_ ;
 
 		MyRect rr = r;
 		translate(rr, translation) ;
@@ -130,7 +130,7 @@ void generate_candidate_nodes(int parent_node_index,
 		}
 
 		int node_index = decision_tree.size();
-                decision_tree.push_back(DecisionTreeNode_{parent_node_index, rr.m_left, rr.m_top, rr.i, _diameter, _distance, _intersection_penalty}) ;
+                decision_tree.push_back(DecisionTreeNode_{parent_node_index, rr.m_left, rr.m_top, (int8_t)rr.i, _diameter, _distance, _intersection_penalty}) ;
 		measures.push_back(_diameter + _distance + _intersection_penalty) ;
 		priority_queue.push_back(node_index) ;
 		push_heap(priority_queue.begin(), priority_queue.end(), [&](int i, int j){return measures[i] > measures[j];});
