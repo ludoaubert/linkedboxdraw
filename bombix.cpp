@@ -2866,29 +2866,7 @@ int main(int argc, char* argv[])
 	Rect frame;
 	vector<Rect> rects;
 	vector<Link> links;
-	
-	const regex hexa("^[0-9a-z]*$");
-
-        unordered_map<string, const char*> args={
-             {"--rectdim", 0},
-             {"--translations", 0},
-             {"--frame", 0},
-             {"--links", 0}
-        };
-	
-	for (int i=1; i+1 < argc; i+=2)
-	{
-                if (args.count(argv[i]))
-                     args[argv[i]] = argv[i + 1];
-	}
-
-	bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
-	             strlen(args["--translations"]) == strlen(args["--rectdim"]) &&regex_match(args["--translations"], hexa) &&
-				 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);
-				 
-	if (!check)
-		return -1;
-	
+		
 	if (argc == 1)
 	{
 		printf("testing bombix ...\n");
@@ -2995,12 +2973,34 @@ int main(int argc, char* argv[])
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
-		printf("bombix: %ld/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
+		printf("bombix: %d/%d tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
 		
 		return 0;
 	}
 	else if (argc == 9)
 	{
+		const regex hexa("^[0-9a-z]*$");
+
+			unordered_map<string, const char*> args={
+				 {"--rectdim", 0},
+				 {"--translations", 0},
+				 {"--frame", 0},
+				 {"--links", 0}
+			};
+		
+		for (int i=1; i+1 < argc; i+=2)
+		{
+					if (args.count(argv[i]))
+						 args[argv[i]] = argv[i + 1];
+		}
+
+		bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
+					 strlen(args["--translations"]) == strlen(args["--rectdim"]) &&regex_match(args["--translations"], hexa) &&
+					 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);
+					 
+		if (!check)
+			return -1;
+		
 		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["--links"], frame, rects, links);
 
 		vector<FaiceauOutput> faiceau_output;
