@@ -456,7 +456,7 @@ void make_adjacency_list(int (&edges)[N][2], vector<vector<MPD_Arc> >& adjacency
 }
 
 
-void write_json(const vector<Context>& contexts, char &buffer[100000])
+void write_json(const vector<Context>& contexts, char (&buffer)[100000])
 {
 	int pos=0;
 	pos += sprintf(buffer + pos, "{\"contexts\":[");

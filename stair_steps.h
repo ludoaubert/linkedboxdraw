@@ -18,7 +18,7 @@ struct Context
         std::string title ;
 } ;
 
-void write_json(const std::vector<Context>& contexts, char &buffer[100000]);
+void write_json(const std::vector<Context>& contexts, char (&buffer)[100000]);
 
 void test_stair_steps(int rect_border) ;
 void test_stair_steps_layout() ;

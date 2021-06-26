@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
 		if (!check)
 			return false;
 	
-		parse_command(args["--rectdim"], args["--links"], rectangles, edges))
+		parse_command(args["--rectdim"], args["--links"], rectangles, edges);
 
 		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 		for (MPD_Arc &edge : edges)
@@ -313,7 +313,7 @@ const char* latuile(const char *rectdim, const char *slinks)
 	vector<MyRect> rectangles;
 	vector<MPD_Arc> edges;
 	
-	parse_command(rectdim, slinks, rectangles, edges))
+	parse_command(rectdim, slinks, rectangles, edges);
 
 	vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 	for (MPD_Arc &edge : edges)
