@@ -1095,7 +1095,7 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 			translate(r, {- frame.m_left,- frame.m_top}) ;
 		}
 
-//on verifie que les rectangles n'ont pas été permutés.
+//on verifie que les rectangles n'ont pas Ã©tÃ© permutÃ©s.
 		assert(equal(vec.begin(), vec.end(), vect.begin(), [](MyRect& r1, MyRect& r2){return dimensions(r1)==dimensions(r2);})) ;
 		int total_distance = 0 ;
 		for (const MPD_Arc *edge : list_edges(adjacency_list))
@@ -1155,7 +1155,7 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 		translate(r, {- frame.m_left,- frame.m_top}) ;
 	}
 
-//on verifie que les rectangles n'ont pas été permutés.
+//on verifie que les rectangles n'ont pas Ã©tÃ© permutÃ©s.
 	assert(equal(vec.begin(), vec.end(), vect.begin(), [](MyRect& r1, MyRect& r2){return dimensions(r1)==dimensions(r2);})) ;
 	vect = vec ;
 }
@@ -2055,7 +2055,7 @@ perm * A : permute rows
 
 		MyRect frame = compute_frame(ctx.rectangles) ;
 		
-		const int FRAME_MARGIN = 20 // consistent with diagload.js head of file.
+		const int FRAME_MARGIN = 20; // consistent with diagload.js head of file.
 
 // consistent with function encode_bounding_rectangle(context) in diagload.js bottom of file.
 
@@ -2870,7 +2870,7 @@ n2|  C  |        D          |
 		//cut = B + C
 		double cut = (perm2 * W * perm2.transpose()).block(0, n1, n1, n2).sum() + (perm2 * W * perm2.transpose()).block(n1, 0, n2, n1).sum() ;
 
-//critere de qualité pour choisir la meilleure cut - Cf Ulrike von Luxburg paragraph 5
+//critere de qualitÃ© pour choisir la meilleure cut - Cf Ulrike von Luxburg paragraph 5
 		double Ncut = cut / intra2[0] + cut / intra2[1] ; 
 //penalty to make a small n1 (resp. n2) be taken into account as being added to nr_comp.
 //goal is to make small asymmetric cut less attractive.
