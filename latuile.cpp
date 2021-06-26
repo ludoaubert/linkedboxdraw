@@ -209,50 +209,17 @@ void test()
     }
 }
 
-bool parse_command(int argc,
-		   char* argv[],
-		   string& request_kind,
-		   MyRect &frame,
-		   vector<MyRect> &rectangles,
-		   vector<MPD_Arc> &edges)
+void parse_command(const char* rectdim,
+					const char* slinks,
+					vector<MyRect> &rectangles,
+					vector<MPD_Arc> &edges)
 {
-	const regex hexa("^[0-9a-z]+$");
-
-        unordered_map<string, const char*> args={
-             {"--reqkind", 0},
-             {"--rectdim", 0},
-             {"--frame", 0},
-             {"--links", 0},
-             {"--filter", 0},
-             {"--center", 0}
-        };        
-
-	for (int i = 1; i + 1 < argc; i += 2)
-	{
-                if (args.count(argv[i]))
-                     args[ argv[i] ] = argv[i + 1];
-	}
-
-        if (args["--reqkind"]==0)
-            return false;
-
-        request_kind = args["--reqkind"];
-
-	bool check = true;
-	check &= strlen(args["--rectdim"]) % 6 == 0;
-	check &= regex_match(args["--rectdim"], hexa);
-	check &= strlen(args["--links"]) % 6 == 0;
-	check &= regex_match(args["--links"], hexa);
-
-	if (!check)
-		return false;
-
 	int pos;
 
 	pos = 0;
-        MyRect r{0,0,0,0};
+    MyRect r{0,0,0,0};
 	int nn;
-	while (sscanf(args["--rectdim"] + pos, "%3hx%3hx%n", &r.m_right, &r.m_bottom, &nn) == 2)
+	while (sscanf(rectdim + pos, "%3hx%3hx%n", &r.m_right, &r.m_bottom, &nn) == 2)
 	{
 	//use variable 'MyRect.no_sequence' to keep the original position of the box.
 	//keep in mind that variable 'MyRect.i' is used internally by some algorithms and cannot be used for that purpose.
@@ -261,37 +228,30 @@ bool parse_command(int argc,
 		pos += nn;
 	}
 
-        int n = rectangles.size();
+    int n = rectangles.size();
 
 	pos = 0;
 	MPD_Arc edge;
-	while (sscanf(args["--links"] + pos, "%3x%3x%n", &edge._i, &edge._j, &nn) == 2)
+	while (sscanf(slinks + pos, "%3x%3x%n", &edge._i, &edge._j, &nn) == 2)
 	{
-                assert(edge._i < n);
-                assert(edge._j < n);
+        assert(edge._i < n);
+        assert(edge._j < n);
 		edges.push_back(edge);
 		pos += nn;
 	}
-
-	if (args["--frame"])
-		sscanf(args["--frame"], "%4hx%4hx%4hx%4hx", &frame.m_left, &frame.m_right, &frame.m_top, &frame.m_bottom);
-
-	return true;
 }
 
 int main(int argc, char* argv[])
 {
-        log_file=fopen("perf.log","w");
+    log_file=fopen("perf.log","w");
 
-	string request_kind;
-	MyRect frame;
 	vector<MyRect> rectangles;
 	vector<MPD_Arc> edges;
 
 	if (argc == 1)
 	{
 		test();
-                test_optimize_rectangle_positions();
+        test_optimize_rectangle_positions();
 		test_compact_rectangles();
 		test_fit_together();
 		test_swap_rectangles();
@@ -301,22 +261,73 @@ int main(int argc, char* argv[])
 		test_stair_steps(RECT_BORDER);
 		test_stair_steps_layout();
 	}
-	else if (parse_command(argc, argv, request_kind, frame, rectangles, edges))
+	else if (argc == 5)
 	{
-		assert (request_kind == "getFilter") ;
+		const regex hexa("^[0-9a-z]+$");
+
+		unordered_map<string, const char*> args={
+			 {"--rectdim", 0},
+			 {"--links", 0}
+		};        
+
+		for (int i = 1; i + 1 < argc; i += 2)
+		{
+			if (args.count(argv[i]))
+				 args[ argv[i] ] = argv[i + 1];
+		}
+
+		bool check = true;
+		check &= strlen(args["--rectdim"]) % 6 == 0;
+		check &= regex_match(args["--rectdim"], hexa);
+		check &= strlen(args["--links"]) % 6 == 0;
+		check &= regex_match(args["--links"], hexa);
+
+		if (!check)
+			return false;
+	
+		parse_command(args["--rectdim"], args["--links"], rectangles, edges))
+
 		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 		for (MPD_Arc &edge : edges)
 			adjacency_list[edge._i].push_back(edge);
 		int no_sequence_from_center = -1;
-                vector<Context> contexts ;
-                compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+        vector<Context> contexts ;
+        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
 //on ne conserve que les rectangles
-                for (Context &ctx : contexts)
-                {
-                      sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
-                }
-                write_json(contexts);
+        for (Context &ctx : contexts)
+        {
+            sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+        }
+		char res[100000];
+        write_json(contexts, res);
+		printf("%s", res);
 	}
 
 	return 0;
+}
+
+//interface for emscripten wasm
+extern "C" {
+const char* latuile(const char *rectdim, const char *slinks)
+{
+	vector<MyRect> rectangles;
+	vector<MPD_Arc> edges;
+	
+	parse_command(rectdim, slinks, rectangles, edges))
+
+	vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
+	for (MPD_Arc &edge : edges)
+		adjacency_list[edge._i].push_back(edge);
+	int no_sequence_from_center = -1;
+	vector<Context> contexts ;
+	compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+//on ne conserve que les rectangles
+	for (Context &ctx : contexts)
+	{
+		sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+	}
+	char res[100000];
+	write_json(contexts, res);
+	return res;
+}	
 }

@@ -456,30 +456,33 @@ void make_adjacency_list(int (&edges)[N][2], vector<vector<MPD_Arc> >& adjacency
 }
 
 
-void write_json(const vector<Context>& contexts)
+void write_json(const vector<Context>& contexts, char &buffer[100000])
 {
-	printf("{\"contexts\":[");
+	int pos=0;
+	pos += sprintf(buffer + pos, "{\"contexts\":[");
 
 	for (const Context& ctx : contexts)
 	{
-		printf("{\"title\":\"%s\",", ctx.title.c_str());
-		printf("\"frame\":{\"left\":%d,\"right\":%d,\"top\":%d,\"bottom\":%d},", 0, width(ctx.frame), 0, height(ctx.frame));
+		pos += sprintf(buffer + pos, "{\"title\":\"%s\",", ctx.title.c_str());
+		pos += sprintf(buffer + pos, "\"frame\":{\"left\":%d,\"right\":%d,\"top\":%d,\"bottom\":%d},", 0, width(ctx.frame), 0, height(ctx.frame));
 
-		printf("\"translatedBoxes\":[");
+		pos += sprintf(buffer + pos, "\"translatedBoxes\":[");
 
 		for (const MyRect& r : ctx.rectangles)
 		{
 			assert(r.m_left < r.m_right);
 			assert(r.m_top < r.m_bottom);
-			printf("{\"id\":%d, \"translation\":{\"x\":%d,\"y\":%d}}%c", r.no_sequence, r.m_left, r.m_top,
+			pos += sprintf(buffer + pos, "{\"id\":%d, \"translation\":{\"x\":%d,\"y\":%d}}%c", r.no_sequence, r.m_left, r.m_top,
                               &r == &ctx.rectangles.back() ? ' ' : ',');
 		}
 
-		printf("]");
-		printf("}%c", &ctx == &contexts.back() ? ' ' : ',');
+		pos += sprintf(buffer + pos, "]");
+		pos += sprintf(buffer + pos, "}%c", &ctx == &contexts.back() ? ' ' : ',');
 	}
 
-	printf("]}");
+	pos += sprintf(buffer + pos, "]}");
+	buffer[pos]=0;
+	assert(pos < 100000);
 }
 
 void test_stair_steps(int rect_border)
