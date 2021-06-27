@@ -69,7 +69,7 @@ function download(filename) {
 function download2(filename) {
 	var element = document.createElement('a');
 	const Json = refreshJsonFromEditData();
-	{links, rectangles} = Json;
+	const {links, rectangles} = Json;
 	const rectdim = rectangles
 						.map(r => [r.right-r.left, r.bottom-r.top])
 						.flat()
