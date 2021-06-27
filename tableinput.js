@@ -817,13 +817,13 @@ function refreshEditDataFromJson(Json)
 	box2comment = {};
 	for (let {box,comment} of boxComments)
 	{
-		box2comment[box] = unescapeSpecialChars(comment);
+		box2comment[box] = comment;
 	}
 	
 	field2comment = {};
 	for (let {box,field,comment} of fieldComments)
 	{
-		field2comment[`${box}.${field}`] = unescapeSpecialChars(comment);
+		field2comment[`${box}.${field}`] = comment;
 	}
 	
 	field2color = {};
