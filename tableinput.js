@@ -70,23 +70,72 @@ function download2(filename) {
 	var element = document.createElement('a');
 	const Json = refreshJsonFromEditData();
 	const {links, rectangles} = Json;
+	
+	const hex = (i,n) => i.toString(16).padStart(n,'0');
+	
 	const rectdim = rectangles
-						.map(r => [r.right-r.left, r.bottom-r.top])
-						.flat()
-						.map(i => i.toString(16).padStart(3,'0'))
-						.join('');
+						.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
 	console.log(rectdim);
 						
 	const slinks = links.map(lk => [lk.from, lk.to])
 						.flat()
-						.map(i => i.toString(16).padStart(3,'0'))
+						.map(i => hex(i,3))
 						.join('');
 	console.log(slinks);
 	
 	latuile=Module.cwrap("latuile","string",["string","string"]);
-	const jsonResponse = latuile(rectdim, slinks);
+	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
-	const Js = `data='${jsonResponse}';`  
+	
+	bombix=Module.cwrap("bombix","string",["string","string","string","string"]);
+	data = JSON.parse(jsonResponse);
+	for (let {frame, translatedBoxes} of data.contexts)
+	{
+		const {left,right,top,bottom} = frame;
+		const sframe = [left, right, top, bottom]
+						.map(i => hex(i,4))
+						.join('');
+		console.log(sframe);
+		
+		const translations = translatedBoxes
+						.map(({id,translation})=>[translation.x,translation.y])
+						.flat()
+						.map(i => hex(i,3))
+						.join('');
+		console.log(translations);
+		
+		let idmap={};
+		for (const {id} of translatedBoxes)
+		{
+			idmap[id] = idmap.size;
+		}
+		let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]))
+		console.log(reverse_idmap);
+		
+		const rectdim_ = translatedBoxes
+						.map(({id}) => rectdim[id])
+						.join('');
+		console.log(rectdim_);
+		console.assert(rectdim_.size == translations.size);
+		
+		const links_ = edges
+						.filter({from,to} => from in idmap and to in idmap)
+						.map({from,to}) => [idmap[from],idmap[to]])
+						.flat()
+						.map(i => hex(i,3))
+						.join('');
+						
+		const json2 = bombix(rectdim_, translations, sframe, links_);
+		const polylines = JSON.parse(json2);
+		const reduced_edges = polylines
+								.map(polyline => ({polyline.from, polyline.to}));
+		console.log(reduced_edges);
+		context.reduced_edges = reduced_edges;
+		contexts.links = polylines.map(({from,to})=>({reverse_idmap[from], reverse_idmap[to]}));
+	}
+	
+	const jsonCompletedResponse = JSON.stringify(data);
+	const Js = `data='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
 	element.style.display = 'none';
