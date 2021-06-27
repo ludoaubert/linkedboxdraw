@@ -84,7 +84,7 @@ function download2(filename) {
 	console.log(slinks);
 	
 	latuile=Module.cwrap("latuile","string",["string","string"]);
-	const jsonResponse = bombix(rectdim, slinks);
+	const jsonResponse = latuile(rectdim, slinks);
 	const Js = `data='${jsonResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
