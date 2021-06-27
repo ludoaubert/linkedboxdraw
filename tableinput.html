@@ -1,11 +1,14 @@
 <html>
-
 <meta charset="UTF-8">
-
 <head>
-
 	<title>Connected Boxes Input Interface</title>
-
+   <script>    
+	var Module = {
+	  'print': function(text) { alert('stdout: ' + text) },
+	  'printErr': function(text) { alert('stderr: ' + text) }
+	};
+    </script>
+    <script type="text/javascript" src="latuile.js"></script>	
 	<link rel="stylesheet" type="text/css" href="diagstyle.css">
 	<link rel="stylesheet" type="text/css" href="tableinput.css">
 
@@ -39,10 +42,16 @@
 </fieldset>
 
 <fieldset>
-	<legend>File Output</legend>
+	<legend>Data File Output</legend>
 	<form onsubmit="return false">
 	  <input type="text" name="name" value="diagdata.js">
 	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+	</form>
+	
+	<legend>Geometry File Output</legend>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="contexts.js">
+	  <input type="submit" value="Save As" onclick="download2(this['name'].value)">
 	</form>
 </fieldset>
 

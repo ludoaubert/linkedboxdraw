@@ -172,7 +172,7 @@ function loadDiag() {
 
 function drawDiag() {
 
-	const {title, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles, http_get_param} = JSON.parse(data);
+	const {title, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles} = JSON.parse(data);
 
 	let field2values = {};
 	for (let {box, field, value} of values)

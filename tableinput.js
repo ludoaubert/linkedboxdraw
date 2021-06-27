@@ -55,13 +55,43 @@ input.addEventListener("change", function () {
 function download(filename) {
   var element = document.createElement('a');
   const Json = refreshJsonFromEditData();
-  const Js = `data='${Json}';`  
+  const jsons = JSON.stringify(Json);
+  const Js = `data='${jsons}';`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
   element.style.display = 'none';
   document.body.appendChild(element);
   element.click();
   document.body.removeChild(element);
+}
+
+
+function download2(filename) {
+	var element = document.createElement('a');
+	const Json = refreshJsonFromEditData();
+	{links, rectangles} = Json;
+	const rectdim = rectangles
+						.map(r => [r.right-r.left, r.bottom-r.top])
+						.flat()
+						.map(i => i.toString(16).padStart(3,'0'))
+						.join('');
+	console.log(rectdim);
+						
+	const slinks = links.map(lk => [lk.from, lk.to])
+						.flat()
+						.map(i => i.toString(16).padStart(3,'0'))
+						.join('');
+	console.log(slinks);
+	
+	latuile=Module.cwrap("latuile","string",["string","string"]);
+	const jsonResponse = bombix(rectdim, slinks);
+	const Js = `data='${jsonResponse}';`  
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+	element.setAttribute('download', filename);
+	element.style.display = 'none';
+	document.body.appendChild(element);
+	element.click();
+	document.body.removeChild(element);
 }
 
 
@@ -649,41 +679,12 @@ function refreshJsonFromEditData()
     }
 	
 	const rectangles = compute_box_rectangles(boxes);
-	
-	const http_get_param = [
-			rectangles.length,
-			...rectangles.map(r => [r.right-r.left, r.bottom-r.top]),
-			links.length,
-			...links.map(lk => [lk.from, lk.to])
-		]
-		.flat()
-		.map(i => i.toString(16).padStart(3,'0')).join('');
-		
-	const http_get_request = 'http://localhost:8080/getFilter?' + http_get_param;
-	
 	const title = editTitle.value;
-	
-	const json = JSON.stringify({title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles, http_get_param, http_get_request}/*, null, 4*/);
-	return escapeSpecialChars(json); // Indented 4 spaces
+
+	const json = {title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles};
+	return json;
 }
 
-
-function escapeSpecialChars(value) 
-{
-    return value.replace(/\\n/g, "\\\\n")
-               .replace(/\\'/g, "\\'")
-               .replace(/\\"/g, '\\"')
-               .replace(/\\&/g, "\\&")
-               .replace(/\\r/g, "\\r")
-               .replace(/\\t/g, "\\t")
-               .replace(/\\b/g, "\\b")
-               .replace(/\\f/g, "\\f");
-};
-
-function unescapeSpecialChars(value)
-{
-	return value.replace(/\\n/g, "\n");
-}
 
 
 function compute_key_distrib(fields)
