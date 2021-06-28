@@ -89,50 +89,53 @@ function download2(filename) {
 	
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"]);
 	data = JSON.parse(jsonResponse);
-	for (let {frame, translatedBoxes} of data.contexts)
-	{
-		const {left,right,top,bottom} = frame;
-		const sframe = [left, right, top, bottom]
-						.map(i => hex(i,4))
-						.join('');
-		console.log(sframe);
-		
-		const translations = translatedBoxes
-						.map(({id,translation})=>[translation.x,translation.y])
-						.flat()
-						.map(i => hex(i,3))
-						.join('');
-		console.log(translations);
-		
-		let idmap={};
-		for (const {id} of translatedBoxes)
-		{
-			idmap[id] = idmap.size;
+	
+	data.contexts = data.contexts.map(
+		({frame, translatedBoxes}) => {
+			const {left,right,top,bottom} = frame;
+			const sframe = [left, right, top, bottom]
+							.map(i => hex(i,4))
+							.join('');
+			console.log(sframe);
+			
+			const translations = translatedBoxes
+							.map(({id,translation})=>[translation.x,translation.y])
+							.flat()
+							.map(i => hex(i,3))
+							.join('');
+			console.log(translations);
+			
+			let idmap={};
+			for (const {id} of translatedBoxes)
+			{
+				idmap[id] = idmap.size;
+			}
+			let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]));
+			console.log(reverse_idmap);
+			
+			const rectdim_ = translatedBoxes
+							.map(({id}) => rectdim[id])
+							.join('');
+			console.log(rectdim_);
+			console.assert(rectdim_.size == translations.size);
+			
+			const links_ = links
+							.filter( ({from,to}) => from in idmap && to in idmap)
+							.map( ({from,to}) => [idmap[from],idmap[to]])
+							.flat()
+							.map(i => hex(i,3))
+							.join('');
+							
+			const json2 = bombix(rectdim_, translations, sframe, links_);
+			const links2 = JSON.parse(json2);
+			const reduced_edges = links2
+									.map(({polyline,from,to}) => ({from, to}));
+			console.log(reduced_edges);
+			const links = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
+			
+			return {frame, translatedBoxes, reduced_edges, links};
 		}
-		let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]));
-		console.log(reverse_idmap);
-		
-		const rectdim_ = translatedBoxes
-						.map(({id}) => rectdim[id])
-						.join('');
-		console.log(rectdim_);
-		console.assert(rectdim_.size == translations.size);
-		
-		const links_ = links
-						.filter( ({from,to}) => from in idmap && to in idmap)
-						.map( ({from,to}) => [idmap[from],idmap[to]])
-						.flat()
-						.map(i => hex(i,3))
-						.join('');
-						
-		const json2 = bombix(rectdim_, translations, sframe, links_);
-		const links2 = JSON.parse(json2);
-		const reduced_edges = links2
-								.map(({polyline,from,to}) => ({from, to}));
-		console.log(reduced_edges);
-		context.reduced_edges = reduced_edges;
-		context.links = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
-	}
+	);
 	
 	const jsonCompletedResponse = JSON.stringify(data);
 	const Js = `data='${jsonCompletedResponse}';`  
