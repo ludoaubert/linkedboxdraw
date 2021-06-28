@@ -105,15 +105,12 @@ function download2(filename) {
 							.join('');
 			console.log(translations);
 			
-			let idmap=new Map();
-			for (const {id} of translatedBoxes)
-			{
-				idmap[id] = idmap.size;
-			}
-			console.log(idmap);
-			let reverse_idmap = new Map();
-			for (const [key, value] of myMap)
-				reverse_idmap[value]=key;
+			const reverse_idmap = new Map(
+				[...translatedBoxes
+					.map(({id,translation}) => id)
+					.entries()]
+			);
+
 			console.log(reverse_idmap);
 			
 			const rectdim_ = translatedBoxes
