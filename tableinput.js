@@ -140,9 +140,9 @@ function download2(filename) {
 			const reduced_edges = links2
 									.map(({polyline,from,to}) => ({from, to}));
 			console.log(reduced_edges);
-			const links2 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
+			const links3 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
 			
-			return {frame, translatedBoxes, reduced_edges, links:links2};
+			return {frame, translatedBoxes, reduced_edges, links:links3};
 		}
 	);
 	
