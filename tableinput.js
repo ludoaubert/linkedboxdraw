@@ -87,7 +87,6 @@ function download2(filename) {
 	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
 	
-	bombix=Module.cwrap("bombix","string",["string","string","string","string"]);
 	data = JSON.parse(jsonResponse);
 	
 	data.contexts = data.contexts.map(
@@ -135,6 +134,7 @@ function download2(filename) {
 							.map(i => hex(i,3))
 							.join('');
 							
+			bombix=Module.cwrap("bombix","string",["string","string","string","string"]);	
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			const links2 = JSON.parse(json2);
 			const reduced_edges = links2
