@@ -126,8 +126,8 @@ function download2(filename) {
 						.join('');
 						
 		const json2 = bombix(rectdim_, translations, sframe, links_);
-		const links = JSON.parse(json2);
-		const reduced_edges = links
+		const links2 = JSON.parse(json2);
+		const reduced_edges = links2
 								.map(({polyline,from,to}) => ({from, to}));
 		console.log(reduced_edges);
 		context.reduced_edges = reduced_edges;
