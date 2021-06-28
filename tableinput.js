@@ -83,7 +83,10 @@ function download2(filename) {
 						.join('');
 	console.log(slinks);
 	
-	latuile=Module.cwrap("latuile","string",["string","string"]);
+	latuile = Module.cwrap("latuile","string",["string","string"]);
+	bombix = Module.cwrap("bombix","string",["string","string","string","string"]);	
+
+
 	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
 	
@@ -134,7 +137,6 @@ function download2(filename) {
 							.map(i => hex(i,3))
 							.join('');
 							
-			bombix=Module.cwrap("bombix","string",["string","string","string","string"]);	
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			const links2 = JSON.parse(json2);
 			const reduced_edges = links2
