@@ -110,6 +110,7 @@ function download2(filename) {
 			{
 				idmap[id] = idmap.size;
 			}
+			console.log(idmap);
 			let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]));
 			console.log(reverse_idmap);
 			
