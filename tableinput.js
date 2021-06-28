@@ -105,7 +105,7 @@ function download2(filename) {
 							.join('');
 			console.log(translations);
 			
-			let idmap={};
+			let idmap=new Map();
 			for (const {id} of translatedBoxes)
 			{
 				idmap[id] = idmap.size;
