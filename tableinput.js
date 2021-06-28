@@ -126,12 +126,12 @@ function download2(filename) {
 						.join('');
 						
 		const json2 = bombix(rectdim_, translations, sframe, links_);
-		const polylines = JSON.parse(json2);
-		const reduced_edges = polylines
-								.map(polyline => ({polyline.from, polyline.to}));
+		const links = JSON.parse(json2);
+		const reduced_edges = links
+								.map(({polyline,from,to}) => ({from, to}));
 		console.log(reduced_edges);
 		context.reduced_edges = reduced_edges;
-		contexts.links = polylines.map(({from,to})=>({reverse_idmap[from], reverse_idmap[to]}));
+		context.links = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
 	}
 	
 	const jsonCompletedResponse = JSON.stringify(data);
