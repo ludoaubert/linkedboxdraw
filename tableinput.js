@@ -109,7 +109,7 @@ function download2(filename) {
 				[...translatedBoxes
 					.map(({id,translation}) => id)
 					.entries()
-					.map(([index, id]) => ([id, index]))]
+				].map(([index, id]) => ([id, index]))]
 			);
 			
 			console.log(idmap);
