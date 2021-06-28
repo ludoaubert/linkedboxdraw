@@ -922,6 +922,7 @@ function enable_disable()
 	var name = newFieldEditField.value;
 	var isPrimaryKey = isPrimaryKeyCheckBox.checked;
 	var isForeignKey = isForeignKeyCheckBox.checked;
+/*
 	if (box in box2fields)
 	{
 		let myfield = box2fields[box].find( f => f.name == field );
@@ -931,7 +932,7 @@ function enable_disable()
 			console.log(myfield);
 		}
 	}
-	
+*/	
 	document.getElementById("add box").disabled = newBoxEditField.value.length == 0 || myBoxes.indexOf(newBoxEditField.value) != -1;
 	document.getElementById("drop box").disabled = boxCombo.selectedIndex == -1 ||
 												newBoxEditField.value.length != 0;
