@@ -109,7 +109,7 @@ function download2(filename) {
 		{
 			idmap[id] = idmap.size;
 		}
-		let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]))
+		let reverse_idmap = new Map(Array.from(idmap, entry => [entry[1], entry[0]]));
 		console.log(reverse_idmap);
 		
 		const rectdim_ = translatedBoxes
@@ -119,7 +119,7 @@ function download2(filename) {
 		console.assert(rectdim_.size == translations.size);
 		
 		const links_ = edges
-						.filter( ({from,to}) => from in idmap and to in idmap)
+						.filter( ({from,to}) => from in idmap && to in idmap)
 						.map( ({from,to}) => [idmap[from],idmap[to]])
 						.flat()
 						.map(i => hex(i,3))
