@@ -136,7 +136,7 @@ function download2(filename) {
 							.flat()
 							.map(i => hex(i,3))
 							.join('');
-							
+			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
 			const links2 = JSON.parse(json2);
