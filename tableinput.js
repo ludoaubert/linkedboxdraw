@@ -131,7 +131,7 @@ function download2(filename) {
 			console.assert(rectdim_.size == translations.size);
 			console.log(links);
 			const links_ = links
-							.filter( ({from,to}) => from in idmap && to in idmap)
+							.filter( ({from,to}) => idmap.has(from) && idmap.has(to))
 							.map( ({from,to}) => [idmap[from],idmap[to]])
 							.flat()
 							.map(i => hex(i,3))
