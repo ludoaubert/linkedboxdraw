@@ -129,7 +129,7 @@ function download2(filename) {
 							.join('');
 			console.log(rectdim_);
 			console.assert(rectdim_.size == translations.size);
-			
+			console.log(links);
 			const links_ = links
 							.filter( ({from,to}) => from in idmap && to in idmap)
 							.map( ({from,to}) => [idmap[from],idmap[to]])
