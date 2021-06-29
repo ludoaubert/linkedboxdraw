@@ -5023,6 +5023,9 @@ var asm = createWasm();
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
 
 /** @type {function(...*):?} */
+var _bombix = Module["_bombix"] = createExportWrapper("bombix");
+
+/** @type {function(...*):?} */
 var _latuile = Module["_latuile"] = createExportWrapper("latuile");
 
 /** @type {function(...*):?} */
