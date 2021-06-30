@@ -136,6 +136,13 @@ function download2(filename) {
 							.flat()
 							.map(i => hex(i,3))
 							.join('');
+							
+			const a = links
+							.filter( ({from,to}) => idmap.has(from) && idmap.has(to));
+			console.log(a);
+			const b = a.map( ({from,to}) => [idmap[from],idmap[to]]);
+			console.log(b);
+							
 			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
