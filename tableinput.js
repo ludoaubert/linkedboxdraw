@@ -131,14 +131,14 @@ function download2(filename) {
 			console.assert(rectdim_.size == translations.size);
 			console.log(links);
 			const links_ = links
-							.filter( ({from,to}) => idmap.has(from) && idmap.has(to))
+							.filter( ({from,to,...}) => idmap.has(from) && idmap.has(to))
 							.map( ({from,to}) => [idmap[from],idmap[to]])
 							.flat()
 							.map(i => hex(i,3))
 							.join('');
 							
 			const a = links
-							.filter( ({from,to}) => idmap.has(from) && idmap.has(to));
+							.filter( ({from,to,...}) => idmap.has(from) && idmap.has(to));
 			console.log(a);
 			const b = a.map( ({from,to}) => [idmap[from],idmap[to]]);
 			console.log(b);
