@@ -134,15 +134,8 @@ function download2(filename) {
 							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)})
 							.map( ({from,to}) => [idmap.get(from),idmap.get(to)])
 							.flat()
-							.map(i => hex(i,3))
-							.join('');
-							
-			const a = links
-							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)});
-			console.log(a);
-			const b = a.map( ({from,to}) => [idmap.get(from),idmap.get(to)]);
-			console.log(b);
-							
+							.map(i => hex(i,2))
+							.join('');							
 			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
