@@ -132,7 +132,7 @@ function download2(filename) {
 			console.log(links);
 			const links_ = links
 							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)})
-							.map( ({from,to}) => [idmap[from],idmap[to]])
+							.map( ({from,to}) => [idmap.get(from),idmap.get(to)])
 							.flat()
 							.map(i => hex(i,3))
 							.join('');
@@ -140,7 +140,7 @@ function download2(filename) {
 			const a = links
 							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)});
 			console.log(a);
-			const b = a.map( ({from,to}) => [idmap[from],idmap[to]]);
+			const b = a.map( ({from,to}) => [idmap.get(from),idmap.get(to)]);
 			console.log(b);
 							
 			console.log(links_);
@@ -150,7 +150,7 @@ function download2(filename) {
 			const reduced_edges = links2
 									.map(({polyline,from,to}) => ({from, to}));
 			console.log(reduced_edges);
-			const links3 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap[from], to:reverse_idmap[to]}));
+			const links3 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap.get(from), to:reverse_idmap.get(to)}));
 			
 			return {frame, translatedBoxes, reduced_edges, links:links3};
 		}
