@@ -148,7 +148,7 @@ function download2(filename) {
 			console.log(json2);
 			const links2 = JSON.parse(json2);
 			const reduced_edges = links2
-									.map(({polyline,from,to}) => ({from, to}));
+									.map(({from,to}) => ({from, to}));
 			console.log(reduced_edges);
 			const links3 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap.get(from), to:reverse_idmap.get(to)}));
 			
