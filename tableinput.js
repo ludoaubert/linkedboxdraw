@@ -139,13 +139,14 @@ function download2(filename) {
 			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
-			const links2 = JSON.parse(json2);
-			const reduced_edges = links2
+			const polylines = JSON.parse(json2);
+			const reduced_edges = polylines
 									.map(({from,to}) => ({from, to}));
 			console.log(reduced_edges);
-			const links3 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap.get(from), to:reverse_idmap.get(to)}));
+			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap.get(from), to:reverse_idmap.get(to)}));
+			console.log(polylines2);
 			
-			return {frame, translatedBoxes, reduced_edges, links:links3};
+			return {frame, translatedBoxes, reduced_edges, links:polylines2};
 		}
 	);
 	
