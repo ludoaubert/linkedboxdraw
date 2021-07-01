@@ -151,7 +151,7 @@ function download2(filename) {
 	);
 	
 	const jsonCompletedResponse = JSON.stringify(data);
-	const Js = `data='${jsonCompletedResponse}';`  
+	const Js = `contexts='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
 	element.style.display = 'none';
