@@ -155,6 +155,7 @@ function download2(filename) {
 			return JSON.stringify(v,null,'\t');
 		if (v instanceof Object)
 			return JSON.stringify(v);
+		return v;
 	},'\t');
 	const Js = `contexts='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
