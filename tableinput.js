@@ -55,7 +55,7 @@ input.addEventListener("change", function () {
 function download(filename) {
   var element = document.createElement('a');
   const Json = refreshJsonFromEditData();
-  const jsons = JSON.stringify(Json);
+  const jsons = JSON.stringify(Json,null,'\t');
   const Js = `data='${jsons}';`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
@@ -150,7 +150,7 @@ function download2(filename) {
 		}
 	);
 	
-	const jsonCompletedResponse = JSON.stringify(data);
+	const jsonCompletedResponse = JSON.stringify(data,null,'\t');
 	const Js = `contexts='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);

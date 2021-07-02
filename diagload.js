@@ -478,7 +478,7 @@ function download(filename) {
 function refreshJsonFromEditData()
 {
 	alert("refreshJsonFromEditData");
-	return JSON.stringify({contexts:mycontexts.contexts}/*, null, 4*/); // Indented 4 spaces
+	return JSON.stringify({contexts:mycontexts.contexts}, null, '\t');
 }
 
 function refreshEditDataFromJson(Json)
