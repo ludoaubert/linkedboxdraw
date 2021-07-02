@@ -57,7 +57,7 @@ function download(filename) {
   const Json = refreshJsonFromEditData();
   const jsons = JSON.stringify(Json)
 					.replaceAll('{"title"','\n{"title"')
-					.replaceAll('{"name"','\n{"name"')
+					.replaceAll('{"name"','\n\t{"name"')
 					.replaceAll('{"from"','\n{"from"')
 					.replaceAll('{"left"','\n{"left"')
 					.replace('"links"','\n"links"')
