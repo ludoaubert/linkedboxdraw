@@ -433,7 +433,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		  console.assert(buffer.slice(0,"contexts='".length) == "contexts='");
 		  console.assert(buffer.slice(-"';".length) == "';");
 		  const Json = buffer.slice("contexts='".length, -"';".length);
-		  refreshEditDataFromJson(Json);
+		  contexts = Json;
+		  loadDiag();
 		});
 		
 		reader.readAsBinaryString(myFile);
@@ -464,7 +465,11 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 function download(filename) {
   var element = document.createElement('a');
-  const Json = refreshJsonFromEditData();
+  const Json = JSON.stringify({contexts:mycontexts.contexts})
+					.replaceAll('{"polyline"','\n{"polyline"')
+					.replace('"reduced_edges"','\n"reduced_edges"')
+					.replace('"translatedBoxes"', '\n"translatedBoxes"')
+					.replace('"links"', '\n"links"');
   const Js = `contexts='${Json}';`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
@@ -474,19 +479,6 @@ function download(filename) {
   document.body.removeChild(element);
 }
 
-
-function refreshJsonFromEditData()
-{
-	alert("refreshJsonFromEditData");
-	return JSON.stringify({contexts:mycontexts.contexts});
-}
-
-function refreshEditDataFromJson(Json)
-{
-	alert("refreshEditDataFromJson");
-	contexts = Json;
-	loadDiag();
-}
 
 function ApplyRepartition()
 {
