@@ -150,7 +150,11 @@ function download2(filename) {
 		}
 	);
 	
-	const jsonCompletedResponse = JSON.stringify(data.contexts);
+	const jsonCompletedResponse = JSON.stringify(data.contexts)
+										.replaceAll('{"polyline"','\n{"polyline"')
+										.replace('"reduced_edges"','\n"reduced_edges"')
+										.replace('"translatedBoxes"', '\n"translatedBoxes"')
+										.replace('"links"', '\n"links"');
 	const Js = `contexts='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
