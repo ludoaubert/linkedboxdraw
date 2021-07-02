@@ -150,13 +150,9 @@ function download2(filename) {
 		}
 	);
 	
-	const jsonCompletedResponse = JSON.stringify(data.contexts,function(k,v){
-		if (v instanceof Array)
-			return JSON.stringify(v,null,'\t');
-		if (v instanceof Object)
-			return JSON.stringify(v);
-		return v;
-	},'\t');
+	const jsonCompletedResponse = JSON.stringify(data.contexts)
+										.replaceAll('},{','},\n{')
+										.replaceAll('},"', '},\n"');
 	const Js = `contexts='${jsonCompletedResponse}';`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
