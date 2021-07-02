@@ -55,7 +55,14 @@ input.addEventListener("change", function () {
 function download(filename) {
   var element = document.createElement('a');
   const Json = refreshJsonFromEditData();
-  const jsons = JSON.stringify(Json);
+  const jsons = JSON.stringify(Json)
+					.replaceAll('{"title"','\n{"title"')
+					.replaceAll('{"name"','\n{"name"')
+					.replaceAll('{"from"','\n{"from"')
+					.replaceAll('{"left"','\n{"left"')
+					.replace('"links"','\n"links"')
+					.replace('"fieldColors"','\n"fieldColors"')
+					.replace('"rectangles"','\n"rectangles"');
   const Js = `data='${jsons}';`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
