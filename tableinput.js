@@ -152,6 +152,7 @@ function download2(filename) {
 	
 	const jsonCompletedResponse = JSON.stringify(data.contexts)
 										.replaceAll('{"polyline"','\n{"polyline"')
+										.replaceAll('{"id"', '\n{"id"')
 										.replace('"reduced_edges"','\n"reduced_edges"')
 										.replace('"translatedBoxes"', '\n"translatedBoxes"')
 										.replace('"links"', '\n"links"');

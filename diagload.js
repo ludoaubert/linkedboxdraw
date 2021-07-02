@@ -467,6 +467,7 @@ function download(filename) {
   var element = document.createElement('a');
   const Json = JSON.stringify({contexts:mycontexts.contexts})
 					.replaceAll('{"polyline"','\n{"polyline"')
+					.replaceAll('{"id"', '\n{"id"')
 					.replace('"reduced_edges"','\n"reduced_edges"')
 					.replace('"translatedBoxes"', '\n"translatedBoxes"')
 					.replace('"links"', '\n"links"');
