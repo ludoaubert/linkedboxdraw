@@ -1,4 +1,4 @@
-data='{"documentTitle":"Jacket Gafa BlemePro","boxes":[
+data=`{"documentTitle":"Jacket Gafa BlemePro","boxes":[
 {"title":"ChanmeBlemeproPec","fields":[
 	{"name":"teillebouRap","isPrimaryKey":false,"isForeignKey":false}]},
 {"title":"PouilledePotecaCaillerag","fields":[
@@ -135,4 +135,4 @@ data='{"documentTitle":"Jacket Gafa BlemePro","boxes":[
 {"left":0,"right":112,"top":0,"bottom":56},
 {"left":0,"right":112,"top":0,"bottom":72},
 {"left":0,"right":50,"top":0,"bottom":56},
-{"left":0,"right":182,"top":0,"bottom":120}]}';
+{"left":0,"right":182,"top":0,"bottom":120}]}`;
