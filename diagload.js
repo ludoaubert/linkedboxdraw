@@ -471,7 +471,7 @@ function download(filename) {
 					.replace('"reduced_edges"','\n"reduced_edges"')
 					.replace('"translatedBoxes"', '\n"translatedBoxes"')
 					.replace('"links"', '\n"links"');
-  const Js = `contexts=`${Json}`;`  
+  const Js = `contexts=\`${Json}\`;`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
   element.style.display = 'none';
