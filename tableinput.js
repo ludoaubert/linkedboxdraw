@@ -63,7 +63,7 @@ function download(filename) {
 					.replace('"links"','\n"links"')
 					.replace('"fieldColors"','\n"fieldColors"')
 					.replace('"rectangles"','\n"rectangles"');
-  const Js = `data='${jsons}';`  
+  const Js = `data=`${jsons}`;`  
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
   element.setAttribute('download', filename);
   element.style.display = 'none';
@@ -163,7 +163,7 @@ function download2(filename) {
 										.replace('"reduced_edges"','\n"reduced_edges"')
 										.replace('"translatedBoxes"', '\n"translatedBoxes"')
 										.replace('"links"', '\n"links"');
-	const Js = `contexts='${jsonCompletedResponse}';`  
+	const Js = `contexts=`${jsonCompletedResponse}`;`  
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
 	element.setAttribute('download', filename);
 	element.style.display = 'none';
