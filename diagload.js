@@ -172,7 +172,7 @@ function loadDiag() {
 
 function drawDiag() {
 
-	const {title, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles} = JSON.parse(data);
+	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles} = JSON.parse(data);
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -409,7 +409,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 </ul>`;
 	
-	document.title = title;
+	document.title = documentTitle;
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
 	
 	var sheet = document.createElement('style')

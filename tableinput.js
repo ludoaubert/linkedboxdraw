@@ -757,9 +757,9 @@ function refreshJsonFromEditData()
     }
 	
 	const rectangles = compute_box_rectangles(boxes);
-	const title = editTitle.value;
+	const documentTitle = editTitle.value;
 
-	const json = {title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles};
+	const json = {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles};
 	return json;
 }
 
@@ -831,9 +831,9 @@ function compute_box_rectangles(boxes)
 
 function refreshEditDataFromJson(Json)
 {
-	const {title, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles, http_get_param, http_get_request} = JSON.parse(Json);
+	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles, http_get_param, http_get_request} = JSON.parse(Json);
 	
-	editTitle.value = title;
+	editTitle.value = documentTitle;
 	
 	removeOptions(boxCombo);
 	removeOptions(fieldCombo);
