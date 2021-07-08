@@ -28,5 +28,5 @@ The Algorithm are implemented in C++ and compiled to Web Assemblies for easy dep
 Your Diagram Data Privacy:
 
 Your diagrams may hold sensitive information.
-Your diagram data will never be uploaded anywhere. It is held in two files which are yours. It is up to you to share them with whoever you want, or not.
+Your diagram data will never be uploaded anywhere. It is held in two files which are yours. It is up to you to share them with whoever you want (for example via e-mail, github...), or not.
 By the way, your equivalent of diagdata.js may hold sensitive information, unlike your equivalent of contexts.js which holds non sensitive by nature geometric information.
