@@ -5,7 +5,7 @@ Edition of relational diagrams.
 https://ludoaubert.github.io/linkedboxdraw/tableinput.html
 
 Is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys). Sometimes, certain boxes are connected to almost all other boxes, in which case you might want to express this logical links using color matching instead of geometry.
-You can save your diagram data to a json file. You can also compute and save a geometric information file. The process to compute this geometric information is :
+You can save your diagram data to a json file (see example provided diagdata.js). This file does not contain geometric information. You can also compute and save a geometric information file (see example provided contexts.js). The process to compute this geometric information is :
 1) minimum cut: break the diagram down into clusters, with a maximum of 20 boxes per cluster, cutting as few links as possible.
 2) box layout: compute the translation of each box in its cluster, in such a way that connected boxes should possibly lie close to each other.
 3) links: compute the geometric links materialized by New York City Street network like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as little as possible. 
@@ -28,3 +28,4 @@ Your Diagram Data Privacy:
 
 Your diagrams may hold sensitive information.
 Your diagram data will never be uploaded anywhere. It is held in two files which are yours. It is up to you to share them with whoever you want, or not.
+By the way, your equivalent of diagdata.js may hold sensitive information, unlike your equivalent of contexts.js which holds non sensitive by nature geometric information.
