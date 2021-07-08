@@ -17,7 +17,7 @@ https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
 
 Is where you can view the diagram itself. It is also possible to edit the geometric information in two ways.
 1) by moving a box (click and drag), which will also trigger a recomputation of the geometric links.
-2) by updating the repartition: The repartition table holds the cluster (zero based) number for each and every box. By updating it and pressing "Apply Repartition", you can move a box from one cluster to another.
+2) by updating the repartition: The repartition table holds the cluster (zero based) number for each box. By updating it and pressing "Apply Repartition", you can move a box from one cluster to another.
 
 Used Technology:
 
