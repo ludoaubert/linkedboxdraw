@@ -8,7 +8,7 @@ Is a simple GUI where you can type in your box (table) names, and a list of fiel
 You can save your diagram data to a json file (see example provided diagdata.js). This file does not contain geometric information. You can also compute and save a geometric information file (see example provided contexts.js). The process to compute this geometric information is :
 1) minimum cut: break the diagram down into clusters, with a maximum of 20 boxes per cluster, cutting as few links as possible.
 2) box layout: compute the translation of each box in its cluster, in such a way that connected boxes should possibly lie close to each other.
-3) links: compute geometric links materialized by New York City Street network like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as little as possible. 
+3) links: compute geometric links materialized by New York City Street route like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as little as possible. 
 
 This geometric information file contains box translations and polylines.
 Both files have a json format (although a .js extension).
