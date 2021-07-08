@@ -19,10 +19,12 @@ Is where you can view the diagram itself. It is also possible to edit the geomet
 2) by updating the repartition: The repartition table holds the cluster (zero based) number for each and every box. By updating it and pressing "Apply Repartition", you can move a box from one cluster to another.
 
 Used Technology:
+
 The project depends on Eigen https://eigen.tuxfamily.org/ for the minimum cut (break the diagram down into clusters).
 It is deployed on github.io.
 The Algorithm are implemented in C++ and compiled to Web Assemblies for easy deployment on the web.
 
 Your Diagram Data Privacy:
+
 Your diagrams may hold sensitive information.
 Your diagram data will never be uploaded anywhere. It is held in two files which are yours. It is up to you to share them with whoever you want, or not.
