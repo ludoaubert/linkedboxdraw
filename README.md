@@ -1,6 +1,6 @@
 # linkedboxdraw
 
-Edition of relational diagrams.
+Edition of relational diagrams, web based, serverless.
 
 https://ludoaubert.github.io/linkedboxdraw/tableinput.html
 
