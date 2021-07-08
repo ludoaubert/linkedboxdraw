@@ -20,7 +20,7 @@ Is where you can view the diagram itself. It is also possible to edit the geomet
 
 Used Technology:
 
-The project depends on Eigen https://eigen.tuxfamily.org/ for the minimum cut (break the diagram down into clusters).
+The project depends on Eigen https://eigen.tuxfamily.org/ for the minimum cut (breaking the diagram down into clusters).
 It is deployed on github.io.
 The Algorithm are implemented in C++ and compiled to Web Assemblies for easy deployment on the web.
 
