@@ -457,6 +457,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		  console.assert(buffer.slice(-"';".length) == "';");
 		  const Json = buffer.slice("data='".length, -"';".length);
 		  data = Json;
+		  loadDiag();
 		});
 		
 		reader.readAsBinaryString(myDataFile);
