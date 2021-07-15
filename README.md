@@ -1,6 +1,9 @@
 # linkedboxdraw
 
-Edition of relational diagrams, web based, serverless.
+Edition of relational diagrams, web based, serverless. 
+
+Typical use case:
+Just been hired on a new software or data development project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
 
 https://ludoaubert.github.io/linkedboxdraw/tableinput.html
 
