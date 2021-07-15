@@ -387,18 +387,21 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		innerHTML += `</svg>`;
 	}
 	
-	innerHTML += `<h1>JSON Output</h1>
+	innerHTML += `<h1>Geometry File Input Output</h1>
 
 <ul>
-<li>Load File</li>
+<li>Load Geometry File</li>
 <li><input type="file" id="myFile" value="Load"></li>
 <li>
 	<form onsubmit="return false">
 	  <input type="text" name="name" value="test.txt">
-	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+	  <input type="submit" value="Save Geometry File As" onclick="download(this['name'].value)">
 	</form>
 </li>
+</ul>
 
+<h1>Data File Input</h1>
+<ul>
 <li>Load Data File</li>
 <li><input type="file" id="myDataFile" value="Load"></li>
 <li>
