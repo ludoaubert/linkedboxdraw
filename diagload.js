@@ -88,10 +88,10 @@ function deselectElement()
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => ({
-			left: mydata.rectangles[parseInt(tB.id)].left + tB.translation.x,
-			right: mydata.rectangles[parseInt(tB.id)].right + tB.translation.x,
-			top: mydata.rectangles[parseInt(tB.id)].top + tB.translation.y,
-			bottom: mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y
+			left: mydata.rectangles[tB.id].left + tB.translation.x,
+			right: mydata.rectangles[tB.id].right + tB.translation.x,
+			top: mydata.rectangles[tB.id].top + tB.translation.y,
+			bottom: mydata.rectangles[tB.id].bottom + tB.translation.y
 		})
 	);
 	
@@ -530,7 +530,7 @@ function ApplyRepartition()
 // case when a new box was created. It has not been assigned to a context by the previous algorithm.
 // Below is the code that will detect it and assign it to its context.
 
-	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => parseInt(tB.id));
+	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => tB.id);
 	console.log(JSON.stringify(ids));
 	
 	[...repartition.entries()]
@@ -546,12 +546,12 @@ function ApplyRepartition()
 	console.log(JSON.stringify(mydata.links));
 	for (let context of new_contexts.contexts)
 	{
-		const ids = Array.from(context.translatedBoxes, tB => parseInt(tB.id));
+		const ids = Array.from(context.translatedBoxes, tB => tB.id);
 		console.log(JSON.stringify(ids));
 		for (const link of mydata.links)
 		{
-			const index_from = ids.indexOf(parseInt(link.from));
-			const index_to = ids.indexOf(parseInt(link.to));
+			const index_from = ids.indexOf(link.from);
+			const index_to = ids.indexOf(link.to);
 			if (index_from != -1 && index_to != -1)
 			{
 				context.reduced_edges.push({from:index_from,to:index_to});
@@ -573,10 +573,10 @@ function ApplyRepartition()
 function enforce_bounding_rectangle(context)
 {
 	const bounding_rectangle = {
-		left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].left + tB.translation.x)),
-		right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].right + tB.translation.x)),
-		top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[parseInt(tB.id)].bottom + tB.translation.y))
+		left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
 	}				
 	console.log(JSON.stringify(bounding_rectangle));
 
