@@ -438,7 +438,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>
 			`foreignObject#box${to} > table > tbody > tr#${boxes[to].fields[toField]}{background-color: ${silver};}`
 			);
-	const style = [..styles1,..styles2,..styles3].join('\n');
+	const style = [...styles1,...styles2,...styles3].join('\n');
 	sheet.innerHTML = style;
 	document.body.appendChild(sheet);
 	
