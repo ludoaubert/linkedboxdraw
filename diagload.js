@@ -434,7 +434,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	const colormap = new Map(
 		unexpressed_link_targets.entries()
-								.map([i, to_toField] => [to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]])
+								.map(([i, to_toField]) => ([to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]]))
 	);
 
 // listing unexpressed link targets - end
@@ -444,10 +444,10 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	const style = [...fieldColors
 						.map( ({index,box,field,color})=>({index, field, color}) ),
 				   ...unexpressed_links
-						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) =>[
+						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
 																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get('to.toField')}`},
 																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get('to.toField')}`
-																							]
+																							  ])
 							)
 				  ]
 		.flat()
