@@ -436,7 +436,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 							)
 				  ]
 		.flat()
-		.map(({index, field, color) => `foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`)
+		.map(({index, field, color}) => `foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`)
 		.join('\n');
 
 	sheet.innerHTML = style;
