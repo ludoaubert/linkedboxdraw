@@ -434,7 +434,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	const colormap = new Map(
 		unexpressed_link_targets.entries()
-								.map([i, to_toField] => [to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]]
+								.map([i, to_toField] => [to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]])
 	);
 
 // listing unexpressed link targets - end
