@@ -430,7 +430,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 // listing unexpressed links - end
 
 // listing unexpressed link targets - beginning
-	const unexpressed_link_targets = [... new Set(unexpressed_links.map( ({to, toField}) => `${to.toField}`))];
+	const unexpressed_link_targets = [... new Set(unexpressed_links.map( link => `${link.to}.${link.toField}`))];
 	console.log(unexpressed_link_targets);
 //https://www.w3.org/wiki/CSS/Properties/color/keywords
 	const unexpressed_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
