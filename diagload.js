@@ -422,8 +422,11 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			repartition[id]=i;
 		}
 	}
+	console.log(repartition);
+	
 	const unexpressed_links = links_.filter(link => repartition[link.from] != repartition[link.to])
 									.filter(link => link.fromField!=-1 && link.toField!=-1);
+	console.log(unexpressed_links);
 // listing unexpressed links - end
 
 // listing unexpressed link targets - beginning
