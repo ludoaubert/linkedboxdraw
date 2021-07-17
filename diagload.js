@@ -446,7 +446,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 				   ...unexpressed_links
 						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
 																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get('to.toField')}`},
-																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get('to.toField')}`
+																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get('to.toField')}`}
 																							  ])
 							)
 				  ]
