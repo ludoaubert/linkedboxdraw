@@ -426,17 +426,17 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 // listing unexpressed links - end
 	
 	var sheet = document.createElement('style')
-	const styles1 = fieldColors
-		.map(({index,box,field,color})=>
-			`foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`
-			);
-	const styles2 = unexpressed_links
-		.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>[
-					`foreignObject#box${from} > table > tbody > tr#${boxes[from].fields[fromField].name}{background-color: lime;}`,
-					`foreignObject#box${to} > table > tbody > tr#${boxes[to].fields[toField].name}{background-color: lime;}`
-				]
-			);
-	const style = [...styles1,...styles2].flat().join('\n');
+	
+	const style = [...fieldColors.map( ({index,box,field,color})=>({index, field, color}),
+				   ...unexpressed_links
+						.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>[{index:from, field:`${boxes[from].fields[fromField].name`, color:'lime'},
+																			{index:to, field:`${boxes[to].fields[toField].name`, color:'lime'}]
+							)
+				  ]
+		.flat()
+		.map(({index, field, color) => `foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`)
+		.join('\n');
+
 	sheet.innerHTML = style;
 	document.body.appendChild(sheet);
 	
