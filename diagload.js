@@ -427,9 +427,10 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	var sheet = document.createElement('style')
 	
-	const style = [...fieldColors.map( ({index,box,field,color})=>({index, field, color}),
+	const style = [...fieldColors
+						.map( ({index,box,field,color})=>({index, field, color}) ),
 				   ...unexpressed_links
-						.map(({from,fromField,fromCardinality,to,toField,toCardinality}) =>	[
+						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) =>[
 																			{index:from, field:`${boxes[from].fields[fromField].name`, color:'lime'},
 																			{index:to, field:`${boxes[to].fields[toField].name`, color:'lime'}
 																							]
