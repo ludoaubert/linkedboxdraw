@@ -431,14 +431,12 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			`foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`
 			);
 	const styles2 = unexpressed_links
-		.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>
-			`foreignObject#box${from} > table > tbody > tr#${boxes[from].fields[fromField]}{background-color: 'silver';}`
+		.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>[
+					`foreignObject#box${from} > table > tbody > tr#${boxes[from].fields[fromField].name}{background-color: lime;}`,
+					`foreignObject#box${to} > table > tbody > tr#${boxes[to].fields[toField].name}{background-color: lime;}`
+				]
 			);
-	const styles3 = unexpressed_links
-		.map(({from,fromField,fromCardinality,to,toField,toCardinality})=>
-			`foreignObject#box${to} > table > tbody > tr#${boxes[to].fields[toField]}{background-color: 'silver';}`
-			);
-	const style = [...styles1,...styles2,...styles3].join('\n');
+	const style = [...styles1,...styles2].flat().join('\n');
 	sheet.innerHTML = style;
 	document.body.appendChild(sheet);
 	
