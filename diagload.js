@@ -422,18 +422,31 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			repartition[id]=i;
 		}
 	}
-	const unexpressed_links = links_.filter(link => repartition[link.from] != repartition[link.to]);
+	const unexpressed_links = links_.filter(link => repartition[link.from] != repartition[link.to])
+									.filter(link => link.fromField!=-1 && link.toField!=-1);
 // listing unexpressed links - end
+
+// listing unexpressed link targets - beginning
+	const unexpressed_link_targets = [... new Set(unexpressed_links.map( ({to, toField}) => `${to.toField}`))];
+	console.log(unexpressed_link_targets);
+//https://www.w3.org/wiki/CSS/Properties/color/keywords
+	const unexpressed_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
+	
+	const colormap = new Map(
+		unexpressed_link_targets.entries()
+								.map([i, to_toField] => [to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]]
+	);
+
+// listing unexpressed link targets - end
 	
 	var sheet = document.createElement('style')
 	
 	const style = [...fieldColors
 						.map( ({index,box,field,color})=>({index, field, color}) ),
 				   ...unexpressed_links
-						.filter( ({from,fromField,fromCardinality,to,toField,toCardinality}) => fromField!=-1 && toField!=-1)
 						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) =>[
-																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:'lime'},
-																			{index:to, field:`${boxes[to].fields[toField].name}`, color:'lime'}
+																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get(to.toField)}`},
+																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get(to.toField)}`
 																							]
 							)
 				  ]
