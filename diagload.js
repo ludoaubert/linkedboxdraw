@@ -427,7 +427,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 // listing unexpressed links - end
 
 // listing unexpressed link targets - beginning
-	const unexpressed_link_targets = [... new Set(unexpressed_links.map( ({to, toField}) => `${to.toField}`))];
+	const unexpressed_link_targets = [... new Set(unexpressed_links.map( ({to, toField}) => `${to}.${toField}`))];
 	console.log(unexpressed_link_targets);
 //https://www.w3.org/wiki/CSS/Properties/color/keywords
 	const unexpressed_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
@@ -445,8 +445,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 						.map( ({index,box,field,color})=>({index, field, color}) ),
 				   ...unexpressed_links
 						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) =>[
-																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get(to.toField)}`},
-																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get(to.toField)}`
+																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get(${to}.${toField})}`},
+																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get(${to}.${toField})}`
 																							]
 							)
 				  ]
