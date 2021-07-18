@@ -12,7 +12,8 @@ Is a simple GUI where you can type in your box (table) names, and a list of fiel
 You can save your diagram data to a json file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.js). This file does not contain geometric information. You can also compute and save a geometric information file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/contexts.js). The process to compute this geometric information is :
 1) minimum cut: break the diagram down into clusters, with a maximum of 20 boxes per cluster, cutting as few links as possible.
 2) box layout: compute the translation of each box in its cluster, in such a way that connected boxes should possibly lie close to each other.
-3) links: compute geometric links materialized by New York City Street route like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as seldom as possible. 
+3) links: compute geometric links materialized by New York City Street route like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as seldom as possible.
+4) cut links: geometric links do not cross cluster boundaries. Links cut by the clustering algorithms are materialized using field color matching. This information is computed on the fly and is not persisted.
 
 This geometric information file contains cluster numbers, box translations and polylines.
 Both files have a json format (although a .js extension).
@@ -25,9 +26,9 @@ Is where you can view the diagram itself. It is also possible to edit the geomet
 
 Used Technology:
 
-The project depends on Eigen https://eigen.tuxfamily.org/ for the minimum cut (breaking the diagram down into clusters).
+The project depends on Eigen https://eigen.tuxfamily.org/ for the clustering (minimum cut) algorithm.
 It is deployed on github.io.
-The Algorithm are implemented in C++ and compiled to Web Assemblies for easy deployment on the web.
+The Algorithms are implemented in C++ and compiled to Web Assemblies for easy deployment on the web.
 
 Your Diagram Data Privacy:
 
