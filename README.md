@@ -17,7 +17,6 @@ The process to compute this geometric information is :
 1) minimum cut: break the diagram down into clusters, with a maximum of 20 boxes per cluster, cutting as few links as possible.
 2) box layout: compute the translation of each box in its cluster, in such a way that connected boxes should possibly lie close to each other.
 3) links: compute geometric links materialized by New York City Street route like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as seldom as possible.
-4) cut links: geometric links do not cross cluster boundaries. Links cut by the clustering algorithms are materialized using field color matching. This information is computed on the fly and is not persisted.
 
 This geometric information file contains cluster numbers, box translations and polylines.
 Both files have a json format (although a .js extension).
@@ -27,6 +26,8 @@ https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
 Is where you can view the diagram itself. It is also possible to edit the geometric information in two ways.
 1) by moving a box (click and drag), which will also trigger a recomputation of the geometric links.
 2) by updating the repartition: The repartition table holds the cluster (zero based) number for each box. By updating it and pressing "Apply Repartition", you can move a box from one cluster to another.
+
+Cut links: geometric links do not cross cluster boundaries. Links cut by the clustering algorithms are materialized using field color matching. This information is computed on the fly and is not persisted.
 
 Used Technology:
 
