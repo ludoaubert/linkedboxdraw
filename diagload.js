@@ -424,20 +424,20 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	}
 	console.log(repartition);
 	
-	const unexpressed_links = links_.filter(link => repartition[link.from] != repartition[link.to])
+	const cut_links = links_.filter(link => repartition[link.from] != repartition[link.to])
 									.filter(link => link.fromField!=-1 && link.toField!=-1);
-	console.log(unexpressed_links);
+	console.log(cut_links);
 // listing unexpressed links - end
 
 // listing unexpressed link targets - beginning
-	const unexpressed_link_targets = [... new Set(unexpressed_links.map( link => `${link.to}.${link.toField}`))];
-	console.log(unexpressed_link_targets);
+	const cut_link_targets = [... new Set(cut_links.map( link => `${link.to}.${link.toField}`))];
+	console.log(cut_link_targets);
 //https://www.w3.org/wiki/CSS/Properties/color/keywords
-	const unexpressed_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
+	const cut_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
 	
 	const colormap = new Map(
-		[...unexpressed_link_targets.entries()]
-								.map(([i, to_toField]) => ([to_toField, unexpressed_link_colors[i % unexpressed_link_colors.length]]))
+		[...cut_link_targets.entries()]
+								.map(([i, to_toField]) => ([to_toField, cut_link_colors[i % cut_link_colors.length]]))
 	);
 	console.log(colormap);
 
@@ -447,10 +447,10 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	const style = [...fieldColors
 						.map( ({index,box,field,color})=>({index, field, color}) ),
-				   ...unexpressed_links
+				   ...cut_links
 						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
-																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:`${colormap.get('to.toField')}`},
-																			{index:to, field:`${boxes[to].fields[toField].name}`, color:`${colormap.get('to.toField')}`}
+																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
+																			{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}
 																							  ])
 							)
 				  ]
