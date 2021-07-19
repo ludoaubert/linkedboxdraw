@@ -571,11 +571,11 @@ function ApplyRepartition()
 // Below is the code that will detect it and assign it to its context.
 
 	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => tB.id);
-	console.log(JSON.stringify(ids));
+	console.log(ids);
 	
 	[...repartition.entries()]
 		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
-		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id:`${id}`,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
+		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
 	console.log(JSON.stringify(new_contexts));
 	
