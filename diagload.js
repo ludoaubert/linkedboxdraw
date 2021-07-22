@@ -120,7 +120,7 @@ function deselectElement()
 	console.log(slinks);
 	
 //logging call input to produce test data for further investigations...
-	console.log({rectdim, translations, frame, reduced_edges});
+	console.log({rectangles, frame, reduced_edges});
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
 	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
