@@ -1,5 +1,5 @@
 /**
-* \copyright Copyright (c) 2015-2017 Ludovic Aubert
+* \copyright Copyright (c) 2015-2021 Ludovic Aubert
 *            All Rights Reserved
 *            DO NOT ALTER OR REMOVE THIS COPYRIGHT NOTICE
 *
@@ -455,16 +455,16 @@ void print(const vector<Polyline>& polylines, string& serialized)
 	int pos = 0;
 	
 	pos += sprintf(buffer + pos, "\t\t/*polylines*/ {\n");
-	for (const Polyline& polyline : polylines)
+	for (const auto& [from, to, data] : polylines)
 	{
 		pos += sprintf(buffer + pos, "\t\t\t{\n");
-		pos += sprintf(buffer + pos, "\t\t\t\t/*from*/%d,\n", polyline.from);
-		pos += sprintf(buffer + pos, "\t\t\t\t/*to*/%d,\n", polyline.to);
+		pos += sprintf(buffer + pos, "\t\t\t\t/*from*/%d,\n", from);
+		pos += sprintf(buffer + pos, "\t\t\t\t/*to*/%d,\n", to);
 		pos += sprintf(buffer + pos, "\t\t\t\t/*data*/{");
 		
-		for (const Point& p : polyline.data)
+		for (const auto& [x,y] : data)
 		{
-			pos += sprintf(buffer + pos, "{%d, %d},", p.x, p.y);
+			pos += sprintf(buffer + pos, "{%d, %d},", x, y);
 		}
 		pos--;
 		pos += sprintf(buffer + pos, "}\n");
@@ -2769,8 +2769,9 @@ void compute_polylines(const vector<Rect>& rects,
 			
 			//TODO: use destructuring
 			FaiceauPath &rfp = faiceau_paths[{to,from}];
-			for (Maille [direction, way, value, other] : rfp.path)
+			for (Maille& maille : rfp.path)
 			{
+				auto [direction, way, value, other] = maille;
 				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
 				reverse(range.way);
 				entgegen_ranges[range] = distance(&rfp.path[0], &maille);
@@ -2779,8 +2780,9 @@ void compute_polylines(const vector<Rect>& rects,
 			int i = -1;
 			
 			FaiceauPath &fp = faiceau_paths[{from,to}];
-			for (Maille [direction, way, value, other] : fp.path)
+			for (const Maille& maille : fp.path)
 			{
+				auto [direction, way, value, other] = maille;
 				Range range = fp.enlarged.count(maille) ? fp.enlarged[maille] : Range{direction, way, value, other, other};
 				mypath.push_back(range);
 				if (entgegen_ranges.count(range))
@@ -2958,7 +2960,7 @@ int main(int argc, char* argv[])
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
-		printf("bombix: %d/%d tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
+		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
 		
 		return 0;
 	}
