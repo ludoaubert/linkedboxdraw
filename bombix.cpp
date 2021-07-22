@@ -479,25 +479,25 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	char buffer[100 * 1024];
 	int pos = 0;
 	const char* dir[2] = { "HORIZONTAL", "VERTICAL"};
-	const char* way[3] = {"DECREASE",0,"INCREASE"};
+	const char* way_string[3] = {"DECREASE",0,"INCREASE"};
 	
 	pos += sprintf(buffer + pos, "\t\t/*faiceau output*/{\n");
 	
-	for (const FaiceauOutput& faiceau : faiceau_output)
+	for (const /*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
 	{
 		pos += sprintf(buffer + pos, "\t\t\t{\n");
 		pos += sprintf(buffer + pos, "\t\t\t\t/*targets*/{\n");
 		
-		for (const Target& target : faiceau.targets)
+		for (const /*Target*/ auto& [from, to, expected_path] : targets)
 		{
 			pos += sprintf(buffer + pos, "\t\t\t\t\t{\n");
-			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*from*/%d,\n", target.from);
-			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", target.to);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*from*/%d,\n", from);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", to);
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*expected path*/{\n");
 			
-			for (const Maille& m : target.expected_path)
+			for (const /*Maille*/auto& [direction, way, value, other] : expected_path)
 			{
-				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %d, %d},\n", dir[m.direction], way[1+m.way], m.value, m.other);
+				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %d, %d},\n", dir[direction], way_string[1+way], value, other);
 			}
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t}\n");
 			pos += sprintf(buffer + pos, "\t\t\t\t\t}\n");
@@ -507,12 +507,9 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 		
 		pos += sprintf(buffer + pos, "\t\t\t\t/*enlarged*/{\n");
 	//TODO: use destructuring
-		for (const pair<Maille, Range>& p : faiceau.enlarged)
+		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
-			Maille m;
-			Range r;
-			tie(m, r) = p;
-			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way[1+m.way], m.value, m.other, dir[r.direction], way[1+r.way], r.value, r.min, r.max);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.value, m.other, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 		}
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 		
