@@ -88,13 +88,14 @@ function deselectElement()
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => ({
+			name: mydata.boxes[tb.id].title, //of interest for test data investigations
 			left: mydata.rectangles[tB.id].left + tB.translation.x,
 			right: mydata.rectangles[tB.id].right + tB.translation.x,
 			top: mydata.rectangles[tB.id].top + tB.translation.y,
 			bottom: mydata.rectangles[tB.id].bottom + tB.translation.y
 		})
 	);
-	
+
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
 	
 	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
