@@ -528,8 +528,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	vector<Edge> adj;
 
 	const int TURN_PENALTY = 1;
-	const Matrix<bool> & definition_matrix = graph.definition_matrix;
-	const vector<int> (&coords)[2] = graph.coords;
+	const auto& [definition_matrix, coords] = graph;
 	
 	Maille r = parse(u);
 	
@@ -585,10 +584,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 {
 	static_assert(is_same<Graph, InnerRangeGraph>::value || is_same<Graph, OuterRangeGraph>::value, "");
 	
-//TODO: use destructuring
-	const Matrix<bool>& definition_matrix = graph.definition_matrix;
-	const vector<Range>& path = graph.path;
-	const vector<int> (&coords)[2] = graph.coords;
+	const auto& [path, definition_matrix, coords] = graph;
 	
 	Rect rec = {0,0,0,0};
 	
@@ -620,26 +616,25 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		};
 		
 		vector<Bound> bounds;
-		
-	//TODO: use C++17 constexpr if
-		if (is_same<Graph, InnerRangeGraph>::value)
+
+		if constexpr (is_same<Graph, InnerRangeGraph>::value)
 		{
 			for (int16_t min = next_r.min; min <= next_r.max; min++)
 			{
 				for (int16_t max = min; max <= next_r.max; max++)
 				{
 					bounds.push_back({ min, max});
-				}
+ 				}
 			}
 		}
-		if (is_same<Graph, OuterRangeGraph>::value)
+		if constexpr (is_same<Graph, OuterRangeGraph>::value)
 		{
 			bounds.push_back({ next_r.min, next_r.max });
 		}
 	
-		for (const Bound& bound : bounds)
+		for (const auto& [min, max] : bounds)
 		{	
-			rec = intersection(rec, RectBand{ next_r.direction, bound.min, bound.max});
+			rec = intersection(rec, RectBand{ next_r.direction, min, max});
 				
 			bool detect = false;
 			for (int i = rec.left; i <= rec.right; i++)
@@ -652,7 +647,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 			}
 			if (!detect)
 			{
-				InnerRange next = { bound.min, bound.max, ir.range_index + 1 };
+				InnerRange next = { min, max, ir.range_index + 1 };
 				uint64_t v = serialize(next);
 				adj.push_back({ u, v, compute_distance(next, path, coords) });
 			}
@@ -669,7 +664,6 @@ int binary_search(const vector<int>& v, int val)
 }
 
 
-//TODO: use destructuring
 Rect index(const vector<int>(&coords)[2], const Rect& r)
 {
 	uint16_t left = binary_search(coords[HORIZONTAL], r.left);
@@ -686,9 +680,7 @@ Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<i
 	Matrix<bool> m(coords[0].size() - 1, coords[1].size() - 1, true);
 	for (const Rect& r : rects)
 	{
-//TODO: use destructuring
-		Rect ir = index(coords, r);
-		int left = ir.left, right = ir.right, top = ir.top, bottom = ir.bottom;
+		auto [left, right, top, bottom] = index(coords, r);
 		
 		for (int i = left; i <= right; i++)
 		{
@@ -718,9 +710,7 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 {
 	unordered_set<Maille> result;
 	
-//TODO: use destructuring
-	Rect ir = index(coords, r);
-	int16_t left = ir.left, right = ir.right, top = ir.top, bottom = ir.bottom;
+	auto [left, right, top, bottom] = index(coords, r);
 	
 	for (int16_t i = left; i <= right; i++)
 	{
@@ -811,11 +801,8 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	
 	priority_queue<QueuedEdge> Q;
 	
-	//TODO: use C++17 structured binding
-	for (const auto& kv : source_node_distance)
+	for (const auto& [u, distance_v] : source_node_distance)
 	{
-		uint64_t u = kv.first;
-		int distance_v = kv.second;
 		int weight = distance_v;
 		Q.push({ 0, u, weight, distance_v});
 	}
@@ -947,9 +934,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 
 vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 {
-	const vector<Range> &ranges = graph.path;
-	const Matrix<bool> &definition_matrix = graph.definition_matrix;
-	const vector<int>(&coords)[2] = graph.coords;
+	const auto& [ranges/*path*/, definition_matrix, coords] = graph;
 	
 	unordered_map<uint64_t, int> source_node_distance;
 	unordered_map<uint64_t, Distance> distance;
@@ -1088,17 +1073,17 @@ string polyline2json(const vector<Polyline>& polylines)
 	pos += sprintf(buffer + pos, "[");
 	
 //TODO: use C++17 destructuring
-	for (const Polyline& polyline : polylines)
+	for (const auto& [from, to, data] : polylines)
 	{
 		pos += sprintf(buffer + pos, "{\"polyline\":[");
 //TODO: use C++17 destructuring
-		for (const Point& p : polyline.data)
+		for (const auto& [x, y] : data)
 		{
-			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", p.x, p.y);
+			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", x, y);
 		}
 		if (buffer[pos-1]==',')
 			pos--;
-		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},", polyline.from, polyline.to);
+		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},", from, to);
 	}
 	
 	if (buffer[pos-1]==',')
@@ -2549,27 +2534,26 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	unordered_map<int, vector<uint64_t> > target_candidates_;
 	unordered_map<int, uint64_t> best_target_candidate;
 
-	//TODO: use destructuring
-	for (const Link& link : adj_links)
+	for (const auto& [from, to] : adj_links)
 	{
-		unordered_set<uint64_t> target_nodes = compute_nodes(coords, definition_matrix_, rects[link.to], INPUT);
-		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[link.to]);
+		unordered_set<uint64_t> target_nodes = compute_nodes(coords, definition_matrix_, rects[to], INPUT);
+		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[to]);
 	}
 
 	//Selection of the best candidate
-	for (const Link& link : adj_links)
+	for (const auto& [from, to] : adj_links)
 	{
-		vector<uint64_t> &candidates = target_candidates_[link.to];
+		vector<uint64_t> &candidates = target_candidates_[to];
 		uint64_t u = *min_element(begin(candidates), end(candidates), [&](uint64_t u, uint64_t v) {
 			unordered_map<int, vector<uint64_t> > target_candidates = target_candidates_;
-			target_candidates[link.to] = { u };
+			target_candidates[to] = { u };
 			int n1 = overlap(adj_links, target_candidates, predecessor);
-			target_candidates[link.to] = { v };
+			target_candidates[to] = { v };
 			int n2 = overlap(adj_links, target_candidates, predecessor);
 			return n1 < n2;
 		}
 		);
-		best_target_candidate[link.to] = { u };
+		best_target_candidate[to] = { u };
 	}
 
 	//enlarge the faiceau - BEGIN
@@ -2580,36 +2564,32 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	{
 		unordered_map<Maille, Range> enlarged_update = enlarged;
 
-		for (const Link& link : adj_links)
+		for (const auto& [from, to] : adj_links)
 		{
 			vector<Maille> result;
-			for (uint64_t u = best_target_candidate[link.to]; u != 0; u = predecessor.at(u).u)
+			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor.at(u).u)
 			{
 				result.push_back(parse(u));
 			}
 			reverse(begin(result), end(result));
 
-			Target target = { link.from, link.to, result };
+			Target target = { from, to, result };
 
 			if (find(begin(targets), end(targets), target) == end(targets))
 				targets.push_back(target);
 			Matrix<bool> definition_matrix = definition_matrix_;
 			for (const Link& other_link : adj_links)
 			{
-				if (other_link.to == link.to)
+				if (other_link.to == to)
 					continue;
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					//TODO: use destructuring
-					Direction direction = m.direction;
-					Way way = m.way;
-					int16_t value = m.value;
-					int16_t other = m.other;
+					auto [direction, way, value, other] = m;
 					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other, other };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
-						definition_matrix(Maille{ m.direction, m.way, m.value, other }) = false;
+						definition_matrix(Maille{ direction, way, value, other }) = false;
 					}
 				}
 			}
@@ -2618,7 +2598,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			{
 				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,m.value,m.other,m.other });
 			}
-			ranges = enlarge(ranges, definition_matrix, index(coords, rects[link.from]), index(coords, rects[link.to]));
+			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
 			if (!connect_outer_ranges(OuterRangeGraph{ ranges, definition_matrix_, coords }))
 				ranges = compute_inner_ranges(InnerRangeGraph{ ranges, definition_matrix_, coords });
@@ -2651,10 +2631,8 @@ void compute_polylines(const vector<Rect>& rects,
 	int n = rects.size();
 	vector<int> nblinks(n,0 );
 	
-	//TODO: use destructuring
-	for (const Link& link : links)
+	for (const auto& [from, to] : links)
 	{
-		int from = link.from, to = link.to;
 		nblinks[from]++;
 		nblinks[to]++;
 	}
@@ -2713,33 +2691,24 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 	
 	unordered_map<Link, FaiceauPath> faiceau_paths;
-	for (FaiceauOutput & faiceau : faiceau_output)
+	for (/*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
 	{
-	//TODO: use destructuring
-		for (Target &target : faiceau.targets)
+		for (auto& [from, to, expected_path] : targets)
 		{
-			faiceau_paths[{target.from, target.to}] = {faiceau.enlarged, target.expected_path};
+			faiceau_paths[{from, to}] = {enlarged, expected_path};
 		}
 	}
 	
-	//TODO: use destructuring
-	for (const Link& link : links)
+	for (const auto& [from, to] : links)
 	{
-		int from = link.from, to = link.to;
-		
 		vector<Range> mypath;
 		
 		if (!faiceau_paths.count({from,to}))
 		{
-			FaiceauPath &fp = faiceau_paths[{to,from}];
-			unordered_map<Maille,Range>& enlarged = fp.enlarged;
-			for (Maille &maille : fp.path)
+			auto& [enlarged, path] = faiceau_paths[{to,from}];
+			for (Maille &maille : path)
 			{
-			//TODO: use destructuring
-				Direction direction = maille.direction;
-				Way way = maille.way;
-				int16_t value = maille.value;
-				int16_t other = maille.other;
+				auto [direction, way, value, other] = maille;
 				mypath.push_back({enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other}});
 			}
 			reverse(begin(mypath),end(mypath));
@@ -2748,15 +2717,10 @@ void compute_polylines(const vector<Rect>& rects,
 		}
 		else if(!faiceau_paths.count({to,from}))
 		{
-			FaiceauPath &fp = faiceau_paths[{from,to}];
-			unordered_map<Maille,Range>& enlarged = fp.enlarged;
-			for (Maille &maille : fp.path)
+			auto& [enlarged, path] = faiceau_paths[{from,to}];
+			for (Maille &maille : path)
 			{
-				//TODO: destructuring
-				Direction direction = maille.direction;
-				Way way = maille.way;
-				int16_t value = maille.value;
-				int16_t other = maille.other;
+				auto [direction, way, value, other] = maille;
 				mypath.push_back(enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other});
 			}
 		}
@@ -2764,23 +2728,22 @@ void compute_polylines(const vector<Rect>& rects,
 		{
 			unordered_map<Range, int> entgegen_ranges;
 			
-			//TODO: use destructuring
-			FaiceauPath &rfp = faiceau_paths[{to,from}];
-			for (Maille& maille : rfp.path)
+			auto& [r_enlarged, r_path] = faiceau_paths[{to,from}];
+			for (Maille& maille : r_path)
 			{
 				auto [direction, way, value, other] = maille;
-				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other, other};
 				reverse(range.way);
-				entgegen_ranges[range] = distance(&rfp.path[0], &maille);
+				entgegen_ranges[range] = distance(&r_path[0], &maille);
 			}
 			
 			int i = -1;
 			
-			FaiceauPath &fp = faiceau_paths[{from,to}];
-			for (const Maille& maille : fp.path)
+			auto& [enlarged, path] = faiceau_paths[{from,to}];
+			for (const Maille& maille : path)
 			{
 				auto [direction, way, value, other] = maille;
-				Range range = fp.enlarged.count(maille) ? fp.enlarged[maille] : Range{direction, way, value, other, other};
+				Range range = enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other};
 				mypath.push_back(range);
 				if (entgegen_ranges.count(range))
 				{
@@ -2791,13 +2754,9 @@ void compute_polylines(const vector<Rect>& rects,
 			
 			for (; i >= 0; i--)
 			{
-				Maille &maille = rfp.path[i];
-				//TODO: use destructuring
-				Direction direction = maille.direction;
-				Way way = maille.way;
-				int16_t value = maille.value;
-				int16_t other = maille.other;
-				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
+				Maille &maille = r_path[i];
+				auto [direction, way, value, other] = maille;
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other, other};
 				reverse(range.way);
 				mypath.push_back(range);
 			}
