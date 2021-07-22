@@ -947,11 +947,6 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 	return result;
 }
 
-Range range(const Maille& m)
-{
-	return { m.direction, m.way, m.value, m.other, m.other};
-}
-
 
 vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 {
@@ -2774,13 +2769,8 @@ void compute_polylines(const vector<Rect>& rects,
 			
 			//TODO: use destructuring
 			FaiceauPath &rfp = faiceau_paths[{to,from}];
-			for (Maille &maille : rfp.path)
+			for (Maille [direction, way, value, other] : rfp.path)
 			{
-				//TODO: use destructuring
-				Direction direction = maille.direction;
-				Way way = maille.way;
-				int16_t value = maille.value;
-				int16_t other = maille.other;
 				Range range = rfp.enlarged.count(maille) ? rfp.enlarged[maille] : Range{direction, way, value, other, other};
 				reverse(range.way);
 				entgegen_ranges[range] = distance(&rfp.path[0], &maille);
@@ -2789,13 +2779,8 @@ void compute_polylines(const vector<Rect>& rects,
 			int i = -1;
 			
 			FaiceauPath &fp = faiceau_paths[{from,to}];
-			for (Maille &maille : fp.path)
+			for (Maille [direction, way, value, other] : fp.path)
 			{
-				//TODO: use destructuring
-				Direction direction = maille.direction;
-				Way way = maille.way;
-				int16_t value = maille.value;
-				int16_t other = maille.other;
 				Range range = fp.enlarged.count(maille) ? fp.enlarged[maille] : Range{direction, way, value, other, other};
 				mypath.push_back(range);
 				if (entgegen_ranges.count(range))
