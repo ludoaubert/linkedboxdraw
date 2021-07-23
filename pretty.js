@@ -2,11 +2,12 @@
 
 function prettyContexts(json) {
 	return json
+			.replaceAll('{"frame"', '\n{"frame"')
 			.replaceAll('{"polyline"','\n{"polyline"')
 			.replaceAll('{"id"', '\n{"id"')
-			.replace('"reduced_edges"','\n"reduced_edges"')
-			.replace('"translatedBoxes"', '\n"translatedBoxes"')
-			.replace('"links"', '\n"links"'); 
+			.replaceAll('"reduced_edges"','\n"reduced_edges"')
+			.replaceAll('"translatedBoxes"', '\n"translatedBoxes"')
+			.replaceAll('"links"', '\n"links"'); 
 }
 
 
