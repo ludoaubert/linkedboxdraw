@@ -19,10 +19,15 @@ function prettyData(json) {
 			.replaceAll('}}]', '}}\n]')
 			.replaceAll('}]}', '}\n]}')
 			.replaceAll('{"title"','\n{"title"')
+			.replaceAll('"fields"', '\n"fields"')
 			.replaceAll('{"name"','\n\t{"name"')
 			.replaceAll('{"from"','\n{"from"')
 			.replaceAll('{"left"','\n{"left"')
-			.replace('"links"','\n"links"')
-			.replace('"fieldColors"','\n"fieldColors"')
-			.replace('"rectangles"','\n"rectangles"'); 	
+			.replaceAll('"links"','\n"links"')
+			.replaceAll('"fieldColors"','\n"fieldColors"')
+			.replaceAll('"rectangles"','\n"rectangles"')
+			.replaceAll('"values"', '\n"values"')
+			.replaceAll('{"box"', '\n{"box"')
+			.replaceAll('"fieldComments"', '\n"fieldComments"')
+			.replaceAll('"boxComments"', '\n"boxComments"'); 	
 }
