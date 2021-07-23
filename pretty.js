@@ -2,6 +2,7 @@
 
 function prettyContexts(json) {
 	return json
+			.replaceAll('}}]', '}}\n]')
 			.replaceAll('}]}', '}\n]}')
 			.replaceAll('{"title"', '\n{"title"')
 			.replaceAll('"frame"', '\n"frame"')
@@ -15,6 +16,7 @@ function prettyContexts(json) {
 
 function prettyData(json) {
 	return json
+			.replaceAll('}}]', '}}\n]')
 			.replaceAll('}]}', '}\n]}')
 			.replaceAll('{"title"','\n{"title"')
 			.replaceAll('{"name"','\n\t{"name"')
