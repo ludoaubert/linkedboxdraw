@@ -4,7 +4,7 @@ function prettyContexts(json) {
 	return json
 			.replaceAll('}]}', '}\n]}')
 			.replaceAll('{"title"', '\n{"title"')
-			.replaceAll('{"frame"', '\n{"frame"')
+			.replaceAll('"frame"', '\n"frame"')
 			.replaceAll('{"polyline"','\n{"polyline"')
 			.replaceAll('{"id"', '\n{"id"')
 			.replaceAll('"reduced_edges"','\n"reduced_edges"')
