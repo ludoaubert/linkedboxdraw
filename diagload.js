@@ -500,12 +500,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 function download(filename) {
   var element = document.createElement('a');
-  const Json = JSON.stringify({contexts:mycontexts.contexts})
-					.replaceAll('{"polyline"','\n{"polyline"')
-					.replaceAll('{"id"', '\n{"id"')
-					.replace('"reduced_edges"','\n"reduced_edges"')
-					.replace('"translatedBoxes"', '\n"translatedBoxes"')
-					.replace('"links"', '\n"links"'); 
+  const Json = prettyContexts(JSON.stringify({contexts:mycontexts.contexts}));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
   element.setAttribute('download', filename);
   element.style.display = 'none';

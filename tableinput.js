@@ -53,14 +53,7 @@ input.addEventListener("change", function () {
 function download(filename) {
   var element = document.createElement('a');
   const Json = refreshJsonFromEditData();
-  const jsons = JSON.stringify(Json)
-					.replaceAll('{"title"','\n{"title"')
-					.replaceAll('{"name"','\n\t{"name"')
-					.replaceAll('{"from"','\n{"from"')
-					.replaceAll('{"left"','\n{"left"')
-					.replace('"links"','\n"links"')
-					.replace('"fieldColors"','\n"fieldColors"')
-					.replace('"rectangles"','\n"rectangles"'); 
+  const jsons = prettyData(JSON.stringify(Json));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsons);
   element.setAttribute('download', filename);
   element.style.display = 'none';
@@ -154,12 +147,7 @@ function download2(filename) {
 		}
 	);
 	
-	const jsonCompletedResponse = JSON.stringify(data)
-										.replaceAll('{"polyline"','\n{"polyline"')
-										.replaceAll('{"id"', '\n{"id"')
-										.replace('"reduced_edges"','\n"reduced_edges"')
-										.replace('"translatedBoxes"', '\n"translatedBoxes"')
-										.replace('"links"', '\n"links"');  
+	const jsonCompletedResponse = prettyContexts(JSON.stringify(data));
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsonCompletedResponse);
 	element.setAttribute('download', filename);
 	element.style.display = 'none';
