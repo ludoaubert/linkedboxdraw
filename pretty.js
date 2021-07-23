@@ -29,5 +29,6 @@ function prettyData(json) {
 			.replaceAll('"values"', '\n"values"')
 			.replaceAll('{"box"', '\n{"box"')
 			.replaceAll('"fieldComments"', '\n"fieldComments"')
-			.replaceAll('"boxComments"', '\n"boxComments"'); 	
+			.replaceAll('"boxComments"', '\n"boxComments"')
+			.replaceAll('{"index"', '\n{"index"'); 	
 }
