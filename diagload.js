@@ -473,11 +473,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		var reader = new FileReader();
 		
 		reader.addEventListener('load', function (e) {
-		  const buffer = e.target.result;
-		  console.assert(buffer.slice(0,"contexts='".length) == "contexts='");
-		  console.assert(buffer.slice(-"';".length) == "';");
-		  const Json = buffer.slice("contexts='".length, -"';".length);
-		  contexts = Json;
+		  contexts = e.target.result;
 		  loadDiag();
 		});
 		
@@ -493,13 +489,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		var reader = new FileReader();
 		
 		reader.addEventListener('load', function (e) {
-		  const buffer = e.target.result;
-		  console.log(buffer.slice(0,"data='".length));
-		  console.assert(buffer.slice(0,"data='".length) == "data='");
-		  console.log(buffer.slice(-"';".length));
-		  console.assert(buffer.slice(-"';".length) == "';");
-		  const Json = buffer.slice("data='".length, -"';".length);
-		  data = Json;
+		  data = e.target.result;
 		  loadDiag();
 		});
 		
@@ -515,9 +505,8 @@ function download(filename) {
 					.replaceAll('{"id"', '\n{"id"')
 					.replace('"reduced_edges"','\n"reduced_edges"')
 					.replace('"translatedBoxes"', '\n"translatedBoxes"')
-					.replace('"links"', '\n"links"');
-  const Js = `contexts=\`${Json}\`;`  
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+					.replace('"links"', '\n"links"'); 
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
   element.setAttribute('download', filename);
   element.style.display = 'none';
   document.body.appendChild(element);

@@ -42,9 +42,7 @@ input.addEventListener("change", function () {
     var reader = new FileReader();
     
     reader.addEventListener('load', function (e) {
-	  const buffer = e.target.result;
-	  const Json = buffer.slice("data='".length, -"';".length);
-	  refreshEditDataFromJson(Json);
+	  refreshEditDataFromJson(e.target.result);
     });
     
     reader.readAsBinaryString(myFile);
@@ -62,9 +60,8 @@ function download(filename) {
 					.replaceAll('{"left"','\n{"left"')
 					.replace('"links"','\n"links"')
 					.replace('"fieldColors"','\n"fieldColors"')
-					.replace('"rectangles"','\n"rectangles"');
-  const Js = `data=\`${jsons}\`;`  
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+					.replace('"rectangles"','\n"rectangles"'); 
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsons);
   element.setAttribute('download', filename);
   element.style.display = 'none';
   document.body.appendChild(element);
@@ -162,9 +159,8 @@ function download2(filename) {
 										.replaceAll('{"id"', '\n{"id"')
 										.replace('"reduced_edges"','\n"reduced_edges"')
 										.replace('"translatedBoxes"', '\n"translatedBoxes"')
-										.replace('"links"', '\n"links"');
-	const Js = `contexts=\`${jsonCompletedResponse}\`;`  
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Js);
+										.replace('"links"', '\n"links"');  
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsonCompletedResponse);
 	element.setAttribute('download', filename);
 	element.style.display = 'none';
 	document.body.appendChild(element);
