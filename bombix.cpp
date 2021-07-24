@@ -590,8 +590,10 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 	if (ir.range_index + 1 == path.size())
 		return adj;
+
+	const Range &r = path[ir.range_index], &next_r = path[ir.range_index + 1];
 	
-	if (path[ir.range_index + 1].direction == path[ir.range_index].direction)
+	if (next_r.direction == r.direction)
 	{
 		InnerRange next = ir;
 		next.range_index++;
@@ -600,11 +602,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	}
 	else
 	{
-		const Range& r = path[ir.range_index];
-		
 		rec = intersection(rec, RectBand{ r.direction, ir.min, ir.max });
-		
-		const Range& next_r = path[ir.range_index+1];
 		
 		struct Bound
 		{
