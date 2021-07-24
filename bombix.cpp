@@ -521,7 +521,6 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	serialized = buffer;
 }
 
-//TODO: use destructuring when it is available
 
 vector<Edge> adj_list(const Graph& graph, uint64_t u)
 {
@@ -531,9 +530,6 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	const auto& [definition_matrix, coords] = graph;
 	
 	Maille r = parse(u);
-	
-	size_t size = 0;
-	
 	Maille next = r;
 	next.value += next.way;
 	
