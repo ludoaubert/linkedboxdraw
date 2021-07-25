@@ -167,8 +167,26 @@ bool operator!=(const Point& p1, const Point& p2)
 	return memcmp(&p1, &p2, sizeof(Point)) != 0;
 }
 
+struct Span
+{
+	int min, max;
+};
+
+struct Rect;
+
+struct RectangleProjection
+{
+	RectangleProjection& operator=(const Span& s);
+	Direction direction;
+	Rect* r=0;
+};
+
 struct Rect
 {
+	RectangleProjection operator[](Direction direction)
+	{
+		return RectangleProjection{direction, this};
+	}
 	int left, right, top, bottom;
 };
 
@@ -177,6 +195,22 @@ struct RectBand
 	Direction direction;
 	int min, max;
 };
+
+RectangleProjection& RectangleProjection::operator=(const Span& s)
+{
+	switch (direction)
+	{
+	case HORIZONTAL:
+		r->left = s.min;
+		r->right = s.max;
+		break;
+	case VERTICAL:
+		r->top = s.min;
+		r->bottom = s.max;
+		break;
+	}
+	return *this;
+}
 
 RectBand rectband(const Rect& r, Direction direction)
 {
@@ -196,28 +230,6 @@ Range intersection(const Range& r, const RectBand& band)
 	rg.min = max<int>(rg.min, band.min);
 	rg.max = min<int>(rg.max, band.max);
 	return rg;
-}
-
-//TODO: mauvais nommage
-Rect intersection(const Rect& r, const RectBand& band)
-{
-	Rect rec = r;
-	switch (band.direction)
-	{
-	case HORIZONTAL:
-		//assert(rec.top <= band.min); FAUX
-		//assert(rec.bottom >= band.max); FAUX
-		rec.top = band.min;
-		rec.bottom = band.max;
-		break;
-	case VERTICAL:
-		//assert(rec.left <= band.min); FAUX
-		//assert(rec.right >= band.max); FAUX
-		rec.left = band.min;
-		rec.right = band.max;
-		break;
-	}
-	return rec;
 }
 
 template <typename T>
@@ -582,8 +594,6 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 	const auto& [path, definition_matrix, coords] = graph;
 	
-	Rect rec = {0,0,0,0};
-	
 	InnerRange ir = parse_ir(u);
 	
 	vector<Edge> adj;
@@ -602,7 +612,8 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	}
 	else
 	{
-		rec = intersection(rec, RectBand{ r.direction, ir.min, ir.max });
+		Rect rec = {0,0,0,0};
+		rec[other(r.direction)] = Span{ ir.min, ir.max };
 		
 		struct Bound
 		{
@@ -628,7 +639,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 		for (const auto& [min, max] : bounds)
 		{	
-			rec = intersection(rec, RectBand{ next_r.direction, min, max});
+			rec[other(next_r.direction)] = Span{ min, max};
 				
 			bool detect = false;
 			for (int i = rec.left; i <= rec.right; i++)
