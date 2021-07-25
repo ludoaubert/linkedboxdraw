@@ -59,6 +59,21 @@ void reverse(Way &way)
 	}
 }
 
+struct Span
+{
+	int min, max;
+};
+
+
+struct Range;
+
+struct RangeProjection
+{
+	RangeProjection& operator=(const Span& s);
+	operator Span() const;
+	Range *r;
+	Direction direction;
+};
 
 struct Range
 {
@@ -76,7 +91,27 @@ struct Range
 			return min;
 		}
 	}
+
+	RangeProjection operator[](Direction dir)
+	{
+		assert(direction == dir);
+		return RangeProjection{this, dir};
+	}
 };
+
+RangeProjection::operator Span() const 
+{
+	assert(direction==r->direction);
+	 return Span{r->min, r->max};
+}
+
+RangeProjection& RangeProjection::operator=(const Span& s)
+{
+	r->min = s.min;
+	r->max = s.max;
+	return *this;
+}
+
 
 //TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
 // le code ? C++17 ? C++20 ?
@@ -167,15 +202,12 @@ bool operator!=(const Point& p1, const Point& p2)
 	return memcmp(&p1, &p2, sizeof(Point)) != 0;
 }
 
-struct Span
-{
-	int min, max;
-};
 
 struct Rect;
 
 struct RectangleProjection
 {
+	operator Span() const;
 	RectangleProjection& operator=(const Span& s);
 	Direction direction;
 	Rect* r=0;
@@ -187,8 +219,23 @@ struct Rect
 	{
 		return RectangleProjection{direction, this};
 	}
+	const RectangleProjection operator[](Direction direction) const
+	{
+		return (const RectangleProjection){direction, const_cast<Rect*>(this)};
+	}
 	int left, right, top, bottom;
 };
+
+RectangleProjection::operator Span() const
+{
+	switch (direction)
+	{
+	case HORIZONTAL:
+		return Span{r->left, r->right};
+	case VERTICAL:
+		return Span{r->top, r->bottom};
+	}
+}
 
 struct RectBand
 {
@@ -223,10 +270,9 @@ RectBand rectband(const Rect& r, Direction direction)
 	}
 }
 
-Range intersection(const Range& r, const RectBand& band)
+Span intersection(const Span& r, const Span& band)
 {
-	assert(r.direction == band.direction);
-	Range rg = r;
+	Span rg = r;
 	rg.min = max<int>(rg.min, band.min);
 	rg.max = min<int>(rg.max, band.max);
 	return rg;
@@ -914,7 +960,8 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 		{
 			for (Range &r : ranges)
 			{
-				r = intersection(r, rectband(rfrom, path[i].direction));
+				Direction direction = other( path[i].direction );
+				r[direction] = intersection(r[direction], rfrom[direction]);
 			}
 		}
 		
@@ -922,7 +969,8 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 		{
 			for (Range &r : ranges)
 			{
-				r = intersection(r, rectband(rto, path[i].direction));
+				Direction direction = other(path[i].direction) ;
+				r[direction] = intersection(r[direction], rto[direction]);
 			}
 		}
 		
