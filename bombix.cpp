@@ -129,7 +129,29 @@ struct Maille
 {
 	Direction direction;
 	Way way;
-	int16_t value, other;
+	int16_t i, j;
+
+	int16_t& operator[](Direction direction)
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return i;
+		case VERTICAL:
+			return j;
+		}
+	}
+
+	int16_t operator[](Direction direction) const
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return i;
+		case VERTICAL:
+			return j;
+		}
+	}
 };
 
 
@@ -147,9 +169,9 @@ static_assert(sizeof(Maille)==sizeof(uint64_t),"");
 
 uint64_t serialize(const Maille& m)
 {
-	assert(m.value <= UINT8_MAX);
-	assert(m.other <= UINT8_MAX);
-	uint64_t u = 1 + (m.value << 1) + (m.other << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
+	assert(m.i <= UINT8_MAX);
+	assert(m.j <= UINT8_MAX);
+	uint64_t u = 1 + (m.i << 1) + (m.j << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
 	assert(u < 1000 * 1000);
 	return u;
 }
@@ -159,11 +181,11 @@ Maille parse(uint64_t u)
 	u -= 1;
 	u >>= 1;
 	Maille m;
-	m.value = u & 0xFF;
-	assert(m.value <= UINT8_MAX);
+	m.i = u & 0xFF;
+	assert(m.i <= UINT8_MAX);
 	u >>= 8;
-	m.other = u & 0xFF;
-	assert(m.other <= UINT8_MAX);
+	m.j = u & 0xFF;
+	assert(m.j <= UINT8_MAX);
 	u >>= 8;
 	m.direction = (Direction)(u & 0x01);
 	u >>= 1;
@@ -313,28 +335,6 @@ struct Matrix
 		if (j >= _m)
 			return false;
 		return _data[i*_m + j];
-	}
-	
-	T operator()(const Maille& m) const
-	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.value, m.other);
-		case VERTICAL:
-			return (*this)(m.other, m.value);
-		}
-	}
-	
-	T& operator()(const Maille& m)
-	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.value, m.other);
-		case VERTICAL:
-			return (*this)(m.other, m.value);
-		}
 	}
 	
 	int _n=0, _m=0;
@@ -552,7 +552,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	//TODO: use destructuring
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
-			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.value, m.other, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 		}
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 		
@@ -574,16 +574,17 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 	Maille r = parse(u);
 	Maille next = r;
-	next.value += next.way;
+	next[next.direction] += next.way;
 	
-	if (definition_matrix(next))
+	if (definition_matrix(next.i, next.j))
 	{
 		uint64_t v = serialize(next);
 		int distance = 0;
 		for (Maille* m : {&r, &next})
 		{
 			auto& tab = coords[m->direction];
-			distance += tab[m->value+1] - tab[m->value];
+			int16_t k = (*m)[m->direction] ;
+			distance += tab[k + 1] - tab[k];
 		}
 		adj.push_back({u, v, distance});
 	}
@@ -593,9 +594,8 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Maille next = r;
 		next.direction = other(r.direction);
 		next.way = way;
-		swap(next.value, next.other);
 		
-		if (definition_matrix(next))
+		if (definition_matrix(next.i, next.j))
 		{
 			uint64_t v = serialize(next);
 			adj.push_back({ u, v, TURN_PENALTY });
@@ -763,7 +763,7 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	for (const Maille& m : result)
 	{
-		if (definition_matrix(m))
+		if (definition_matrix(m.i, m.j))
 			defined.insert(serialize(m));
 	}
 	return defined;
@@ -2618,18 +2618,20 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					auto [direction, way, value, other] = m;
-					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other, other };
+					auto [direction, way, i, j] = m;
+					int16_t value = m[m.direction], other_value = m[ other(m.direction) ];
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
-						definition_matrix(Maille{ direction, way, value, other }) = false;
+						definition_matrix(m.i, m.j) = false;
 					}
 				}
 			}
 			vector<Range> ranges;
 			for (Maille& m : result)
 			{
-				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,m.value,m.other,m.other });
+				int16_t value = m[m.direction], other_value = m[ other(m.direction) ];
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way, value, other_value, other_value });
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
@@ -2887,7 +2889,7 @@ int main(int argc, char* argv[])
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[m.direction], way[1+m.way], m.i, m.i, 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
@@ -2898,7 +2900,7 @@ int main(int argc, char* argv[])
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[m.direction], way[1+m.way], m.i, m.j, 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
