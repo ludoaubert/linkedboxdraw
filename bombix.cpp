@@ -237,11 +237,6 @@ RectangleProjection::operator Span() const
 	}
 }
 
-struct RectBand
-{
-	Direction direction;
-	int min, max;
-};
 
 RectangleProjection& RectangleProjection::operator=(const Span& s)
 {
@@ -259,16 +254,6 @@ RectangleProjection& RectangleProjection::operator=(const Span& s)
 	return *this;
 }
 
-RectBand rectband(const Rect& r, Direction direction)
-{
-	switch (direction)
-	{
-	case HORIZONTAL:
-		return { direction, r.top, r.bottom };
-	case VERTICAL:
-		return { direction, r.left, r.right };
-	}
-}
 
 Span intersection(const Span& r, const Span& band)
 {
