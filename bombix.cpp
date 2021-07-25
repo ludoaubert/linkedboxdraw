@@ -646,12 +646,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Rect rec = {0,0,0,0};
 		rec[other(r.direction)] = Span{ ir.min, ir.max };
 		
-		struct Bound
-		{
-			int16_t min, max;
-		};
-		
-		vector<Bound> bounds;
+		vector<Span> bounds;
 
 		if constexpr (is_same<Graph, InnerRangeGraph>::value)
 		{
