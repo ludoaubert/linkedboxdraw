@@ -1133,6 +1133,54 @@ string polyline2json(const vector<Polyline>& polylines)
 
 
 const TestContext contexts[] = {
+{
+	/*testid*/0,
+	/*rectangles*/{
+/*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627}
+/*1:*/ {/*name: "DOS_DATE",*/ /*left*/ 394, /*right*/ 562, /*top*/ 411, /*bottom*/ 627}
+/*2:*/ {/*name: "DOS_TIERS",*/ /*left*/ 768, /*right*/ 978, /*top*/ 75, /*bottom*/ 227}
+/*3:*/ {/*name: "DOS_CARACTERISTIQUE",*/ /*left*/ 30, /*right*/ 212, /*top*/ 256, /*bottom*/ 328}
+/*4:*/ {/*name: "DOS_NOTE",*/ /*left*/ 571, /*right*/ 676, /*top*/ 209, /*bottom*/ 281}
+/*5:*/ {/*name: "DOS_RESPONSABLE",*/ /*left*/ 50, /*right*/ 225, /*top*/ 457, /*bottom*/ 593}
+/*6:*/ {/*name: "DOS_ETAPE_DELAI_HISTORIQUE",*/ /*left*/ 771, /*right*/ 961, /*top*/ 477, /*bottom*/ 629}
+/*7:*/ {/*name: "DOS_ANNUITE",*/ /*left*/ 570, /*right*/ 696, /*top*/ 286, /*bottom*/ 374}
+/*8:*/ {/*name: "DOS_CRITERE",*/ /*left*/ 435, /*right*/ 582, /*top*/ 38, /*bottom*/ 158}
+/*9:*/ {/*name: "DOS_DOSSIER",*/ /*left*/ 318, /*right*/ 486, /*top*/ 198, /*bottom*/ 334}
+/*10:*/ {/*name: "DOS_TITRE",*/ /*left*/ 589, /*right*/ 757, /*top*/ 37, /*bottom*/ 157}
+/*11:*/ {/*name: "DOS_LIEN",*/ /*left*/ 54, /*right*/ 201, /*top*/ 340, /*bottom*/ 444}
+/*12:*/ {/*name: "DOS_ETAPE_DELAI",*/ /*left*/ 731, /*right*/ 857, /*top*/ 238, /*bottom*/ 358}
+/*13:*/ {/*name: "DOS_INTERVENANT",*/ /*left*/ 41, /*right*/ 174, /*top*/ 130, /*bottom*/ 250}
+/*14:*/ {/*name: "DOS_ETAPE_DETAIL",*/ /*left*/ 802, /*right*/ 977, /*top*/ 374, /*bottom*/ 462}
+/*15:*/ {/*name: "DOS_GENERALITE",*/ /*left*/ 288, /*right*/ 428, /*top*/ 39, /*bottom*/ 159}
+/*16:*/ {/*name: "LEG_VTQP",*/ /*left*/ 239, /*right*/ 386, /*top*/ 479, /*bottom*/ 647}
+/*17:*/ {/*name: "PAR_GENERALITE",*/ /*left*/ 123, /*right*/ 263, /*top*/ 30, /*bottom*/ 118}		
+	},
+	/*frame*/{/*left*/ 0, /*right*/ 988, /*top*/ 0, /*bottom*/ 657},
+	/*links*/{
+		 {/*source*/ 7, /*target*/ 9},
+		 {/*source*/ 7, /*target*/ 0},
+		 {/*source*/ 3, /*target*/ 9},
+		 {/*source*/ 8, /*target*/ 9},
+		 {/*source*/ 1, /*target*/ 9},
+		 {/*source*/ 1, /*target*/ 0},
+		 {/*source*/ 9, /*target*/ 16},
+		 {/*source*/ 0, /*target*/ 9},
+		 {/*source*/ 0, /*target*/ 0},
+		 {/*source*/ 12, /*target*/ 0},
+		 {/*source*/ 6, /*target*/ 0},
+		 {/*source*/ 14, /*target*/ 0},
+		 {/*source*/ 15, /*target*/ 9},
+		 {/*source*/ 13, /*target*/ 9},
+		 {/*source*/ 11, /*target*/ 9},
+		 {/*source*/ 11, /*target*/ 9},
+		 {/*source*/ 4, /*target*/ 9},
+		 {/*source*/ 5, /*target*/ 9},
+		 {/*source*/ 2, /*target*/ 9},
+		 {/*source*/ 10, /*target*/ 9}
+	},
+	/*faiceau output*/{},
+	/*polylines*/{}
+},
 /*
                         +-----+
                         |  1  |
@@ -1147,7 +1195,7 @@ const TestContext contexts[] = {
                         +-----+
 */
 {
-    /*testid*/0,
+    /*testid*/1,
     /*rectangles*/{
         {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
         {/*left*/80,/*right*/100,/*top*/20,/*bottom*/30 },
@@ -1235,7 +1283,7 @@ const TestContext contexts[] = {
 */
 
 {
-	/*testid*/1,
+	/*testid*/2,
 	/*rectangles*/{
 		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
 		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
@@ -1310,7 +1358,7 @@ const TestContext contexts[] = {
  +----------------+
 */
 {
-	/*testid*/2,
+	/*testid*/3,
 	/*rectangles*/{
 		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
 		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
@@ -1394,7 +1442,7 @@ const TestContext contexts[] = {
 */
 
 {
- /*testid*/3,
+ /*testid*/4,
  /*rectangles*/{
  /*0*/{/*left*/329,/*right*/141 + 329,/*top*/250,/*bottom*/40 + 250 },
  /*1*/{/*left*/523,/*right*/162 + 523,/*top*/235,/*bottom*/56 + 235 },
@@ -2229,7 +2277,7 @@ const TestContext contexts[] = {
 */
 
 {
-        /*testid*/4,
+        /*testid*/5,
         /*rectangles*/{
             { 2/*left*/,4/*right*/,2/*top*/,4/*bottom*/ },
             { 6/*left*/,8/*right*/,3/*top*/,5/*bottom*/ },
@@ -2296,7 +2344,7 @@ const TestContext contexts[] = {
 */
 
 {
-        /*testid*/5,
+        /*testid*/6,
         /*rectangles*/{
             { 8/*left*/,10/*right*/,4/*top*/,8/*bottom*/ },
             { 4/*left*/,14/*right*/,12/*top*/,16/*bottom*/ },
@@ -2366,7 +2414,7 @@ const TestContext contexts[] = {
                       +-----+
 */
 {
-        /*testid*/6,
+        /*testid*/7,
         /*rectangles*/{
             { /*left*/0, /*right*/2, /*top*/0, /*bottom*/2 },
             { /*left*/4, /*right*/5, /*top*/4, /*bottom*/5 }
@@ -2425,7 +2473,7 @@ const TestContext contexts[] = {
     +------------+                                  +------------+
 */
 {
-        /*testid*/7,
+        /*testid*/8,
         /*rectangles*/{
             { /*left*/2, /*right*/6, /*top*/2, /*bottom*/6 },
             { /*left*/2, /*right*/6, /*top*/20, /*bottom*/24 },
@@ -2486,7 +2534,7 @@ const TestContext contexts[] = {
    +------------+                                    +------------+
 */
 {
-        /*testid*/8,
+        /*testid*/9,
         /*rectangles*/{
             { /*left*/20, /*right*/60, /*top*/20, /*bottom*/60 },
             { /*left*/20, /*right*/60, /*top*/200, /*bottom*/240 },
