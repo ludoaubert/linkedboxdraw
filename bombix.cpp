@@ -284,7 +284,7 @@ Span intersection(const Span& r1, const Span& r2)
 	r.max = min<int>(r.max, r2.max);
 
 	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
-	printf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
+	fprintf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
 	fclose(f);
 	
 	return r;
@@ -1136,23 +1136,23 @@ const TestContext contexts[] = {
 {
 	/*testid*/0,
 	/*rectangles*/{
-/*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627}
-/*1:*/ {/*name: "DOS_DATE",*/ /*left*/ 394, /*right*/ 562, /*top*/ 411, /*bottom*/ 627}
-/*2:*/ {/*name: "DOS_TIERS",*/ /*left*/ 768, /*right*/ 978, /*top*/ 75, /*bottom*/ 227}
-/*3:*/ {/*name: "DOS_CARACTERISTIQUE",*/ /*left*/ 30, /*right*/ 212, /*top*/ 256, /*bottom*/ 328}
-/*4:*/ {/*name: "DOS_NOTE",*/ /*left*/ 571, /*right*/ 676, /*top*/ 209, /*bottom*/ 281}
-/*5:*/ {/*name: "DOS_RESPONSABLE",*/ /*left*/ 50, /*right*/ 225, /*top*/ 457, /*bottom*/ 593}
-/*6:*/ {/*name: "DOS_ETAPE_DELAI_HISTORIQUE",*/ /*left*/ 771, /*right*/ 961, /*top*/ 477, /*bottom*/ 629}
-/*7:*/ {/*name: "DOS_ANNUITE",*/ /*left*/ 570, /*right*/ 696, /*top*/ 286, /*bottom*/ 374}
-/*8:*/ {/*name: "DOS_CRITERE",*/ /*left*/ 435, /*right*/ 582, /*top*/ 38, /*bottom*/ 158}
-/*9:*/ {/*name: "DOS_DOSSIER",*/ /*left*/ 318, /*right*/ 486, /*top*/ 198, /*bottom*/ 334}
-/*10:*/ {/*name: "DOS_TITRE",*/ /*left*/ 589, /*right*/ 757, /*top*/ 37, /*bottom*/ 157}
-/*11:*/ {/*name: "DOS_LIEN",*/ /*left*/ 54, /*right*/ 201, /*top*/ 340, /*bottom*/ 444}
-/*12:*/ {/*name: "DOS_ETAPE_DELAI",*/ /*left*/ 731, /*right*/ 857, /*top*/ 238, /*bottom*/ 358}
-/*13:*/ {/*name: "DOS_INTERVENANT",*/ /*left*/ 41, /*right*/ 174, /*top*/ 130, /*bottom*/ 250}
-/*14:*/ {/*name: "DOS_ETAPE_DETAIL",*/ /*left*/ 802, /*right*/ 977, /*top*/ 374, /*bottom*/ 462}
-/*15:*/ {/*name: "DOS_GENERALITE",*/ /*left*/ 288, /*right*/ 428, /*top*/ 39, /*bottom*/ 159}
-/*16:*/ {/*name: "LEG_VTQP",*/ /*left*/ 239, /*right*/ 386, /*top*/ 479, /*bottom*/ 647}
+/*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627},
+/*1:*/ {/*name: "DOS_DATE",*/ /*left*/ 394, /*right*/ 562, /*top*/ 411, /*bottom*/ 627},
+/*2:*/ {/*name: "DOS_TIERS",*/ /*left*/ 768, /*right*/ 978, /*top*/ 75, /*bottom*/ 227},
+/*3:*/ {/*name: "DOS_CARACTERISTIQUE",*/ /*left*/ 30, /*right*/ 212, /*top*/ 256, /*bottom*/ 328},
+/*4:*/ {/*name: "DOS_NOTE",*/ /*left*/ 571, /*right*/ 676, /*top*/ 209, /*bottom*/ 281},
+/*5:*/ {/*name: "DOS_RESPONSABLE",*/ /*left*/ 50, /*right*/ 225, /*top*/ 457, /*bottom*/ 593},
+/*6:*/ {/*name: "DOS_ETAPE_DELAI_HISTORIQUE",*/ /*left*/ 771, /*right*/ 961, /*top*/ 477, /*bottom*/ 629},
+/*7:*/ {/*name: "DOS_ANNUITE",*/ /*left*/ 570, /*right*/ 696, /*top*/ 286, /*bottom*/ 374},
+/*8:*/ {/*name: "DOS_CRITERE",*/ /*left*/ 435, /*right*/ 582, /*top*/ 38, /*bottom*/ 158},
+/*9:*/ {/*name: "DOS_DOSSIER",*/ /*left*/ 318, /*right*/ 486, /*top*/ 198, /*bottom*/ 334},
+/*10:*/ {/*name: "DOS_TITRE",*/ /*left*/ 589, /*right*/ 757, /*top*/ 37, /*bottom*/ 157},
+/*11:*/ {/*name: "DOS_LIEN",*/ /*left*/ 54, /*right*/ 201, /*top*/ 340, /*bottom*/ 444},
+/*12:*/ {/*name: "DOS_ETAPE_DELAI",*/ /*left*/ 731, /*right*/ 857, /*top*/ 238, /*bottom*/ 358},
+/*13:*/ {/*name: "DOS_INTERVENANT",*/ /*left*/ 41, /*right*/ 174, /*top*/ 130, /*bottom*/ 250},
+/*14:*/ {/*name: "DOS_ETAPE_DETAIL",*/ /*left*/ 802, /*right*/ 977, /*top*/ 374, /*bottom*/ 462},
+/*15:*/ {/*name: "DOS_GENERALITE",*/ /*left*/ 288, /*right*/ 428, /*top*/ 39, /*bottom*/ 159},
+/*16:*/ {/*name: "LEG_VTQP",*/ /*left*/ 239, /*right*/ 386, /*top*/ 479, /*bottom*/ 647},
 /*17:*/ {/*name: "PAR_GENERALITE",*/ /*left*/ 123, /*right*/ 263, /*top*/ 30, /*bottom*/ 118}		
 	},
 	/*frame*/{/*left*/ 0, /*right*/ 988, /*top*/ 0, /*bottom*/ 657},
