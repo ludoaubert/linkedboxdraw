@@ -205,20 +205,18 @@ function drawDiag() {
       <table id="repartition">`;
 	  
 	var repartitionEntries = [];
+	
+	for (const [id, box] of mydata.boxes.entries())
+	{
+		repartitionEntries[id] = {{boxName:box.title, id, selectedContextIndex=-1}}
+	}
 	  
 	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		for (const {id, translation} of context.translatedBoxes)
 		{
-			repartitionEntries.push({boxName:boxes[id].title, id, selectedContextIndex});
+			repartitionEntries[id].selectedContextIndex = selectedContextIndex;
 		}
-	}
-	
-// in case a new box has been added:
-
-	for (var id=repartitionEntries.length; id < mydata.boxes.length; id++)
-	{
-		repartitionEntries.push({boxName:mydata.boxes[id].title, id, selectedContextIndex:-1});
 	}
 
 	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
