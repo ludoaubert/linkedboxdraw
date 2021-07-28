@@ -554,7 +554,8 @@ function ApplyRepartition()
 		new_contexts.contexts[i].links = mycontexts.contexts[i].links;
 		for (const {id,translation} of context.translatedBoxes)
 		{
-			new_contexts.contexts[ repartition[id] ].translatedBoxes.push({id, translation});
+			if (repartition[id] != -1)
+				new_contexts.contexts[ repartition[id] ].translatedBoxes.push({id, translation});
 		}
 	}
 	console.log(JSON.stringify(new_contexts));
