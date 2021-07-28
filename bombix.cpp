@@ -280,8 +280,8 @@ RectangleProjection& RectangleProjection::operator=(const Span& s)
 Span intersection(const Span& r1, const Span& r2)
 { 
 	Span r = r1;
-	r.min = max<int>(rg.min, r2.min);
-	r.max = min<int>(rg.max, r2.max);
+	r.min = max<int>(r.min, r2.min);
+	r.max = min<int>(r.max, r2.max);
 
 	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
 	printf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
