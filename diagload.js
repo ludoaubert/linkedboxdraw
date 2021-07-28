@@ -420,7 +420,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 	let repartition=[];
 	
-	for (let id=0; id<boxes.length; id++)
+	for (let id=0; id < mydata.boxes.length; id++)
 	{
 		repartition[id] = -1;
 	}
