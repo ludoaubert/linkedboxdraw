@@ -94,14 +94,14 @@ struct Range
 
 	RangeProjection operator[](Direction dir)
 	{
-		assert(direction == dir);
+		assert(direction == other(dir));
 		return RangeProjection{this, dir};
 	}
 };
 
 RangeProjection::operator Span() const 
 {
-	assert(direction==r->direction);
+	assert(direction==other(r->direction));
 	 return Span{r->min, r->max};
 }
 
