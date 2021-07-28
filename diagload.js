@@ -208,7 +208,7 @@ function drawDiag() {
 	
 	for (const [id, box] of mydata.boxes.entries())
 	{
-		repartitionEntries[id] = {boxName:box.title, id, selectedContextIndex=-1};
+		repartitionEntries[id] = {boxName:box.title, id, selectedContextIndex:-1};
 	}
 	  
 	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
