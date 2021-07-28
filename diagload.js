@@ -417,7 +417,14 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
 	
 // listing unexpressed links - beginning
+
 	let repartition=[];
+	
+	for (const id=0; id<boxes.length; id++)
+	{
+		repartition[id] = -1;
+	}
+	
 	for (const [i, context] of mycontexts.contexts.entries())
 	{
 		for (const {id,translation} of context.translatedBoxes)
