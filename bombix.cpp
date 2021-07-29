@@ -282,11 +282,11 @@ Span intersection(const Span& r1, const Span& r2)
 	Span r = r1;
 	r.min = max<int>(r.min, r2.min);
 	r.max = min<int>(r.max, r2.max);
-
+/*
 	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
 	fprintf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
 	fclose(f);
-	
+*/	
 	return r;
 }
 
@@ -1134,6 +1134,7 @@ string polyline2json(const vector<Polyline>& polylines)
 
 const TestContext contexts[] = {
 {
+#if 0
 	/*testid*/0,
 	/*rectangles*/{
 /*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627},
@@ -1181,6 +1182,7 @@ const TestContext contexts[] = {
 	/*faiceau output*/{},
 	/*polylines*/{}
 },
+#endif
 /*
                         +-----+
                         |  1  |
