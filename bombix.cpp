@@ -129,29 +129,7 @@ struct Maille
 {
 	Direction direction;
 	Way way;
-	int16_t i, j;
-
-	int16_t& operator[](Direction direction)
-	{
-		switch (direction)
-		{
-		case HORIZONTAL:
-			return i;
-		case VERTICAL:
-			return j;
-		}
-	}
-
-	int16_t operator[](Direction direction) const
-	{
-		switch (direction)
-		{
-		case HORIZONTAL:
-			return i;
-		case VERTICAL:
-			return j;
-		}
-	}
+	int16_t value, other;
 };
 
 
@@ -169,9 +147,9 @@ static_assert(sizeof(Maille)==sizeof(uint64_t),"");
 
 uint64_t serialize(const Maille& m)
 {
-	assert(m.i <= UINT8_MAX);
-	assert(m.j <= UINT8_MAX);
-	uint64_t u = 1 + (m.i << 1) + (m.j << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
+	assert(m.value <= UINT8_MAX);
+	assert(m.other <= UINT8_MAX);
+	uint64_t u = 1 + (m.value << 1) + (m.other << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
 	assert(u < 1000 * 1000);
 	return u;
 }
@@ -181,11 +159,11 @@ Maille parse(uint64_t u)
 	u -= 1;
 	u >>= 1;
 	Maille m;
-	m.i = u & 0xFF;
-	assert(m.i <= UINT8_MAX);
+	m.value = u & 0xFF;
+	assert(m.value <= UINT8_MAX);
 	u >>= 8;
-	m.j = u & 0xFF;
-	assert(m.j <= UINT8_MAX);
+	m.other = u & 0xFF;
+	assert(m.other <= UINT8_MAX);
 	u >>= 8;
 	m.direction = (Direction)(u & 0x01);
 	u >>= 1;
@@ -259,6 +237,11 @@ RectangleProjection::operator Span() const
 	}
 }
 
+struct RectBand
+{
+	Direction direction;
+	int min, max;
+};
 
 RectangleProjection& RectangleProjection::operator=(const Span& s)
 {
@@ -276,18 +259,23 @@ RectangleProjection& RectangleProjection::operator=(const Span& s)
 	return *this;
 }
 
+RectBand rectband(const Rect& r, Direction direction)
+{
+	switch (direction)
+	{
+	case HORIZONTAL:
+		return { direction, r.top, r.bottom };
+	case VERTICAL:
+		return { direction, r.left, r.right };
+	}
+}
 
-Span intersection(const Span& r1, const Span& r2)
-{ 
-	Span r = r1;
-	r.min = max<int>(r.min, r2.min);
-	r.max = min<int>(r.max, r2.max);
-/*
-	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
-	fprintf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
-	fclose(f);
-*/	
-	return r;
+Span intersection(const Span& r, const Span& band)
+{
+	Span rg = r;
+	rg.min = max<int>(rg.min, band.min);
+	rg.max = min<int>(rg.max, band.max);
+	return rg;
 }
 
 template <typename T>
@@ -340,6 +328,28 @@ struct Matrix
 		if (j >= _m)
 			return false;
 		return _data[i*_m + j];
+	}
+	
+	T operator()(const Maille& m) const
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
+	}
+	
+	T& operator()(const Maille& m)
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
 	}
 	
 	int _n=0, _m=0;
@@ -557,7 +567,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	//TODO: use destructuring
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
-			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%d,%d},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.value, m.other, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 		}
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 		
@@ -579,17 +589,16 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 	Maille r = parse(u);
 	Maille next = r;
-	next[next.direction] += next.way;
+	next.value += next.way;
 	
-	if (definition_matrix(next.i, next.j))
+	if (definition_matrix(next))
 	{
 		uint64_t v = serialize(next);
 		int distance = 0;
 		for (Maille* m : {&r, &next})
 		{
 			auto& tab = coords[m->direction];
-			int16_t k = (*m)[m->direction] ;
-			distance += tab[k + 1] - tab[k];
+			distance += tab[m->value+1] - tab[m->value];
 		}
 		adj.push_back({u, v, distance});
 	}
@@ -599,8 +608,9 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Maille next = r;
 		next.direction = other(r.direction);
 		next.way = way;
+		swap(next.value, next.other);
 		
-		if (definition_matrix(next.i, next.j))
+		if (definition_matrix(next))
 		{
 			uint64_t v = serialize(next);
 			adj.push_back({ u, v, TURN_PENALTY });
@@ -651,7 +661,12 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Rect rec = {0,0,0,0};
 		rec[other(r.direction)] = Span{ ir.min, ir.max };
 		
-		vector<Span> bounds;
+		struct Bound
+		{
+			int16_t min, max;
+		};
+		
+		vector<Bound> bounds;
 
 		if constexpr (is_same<Graph, InnerRangeGraph>::value)
 		{
@@ -768,7 +783,7 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	for (const Maille& m : result)
 	{
-		if (definition_matrix(m.i, m.j))
+		if (definition_matrix(m))
 			defined.insert(serialize(m));
 	}
 	return defined;
@@ -1133,56 +1148,6 @@ string polyline2json(const vector<Polyline>& polylines)
 
 
 const TestContext contexts[] = {
-#if 0
-{
-	/*testid*/0,
-	/*rectangles*/{
-/*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627},
-/*1:*/ {/*name: "DOS_DATE",*/ /*left*/ 394, /*right*/ 562, /*top*/ 411, /*bottom*/ 627},
-/*2:*/ {/*name: "DOS_TIERS",*/ /*left*/ 768, /*right*/ 978, /*top*/ 75, /*bottom*/ 227},
-/*3:*/ {/*name: "DOS_CARACTERISTIQUE",*/ /*left*/ 30, /*right*/ 212, /*top*/ 256, /*bottom*/ 328},
-/*4:*/ {/*name: "DOS_NOTE",*/ /*left*/ 571, /*right*/ 676, /*top*/ 209, /*bottom*/ 281},
-/*5:*/ {/*name: "DOS_RESPONSABLE",*/ /*left*/ 50, /*right*/ 225, /*top*/ 457, /*bottom*/ 593},
-/*6:*/ {/*name: "DOS_ETAPE_DELAI_HISTORIQUE",*/ /*left*/ 771, /*right*/ 961, /*top*/ 477, /*bottom*/ 629},
-/*7:*/ {/*name: "DOS_ANNUITE",*/ /*left*/ 570, /*right*/ 696, /*top*/ 286, /*bottom*/ 374},
-/*8:*/ {/*name: "DOS_CRITERE",*/ /*left*/ 435, /*right*/ 582, /*top*/ 38, /*bottom*/ 158},
-/*9:*/ {/*name: "DOS_DOSSIER",*/ /*left*/ 318, /*right*/ 486, /*top*/ 198, /*bottom*/ 334},
-/*10:*/ {/*name: "DOS_TITRE",*/ /*left*/ 589, /*right*/ 757, /*top*/ 37, /*bottom*/ 157},
-/*11:*/ {/*name: "DOS_LIEN",*/ /*left*/ 54, /*right*/ 201, /*top*/ 340, /*bottom*/ 444},
-/*12:*/ {/*name: "DOS_ETAPE_DELAI",*/ /*left*/ 731, /*right*/ 857, /*top*/ 238, /*bottom*/ 358},
-/*13:*/ {/*name: "DOS_INTERVENANT",*/ /*left*/ 41, /*right*/ 174, /*top*/ 130, /*bottom*/ 250},
-/*14:*/ {/*name: "DOS_ETAPE_DETAIL",*/ /*left*/ 802, /*right*/ 977, /*top*/ 374, /*bottom*/ 462},
-/*15:*/ {/*name: "DOS_GENERALITE",*/ /*left*/ 288, /*right*/ 428, /*top*/ 39, /*bottom*/ 159},
-/*16:*/ {/*name: "LEG_VTQP",*/ /*left*/ 239, /*right*/ 386, /*top*/ 479, /*bottom*/ 647},
-/*17:*/ {/*name: "PAR_GENERALITE",*/ /*left*/ 123, /*right*/ 263, /*top*/ 30, /*bottom*/ 118}		
-	},
-	/*frame*/{/*left*/ 0, /*right*/ 988, /*top*/ 0, /*bottom*/ 657},
-	/*links*/{
-		 {/*source*/ 7, /*target*/ 9},
-		 {/*source*/ 7, /*target*/ 0},
-		 {/*source*/ 3, /*target*/ 9},
-		 {/*source*/ 8, /*target*/ 9},
-		 {/*source*/ 1, /*target*/ 9},
-		 {/*source*/ 1, /*target*/ 0},
-		 {/*source*/ 9, /*target*/ 16},
-		 {/*source*/ 0, /*target*/ 9},
-		 {/*source*/ 0, /*target*/ 0},
-		 {/*source*/ 12, /*target*/ 0},
-		 {/*source*/ 6, /*target*/ 0},
-		 {/*source*/ 14, /*target*/ 0},
-		 {/*source*/ 15, /*target*/ 9},
-		 {/*source*/ 13, /*target*/ 9},
-		 {/*source*/ 11, /*target*/ 9},
-		 {/*source*/ 11, /*target*/ 9},
-		 {/*source*/ 4, /*target*/ 9},
-		 {/*source*/ 5, /*target*/ 9},
-		 {/*source*/ 2, /*target*/ 9},
-		 {/*source*/ 10, /*target*/ 9}
-	},
-	/*faiceau output*/{},
-	/*polylines*/{}
-},
-#endif
 /*
                         +-----+
                         |  1  |
@@ -1197,7 +1162,7 @@ const TestContext contexts[] = {
                         +-----+
 */
 {
-    /*testid*/1,
+    /*testid*/0,
     /*rectangles*/{
         {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
         {/*left*/80,/*right*/100,/*top*/20,/*bottom*/30 },
@@ -1285,7 +1250,7 @@ const TestContext contexts[] = {
 */
 
 {
-	/*testid*/2,
+	/*testid*/1,
 	/*rectangles*/{
 		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
 		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
@@ -1360,7 +1325,7 @@ const TestContext contexts[] = {
  +----------------+
 */
 {
-	/*testid*/3,
+	/*testid*/2,
 	/*rectangles*/{
 		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
 		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
@@ -1444,7 +1409,7 @@ const TestContext contexts[] = {
 */
 
 {
- /*testid*/4,
+ /*testid*/3,
  /*rectangles*/{
  /*0*/{/*left*/329,/*right*/141 + 329,/*top*/250,/*bottom*/40 + 250 },
  /*1*/{/*left*/523,/*right*/162 + 523,/*top*/235,/*bottom*/56 + 235 },
@@ -2279,7 +2244,7 @@ const TestContext contexts[] = {
 */
 
 {
-        /*testid*/5,
+        /*testid*/4,
         /*rectangles*/{
             { 2/*left*/,4/*right*/,2/*top*/,4/*bottom*/ },
             { 6/*left*/,8/*right*/,3/*top*/,5/*bottom*/ },
@@ -2346,7 +2311,7 @@ const TestContext contexts[] = {
 */
 
 {
-        /*testid*/6,
+        /*testid*/5,
         /*rectangles*/{
             { 8/*left*/,10/*right*/,4/*top*/,8/*bottom*/ },
             { 4/*left*/,14/*right*/,12/*top*/,16/*bottom*/ },
@@ -2416,7 +2381,7 @@ const TestContext contexts[] = {
                       +-----+
 */
 {
-        /*testid*/7,
+        /*testid*/6,
         /*rectangles*/{
             { /*left*/0, /*right*/2, /*top*/0, /*bottom*/2 },
             { /*left*/4, /*right*/5, /*top*/4, /*bottom*/5 }
@@ -2475,7 +2440,7 @@ const TestContext contexts[] = {
     +------------+                                  +------------+
 */
 {
-        /*testid*/8,
+        /*testid*/7,
         /*rectangles*/{
             { /*left*/2, /*right*/6, /*top*/2, /*bottom*/6 },
             { /*left*/2, /*right*/6, /*top*/20, /*bottom*/24 },
@@ -2536,7 +2501,7 @@ const TestContext contexts[] = {
    +------------+                                    +------------+
 */
 {
-        /*testid*/9,
+        /*testid*/8,
         /*rectangles*/{
             { /*left*/20, /*right*/60, /*top*/20, /*bottom*/60 },
             { /*left*/20, /*right*/60, /*top*/200, /*bottom*/240 },
@@ -2673,20 +2638,18 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					auto [direction, way, i, j] = m;
-					int16_t value = m[m.direction], other_value = m[ other(m.direction) ];
-					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
+					auto [direction, way, value, other] = m;
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other, other };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
-						definition_matrix(m.i, m.j) = false;
+						definition_matrix(Maille{ direction, way, value, other }) = false;
 					}
 				}
 			}
 			vector<Range> ranges;
 			for (Maille& m : result)
 			{
-				int16_t value = m[m.direction], other_value = m[ other(m.direction) ];
-				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way, value, other_value, other_value });
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,m.value,m.other,m.other });
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
@@ -2944,7 +2907,7 @@ int main(int argc, char* argv[])
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way[1+m.way], m.i, m.i, 
+									dir[m.direction], way[1+m.way], m.value, m.other, 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
@@ -2955,7 +2918,7 @@ int main(int argc, char* argv[])
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way[1+m.way], m.i, m.j, 
+									dir[m.direction], way[1+m.way], m.value, m.other, 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
