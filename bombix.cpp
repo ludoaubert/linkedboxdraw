@@ -270,12 +270,19 @@ RectBand rectband(const Rect& r, Direction direction)
 	}
 }
 
-Span intersection(const Span& r, const Span& band)
+Span intersection(const Span& r1, const Span& r2)
 {
-	Span rg = r;
-	rg.min = max<int>(rg.min, band.min);
-	rg.max = min<int>(rg.max, band.max);
-	return rg;
+	Span r = r1;
+	r.min = max<int>(r.min, r2.min);
+	r.max = min<int>(r.max, r2.max);
+	
+#if 0
+	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
+	fprintf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
+	fclose(f);
+#endif	
+	
+	return r;
 }
 
 template <typename T>
@@ -1148,6 +1155,56 @@ string polyline2json(const vector<Polyline>& polylines)
 
 
 const TestContext contexts[] = {
+#if 0
+{
+	/*testid*/0,
+	/*rectangles*/{
+/*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627},
+/*1:*/ {/*name: "DOS_DATE",*/ /*left*/ 394, /*right*/ 562, /*top*/ 411, /*bottom*/ 627},
+/*2:*/ {/*name: "DOS_TIERS",*/ /*left*/ 768, /*right*/ 978, /*top*/ 75, /*bottom*/ 227},
+/*3:*/ {/*name: "DOS_CARACTERISTIQUE",*/ /*left*/ 30, /*right*/ 212, /*top*/ 256, /*bottom*/ 328},
+/*4:*/ {/*name: "DOS_NOTE",*/ /*left*/ 571, /*right*/ 676, /*top*/ 209, /*bottom*/ 281},
+/*5:*/ {/*name: "DOS_RESPONSABLE",*/ /*left*/ 50, /*right*/ 225, /*top*/ 457, /*bottom*/ 593},
+/*6:*/ {/*name: "DOS_ETAPE_DELAI_HISTORIQUE",*/ /*left*/ 771, /*right*/ 961, /*top*/ 477, /*bottom*/ 629},
+/*7:*/ {/*name: "DOS_ANNUITE",*/ /*left*/ 570, /*right*/ 696, /*top*/ 286, /*bottom*/ 374},
+/*8:*/ {/*name: "DOS_CRITERE",*/ /*left*/ 435, /*right*/ 582, /*top*/ 38, /*bottom*/ 158},
+/*9:*/ {/*name: "DOS_DOSSIER",*/ /*left*/ 318, /*right*/ 486, /*top*/ 198, /*bottom*/ 334},
+/*10:*/ {/*name: "DOS_TITRE",*/ /*left*/ 589, /*right*/ 757, /*top*/ 37, /*bottom*/ 157},
+/*11:*/ {/*name: "DOS_LIEN",*/ /*left*/ 54, /*right*/ 201, /*top*/ 340, /*bottom*/ 444},
+/*12:*/ {/*name: "DOS_ETAPE_DELAI",*/ /*left*/ 731, /*right*/ 857, /*top*/ 238, /*bottom*/ 358},
+/*13:*/ {/*name: "DOS_INTERVENANT",*/ /*left*/ 41, /*right*/ 174, /*top*/ 130, /*bottom*/ 250},
+/*14:*/ {/*name: "DOS_ETAPE_DETAIL",*/ /*left*/ 802, /*right*/ 977, /*top*/ 374, /*bottom*/ 462},
+/*15:*/ {/*name: "DOS_GENERALITE",*/ /*left*/ 288, /*right*/ 428, /*top*/ 39, /*bottom*/ 159},
+/*16:*/ {/*name: "LEG_VTQP",*/ /*left*/ 239, /*right*/ 386, /*top*/ 479, /*bottom*/ 647},
+/*17:*/ {/*name: "PAR_GENERALITE",*/ /*left*/ 123, /*right*/ 263, /*top*/ 30, /*bottom*/ 118}		
+	},
+	/*frame*/{/*left*/ 0, /*right*/ 988, /*top*/ 0, /*bottom*/ 657},
+	/*links*/{
+		 {/*source*/ 7, /*target*/ 9},
+		 {/*source*/ 7, /*target*/ 0},
+		 {/*source*/ 3, /*target*/ 9},
+		 {/*source*/ 8, /*target*/ 9},
+		 {/*source*/ 1, /*target*/ 9},
+		 {/*source*/ 1, /*target*/ 0},
+		 {/*source*/ 9, /*target*/ 16},
+		 {/*source*/ 0, /*target*/ 9},
+		 {/*source*/ 0, /*target*/ 0},
+		 {/*source*/ 12, /*target*/ 0},
+		 {/*source*/ 6, /*target*/ 0},
+		 {/*source*/ 14, /*target*/ 0},
+		 {/*source*/ 15, /*target*/ 9},
+		 {/*source*/ 13, /*target*/ 9},
+		 {/*source*/ 11, /*target*/ 9},
+		 {/*source*/ 11, /*target*/ 9},
+		 {/*source*/ 4, /*target*/ 9},
+		 {/*source*/ 5, /*target*/ 9},
+		 {/*source*/ 2, /*target*/ 9},
+		 {/*source*/ 10, /*target*/ 9}
+	},
+	/*faiceau output*/{},
+	/*polylines*/{}
+},
+#endif
 /*
                         +-----+
                         |  1  |
