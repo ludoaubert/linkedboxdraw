@@ -1133,8 +1133,8 @@ string polyline2json(const vector<Polyline>& polylines)
 
 
 const TestContext contexts[] = {
-{
 #if 0
+{
 	/*testid*/0,
 	/*rectangles*/{
 /*0:*/ {/*name: "DOS_ETAPE",*/ /*left*/582, /*right*/750, /*top*/ 395, /*bottom*/ 627},
