@@ -321,6 +321,17 @@ struct Matrix
 			return false;
 		return _data[i*_m + j];
 	}
+
+	int dim(Direction direction) const
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return _m;
+		case VERTICAL:
+			return _n;
+		}
+	}
 	
 	int _n=0, _m=0;
 	T *_data = nullptr;
@@ -908,14 +919,16 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			int other;
 			if (all_of(begin(index_range), end(index_range), [&](int k){
 				
+				Range r = path[k];
+				r[way] += way;
 				other = path[k][way] + way;
 				
 				switch (path[i].direction)
 				{
 				case HORIZONTAL:
-					return 0 <= path[k].min + way && path[k].max + way < m._m && m(path[k].value, other);
+					return 0 <= path[k].min + way && path[k].max + way < m.dim(HORIZONTAL) && m(path[k].value, other);
 				case VERTICAL:
-					return 0 <= path[k].min + way && path[k].max + way < m._n && m(other, path[k].value);
+					return 0 <= path[k].min + way && path[k].max + way < m.dim(VERTICAL) && m(other, path[k].value);
 				}
 			}))
 			{
