@@ -989,7 +989,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			j++;
 		}
 		
-	//TODO: use destructuring
+	//TODO: use std::span from C++20
 	
 		vector<Range> ranges;
 		for (int k = i; k < j; k++)
@@ -1006,7 +1006,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[way] += way;
 				Coord c = r[way];
 				
-				return 0 <= path[k].min + way && path[k].max + way < m.dim(r.direction) && m(c.i, c.j);
+				return 0 <= path[k].min + way && path[k].max + way < m.dim(other(r.direction)) && m(c.i, c.j);
 			}))
 			{
 				for (Range &r : ranges)
