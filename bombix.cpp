@@ -222,6 +222,19 @@ struct Maille
 */
 		return direction==direction_ ? value : other;
 	}
+	int16_t operator[](Direction direction_) const
+	{
+/*
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+*/
+		return direction==direction_ ? value : other;
+	}
 	int16_t value, other;
 };
 
