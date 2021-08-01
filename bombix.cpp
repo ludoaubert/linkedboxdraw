@@ -205,7 +205,6 @@ struct Maille
 	Way way;
 	int16_t& operator[](Direction direction_)
 	{
-/*
 		switch (direction)
 		{
 		case HORIZONTAL:
@@ -213,12 +212,9 @@ struct Maille
 		case VERTICAL:
 			return i;
 		}
-*/
-		return direction==direction_ ? value : other;
 	}
 	int16_t operator[](Direction direction_) const
 	{
-/*
 		switch (direction)
 		{
 		case HORIZONTAL:
@@ -226,10 +222,8 @@ struct Maille
 		case VERTICAL:
 			return i;
 		}
-*/
-		return direction==direction_ ? value : other;
 	}
-	int16_t value, other;
+	int16_t i, j;
 };
 
 
@@ -247,9 +241,9 @@ static_assert(sizeof(Maille)==sizeof(uint64_t),"");
 
 uint64_t serialize(const Maille& m)
 {
-	assert(m.value <= UINT8_MAX);
-	assert(m.other <= UINT8_MAX);
-	uint64_t u = 1 + (m.value << 1) + (m.other << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
+	assert(m.i <= UINT8_MAX);
+	assert(m.j <= UINT8_MAX);
+	uint64_t u = 1 + (m.i << 1) + (m.j << (8 + 1)) + (m.direction << (8 + 8 + 1)) + ((m.way + 1) << (8 + 8 + 1 + 1));
 	assert(u < 1000 * 1000);
 	return u;
 }
@@ -259,11 +253,11 @@ Maille parse(uint64_t u)
 	u -= 1;
 	u >>= 1;
 	Maille m;
-	m.value = u & 0xFF;
-	assert(m.value <= UINT8_MAX);
+	m.i = u & 0xFF;
+	assert(m.i <= UINT8_MAX);
 	u >>= 8;
-	m.other = u & 0xFF;
-	assert(m.other <= UINT8_MAX);
+	m.j = u & 0xFF;
+	assert(m.j <= UINT8_MAX);
 	u >>= 8;
 	m.direction = (Direction)(u & 0x01);
 	u >>= 1;
@@ -424,24 +418,12 @@ struct Matrix
 
 	T operator()(const Maille& m) const
 	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.value, m.other);
-		case VERTICAL:
-			return (*this)(m.other, m.value);
-		}
+		return (*this)(m.i, m.j);
 	}
 	
 	T& operator()(const Maille& m)
 	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.value, m.other);
-		case VERTICAL:
-			return (*this)(m.other, m.value);
-		}
+		return (*this)(m.i, m.j);
 	}
 	
 	int dim(Direction direction) const
@@ -712,7 +694,6 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Maille next = r;
 		next.direction = other(r.direction);
 		next.way = way;
-		swap(next.value, next.other);
 		
 		if (definition_matrix(next))
 		{
