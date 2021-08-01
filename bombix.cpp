@@ -2793,7 +2793,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 					for (int16_t other_value = r.min; other_value <= r.max; other_value++)
 					{
 						m[other(m.direction)] = other_value;
-						definition_matrix(Maille{ direction, way, value, other }) = false;
+						definition_matrix(Maille{ direction, way, value, other_value }) = false;
 					}
 				}
 			}
