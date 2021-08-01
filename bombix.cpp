@@ -942,15 +942,15 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			if (all_of(begin(index_range), end(index_range), [&](int k){
 				
 				Range r = path[k];
-				r[way] += way;
+				//r[way] += way;
 				other = path[k][way] + way;
 				
 				switch (path[i].direction)
 				{
 				case HORIZONTAL:
-					return 0 <= path[k].min + way && path[k].max + way < m.dim(HORIZONTAL) && m(path[k].value, r[way]);
+					return 0 <= path[k].min + way && path[k].max + way < m.dim(HORIZONTAL) && m(path[k].value, other);
 				case VERTICAL:
-					return 0 <= path[k].min + way && path[k].max + way < m.dim(VERTICAL) && m(r[way], path[k].value);
+					return 0 <= path[k].min + way && path[k].max + way < m.dim(VERTICAL) && m(other, path[k].value);
 				}
 			}))
 			{
