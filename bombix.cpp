@@ -59,6 +59,32 @@ void reverse(Way &way)
 	}
 }
 
+struct Coord
+{
+	int16_t i,j;
+	int16_t& operator[](Direction direction)
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+	}
+
+	int16_t operator[](Direction direction) const
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+	}
+};
+
 struct Span
 {
 	int min, max;
@@ -73,6 +99,15 @@ struct RangeProjection
 	operator Span() const;
 	Range *r;
 	Direction direction;
+};
+
+struct RangeExtremity
+{
+	RangeExtremity& operator=(const Coord& c);
+	RangeExtremity& operator+=(Way way);
+	operator Coord() const;
+	Range *r;
+	Way way;
 };
 
 struct Range
@@ -98,6 +133,51 @@ struct Range
 		return RangeProjection{this, dir};
 	}
 };
+
+RangeExtremity& RangeExtremity::operator+=(Way way)
+{
+	switch (way)
+	{
+	case INCREASE:
+		r->max += way;
+		break;
+	case DECREASE:
+		r->min += way;
+		break;
+	}
+	return *this;
+}
+
+RangeExtremity& RangeExtremity::operator=(const Coord& c)
+{
+	r->value = c[r->direction];
+	switch (way)
+	{
+	case INCREASE:
+		r->max = c[other(r->direction)];
+		break;
+	case DECREASE:
+		r->min = c[other(r->direction)];
+		break;
+	}
+	return *this;
+}
+
+RangeExtremity::operator Coord() const
+{
+	Coord c;
+	c[r->direction] = r->value;
+	switch (way)
+	{
+	case INCREASE:
+		c[other(r->direction)] = r->max;
+		break;
+	case DECREASE:
+		c[other(r->direction)] = r->min;
+		break;
+	}
+	return c;
+}
 
 RangeProjection::operator Span() const 
 {
