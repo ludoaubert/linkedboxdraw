@@ -418,12 +418,12 @@ struct Matrix
 
 	T operator()(const Maille& m) const
 	{
-		return (*this)(m.i, m.j);
+		return (*this)(m.j, m.i);
 	}
 	
 	T& operator()(const Maille& m)
 	{
-		return (*this)(m.i, m.j);
+		return (*this)(m.j, m.i);
 	}
 	
 	int dim(Direction direction) const
