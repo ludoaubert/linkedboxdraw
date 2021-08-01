@@ -116,15 +116,9 @@ struct Range
 	Way way;
 	int16_t value, min, max;
 	
-	int16_t operator[](Way w) const
+	RangeExtremity operator[](Way way)
 	{
-		switch (w)
-		{
-		case INCREASE:
-			return max;
-		case DECREASE:
-			return min;
-		}
+		return RangeExtremity{this, way};
 	}
 
 	RangeProjection operator[](Direction dir)
