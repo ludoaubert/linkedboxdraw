@@ -1039,13 +1039,11 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 		
 		for (Way way : {DECREASE, INCREASE})
 		{
-			int other_;
 			if (all_of(begin(index_range), end(index_range), [&](int k){
 				
 				Range r = path[k];
 				r[way] += way;
 				Coord c = r[way];
-				other_ = c[other(r.direction)];
 
 				switch (path[i].direction)
 				{
