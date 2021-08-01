@@ -2813,7 +2813,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			for (Maille& m : result)
 			{
 				int16_t value = m[m.direction], other_value = m[other(m.direction)];
-				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,value,other_value,m.other });
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,value,other_value,other_value });
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
