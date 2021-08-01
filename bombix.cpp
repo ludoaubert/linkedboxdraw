@@ -2800,18 +2800,20 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					auto [direction, way, value, other] = m;
-					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other, other };
+					int16_t value = m[m.direction], other_value = m[other(m.direction)];
+					auto [direction, way, value_, other] = m;
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
-						definition_matrix(Maille{ direction, way, value, other }) = false;
+						definition_matrix(Maille{ direction, way, value, other_value }) = false;
 					}
 				}
 			}
 			vector<Range> ranges;
 			for (Maille& m : result)
 			{
-				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,m.value,m.other,m.other });
+				int16_t value = m[m.direction], other_value = m[other(m.direction)];
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,value,other_value,m.other });
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
@@ -3069,7 +3071,7 @@ int main(int argc, char* argv[])
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[m.direction], way[1+m.way], m[m.direction], m[other(m.direction)], 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
@@ -3080,7 +3082,7 @@ int main(int argc, char* argv[])
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way[1+m.way], m.value, m.other, 
+									dir[m.direction], way[1+m.way], m[m.direction], m[other(m.direction)], 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
