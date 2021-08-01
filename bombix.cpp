@@ -2800,7 +2800,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
-						definition_matrix(Maille{ direction, way, value, other_ }) = false;
+						definition_matrix(Maille{ direction, way, value, other }) = false;
 					}
 				}
 			}
