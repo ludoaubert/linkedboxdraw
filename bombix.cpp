@@ -322,6 +322,28 @@ struct Matrix
 		return _data[i*_m + j];
 	}
 
+	T operator()(const Maille& m) const
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
+	}
+	
+	T& operator()(const Maille& m)
+	{
+		switch (m.direction)
+		{
+		case HORIZONTAL:
+			return (*this)(m.value, m.other);
+		case VERTICAL:
+			return (*this)(m.other, m.value);
+		}
+	}
+	
 	int dim(Direction direction) const
 	{
 		switch (direction)
