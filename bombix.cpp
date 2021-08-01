@@ -209,6 +209,19 @@ struct Maille
 {
 	Direction direction;
 	Way way;
+	int16_t& operator[](Direction direction_)
+	{
+/*
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+*/
+		return direction==direction_ ? value : other;
+	}
 	int16_t value, other;
 };
 
@@ -672,7 +685,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	
 	Maille r = parse(u);
 	Maille next = r;
-	next.value += next.way;
+	next[next.direction] += next.way;
 	
 	if (definition_matrix(next))
 	{
@@ -681,7 +694,8 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		for (Maille* m : {&r, &next})
 		{
 			auto& tab = coords[m->direction];
-			distance += tab[m->value+1] - tab[m->value];
+			int16_t value = (*m)[m->direction];
+			distance += tab[value+1] - tab[value];
 		}
 		adj.push_back({u, v, distance});
 	}
