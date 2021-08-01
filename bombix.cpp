@@ -1058,7 +1058,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			{
 				for (Range &r : ranges)
 				{
-					(way > 0 ? r.max : r.min) = other_;
+					r[way] += way;
 				}
 			}
 		}
