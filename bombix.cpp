@@ -2795,8 +2795,8 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					int16_t value = m[m.direction], other_value = m[other(m.direction)];
 					auto [direction, way, value_, other] = m;
+					int16_t value = m[m.direction], other_value = m[other(m.direction)];
 					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
 					for (int16_t other = r.min; other <= r.max; other++)
 					{
