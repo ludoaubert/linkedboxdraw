@@ -810,9 +810,9 @@ Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<i
 	{
 		auto [left, right, top, bottom] = index(coords, r);
 		
-		for (int i = left; i <= right; i++)
+		for (int j = left; j <= right; j++)
 		{
-			for (int j = top; j <= bottom; j++)
+			for (int i = top; i <= bottom; i++)
 			{
 				m(i,j) = false;
 			}
