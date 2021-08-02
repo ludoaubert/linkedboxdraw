@@ -656,9 +656,9 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", to);
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*expected path*/{\n");
 			
-			for (const /*Maille*/auto& [direction, way, value, other] : expected_path)
+			for (const Maille& m : expected_path)
 			{
-				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %d, %d},\n", dir[direction], way_string[1+way], value, other);
+				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %d, %d},\n", dir[m.direction], way_string[1+m.way], m[m.direction], m[other(m.direction)]);
 			}
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t}\n");
 			pos += sprintf(buffer + pos, "\t\t\t\t\t}\n");
@@ -2913,8 +2913,9 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [enlarged, path] = faiceau_paths[{to,from}];
 			for (Maille &maille : path)
 			{
-				auto [direction, way, value, other] = maille;
-				mypath.push_back({enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other}});
+				auto [direction, way, i, j] = maille;
+				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
+				mypath.push_back({enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value}});
 			}
 			reverse(begin(mypath),end(mypath));
 			for (Range &r : mypath)
@@ -2925,8 +2926,9 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [enlarged, path] = faiceau_paths[{from,to}];
 			for (Maille &maille : path)
 			{
-				auto [direction, way, value, other] = maille;
-				mypath.push_back(enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other});
+				auto [direction, way, i, j] = maille;
+				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
+				mypath.push_back(enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value});
 			}
 		}
 		else
@@ -2936,8 +2938,9 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [r_enlarged, r_path] = faiceau_paths[{to,from}];
 			for (Maille& maille : r_path)
 			{
-				auto [direction, way, value, other] = maille;
-				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other, other};
+				auto [direction, way, i, j] = maille;
+				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];				
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other_value, other_value};
 				reverse(range.way);
 				entgegen_ranges[range] = distance(&r_path[0], &maille);
 			}
@@ -2947,8 +2950,9 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [enlarged, path] = faiceau_paths[{from,to}];
 			for (const Maille& maille : path)
 			{
-				auto [direction, way, value, other] = maille;
-				Range range = enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other, other};
+				auto [direction, way, i, j] = maille;
+				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
+				Range range = enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value};
 				mypath.push_back(range);
 				if (entgegen_ranges.count(range))
 				{
@@ -2960,8 +2964,9 @@ void compute_polylines(const vector<Rect>& rects,
 			for (; i >= 0; i--)
 			{
 				Maille &maille = r_path[i];
-				auto [direction, way, value, other] = maille;
-				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other, other};
+				auto [direction, way, ii, j] = maille;
+				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other_value, other_value};
 				reverse(range.way);
 				mypath.push_back(range);
 			}
@@ -3052,10 +3057,8 @@ int main(int argc, char* argv[])
 					if (faisceau_output[i].enlarged != ctx.faisceau_output[i].enlarged)
 					{
 						printf("faisceau_output[%d].enlarged does not match expected!\n", i);
-						for (auto kv : faisceau_output[i].enlarged)
+						for (auto [m, r] : faisceau_output[i].enlarged)
 						{
-							Maille m = kv.first;
-							Range r = kv.second;
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
@@ -3063,10 +3066,8 @@ int main(int argc, char* argv[])
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
-						for (auto kv : ctx.faisceau_output[i].enlarged)
+						for (auto [m, r] : ctx.faisceau_output[i].enlarged)
 						{
-							Maille m = kv.first;
-							Range r = kv.second;
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
@@ -3074,10 +3075,8 @@ int main(int argc, char* argv[])
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
-						for (auto kv : faisceau_output[i].enlarged)
+						for (auto [maille, r] : faisceau_output[i].enlarged)
 						{
-							Maille maille = kv.first;
-							Range r = kv.second;
 							if (ctx.faisceau_output[i].enlarged.count(maille) == 1 && ctx.faisceau_output[i].enlarged.at(maille) != faisceau_output[i].enlarged.at(maille))
 							{
 								Range r2 = ctx.faisceau_output[i].enlarged.at(maille);
