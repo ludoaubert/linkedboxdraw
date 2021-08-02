@@ -840,20 +840,20 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	auto [left, right, top, bottom] = index(coords, r);
 	
-	for (int16_t i = left; i <= right; i++)
+	for (int16_t j = left; j <= right; j++)
 	{
 		if (top > 1)
-			result.insert({VERTICAL, input_output(ioswitch, DECREASE), int16_t(top-1), i});
+			result.insert({VERTICAL, input_output(ioswitch, DECREASE), int16_t(top-1), j});
 		if (bottom + 1 < coords[VERTICAL].size())
-			result.insert({VERTICAL, input_output(ioswitch, INCREASE), int16_t(bottom+1), i});
+			result.insert({VERTICAL, input_output(ioswitch, INCREASE), int16_t(bottom+1), j});
 	}
 	
-	for (int16_t j = top; j <= bottom; j++)
+	for (int16_t i = top; i <= bottom; i++)
 	{
 		if (left > 1)
-			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), int16_t(left-1),j});
+			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), i, int16_t(left-1)});
 		if (right+1 < coords[HORIZONTAL].size())
-			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), int16_t(right+1), j});
+			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), i, int16_t(right+1)});
 	}
 	
 	unordered_set<uint64_t> defined;
