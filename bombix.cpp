@@ -765,9 +765,9 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 			rec[other(next_r.direction)] = Span{ min, max};
 				
 			bool detect = false;
-			for (int i = rec.left; i <= rec.right; i++)
+			for (int j = rec.left; j <= rec.right; j++)
 			{
-				for (int j = rec.top; j <= rec.bottom; j++)
+				for (int i = rec.top; i <= rec.bottom; i++)
 				{
 				//detect si n'est pas definie
 					detect |= !definition_matrix(i, j);
