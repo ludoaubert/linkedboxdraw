@@ -1018,7 +1018,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[way] += way;
 				Coord c = r[way];
 
-				return 0 <= r.min && r.max < m.dim(r.direction) && m(c.j, c.i);
+				return 0 <= r.min && r.max < m.dim(r.direction) && m(c.i, c.j);
 			}))
 			{
 				for (Range &r : ranges)
