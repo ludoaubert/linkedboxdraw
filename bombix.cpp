@@ -203,33 +203,29 @@ struct Maille
 {
 	Direction direction;
 	Way way;
-	int16_t& operator[](Direction direction_)
-	{
-/*
-		switch (direction)
-		{
-		case HORIZONTAL:
-			return j;
-		case VERTICAL:
-			return i;
-		}
-*/
-		return direction==direction_ ? i : j;
-	}
-	int16_t operator[](Direction direction_) const
-	{
-/*
-		switch (direction)
-		{
-		case HORIZONTAL:
-			return j;
-		case VERTICAL:
-			return i;
-		}
-*/
-		return direction==direction_ ? i : j;
-	}
 	int16_t i, j;
+	
+	int16_t& operator[](Direction input_direction)
+	{
+		switch (input_direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+	}
+	int16_t operator[](Direction input_direction) const
+	{
+		switch (input_direction)
+		{
+		case HORIZONTAL:
+			return j;
+		case VERTICAL:
+			return i;
+		}
+	}
+
 };
 
 
@@ -420,28 +416,6 @@ struct Matrix
 		if (j >= _m)
 			return false;
 		return _data[i*_m + j];
-	}
-
-	T operator()(const Maille& m) const
-	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.i, m.j);
-		case VERTICAL:
-			return (*this)(m.j, m.i);
-		}
-	}
-	
-	T& operator()(const Maille& m)
-	{
-		switch (m.direction)
-		{
-		case HORIZONTAL:
-			return (*this)(m.i, m.j);
-		case VERTICAL:
-			return (*this)(m.j, m.i);
-		}
 	}
 	
 	int dim(Direction direction) const
@@ -694,7 +668,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	Maille next = r;
 	next[next.direction] += next.way;
 	
-	if (definition_matrix(next))
+	if (definition_matrix(next.i, next.j))
 	{
 		uint64_t v = serialize(next);
 		int distance = 0;
@@ -712,9 +686,8 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 		Maille next = r;
 		next.direction = other(r.direction);
 		next.way = way;
-		swap(next.i, next.j);
 		
-		if (definition_matrix(next))
+		if (definition_matrix(next.i, next.j))
 		{
 			uint64_t v = serialize(next);
 			adj.push_back({ u, v, TURN_PENALTY });
@@ -887,7 +860,7 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	for (const Maille& m : result)
 	{
-		if (definition_matrix(m))
+		if (definition_matrix(m.i, m.j))
 			defined.insert(serialize(m));
 	}
 	return defined;
@@ -2788,12 +2761,12 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				{
 					Maille m = parse(u);
 					auto [direction, way, i, j] = m;
-					int16_t value = m[m.direction], other_value = m[other(m.direction)];
-					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_value, other_value };
+					int16_t value = m[m.direction], other_val = m[other(m.direction)];
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_val, other_val };
 					for (int16_t other_value = r.min; other_value <= r.max; other_value++)
 					{
 						m[other(m.direction)] = other_value;
-						definition_matrix(m) = false;
+						definition_matrix(m.i, m.j) = false;
 					}
 				}
 			}
