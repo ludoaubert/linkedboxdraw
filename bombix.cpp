@@ -805,7 +805,7 @@ Rect index(const vector<int>(&coords)[2], const Rect& r)
 
 Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<int> (&coords)[2])
 {
-	Matrix<bool> m(coords[0].size() - 1, coords[1].size() - 1, true);
+	Matrix<bool> m(coords[1].size() - 1, coords[0].size() - 1, true);
 	for (const Rect& r : rects)
 	{
 		auto [left, right, top, bottom] = index(coords, r);
