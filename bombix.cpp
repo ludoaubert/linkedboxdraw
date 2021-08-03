@@ -664,7 +664,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	//TODO: use destructuring
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
-			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%hu,%hu},{%s,%s,%d,%d,%d}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%hu,%hu},{%s,%s,%hu,%hu,%hu}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 		}
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 		
