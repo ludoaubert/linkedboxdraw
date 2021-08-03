@@ -1185,9 +1185,9 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint64_t> >& target_candidates, const vector<Edge>& predecessor)
 {
 	unordered_map<uint64_t, int> hit_count;
-	for (const Link& link : adj_links)
+	for (const auto [from, to] : adj_links)
 	{
-		for (uint64_t u : target_candidates.at(link.to))
+		for (uint64_t u : target_candidates.at(to))
 		{
 			while (u != 0)
 			{
@@ -1198,10 +1198,9 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	}
 	
 	int n=0;
-//TODO: use C++17 destructuring
-	for (auto p : hit_count)
+
+	for (auto [u, c] : hit_count)
 	{
-		int c = p.second;
 		if (c >= 2)
 			n += c;
 	}
