@@ -1601,7 +1601,7 @@ const TestContext contexts[] = {
  {/*source*/19, /*target*/11 }
  },
 /*faiceau output*/{
-			{
+			{/*[0]*/
 				/*targets*/{
 					{
 						/*from*/7,
@@ -1688,7 +1688,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,35,32 },{ HORIZONTAL,INCREASE,32,35,44 } }
 				}
 			},
-			{
+			{/*[1]*/
 				/*targets*/{
 					{
 						/*from*/14,
@@ -1793,7 +1793,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,6,46 },{ HORIZONTAL,INCREASE,46,6,11 } }
 				}
 			},
-			{
+			{/*[2]*/
 				/*targets*/{
 					{
 						/*from*/10,
@@ -1860,7 +1860,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,36,32 },{ HORIZONTAL,INCREASE,32,36,44 } }
 				}
 			},
-			{
+			{/*[3]*/
 				/*targets*/{
 					{
 						/*from*/19,
@@ -1913,7 +1913,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL, DECREASE, 36, 32 },{ HORIZONTAL, DECREASE, 32, 36, 44 } }
 				}
 			},
-			{
+			{/*[4]*/
 				/*targets*/{
 					{
 						/*from*/5,
@@ -1955,7 +1955,7 @@ const TestContext contexts[] = {
 					{ { VERTICAL,INCREASE,19,4 },{ VERTICAL,INCREASE,19,4,13 } }
 				}
 			},
-			{
+			{/*[5]*/
 				/*targets*/{
 					{
 						/*from*/9,
@@ -2004,7 +2004,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,47,15 },{ HORIZONTAL,INCREASE,15,47,50 } }
 				}
 			},
-			{
+			{/*[6]*/
 				/*targets*/{
 					{
 						/*from*/16,
@@ -2040,7 +2040,7 @@ const TestContext contexts[] = {
 					{ { VERTICAL,DECREASE,27,20 },{ VERTICAL,DECREASE,27,20,31 } }
 				}
 			},
-			{
+			{/*[7]*/
 				/*targets*/{
 					{
 						/*from*/2,
@@ -2102,7 +2102,7 @@ const TestContext contexts[] = {
 					{ { VERTICAL,INCREASE,9,9 },{ VERTICAL,INCREASE,9,9,11 } }
 				}
 			},
-			{
+			{/*[8]*/
 				/*targets*/{
 					{
 						/*from*/3,
@@ -2132,7 +2132,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,INCREASE,29,44 },{ HORIZONTAL,INCREASE,44,29,32 } }
 				}
 			},
-			{
+			{/*[9]*/
 				/*targets*/{
 					{
 						/*from*/6,
@@ -2158,7 +2158,7 @@ const TestContext contexts[] = {
 					{ { VERTICAL,INCREASE,9,22 },{ VERTICAL,INCREASE,9,22,31 } }
 				}
 			},
-			{
+			{/*[10]*/
 				/*targets*/{
 					{
 						/*from*/8,
@@ -2190,7 +2190,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,DECREASE,47,13 },{ HORIZONTAL,DECREASE,13,47,50 } }
 				}
 			},
-			{
+			{/*[11]*/
 				/*targets*/{
 					{
 						/*from*/11,
@@ -2216,7 +2216,7 @@ const TestContext contexts[] = {
 					{ { HORIZONTAL,DECREASE,35,48 },{ HORIZONTAL,DECREASE,48,35,44 } }
 				}
 			},
-			{
+			{/*[12]*/
 				/*targets*/{
 					{
 						/*from*/17,
