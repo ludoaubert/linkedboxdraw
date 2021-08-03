@@ -22,6 +22,26 @@
 using namespace std;
 using namespace std::chrono;
 
+/*
+Convention for geometry:
+  +------> x
+  |
+  |
+  |
+  V
+  y
+  
+Convention for matrix:
+  +------> j
+  |
+  |
+  |
+  V
+  i
+  
+i (resp. j) corresponds to y (resp. x), which might seem surprising.
+*/
+
 
 enum Direction : uint16_t
 {
@@ -2639,18 +2659,18 @@ const TestContext contexts[] = {
 						/*from*/3,
 						/*to*/0,
 						/*expected path*/{
-							{HORIZONTAL,DECREASE,2,3},
+							{HORIZONTAL,DECREASE,3,2},
 							{VERTICAL,DECREASE,3,2},
 							{VERTICAL,DECREASE,2,2},
 							{VERTICAL,DECREASE,1,2},
-							{HORIZONTAL,DECREASE,2,1}
+							{HORIZONTAL,DECREASE,1,2}
 						}
 					},
 					{
 						/*from*/3,
 						/*to*/1,
 						/*expected path*/{
-							{HORIZONTAL,DECREASE,2,4}
+							{HORIZONTAL,DECREASE,4,2}
 						}
 					}
 				},
