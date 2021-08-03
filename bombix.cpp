@@ -2942,7 +2942,7 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [enlarged, path] = faiceau_paths[{from,to}];
 			for (const Maille& maille : path)
 			{
-				auto [direction, way, i, j] = maille;
+				auto [direction, way, ii, j] = maille;
 				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
 				Range range = enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value};
 				mypath.push_back(range);
