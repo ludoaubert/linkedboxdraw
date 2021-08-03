@@ -3035,7 +3035,7 @@ int main(int argc, char* argv[])
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way[1+m.way], m[m.direction], m[other(m.direction)], 
+									dir[m.direction], way[1+m.way], m.i, m.j], 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
@@ -3044,7 +3044,7 @@ int main(int argc, char* argv[])
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way[1+m.way], m[m.direction], m[other(m.direction)], 
+									dir[m.direction], way[1+m.way], m.i, m.j, 
 									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
 							}
 						}
