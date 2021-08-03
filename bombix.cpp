@@ -2401,13 +2401,13 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/2,
 						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 2, 1 },
-							{ HORIZONTAL, INCREASE, 3, 1 },
-							{ HORIZONTAL, INCREASE, 4, 1 },
+							{ HORIZONTAL, INCREASE, 1, 2 },
+							{ HORIZONTAL, INCREASE, 1, 3 },
+							{ HORIZONTAL, INCREASE, 1, 4 },
 							{ VERTICAL, INCREASE, 1, 4 },
 							{ VERTICAL, INCREASE, 2, 4 },
 							{ VERTICAL, INCREASE, 3, 4 },
-							{ HORIZONTAL, INCREASE, 4, 3 }
+							{ HORIZONTAL, INCREASE, 3, 4 }
 						}
 					}
 				},
@@ -2476,16 +2476,16 @@ const TestContext contexts[] = {
 						/*to*/0,
 						/*expected path*/{
 							{ VERTICAL, DECREASE, 4, 2 },
-							{ HORIZONTAL, DECREASE, 2, 4 },
-							{ HORIZONTAL, DECREASE, 1, 4 },
-							{ HORIZONTAL, DECREASE, 0, 4 },
+							{ HORIZONTAL, DECREASE, 4, 2 },
+							{ HORIZONTAL, DECREASE, 4, 1 },
+							{ HORIZONTAL, DECREASE, 4, 0 },
 							{ VERTICAL, DECREASE, 4, 0 },
 							{ VERTICAL, DECREASE, 3, 0 },
 							{ VERTICAL, DECREASE, 2, 0 },
-							{ HORIZONTAL, INCREASE, 0, 2 },
-							{ HORIZONTAL, INCREASE, 1, 2 },
+							{ HORIZONTAL, INCREASE, 2, 0 },
+							{ HORIZONTAL, INCREASE, 2, 1 },
 							{ HORIZONTAL, INCREASE, 2, 2 },
-							{ HORIZONTAL, INCREASE, 3, 2 },
+							{ HORIZONTAL, INCREASE, 2, 3 },
 							{ VERTICAL, DECREASE, 2, 3 }
 						}
 					}
@@ -2539,8 +2539,8 @@ const TestContext contexts[] = {
 						/*expected path*/{
 							{VERTICAL,INCREASE,1,0},
 							{VERTICAL,INCREASE,2,0},
-							{HORIZONTAL,INCREASE,0,2},
-							{HORIZONTAL,INCREASE,1,2}
+							{HORIZONTAL,INCREASE,2,0},
+							{HORIZONTAL,INCREASE,2,1}
 						}
 					}
 				},
@@ -2598,11 +2598,11 @@ const TestContext contexts[] = {
                         /*from*/0,
                         /*to*/3,
 						/*expected path*/{
-                            {HORIZONTAL,INCREASE,2,1},
+                            {HORIZONTAL,INCREASE,1,2},
                             {VERTICAL,INCREASE,1,2},
                             {VERTICAL,INCREASE,2,2},
                             {VERTICAL,INCREASE,3,2},
-                            {HORIZONTAL,INCREASE,2,3}
+                            {HORIZONTAL,INCREASE,3,2}
                         }
 					}
 				},
