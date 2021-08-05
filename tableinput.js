@@ -224,6 +224,7 @@ function addNewBox()
 	myBoxes.push(newBoxEditField.value);
 	box2fields[newBoxEditField.value] = [];
 	newBoxEditField.value='';
+	boxCommentTextArea.value='';
 	selectCascadeBox();
 }
 
