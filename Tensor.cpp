@@ -1,5 +1,6 @@
 #include <vector>
 #include <stdio.h>
+#include <cstdint>
 using namespace std;
 
 
@@ -8,33 +9,6 @@ struct TensorDimension
 	int i;
 	int n;
 };
-
-
-struct Tensor
-{
-	Tensor& operator++(int)
-	{
-		TensorDimension& dim = dimensions[k];
-		if (dim.i + 1 < dim.n)
-		{
-			dim.i++;
-			return *this;
-		}
-		
-		k++;
-		
-		for (int l=0; l<k; l++)
-		{
-			dimensions[l].i=0;
-		}
-		dimensions[k].i++;
-		k=0;
-		return *this;
-	}
-	vector<TensorDimension> dimensions;
-	int k=0;
-};
-
 
 int number_of_tensor_cells(const vector<TensorDimension>& dimensions)
 {
@@ -45,6 +19,43 @@ int number_of_tensor_cells(const vector<TensorDimension>& dimensions)
 	
 	return nb;
 }
+
+uint64_t digits2number(const vector<TensorDimension>& dimensions)
+{
+	uint64_t number=0;
+	int base=1;
+	for (const auto& [i,n] : dimensions)
+	{
+		number += i*base;
+		base *= n;
+	}
+	return number;
+}
+
+void number2digits(uint64_t number, vector<TensorDimension>& dimensions)
+{
+	for (auto& [i,n] : dimensions)
+	{
+		i = number % n;
+		number -= i ;
+		number /= n;
+	}
+}
+
+
+struct Tensor
+{
+	Tensor& operator++(int)
+	{
+		uint64_t number = digits2number(dimensions);
+		number++;
+		number2digits(number, dimensions);
+		return *this;
+	}
+	vector<TensorDimension> dimensions;
+};
+
+
 
 int main()
 {
@@ -57,6 +68,20 @@ int main()
 	for (int i=0; i<nb; i++)
 	{
 		printf("%d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i);
+		tensor++;
+	}
+	
+	tensor.dimensions = {{9,10},{9,10},{2,10}};
+	for (int i=0; i<3; i++)
+	{
+		printf("%d %d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i, tensor.dimensions[2].i);
+		tensor++;
+	}
+	
+	tensor.dimensions = {{9,10},{2,10},{2,10}};
+	for (int i=0; i<3; i++)
+	{
+		printf("%d %d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i, tensor.dimensions[2].i);
 		tensor++;
 	}
 }
