@@ -3175,20 +3175,8 @@ int main(int argc, char* argv[])
 				for (int i = 0; i < faisceau_output.size(); i++)
 				{
 					if (faisceau_output[i].targets != ctx.faisceau_output[i].targets)
-					{
 						printf("faisceau_output[%d].targets does not match expected!\n", i);
-						for (const auto& [from, to, path] : faisceau_output[i].targets)
-						{
-							printf("from:%d\n", from);
-							printf("to:%d\n", to);
-							printf("{\n");
-							for (Maille m : path)
-							{
-								printf("\t{%s, %s, %hu, %hu}\n", dir[m.direction], way[1+m.way], m[m.direction], m[other(m.direction)]);
-							}
-							printf("}\n");
-						}
-					}
+
 					if (faisceau_output[i].enlarged != ctx.faisceau_output[i].enlarged)
 					{
 						printf("faisceau_output[%d].enlarged does not match expected!\n", i);
