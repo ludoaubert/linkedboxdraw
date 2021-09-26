@@ -20,6 +20,7 @@
 #include <regex>
 #include <omp.h>
 #include <climits>
+#include <set>
 using namespace std;
 using namespace std::chrono;
 
@@ -1193,7 +1194,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 			while (u != 0)
 			{
 				hit_count[u]++;
-				u = predecessor.at(u).u;
+				u = predecessor[u].u;
 			}
 		}
 	}
@@ -1220,7 +1221,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, uint64_t>& s
 		while (u != 0)
 		{
 			hit_count[u]++;
-			u = predecessor.at(u).u;
+			u = predecessor[u].u;
 		}
 	}
 	
@@ -2805,6 +2806,55 @@ void test_tensor()
 
 // Tensor ---------------------------------------------------------------------------------------------
 
+// Clustering -----------------------------------------------------------------------------------------
+
+void generate_cluster(int u, 
+					  int cluster_number, 
+					  const vector<Link> &edges, 
+					  const vector<int> &start_position, 
+					  const vector<int> &end_position, 
+					  vector<int> &cluster)
+{
+    cluster[u]=cluster_number;
+    for (int idx = start_position[u]; idx < end_position[u]; idx++)
+	{
+        const auto& [u,v] = edges[idx];
+        if (cluster[v]==-1)
+            generate_cluster(v, cluster_number, edges, start_position, end_position, cluster);
+	}
+}
+
+vector<int> compute_cluster(const vector<Link> &edges)
+{	
+	int n=0;
+	for (const auto& [u, v] : edges)
+	{
+		n = max(u,n);
+		n = max(v,n);
+	}
+
+	vector<int> start_position(n+1, -1), end_position(n+1, -1), cluster(n+1, -1);
+		
+	for (int idx=0; idx < edges.size(); idx++)
+	{
+		const auto& [u, v] = edges[idx];
+		if (start_position[u]==-1)
+			start_position[u]=idx;
+		end_position[u]=idx+1;
+	}
+
+	int cluster_number=0;
+	for (const auto& [u,v] : edges)
+	{
+		if (cluster[u]==-1)
+			generate_cluster(u, cluster_number, edges, start_position, end_position, cluster);
+        cluster_number++;
+	}
+	
+	return cluster;
+}
+
+// Clustering -----------------------------------------------------------------------------------------
 
 /*
 1/ Pour chaque rectangle, creer plusieurs entrees dans coords, suivant le nombre de liens connectes a ce rectangle.
@@ -2849,7 +2899,46 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[to]);
 	}
 
-	//Selection of the best candidate
+//Selection of the best candidate
+	
+	//Link clustering
+
+	vector<set<uint64_t> > link_cells; 
+	for (const auto& [from, to] : adj_links)
+	{
+		set<uint64_t> cells;
+		for (uint64_t u : target_candidates_[to])
+		{
+			while (u != 0)
+			{
+				cells.insert(u);
+				u = predecessor[u].u;
+			}
+		}
+		link_cells.push_back(cells);
+	}
+	
+	vector<Link> edges;
+	
+	for (int k=0; k < adj_links.size(); k++)
+	{
+		for (int l=k+1; l < adj_links.size(); l++)
+		{
+			const set<uint64_t>& s1 = link_cells[k], & s2 = link_cells[l];
+			std::vector<int> common_data;
+			set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(), std::back_inserter(common_data));
+			if (common_data.empty()==false)
+			{
+				edges.push_back({k,l});
+			}
+		}
+		edges.push_back({k,k});
+	}
+	
+	sort(begin(edges), end(edges), [](const Link &e1, const Link& e2){return e1.from != e2.from ? e1.from < e2.from : e1.to < e2.to;} );
+
+	vector<int> cluster = compute_cluster(edges);
+		
 	Tensor tensor;
 	tensor.dimensions.resize(adj_links.size());
 	for (int k=0; k < adj_links.size(); k++)
