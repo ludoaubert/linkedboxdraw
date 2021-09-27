@@ -2855,8 +2855,10 @@ vector<int> compute_cluster(const vector<Link> &edges)
 	for (const auto& [u,v] : edges)
 	{
 		if (cluster[u]==-1)
+		{
 			generate_cluster(u, cluster_number, edges, start_position, end_position, cluster);
-        cluster_number++;
+			cluster_number++;
+		}
 	}
 	
 	return cluster;
@@ -2946,6 +2948,16 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	sort(begin(edges), end(edges), [](const Link &e1, const Link& e2){return e1.from != e2.from ? e1.from < e2.from : e1.to < e2.to;} );
 
 	vector<int> cluster = compute_cluster(edges);
+	
+	int number_of_clusters = 1 + *max_element(begin(cluster), end(cluster));
+	for (int c=0; c < number_of_clusters; c++)
+	{
+		for (int u=0; u < cluster.size(); u++)
+		{
+			if (cluster[u] == c)
+				printf("cluster[%d]=%d\n", u, cluster[u]);
+		}
+	}
 		
 	Tensor tensor;
 	tensor.dimensions.resize(adj_links.size());
