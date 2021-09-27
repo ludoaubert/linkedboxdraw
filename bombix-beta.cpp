@@ -1267,7 +1267,7 @@ string polyline2json(const vector<Polyline>& polylines)
 
 
 const TestContext contexts[] = {
-#if 0
+//#if 0
 {
 	/*testid*/0,
 	/*rectangles*/{
@@ -1320,8 +1320,10 @@ const TestContext contexts[] = {
 	},
 	/*faiceau output*/{},
 	/*polylines*/{}
-},
-#endif
+}
+#if 0
+,
+//#endif
 /*
                         +-----+
                         |  1  |
@@ -2722,6 +2724,7 @@ const TestContext contexts[] = {
 			}
 		}
 }
+#endif
 };
 
 // Tensor ---------------------------------------------------------------------------------------------
