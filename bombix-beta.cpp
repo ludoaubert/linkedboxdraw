@@ -2966,35 +2966,31 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		tensor.dimensions.resize(adj_links.size());
 		for (int k=0; k < cluster.size(); k++)
 		{
-			const auto& [from, to] = adj_links[k];
-			auto& [i, n] = tensor.dimensions[k];
-			const vector<uint64_t> &candidates = target_candidates_[to];
-			n = candidates.size();			
+			if (cluster[k] == c)
+			{
+				const auto& [from, to] = adj_links[k];
+				auto& [i, n] = tensor.dimensions[k];
+				const vector<uint64_t> &candidates = target_candidates_[to];
+				n = candidates.size();
+			}				
 		}
-	}
 		
-	Tensor tensor;
-	tensor.dimensions.resize(adj_links.size());
-	for (int k=0; k < adj_links.size(); k++)
-	{
-		const auto& [from, to] = adj_links[k];
-		auto& [i, n] = tensor.dimensions[k];
-		const vector<uint64_t> &candidates = target_candidates_[to];
-		n = candidates.size();
-	
 		int min_number_of_overlap = INT_MAX;
 		uint64_t nb = number_of_tensor_cells(tensor.dimensions);
 		printf("number of tensor cells:""%" PRIu64 "\n", nb);
 		unordered_map<int, uint64_t> selected_target_candidates ;
-		for (uint64_t iter=0; iter<nb; iter++)
+		for (uint64_t iter=0; iter<nb; iter++, tensor++)
 		{
 			for (int k=0; k < adj_links.size(); k++)
 			{
 				const auto& [from, to] = adj_links[k];
 				const auto& [i, n] = tensor.dimensions[k];
-				const vector<uint64_t> &candidates = target_candidates_[to];
-				uint64_t u = candidates[i];
-				selected_target_candidates[to] = u ;
+				if (n > 1)
+				{
+					const vector<uint64_t> &candidates = target_candidates_[to];
+					uint64_t u = candidates[i];
+					selected_target_candidates[to] = u ;
+				}
 			}
 			int number_of_overlap = overlap(adj_links, selected_target_candidates, predecessor);
 			if (number_of_overlap < min_number_of_overlap)
@@ -3002,7 +2998,6 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				best_target_candidate = selected_target_candidates;
 				min_number_of_overlap = number_of_overlap;
 			}
-			tensor++;
 		}
 	}
 	
