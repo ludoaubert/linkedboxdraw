@@ -2902,7 +2902,6 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	dijkstra(Graph{ definition_matrix_, coords }, source_node_distance, distance, predecessor);
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
-	unordered_map<int, uint64_t> best_target_candidate;
 
 	for (const auto& [from, to] : adj_links)
 	{
@@ -2959,6 +2958,8 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				printf("cluster[%d]=%d\n", u, cluster[u]);
 		}
 	}
+	
+	unordered_map<int, uint64_t> best_target_candidate;
 	
 	for (int c=0; c < number_of_clusters; c++)
 	{
