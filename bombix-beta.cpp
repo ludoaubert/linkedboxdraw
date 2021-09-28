@@ -2963,42 +2963,51 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	
 	for (int c=0; c < number_of_clusters; c++)
 	{
-		Tensor tensor;
-		tensor.dimensions.resize(adj_links.size());
+		vector<Link> cluster_of_adj_links;
+		
 		for (int k=0; k < cluster.size(); k++)
 		{
 			if (cluster[k] == c)
 			{
-				const auto& [from, to] = adj_links[k];
-				auto& [i, n] = tensor.dimensions[k];
-				const vector<uint64_t> &candidates = target_candidates_[to];
-				n = candidates.size();
-			}				
+				cluster_of_adj_links.push_back(adj_links[k]);
+			}
+		}
+	
+		Tensor tensor;
+		tensor.dimensions.resize(cluster_of_adj_links.size());
+		for (int k=0; k < cluster_of_adj_links.size(); k++)
+		{
+			const auto& [from, to] = cluster_of_adj_links[k];
+			auto& [i, n] = tensor.dimensions[k];
+			const vector<uint64_t> &candidates = target_candidates_[to];
+			n = candidates.size();				
 		}
 		
 		int min_number_of_overlap = INT_MAX;
 		uint64_t nb = number_of_tensor_cells(tensor.dimensions);
 		printf("number of tensor cells:""%" PRIu64 "\n", nb);
-		unordered_map<int, uint64_t> selected_target_candidates ;
+		unordered_map<int, uint64_t> selected_target_candidates, cluster_best_target_candidate;
 		for (uint64_t iter=0; iter<nb; iter++, tensor++)
 		{
-			for (int k=0; k < adj_links.size(); k++)
+			for (int k=0; k < cluster_of_adj_links.size(); k++)
 			{
-				const auto& [from, to] = adj_links[k];
+				const auto& [from, to] = cluster_of_adj_links[k];
 				const auto& [i, n] = tensor.dimensions[k];
-				if (n > 1)
-				{
-					const vector<uint64_t> &candidates = target_candidates_[to];
-					uint64_t u = candidates[i];
-					selected_target_candidates[to] = u ;
-				}
+				const vector<uint64_t> &candidates = target_candidates_[to];
+				uint64_t u = candidates[i];
+				selected_target_candidates[to] = u ;
 			}
-			int number_of_overlap = overlap(adj_links, selected_target_candidates, predecessor);
+			int number_of_overlap = overlap(cluster_of_adj_links, selected_target_candidates, predecessor);
 			if (number_of_overlap < min_number_of_overlap)
 			{
-				best_target_candidate = selected_target_candidates;
+				cluster_best_target_candidate = selected_target_candidates;
 				min_number_of_overlap = number_of_overlap;
 			}
+		}
+		
+		for (const auto& [to, u] : cluster_best_target_candidate)
+		{
+			best_target_candidate[to] = u;
 		}
 	}
 	
