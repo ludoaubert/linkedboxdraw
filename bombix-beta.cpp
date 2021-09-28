@@ -3009,7 +3009,14 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		{
 			best_target_candidate[to] = u;
 		}
+		
+		printf("min_number_of_overlap=%d\n", min_number_of_overlap);
 	}
+	
+	printf("best_target_candidate={\n");
+	for (const auto& [to, u] : best_target_candidate)
+		printf("	to=%d, ""%" PRIu64 "\n", to, u);
+	printf("}\n");
 	
 /*
 	for (const auto& [from, to] : adj_links)
@@ -3038,7 +3045,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		for (const auto& [from, to] : adj_links)
 		{
 			vector<Maille> result;
-			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor.at(u).u)
+			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor[u].u)
 			{
 				result.push_back(parse(u));
 			}
@@ -3157,6 +3164,8 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 
 	faiceau_output.resize(origins.size());
+	
+	printf("faiceau_output.size()=%lu\n", faiceau_output.size());
 
 	#pragma omp parallel for
 	for (int i = 0; i < origins.size(); i++)
@@ -3309,6 +3318,9 @@ int main(int argc, char* argv[])
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			
+			printf("faisceau_output.size()=%lu\n", faisceau_output.size());
+			printf("polylines.size()=%lu\n", polylines.size());
+			
 			string serialized;
 			print(faisceau_output, serialized);
 
@@ -3317,8 +3329,27 @@ int main(int argc, char* argv[])
 
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
-			if (faisceau_output != ctx.faisceau_output)
+			
+			if (faisceau_output.size() != ctx.faisceau_output.size())
 			{
+				string serialized;
+				print(faisceau_output, serialized);
+				printf(serialized.c_str());
+				printf("\n\n\n\n");
+			}
+			
+			if (polylines.size() != ctx.polylines.size())
+			{
+				print(polylines, serialized);
+				printf(serialized.c_str());
+				printf("\n\n\n\n");	
+				string json = polyline2json(polylines);
+				printf(json.c_str());
+				printf("\n\n\n\n");				
+			}
+			
+			if (faisceau_output != ctx.faisceau_output && faisceau_output.size() == ctx.faisceau_output.size())
+			{				
 				for (int i = 0; i < faisceau_output.size(); i++)
 				{
 					if (faisceau_output[i].targets != ctx.faisceau_output[i].targets)
@@ -3451,7 +3482,7 @@ const char* bombix(const char *rectdim,
 
         compute_polylines(rects, frame, links, faiceau_output, polylines);
         string json = polyline2json(polylines);
-        char res[100000];
+        static char res[100000];
         std::copy(json.c_str(), json.c_str()+json.size(), res);
         res[json.size()]=0;
         return res;
