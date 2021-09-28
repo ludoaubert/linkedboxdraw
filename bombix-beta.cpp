@@ -3397,7 +3397,7 @@ int main(int argc, char* argv[])
 
 			string json = polyline2json(polylines);
 			
-			if (polylines != ctx.polylines)
+			if (polylines != ctx.polylines && polylines.size() == ctx.polylines.size())
 			{
 				for (int i = 0; i < polylines.size(); i++)
 				{
