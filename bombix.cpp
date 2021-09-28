@@ -1187,7 +1187,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	unordered_map<uint64_t, int> hit_count;
 	for (const auto [from, to] : adj_links)
 	{
-		for (uint64_t u : target_candidates[to])
+		for (uint64_t u : target_candidates.at(to))
 		{
 			while (u != 0)
 			{
@@ -3050,17 +3050,17 @@ int main(int argc, char* argv[])
 			{
 				string serialized;
 				print(faisceau_output, serialized);
-				printf(serialized.c_str());
+				printf("%s", serialized.c_str());
 				printf("\n\n\n\n");
 			}
 			
 			if (polylines.size() != ctx.polylines.size())
 			{
 				print(polylines, serialized);
-				printf(serialized.c_str());
+				printf("%s",serialized.c_str());
 				printf("\n\n\n\n");	
 				string json = polyline2json(polylines);
-				printf(json.c_str());
+				printf("%s",json.c_str());
 				printf("\n\n\n\n");				
 			}			
 			
