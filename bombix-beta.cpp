@@ -19,9 +19,6 @@
 #include <chrono>
 #include <regex>
 #include <omp.h>
-#include <climits>
-#include <set>
-#include <inttypes.h>
 using namespace std;
 using namespace std::chrono;
 
@@ -1190,7 +1187,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	unordered_map<uint64_t, int> hit_count;
 	for (const auto [from, to] : adj_links)
 	{
-		for (uint64_t u : target_candidates.at(to))
+		for (uint64_t u : target_candidates[to])
 		{
 			while (u != 0)
 			{
@@ -1210,33 +1207,6 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	
 	return n;
 }
-
-
-int overlap(const vector<Link> &adj_links, const unordered_map<int, uint64_t>& selected_target_candidates, const vector<Edge>& predecessor)
-{
-	unordered_map<uint64_t, int> hit_count;
-	for (const auto& [from, to] : adj_links)
-	{
-		uint64_t u = selected_target_candidates.at(to);
-
-		while (u != 0)
-		{
-			hit_count[u]++;
-			u = predecessor[u].u;
-		}
-	}
-	
-	int n=0;
-
-	for (auto [u, c] : hit_count)
-	{
-		if (c >= 2)
-			n += c;
-	}
-	
-	return n;
-}
-
 
 string polyline2json(const vector<Polyline>& polylines)
 {
@@ -2728,144 +2698,6 @@ const TestContext contexts[] = {
 #endif
 };
 
-// Tensor ---------------------------------------------------------------------------------------------
-
-struct Tensor
-{	
-	struct Dimension
-	{
-		int i=0;
-		int n=1;
-	};
-	
-	Tensor& operator++(int);
-
-	std::vector<Dimension> dimensions;
-};
-
-uint64_t number_of_tensor_cells(const vector<Tensor::Dimension>& dimensions)
-{
-	uint64_t nb=1;
-	
-	for (const auto& [i,n] : dimensions)
-		nb *= n;
-	
-	return nb;
-}
-
-uint64_t digits2number(const vector<Tensor::Dimension>& dimensions)
-{
-	uint64_t number=0;
-	int base=1;
-	for (const auto& [i,n] : dimensions)
-	{
-		number += i*base;
-		base *= n;
-	}
-	return number;
-}
-
-void number2digits(uint64_t number, vector<Tensor::Dimension>& dimensions)
-{
-	for (auto& [i,n] : dimensions)
-	{
-		i = number % n;
-		number -= i ;
-		number /= n;
-	}
-}
-
-Tensor& Tensor::operator++(int)
-{
-	uint64_t number = digits2number(dimensions);
-	number++;
-	number2digits(number, dimensions);
-	return *this;
-}
-
-
-void test_tensor()
-{
-	Tensor tensor;
-	tensor.dimensions = {{0,2},{0,3}};
-	
-	int nb = number_of_tensor_cells(tensor.dimensions);
-	printf("%d\n", nb);
-	
-	for (int i=0; i<nb; i++)
-	{
-		printf("%d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i);
-		tensor++;
-	}
-	
-	tensor.dimensions = {{9,10},{9,10},{2,10}};
-	for (int i=0; i<3; i++)
-	{
-		printf("%d %d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i, tensor.dimensions[2].i);
-		tensor++;
-	}
-	
-	tensor.dimensions = {{9,10},{2,10},{2,10}};
-	for (int i=0; i<3; i++)
-	{
-		printf("%d %d %d\n", tensor.dimensions[0].i, tensor.dimensions[1].i, tensor.dimensions[2].i);
-		tensor++;
-	}
-}
-
-// Tensor ---------------------------------------------------------------------------------------------
-
-// Clustering -----------------------------------------------------------------------------------------
-
-void generate_cluster(int u, 
-					  int cluster_number, 
-					  const vector<Link> &edges, 
-					  const vector<int> &start_position, 
-					  const vector<int> &end_position, 
-					  vector<int> &cluster)
-{
-    cluster[u]=cluster_number;
-    for (int idx = start_position[u]; idx < end_position[u]; idx++)
-	{
-        const auto& [u,v] = edges[idx];
-        if (cluster[v]==-1)
-            generate_cluster(v, cluster_number, edges, start_position, end_position, cluster);
-	}
-}
-
-vector<int> compute_cluster(const vector<Link> &edges)
-{	
-	int n=0;
-	for (const auto& [u, v] : edges)
-	{
-		n = max(u,n);
-		n = max(v,n);
-	}
-
-	vector<int> start_position(n+1, -1), end_position(n+1, -1), cluster(n+1, -1);
-		
-	for (int idx=0; idx < edges.size(); idx++)
-	{
-		const auto& [u, v] = edges[idx];
-		if (start_position[u]==-1)
-			start_position[u]=idx;
-		end_position[u]=idx+1;
-	}
-
-	int cluster_number=0;
-	for (const auto& [u,v] : edges)
-	{
-		if (cluster[u]==-1)
-		{
-			generate_cluster(u, cluster_number, edges, start_position, end_position, cluster);
-			cluster_number++;
-		}
-	}
-	
-	return cluster;
-}
-
-// Clustering -----------------------------------------------------------------------------------------
 
 /*
 1/ Pour chaque rectangle, creer plusieurs entrees dans coords, suivant le nombre de liens connectes a ce rectangle.
@@ -2902,6 +2734,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	dijkstra(Graph{ definition_matrix_, coords }, source_node_distance, distance, predecessor);
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
+	unordered_map<int, uint64_t> best_target_candidate;
 
 	for (const auto& [from, to] : adj_links)
 	{
@@ -2909,116 +2742,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[to]);
 	}
 
-//Selection of the best candidate
-	
-	//Link clustering
-
-	vector<set<uint64_t> > link_cells; 
-	for (const auto& [from, to] : adj_links)
-	{
-		set<uint64_t> cells;
-		for (uint64_t u : target_candidates_[to])
-		{
-			while (u != 0)
-			{
-				cells.insert(u);
-				u = predecessor[u].u;
-			}
-		}
-		link_cells.push_back(cells);
-	}
-	
-	vector<Link> edges;
-	
-	for (int k=0; k < adj_links.size(); k++)
-	{
-		for (int l=k+1; l < adj_links.size(); l++)
-		{
-			const set<uint64_t>& s1 = link_cells[k], & s2 = link_cells[l];
-			std::vector<int> common_data;
-			set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(), std::back_inserter(common_data));
-			if (common_data.empty()==false)
-			{
-				edges.push_back({k,l});
-			}
-		}
-		edges.push_back({k,k});
-	}
-	
-	sort(begin(edges), end(edges), [](const Link &e1, const Link& e2){return e1.from != e2.from ? e1.from < e2.from : e1.to < e2.to;} );
-
-	vector<int> cluster = compute_cluster(edges);
-	
-	int number_of_clusters = 1 + *max_element(begin(cluster), end(cluster));
-	for (int c=0; c < number_of_clusters; c++)
-	{
-		for (int u=0; u < cluster.size(); u++)
-		{
-			if (cluster[u] == c)
-				printf("cluster[%d]=%d\n", u, cluster[u]);
-		}
-	}
-	
-	unordered_map<int, uint64_t> best_target_candidate;
-	
-	for (int c=0; c < number_of_clusters; c++)
-	{
-		vector<Link> cluster_of_adj_links;
-		
-		for (int k=0; k < cluster.size(); k++)
-		{
-			if (cluster[k] == c)
-			{
-				cluster_of_adj_links.push_back(adj_links[k]);
-			}
-		}
-	
-		Tensor tensor;
-		tensor.dimensions.resize(cluster_of_adj_links.size());
-		for (int k=0; k < cluster_of_adj_links.size(); k++)
-		{
-			const auto& [from, to] = cluster_of_adj_links[k];
-			auto& [i, n] = tensor.dimensions[k];
-			const vector<uint64_t> &candidates = target_candidates_[to];
-			n = candidates.size();				
-		}
-		
-		int min_number_of_overlap = INT_MAX;
-		uint64_t nb = number_of_tensor_cells(tensor.dimensions);
-		printf("number of tensor cells:""%" PRIu64 "\n", nb);
-		unordered_map<int, uint64_t> selected_target_candidates, cluster_best_target_candidate;
-		for (uint64_t iter=0; iter<nb; iter++, tensor++)
-		{
-			for (int k=0; k < cluster_of_adj_links.size(); k++)
-			{
-				const auto& [from, to] = cluster_of_adj_links[k];
-				const auto& [i, n] = tensor.dimensions[k];
-				const vector<uint64_t> &candidates = target_candidates_[to];
-				uint64_t u = candidates[i];
-				selected_target_candidates[to] = u ;
-			}
-			int number_of_overlap = overlap(cluster_of_adj_links, selected_target_candidates, predecessor);
-			if (number_of_overlap < min_number_of_overlap)
-			{
-				cluster_best_target_candidate = selected_target_candidates;
-				min_number_of_overlap = number_of_overlap;
-			}
-		}
-		
-		for (const auto& [to, u] : cluster_best_target_candidate)
-		{
-			best_target_candidate[to] = u;
-		}
-		
-		printf("min_number_of_overlap=%d\n", min_number_of_overlap);
-	}
-	
-	printf("best_target_candidate={\n");
-	for (const auto& [to, u] : best_target_candidate)
-		printf("	to=%d, ""%" PRIu64 "\n", to, u);
-	printf("}\n");
-	
-/*
+	//Selection of the best candidate
 	for (const auto& [from, to] : adj_links)
 	{
 		vector<uint64_t> &candidates = target_candidates_[to];
@@ -3033,7 +2757,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		);
 		best_target_candidate[to] = { u };
 	}
-*/
+
 	//enlarge the faiceau - BEGIN
 
 	unordered_map<Maille, Range> enlarged;
@@ -3164,8 +2888,6 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 
 	faiceau_output.resize(origins.size());
-	
-	printf("faiceau_output.size()=%lu\n", faiceau_output.size());
 
 	#pragma omp parallel for
 	for (int i = 0; i < origins.size(); i++)
@@ -3317,9 +3039,6 @@ int main(int argc, char* argv[])
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
-			
-			printf("faisceau_output.size()=%lu\n", faisceau_output.size());
-			printf("polylines.size()=%lu\n", polylines.size());
 			
 			string serialized;
 			print(faisceau_output, serialized);

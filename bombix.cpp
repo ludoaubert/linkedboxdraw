@@ -1187,12 +1187,12 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	unordered_map<uint64_t, int> hit_count;
 	for (const auto [from, to] : adj_links)
 	{
-		for (uint64_t u : target_candidates.at(to))
+		for (uint64_t u : target_candidates[to])
 		{
 			while (u != 0)
 			{
 				hit_count[u]++;
-				u = predecessor.at(u).u;
+				u = predecessor[u].u;
 			}
 		}
 	}
@@ -2766,7 +2766,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		for (const auto& [from, to] : adj_links)
 		{
 			vector<Maille> result;
-			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor.at(u).u)
+			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor[u].u)
 			{
 				result.push_back(parse(u));
 			}
@@ -3045,7 +3045,26 @@ int main(int argc, char* argv[])
 
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
-			if (faisceau_output != ctx.faisceau_output)
+			
+			if (faisceau_output.size() != ctx.faisceau_output.size())
+			{
+				string serialized;
+				print(faisceau_output, serialized);
+				printf(serialized.c_str());
+				printf("\n\n\n\n");
+			}
+			
+			if (polylines.size() != ctx.polylines.size())
+			{
+				print(polylines, serialized);
+				printf(serialized.c_str());
+				printf("\n\n\n\n");	
+				string json = polyline2json(polylines);
+				printf(json.c_str());
+				printf("\n\n\n\n");				
+			}			
+			
+			if (faisceau_output != ctx.faisceau_output && faisceau_output.size() == ctx.faisceau_output.size())
 			{
 				for (int i = 0; i < faisceau_output.size(); i++)
 				{
@@ -3094,7 +3113,7 @@ int main(int argc, char* argv[])
 
 			string json = polyline2json(polylines);
 			
-			if (polylines != ctx.polylines)
+			if (polylines != ctx.polylines && polylines.size() == ctx.polylines.size())
 			{
 				for (int i = 0; i < polylines.size(); i++)
 				{
@@ -3179,7 +3198,7 @@ const char* bombix(const char *rectdim,
 
         compute_polylines(rects, frame, links, faiceau_output, polylines);
         string json = polyline2json(polylines);
-        char res[100000];
+        static char res[100000];
         std::copy(json.c_str(), json.c_str()+json.size(), res);
         res[json.size()]=0;
         return res;
