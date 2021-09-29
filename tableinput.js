@@ -73,15 +73,6 @@ function download2(filename) {
 	const rectdim = rectangles
 						.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
 	console.log(rectdim);
-	
-	
-	const slinks2 = links.map(lk => [lk.from, lk.to])
-						.map(lk => JSON.stringify(lk))
-						.filter(function(lk, pos, self){
-									return self.indexOf(lk) == pos;}
-						) //removing duplicates
-						.map(lk => JSON.parse(lk));
-	console.log(JSON.stringify(slinks2));
 						
 	const slinks = links.map(lk => [lk.from, lk.to])
 						.map(lk => JSON.stringify(lk))
