@@ -2978,6 +2978,59 @@ void compute_polylines(const vector<Rect>& rects,
 	assert(nblinks == vector<int>(n,0));
 }
 
+struct PolylineSegment
+{
+	Polyline* polyline;
+	vector<Point>* data;
+	Point* p1;
+	Point* p2;
+};
+
+void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
+{
+	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
+	for (Polyline& polyline : polylines)
+	{
+		auto& [from, to, data] = polyline;
+		for (int i=0; i+1 < data.size(); i++)
+		{
+			Point *p1=&data[i], *p2=&data[i+1];
+			if (p1->x == p2->x)
+				vertical_polyline_segments.push_back({&polyline, &data, p1, p2});
+			if (p1->y == p2->y)
+				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2});
+		}
+	}
+	
+	int count=0;
+	
+	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
+	{
+		int xmin = hor_seg.p1->x, xmax = hor_seg.p2->x, y = hor_seg.p1->y ;
+		if (xmin > xmax)
+			swap(xmin, xmax);
+
+		for (PolylineSegment& ver_seg : vertical_polyline_segments)
+		{
+			int ymin = ver_seg.p1->y, ymax = ver_seg.p2->y, x = ver_seg.p1->x ;
+			if (ymin > ymax)
+				swap(ymin, ymax);
+
+			if (xmin < x && x < xmax && ymin < y && y < ymax)
+			{
+				printf("vertical segment from (from %d, to %d) intersects horizontal segment from (from %d, to %d)\n",
+					ver_seg.polyline->from, ver_seg.polyline->to,
+					hor_seg.polyline->from, hor_seg.polyline->to);
+				count++;
+			}
+		}
+	}
+	
+	printf("%lu horizontal polyline segments\n", horizontal_polyline_segments.size());
+	printf("%lu vertical polyline segments\n", vertical_polyline_segments.size());
+	printf("intersection count: %d\n", count);
+}
+
 
 void parse_command(const char* rectdim,
 					const char* translations,
@@ -3039,6 +3092,8 @@ int main(int argc, char* argv[])
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
+			
+			post_process_polylines(ctx.rects, polylines);
 			
 			string serialized;
 			print(faisceau_output, serialized);
