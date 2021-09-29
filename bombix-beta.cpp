@@ -2996,6 +2996,12 @@ struct HorizontalPolylineSegment
 	int xmin, xmax, y;
 };
 
+struct SegmentIntersection
+{
+	VerticalPolylineSegment vertical_polyline_segment;
+	HorizontalPolylineSegment horizontal_polyline_segment;
+};
+
 void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
 {
 	vector<HorizontalPolylineSegment> horizontal_polyline_segments;
@@ -3009,22 +3015,18 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 			Point *p1=&data[i], *p2=&data[i+1];
 			if (p1->x == p2->x)
 			{
-				int ymin = p1->y, ymax = p2->y, x = p1->x ;
-				if (ymin > ymax)
-					swap(ymin, ymax);
+				int ymin = min(p1->y, p2->y), ymax = max(p1->y, p2->y), x = p1->x ;
 				vertical_polyline_segments.push_back({&polyline, &data, p1, p2, ymin, ymax, x});
 			}
 			if (p1->y == p2->y)
 			{
-				int xmin = p1->x, xmax = p2->x, y = p1->y ;
-				if (xmin > xmax)
-					swap(xmin, xmax);
+				int xmin = min(p1->x, p2->x), xmax = max(p1->x, p2->x), y = p1->y ;
 				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2, xmin, xmax, y});
 			}
 		}
 	}
 	
-	int count=0;
+	vector<SegmentIntersection> intersections;
 	
 	for (HorizontalPolylineSegment& hor_seg : horizontal_polyline_segments)
 	{
@@ -3036,17 +3038,21 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 			
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
-				printf("vertical segment from (from %d, to %d) intersects horizontal segment from (from %d, to %d)\n",
-					ver_seg.polyline->from, ver_seg.polyline->to,
-					hor_seg.polyline->from, hor_seg.polyline->to);
-				count++;
+				intersections.push_back({ver_seg, hor_seg});
 			}
 		}
 	}
 	
 	printf("%lu horizontal polyline segments\n", horizontal_polyline_segments.size());
 	printf("%lu vertical polyline segments\n", vertical_polyline_segments.size());
-	printf("intersection count: %d\n", count);
+	printf("intersection count: %lu\n", intersections.size());
+	
+	for (auto [ver_seg, hor_seg] : intersections)
+	{
+		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
+					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1->x, ver_seg.p1->y, ver_seg.p2->x, ver_seg.p2->y,
+					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1->x, hor_seg.p1->y, hor_seg.p2->x, hor_seg.p2->y);		
+	}
 }
 
 
