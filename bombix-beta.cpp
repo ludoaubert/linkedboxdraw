@@ -2978,17 +2978,29 @@ void compute_polylines(const vector<Rect>& rects,
 	assert(nblinks == vector<int>(n,0));
 }
 
-struct PolylineSegment
+struct VerticalPolylineSegment
 {
 	Polyline* polyline;
 	vector<Point>* data;
 	Point* p1;
 	Point* p2;
+	int ymin, ymax, x;
+};
+
+struct HorizontalPolylineSegment
+{
+	Polyline* polyline;
+	vector<Point>* data;
+	Point* p1;
+	Point* p2;
+	int xmin, xmax, y;
 };
 
 void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
 {
-	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
+	vector<HorizontalPolylineSegment> horizontal_polyline_segments;
+	vector<VerticalPolylineSegment> vertical_polyline_segments;
+	
 	for (Polyline& polyline : polylines)
 	{
 		auto& [from, to, data] = polyline;
@@ -2996,26 +3008,32 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		{
 			Point *p1=&data[i], *p2=&data[i+1];
 			if (p1->x == p2->x)
-				vertical_polyline_segments.push_back({&polyline, &data, p1, p2});
+			{
+				int ymin = p1->y, ymax = p2->y, x = p1->x ;
+				if (ymin > ymax)
+					swap(ymin, ymax);
+				vertical_polyline_segments.push_back({&polyline, &data, p1, p2, ymin, ymax, x});
+			}
 			if (p1->y == p2->y)
-				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2});
+			{
+				int xmin = p1->x, xmax = p2->x, y = p1->y ;
+				if (xmin > xmax)
+					swap(xmin, xmax);
+				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2, xmin, xmax, y});
+			}
 		}
 	}
 	
 	int count=0;
 	
-	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
+	for (HorizontalPolylineSegment& hor_seg : horizontal_polyline_segments)
 	{
-		int xmin = hor_seg.p1->x, xmax = hor_seg.p2->x, y = hor_seg.p1->y ;
-		if (xmin > xmax)
-			swap(xmin, xmax);
+		int xmin = hor_seg.xmin, xmax = hor_seg.xmax, y = hor_seg.y ;
 
-		for (PolylineSegment& ver_seg : vertical_polyline_segments)
+		for (VerticalPolylineSegment& ver_seg : vertical_polyline_segments)
 		{
-			int ymin = ver_seg.p1->y, ymax = ver_seg.p2->y, x = ver_seg.p1->x ;
-			if (ymin > ymax)
-				swap(ymin, ymax);
-
+			int ymin = ver_seg.ymin, ymax = ver_seg.ymax, x = ver_seg.x ;
+			
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
 				printf("vertical segment from (from %d, to %d) intersects horizontal segment from (from %d, to %d)\n",
