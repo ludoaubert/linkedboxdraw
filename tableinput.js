@@ -75,6 +75,7 @@ function download2(filename) {
 	console.log(rectdim);
 						
 	const slinks = links.map(lk => [lk.from, lk.to])
+						.filter(function(lk, pos, self){return self.indexOf(lk)==pos;}) //removing duplicates
 						.flat()
 						.map(i => hex(i,3))
 						.join('');
