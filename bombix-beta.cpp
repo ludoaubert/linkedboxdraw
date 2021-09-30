@@ -1282,12 +1282,11 @@ const TestContext contexts[] = {
 /*14*/ {/*source*/ 15, /*target*/ 9},
 /*15*/ {/*source*/ 13, /*target*/ 9},
 /*16*/ {/*source*/ 11, /*target*/ 9},
-/*17*/ {/*source*/ 11, /*target*/ 9},
-/*18*/ {/*source*/ 4, /*target*/ 9},
-/*19*/ {/*source*/ 5, /*target*/ 9},
-/*20*/ {/*source*/ 2, /*target*/ 9},
-/*21*/ {/*source*/ 10, /*target*/ 9},
-/*22*/ {/*source*/ 19, /*target*/ 15}
+/*17*/ {/*source*/ 4, /*target*/ 9},
+/*18*/ {/*source*/ 5, /*target*/ 9},
+/*19*/ {/*source*/ 2, /*target*/ 9},
+/*20*/ {/*source*/ 10, /*target*/ 9},
+/*21*/ {/*source*/ 19, /*target*/ 15}
 	},
 	/*faiceau output*/{},
 	/*polylines*/{}
