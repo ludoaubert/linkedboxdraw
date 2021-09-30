@@ -3054,7 +3054,7 @@ struct SegmentIntersection
 	HorizontalPolylineSegment horizontal_polyline_segment;
 };
 
-void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
+vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polylines)
 {
 	vector<HorizontalPolylineSegment> horizontal_polyline_segments;
 	vector<VerticalPolylineSegment> vertical_polyline_segments;
@@ -3104,6 +3104,114 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
 					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1->x, ver_seg.p1->y, ver_seg.p2->x, ver_seg.p2->y,
 					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1->x, hor_seg.p1->y, hor_seg.p2->x, hor_seg.p2->y);		
+	}
+
+	return intersections;
+}
+
+void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
+{
+	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
+	
+	for (auto [ver_seg, hor_seg] : intersections)
+	{
+		int d=4 ;
+		Point candidate_horizontal_translations[2] = { {-d, 0}, {d, 0} };
+		
+		for (const Point &translation : candidate_horizontal_translations)
+		{
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x] = ver_seg;
+			
+			Polyline copy_of_polyline = * polyline ;
+			
+			const Rect& rfrom = rects[polyline->from], & rto = rects[polyline->to] ;
+			bool start_docking_ko=false, end_docking_ko=false;
+				
+			p1->x += translation.x;
+			p2->x += translation.x;
+			int ipred = distance(&(*data)[0], p1) - 1;
+			if (ipred >= 0)
+			{
+				Point *p0 = & (*data)[ipred] ;
+				p0->x += translation.x ;
+			}
+			else if (p1->x <= rfrom.left || p1->x >= rfrom.right)
+			{
+	//TODO: add a margin
+				start_docking_ko = true;	
+			}
+			
+			int inext = distance(&(*data)[0], p2) + 1;
+			if (inext < (*data).size())
+			{
+				Point *p3 = & (*data)[inext];
+				p3->x += translation.x;
+			}
+			else if (p2->x <= rto.left || p2->x >= rto.right)
+			{
+	//TODO: add a margin
+				end_docking_ko = true;
+			}
+		
+			
+			vector<SegmentIntersection> intersections_update = intersection_of_polylines(polylines);
+			if (intersections_update.size() >= intersections.size() || start_docking_ko || end_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", translation.x, translation.y, polyline->from, polyline->to);
+			}
+		}
+		
+		Point candidate_vertical_translations[2] = { {0, -d}, {0, d} };
+				
+		for (const Point &translation : candidate_vertical_translations)
+		{
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, xmin, xmax, y] = hor_seg;
+			
+			Polyline copy_of_polyline = * polyline;
+			
+			const Rect& rfrom = rects[polyline->from], & rto = rects[polyline->to];
+			bool start_docking_ko=false, end_docking_ko=false;
+			
+			p1->y += translation.y;
+			p2->y += translation.y;
+			int ipred = distance(&(*data)[0], p1) - 1;			
+			if (ipred >= 0)
+			{
+				Point *p0 = & (*data)[ipred] ;
+				p0->y += translation.y ;
+			}
+			else if (p1->y <= rfrom.top || p1->y >= rfrom.bottom)
+			{
+			//TODO: add a margin
+				start_docking_ko = true;
+			}
+			int inext = distance(&(*data)[0], p2) + 1;
+			if (inext < (*data).size())
+			{
+				Point *p3 = & (*data)[inext];
+				p3->x += translation.y;
+			}
+			else if (p2->y <= rto.top || p2->y >= rto.bottom)
+			{
+			//TODO: add a margin
+				end_docking_ko = true;
+			}
+			
+			vector<SegmentIntersection> intersections_update = intersection_of_polylines(polylines);	
+			if (intersections_update.size() >= intersections.size()  || start_docking_ko || end_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", translation.x, translation.y, polyline->from, polyline->to);
+			}
+		}
+
 	}
 }
 
