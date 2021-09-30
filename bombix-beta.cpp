@@ -3220,6 +3220,8 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		}
 	}
 	
+	intersections = intersection_of_polylines(polylines);
+	
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
 		const int d=4 ;
@@ -3228,6 +3230,9 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		
 		for (const Point &translation : candidate_horizontal_translations)
 		{
+			if (abs(translation.x) > 10)
+				continue;
+			
 			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x] = ver_seg;
 			
 			Polyline copy_of_polyline = * polyline ;
@@ -3277,6 +3282,9 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				
 		for (const Point &translation : candidate_vertical_translations)
 		{
+			if (abs(translation.y) > 10)
+				continue;
+			
 			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, xmin, xmax, y] = hor_seg;
 			
 			Polyline copy_of_polyline = * polyline;
