@@ -3115,7 +3115,6 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
-		const int d=4 ;
 		vector<SegmentIntersection> intersections_update ;
 		
 		{
@@ -3133,18 +3132,18 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				Point *p0 = & (*data)[ipred] ;
 				p0->y += 2 * d;
 				start_docking_ko = ipred==0 && (p0->y <= rfrom.top || p0->y >= rfrom.bottom);
+			
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				{
+					* polyline = copy_of_polyline ;
+				}
+				else
+				{
+					printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
+				}	
 			}
 			
-			intersections_update = intersection_of_polylines(polylines);
-			if (intersections_update.size() >= intersections.size() || start_docking_ko)
-			{
-				* polyline = copy_of_polyline ;
-			}
-			else
-			{
-				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
-			}	
-
 			int inext = distance(&(*data)[0], p2) + 1;
 			
 			const Rect& rto = rects[polyline->to] ;
@@ -3156,17 +3155,17 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				Point *p3 = & (*data)[inext] ;
 				p3->y += 2 * d;
 				end_docking_ko = inext+1==(*data).size() && (p3->y <= rto.top || p3->y >= rto.bottom);
-			}
-			
-			intersections_update = intersection_of_polylines(polylines);
-			if (intersections_update.size() >= intersections.size() || start_docking_ko)
-			{
-				* polyline = copy_of_polyline ;
-			}
-			else
-			{
-				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
-			}						
+
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				{
+					* polyline = copy_of_polyline ;
+				}
+				else
+				{
+					printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
+				}
+			}				
 		}
 		
 		{
@@ -3184,18 +3183,18 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				Point *p0 = & (*data)[ipred] ;
 				p0->x += 2 * d;
 				start_docking_ko = ipred==0 && (p0->x <= rfrom.left || p0->x >= rfrom.right);
+			
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				{
+					* polyline = copy_of_polyline ;
+				}
+				else
+				{
+					printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
+				}	
 			}
 			
-			intersections_update = intersection_of_polylines(polylines);
-			if (intersections_update.size() >= intersections.size() || start_docking_ko)
-			{
-				* polyline = copy_of_polyline ;
-			}
-			else
-			{
-				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
-			}	
-
 			int inext = distance(&(*data)[0], p2) + 1;
 			
 			const Rect& rto = rects[polyline->to] ;
@@ -3207,18 +3206,23 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				Point *p3 = & (*data)[inext] ;
 				p3->x += 2 * d;
 				end_docking_ko = inext+1==(*data).size() && (p3->x <= rto.left || p3->x >= rto.right);
-			}
 			
-			intersections_update = intersection_of_polylines(polylines);
-			if (intersections_update.size() >= intersections.size() || start_docking_ko)
-			{
-				* polyline = copy_of_polyline ;
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				{
+					* polyline = copy_of_polyline ;
+				}
+				else
+				{
+					printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
+				}
 			}
-			else
-			{
-				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
-			}						
 		}
+	}
+	
+	for (auto [ver_seg, hor_seg] : intersections)
+	{
+		const int d=4 ;
 		
 		Point candidate_horizontal_translations[2] = { {-d + hor_seg.xmin - ver_seg.x, 0}, {d + hor_seg.xmax - ver_seg.x, 0} };
 		
