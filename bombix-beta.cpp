@@ -3115,8 +3115,112 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
-		int d=4 ;
-		Point candidate_horizontal_translations[2] = { {-d, 0}, {d, 0} };
+		const int d=4 ;
+		vector<SegmentIntersection> intersections_update ;
+		
+		{
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x] = ver_seg;
+			Polyline copy_of_polyline = * polyline ;
+			
+			int ipred = distance(&(*data)[0], p1) - 1;
+			
+			const Rect& rfrom = rects[polyline->from] ;
+			bool start_docking_ko=false;
+			
+			if (int d = hor_seg.y - p1->y; ipred >= 0 && abs(d) < 10)
+			{
+				p1->y += 2 * d;
+				Point *p0 = & (*data)[ipred] ;
+				p0->y += 2 * d;
+				start_docking_ko = ipred==0 && (p0->y <= rfrom.top || p0->y >= rfrom.bottom);
+			}
+			
+			intersections_update = intersection_of_polylines(polylines);
+			if (intersections_update.size() >= intersections.size() || start_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
+			}	
+
+			int inext = distance(&(*data)[0], p2) + 1;
+			
+			const Rect& rto = rects[polyline->to] ;
+			bool end_docking_ko=false;
+			
+			if (int d = hor_seg.y - p2->y; inext < (*data).size() && abs(d) < 10)
+			{
+				p2->y += 2 * d;
+				Point *p3 = & (*data)[inext] ;
+				p3->y += 2 * d;
+				end_docking_ko = inext+1==(*data).size() && (p3->y <= rto.top || p3->y >= rto.bottom);
+			}
+			
+			intersections_update = intersection_of_polylines(polylines);
+			if (intersections_update.size() >= intersections.size() || start_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, 2 * d, polyline->from, polyline->to);
+			}						
+		}
+		
+		{
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, xmin, xmax, y] = hor_seg;
+			Polyline copy_of_polyline = * polyline ;
+			
+			int ipred = distance(&(*data)[0], p1) - 1;
+			
+			const Rect& rfrom = rects[polyline->from] ;
+			bool start_docking_ko=false;
+			
+			if (int d = ver_seg.x - p1->x; ipred >= 0 && abs(d) < 10)
+			{
+				p1->x += 2 * d;
+				Point *p0 = & (*data)[ipred] ;
+				p0->x += 2 * d;
+				start_docking_ko = ipred==0 && (p0->x <= rfrom.left || p0->x >= rfrom.right);
+			}
+			
+			intersections_update = intersection_of_polylines(polylines);
+			if (intersections_update.size() >= intersections.size() || start_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
+			}	
+
+			int inext = distance(&(*data)[0], p2) + 1;
+			
+			const Rect& rto = rects[polyline->to] ;
+			bool end_docking_ko=false;
+			
+			if (int d = ver_seg.x - p2->x; inext < (*data).size() && abs(d) < 10)
+			{
+				p2->x += 2 * d;
+				Point *p3 = & (*data)[inext] ;
+				p3->x += 2 * d;
+				end_docking_ko = inext+1==(*data).size() && (p3->x <= rto.left || p3->x >= rto.right);
+			}
+			
+			intersections_update = intersection_of_polylines(polylines);
+			if (intersections_update.size() >= intersections.size() || start_docking_ko)
+			{
+				* polyline = copy_of_polyline ;
+			}
+			else
+			{
+				printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 2 * d, 0, polyline->from, polyline->to);
+			}						
+		}
+		
+		Point candidate_horizontal_translations[2] = { {-d + hor_seg.xmin - ver_seg.x, 0}, {d + hor_seg.xmax - ver_seg.x, 0} };
 		
 		for (const Point &translation : candidate_horizontal_translations)
 		{
@@ -3165,7 +3269,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 			}
 		}
 		
-		Point candidate_vertical_translations[2] = { {0, -d}, {0, d} };
+		Point candidate_vertical_translations[2] = { {0, -d + ver_seg.ymin - hor_seg.y}, {0, d + ver_seg.ymax - hor_seg.y} };
 				
 		for (const Point &translation : candidate_vertical_translations)
 		{
