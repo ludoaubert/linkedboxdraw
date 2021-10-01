@@ -3054,16 +3054,6 @@ struct SegmentIntersection
 	HorizontalPolylineSegment horizontal_polyline_segment;
 };
 
-struct MergedVerticalPolylineSegments
-{
-	VerticalPolylineSegment si, sj;
-};
-
-struct MergedHorizontalPolylineSegments
-{
-	HorizontalPolylineSegment si, sj;
-};
-
 
 vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polylines)
 {
@@ -3343,134 +3333,6 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 }
 
 
-void spead_merged_polyline_segments(const vector<Rect>& rects, vector<Polyline> &polylines)
-{
-	vector<HorizontalPolylineSegment> horizontal_polyline_segments;
-	vector<VerticalPolylineSegment> vertical_polyline_segments;
-	
-	for (Polyline& polyline : polylines)
-	{
-		auto& [from, to, data] = polyline;
-		for (int i=0; i+1 < data.size(); i+= max(data.size()-2,1))
-		{
-			Point *p1=&data[i], *p2=&data[i+1];
-			if (p1->x == p2->x)
-			{
-				int ymin = min(p1->y, p2->y), ymax = max(p1->y, p2->y), x = p1->x ;
-				vertical_polyline_segments.push_back({&polyline, &data, p1, p2, ymin, ymax, x});
-			}
-			if (p1->y == p2->y)
-			{
-				int xmin = min(p1->x, p2->x), xmax = max(p1->x, p2->x), y = p1->y ;
-				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2, xmin, xmax, y});
-			}
-		}
-	}
-	
-	vector<MergedHorizontalPolylineSegments> merged_horizontal_polyline_segments;
-	
-	for (int i=0; i < horizontal_polyline_segments.size(); i++)
-	{
-		for (int j=i+1; j < horizontal_polyline_segments.size(); j++)
-		{
-			HorizontalPolylineSegment &si = horizontal_polyline_segments[i], &sj = horizontal_polyline_segments[j];
-			if (si.y == sj.y && (si.xmin == sj.xmin || si.xmax == sj.xmax))
-				merged_horizontal_polyline_segments.push_back({si, sj});
-		}
-	}
-	
-	vector<MergedVerticalPolylineSegments> merged_vertical_polyline_segments;
-	
-	for (int i=0; i < vertical_polyline_segments.size(); i++)
-	{
-		for (int j=i+1; j < vertical_polyline_segments.size(); j++)
-		{
-			VerticalPolylineSegment &si = vertical_polyline_segments[i], &sj = vertical_polyline_segments[j];
-			if (si.x == sj.x && (si.ymin == sj.ymin || si.ymax == sj.ymax))
-				merged_horizontal_polyline_segments.push_back({si, sj});
-		}
-	}
-
-	const int d = 4 ;
-	
-	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
-
-	for (auto& [si, sj] : merged_horizontal_polyline_segments)
-	{
-		int dd = d;
-		bool start_docking_ko = false, end_docking_ko = false;
-		vector<Polylines> copy_of_polylines = polylines;
-		
-		for (auto& s : {si, sj})
-		{
-			auto& [polyline, &data, p1, p2, ymin, ymax, x] = s ;
-			p1->y += d;
-			p2->y += d;
-			const Rect &rfrom = rects[polyline.from], &rto = rects[polyline.to];
-		
-			int istart = distance(&(*data)[0], p1);
-		//TODO: add a margin
-			if (istart==0 && (p1->y <= rfrom.top || p1->y >= rfrom.bottom))
-				start_docking_ko = true ;
-			int iend = distance(&(*data)[0], p2);
-		//TODO: add a margin
-			if (iend+1==(*data).size() && (p2->y <= rto.top || p2->y >= rto.bottom))
-				end_docking_ko = true;
-			dd *= -1
-		}
-		
-		vector<SegmentIntersection> intersections_update = intersection_of_polylines(polylines);
-		if (intersections_update.size() >= intersections.size()  || start_docking_ko || end_docking_ko)
-		{
-			* polylines = copy_of_polylines ;
-		}
-		else
-		{
-			printf("speading merged horizontal polyline segments:\n");
-			printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, d, si.polyline->from, si.polyline->to);
-			printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", 0, -d, sj.polyline->from, sj.polyline->to);
-		}
-	}
-	
-	for (auto& [si, sj] : merged_vertical_polyline_segments)
-	{
-		int dd = d;
-		bool start_docking_ko = false, end_docking_ko = false;
-		vector<Polylines> copy_of_polylines = polylines;
-		
-		for (auto& s : {si, sj})
-		{
-			auto& [polyline, &data, p1, p2, xmin, xmax, y] = s ;
-			p1->x += d;
-			p2->x += d;
-			const Rect &rfrom = rects[polyline.from], &rto = rects[polyline.to];
-		
-			int istart = distance(&(*data)[0], p1);
-		//TODO: add a margin
-			if (istart==0 && (p1->x <= rfrom.left || p1->x >= rfrom.right))
-				start_docking_ko = true ;
-			int iend = distance(&(*data)[0], p2);
-		//TODO: add a margin
-			if (iend+1==(*data).size() && (p2->x <= rto.left || p2->x >= rto.right))
-				end_docking_ko = true;
-			dd *= -1
-		}
-		
-		vector<SegmentIntersection> intersections_update = intersection_of_polylines(polylines);
-		if (intersections_update.size() >= intersections.size()  || start_docking_ko || end_docking_ko)
-		{
-			* polylines = copy_of_polylines ;
-		}
-		else
-		{
-			printf("speading merged vertical polyline segments:\n");
-			printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", d, 0, si.polyline->from, si.polyline->to);
-			printf("translation (%d, %d) applied on polyline (from=%d, to=%d)\n", -d, 0, sj.polyline->from, sj.polyline->to);
-		}
-	}
-}
-
-
 void parse_command(const char* rectdim,
 					const char* translations,
 					const char* sframe,
@@ -3533,7 +3395,6 @@ int main(int argc, char* argv[])
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			
 			post_process_polylines(ctx.rects, polylines);
-			spead_merged_polyline_segments(cte.rects, polylines);
 			
 			string serialized;
 			print(faisceau_output, serialized);
