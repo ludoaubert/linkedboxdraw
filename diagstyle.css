@@ -67,6 +67,9 @@ marker > path {
 }
 
 foreignObject table{
+  display:block;
+  overflow-x: hidden;  /* Hide the horizontal scroll */
+  overflow-y:auto;
   border-collapse: collapse;
   vertical-align: middle;
   text-align: left;
@@ -99,7 +102,9 @@ foreignObject th {
   text-align: center;
 }
 
-foreignObject tbody {
-	overflow-y: auto;    /* Trigger vertical scroll    */
-    overflow-x: hidden;  /* Hide the horizontal scroll */
+foreignObject thead {
+	position: sticky;
+	top:0;
+	display:block;
+	background-color: #eee;
 }
