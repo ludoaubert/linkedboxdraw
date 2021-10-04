@@ -312,7 +312,13 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			const titleAttribute = box.title in box2comment ? `title="${box2comment[box.title]}"` : '';
 
 			innerHTML += `<table id="${id}" ${titleAttribute} onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
-			innerHTML += `<tr><th>${box.title}</th></tr>`;
+			innerHTML += `<thead>
+							<tr>
+								<th>${box.title}</th>
+							</tr>
+						  </thead>
+						  <tbody>
+						  `;
 			for (var i=0; i < box.fields.length; i++)
 			{
 				const field = box.fields[i];
@@ -379,7 +385,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 				innerHTML += `<tr id="${field.name}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 			}
 
-			innerHTML += `</table>`;
+			innerHTML += `</tbody></table>`;
 			
 			innerHTML += `</foreignObject>
 			</g>`;
