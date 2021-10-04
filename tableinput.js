@@ -84,7 +84,6 @@ function download2(filename) {
 						.map(i => hex(i,3))
 						.join('');
 	console.log(slinks);
-	return;
 	
 	latuile = Module.cwrap("latuile","string",["string","string"]);
 	bombix = Module.cwrap("bombix","string",["string","string","string","string"]);	
