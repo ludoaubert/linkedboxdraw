@@ -398,14 +398,14 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 <ul>
 <li>Load Geometry File</li>
-<li><input type="file" id="myFile" value="Load"></li>
+<li><input type="file" accept=".json" id="myFile" value="Load"></li>
 </ul>
 
 <h1>Geometry File Output</h1>
 <ul>
 <li>
 	<form onsubmit="return false">
-	  <input type="text" accept=".json" name="name" value="test.txt">
+	  <input type="text" name="name" value="test.txt">
 	  <input type="submit" value="Save Geometry File As" onclick="download(this['name'].value)">
 	</form>
 </li>
