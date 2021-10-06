@@ -108,3 +108,8 @@ foreignObject thead {
 	display:block;
 	background-color: #eee;
 }
+
+foreignObject tbody {
+    width: 100%;
+    display: table;	
+}
