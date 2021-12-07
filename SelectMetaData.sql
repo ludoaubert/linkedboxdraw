@@ -58,18 +58,44 @@ WITH cte_fk AS (
 		FOR JSON PATH
 	) AS fields 
 	FROM cte_table_list tl
-),  cte_rectangles AS (
+),  cte_rectangle_constants AS (
+	SELECT 7 AS MONOSPACE_FONT_PIXEL_WIDTH,
+		16 AS CHAR_RECT_HEIGHT	-- in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
+),  cte_rectangles_staging AS (
+	SELECT tc.TABLE_NAME,
+		CASE 
+			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NOT NULL
+				THEN (LEN('PK FK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NULL
+				THEN (LEN('PK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NOT NULL
+				THEN (LEN('FK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+		END AS column_width
+	FROM cte_table_column_list tc
+	LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
+	LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
+	CROSS JOIN cte_rectangle_constants
+
+	UNION ALL
+
+	SELECT table_name, 2*4 + LEN(table_name) * MONOSPACE_FONT_PIXEL_WIDTH
+	FROM cte_table_list 
+	CROSS JOIN cte_rectangle_constants
+), cte_rectangles AS (
 	SELECT 0 AS [left], 
-		(SELECT MAX(LEN(column_name))
-		FROM cte_table_column_list tcl 
-		WHERE tcl.table_name = tl.table_name
+		(
+			SELECT MAX(column_width)
+			FROM cte_rectangles_staging rs 
+			WHERE rs.table_name = tl.table_name
 		) AS [right],
 		0 AS [top],
-		(SELECT COUNT(*)
-		FROM cte_table_column_list tcl 
-		WHERE tcl.table_name = tl.table_name
+		(
+			SELECT 8 + CHAR_RECT_HEIGHT * (COUNT(*) + 1)
+			FROM cte_table_column_list tcl 
+			WHERE tcl.table_name = tl.table_name
 		) AS [bottom]
 	FROM cte_table_list tl
+	CROSS JOIN cte_rectangle_constants rc
 ) , cte_diagdata AS (
 	SELECT (
 		SELECT *
