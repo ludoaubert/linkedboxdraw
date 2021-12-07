@@ -45,9 +45,15 @@ WITH cte_fk AS (
 							and ic.index_id = pk.index_id
 								order by col.column_id
 								for xml path ('') ) D (column_names)
+) , cte_fields AS (
+	SELECT tc.TABLE_NAME, tc.COLUMN_NAME AS [name], 
+		CAST(CASE WHEN pk.pk_name IS NULL THEN 0 ELSE 1 END AS BIT) AS isPrimaryKey,
+		CAST(CASE WHEN fk.FK_NAME IS NULL THEN 0 ELSE 1 END AS BIT) AS isForeignKey
+	FROM cte_table_column_list tc
+	LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
+	LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
 )
-SELECT tc.TABLE_NAME, tc.COLUMN_NAME, pk.pk_name, fk.FK_NAME
-FROM cte_table_column_list tc
-LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
-LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
-GROUP BY tc.TABLE_NAME
+SELECT *
+FROM cte_fields
+GROUP BY TABLE_NAME
+FOR JSON;
