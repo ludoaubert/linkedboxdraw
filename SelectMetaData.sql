@@ -61,7 +61,8 @@ WITH cte_fk AS (
 	FROM cte_table_list tl
 ),  cte_rectangle_constants AS (
 	SELECT 7 AS MONOSPACE_FONT_PIXEL_WIDTH,
-		16 AS CHAR_RECT_HEIGHT	-- in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
+		16 AS CHAR_RECT_HEIGHT,	-- in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
+		200 AS RECTANGLE_BOTTOM_CAP
 ),  cte_rectangles_staging AS (
 	SELECT tc.TABLE_NAME,
 		CASE 
@@ -120,8 +121,9 @@ WITH cte_fk AS (
 	) AS links,
 	(
 		SELECT [left], [right], [top],
-			CASE WHEN [bottom] > 200 THEN 200 ELSE [bottom] END AS [bottom]
+			CASE WHEN [bottom] > RECTANGLE_BOTTOM_CAP THEN RECTANGLE_BOTTOM_CAP ELSE [bottom] END AS [bottom]
 		FROM cte_rectangles 
+		CROSS JOIN cte_rectangle_constants
 		ORDER BY TABLE_NAME
 		FOR JSON PATH
 	) AS rectangles,
