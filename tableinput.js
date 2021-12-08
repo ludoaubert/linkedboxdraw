@@ -844,6 +844,12 @@ function refreshEditDataFromJson(Json)
 	
 	for (const {from,fromField,fromCardinality,to,toField,toCardinality} of links)
 	{
+		console.log({from,fromField,fromCardinality,to,toField,toCardinality});
+		console.assert(from < boxes.length);
+		console.assert(fromField < boxes[from].fields.length);
+		console.assert(to < boxes.length);
+		console.assert(toField < boxes[to].fields.length);
+		
 		let text = boxes[from].title +
 					"." +
 					(fromField != -1 ? boxes[from].fields[fromField].name : '') +
