@@ -106,11 +106,11 @@ WITH cte_fk AS (
 		FOR JSON PATH
 	) AS boxes,
 	(
-		SELECT tcl_from.rn_table AS [from],
-			tcl_from.rn_column AS fromField,
+		SELECT tcl_from.rn_table - 1 AS [from],	-- zero based
+			tcl_from.rn_column - 1 AS fromField, -- zero based
 			NULL AS fromCardinality,
-			tcl_to.rn_table AS [to],
-			tcl_to.rn_column AS toField,
+			tcl_to.rn_table - 1 AS [to],	-- zero based
+			tcl_to.rn_column - 1 AS toField,-- zero based
 			NULL AS toCardinality
 		FROM cte_fk fk
 		JOIN cte_table_column_list tcl_from ON fk.[table]=tcl_from.TABLE_NAME AND fk.[column]=tcl_from.COLUMN_NAME
