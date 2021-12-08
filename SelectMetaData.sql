@@ -119,7 +119,8 @@ WITH cte_fk AS (
 		FOR JSON PATH
 	) AS links,
 	(
-		SELECT [left], [right], [top], [bottom] 
+		SELECT [left], [right], [top],
+			CASE WHEN [bottom] > 200 THEN 200 ELSE [bottom] END AS [bottom]
 		FROM cte_rectangles 
 		ORDER BY TABLE_NAME
 		FOR JSON PATH
