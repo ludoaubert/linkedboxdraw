@@ -20,12 +20,12 @@ WITH cte_fk AS (
 	INNER JOIN sys.columns col2
 		ON col2.column_id = referenced_column_id AND col2.object_id = tab2.object_id
 ) , cte_table_list AS (
-	SELECT table_name, ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS rn
+	SELECT table_name, ROW_NUMBER() OVER (ORDER BY table_name) AS rn
 	FROM INFORMATION_SCHEMA.TABLES
 	WHERE EXISTS (SELECT * FROM cte_fk WHERE TABLE_NAME IN ([table], [referenced_table]))
 ) , cte_table_column_list AS (
 	SELECT c.table_name, c.column_name, tl.rn AS rn_table,
-		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY (SELECT NULL)) AS rn_column
+		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY c.column_name) AS rn_column
 	FROM INFORMATION_SCHEMA.COLUMNS c
 	JOIN cte_table_list tl ON c.TABLE_NAME=tl.TABLE_NAME
 ) , cte_pk AS (
@@ -55,6 +55,7 @@ WITH cte_fk AS (
 		LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
 		LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
 		WHERE tc.TABLE_NAME = tl.table_name
+		ORDER BY tc.COLUMN_NAME
 		FOR JSON PATH
 	) AS fields 
 	FROM cte_table_list tl
@@ -82,7 +83,8 @@ WITH cte_fk AS (
 	FROM cte_table_list 
 	CROSS JOIN cte_rectangle_constants
 ), cte_rectangles AS (
-	SELECT 0 AS [left], 
+	SELECT tl.TABLE_NAME,
+		0 AS [left], 
 		(
 			SELECT MAX(column_width)
 			FROM cte_rectangles_staging rs 
@@ -100,6 +102,7 @@ WITH cte_fk AS (
 	SELECT (
 		SELECT *
 		FROM cte_fields
+		ORDER BY title
 		FOR JSON PATH
 	) AS boxes,
 	(
@@ -117,6 +120,7 @@ WITH cte_fk AS (
 	(
 		SELECT [left], [right], [top], [bottom] 
 		FROM cte_rectangles 
+		ORDER BY TABLE_NAME
 		FOR JSON PATH
 	) AS rectangles
 )
