@@ -121,7 +121,12 @@ WITH cte_fk AS (
 	) AS links,
 	(
 		SELECT [left], [right], [top],
-			CASE WHEN [bottom] > RECTANGLE_BOTTOM_CAP THEN RECTANGLE_BOTTOM_CAP ELSE [bottom] END AS [bottom]
+			CASE 
+				WHEN [bottom] > RECTANGLE_BOTTOM_CAP 
+					THEN RECTANGLE_BOTTOM_CAP 
+				ELSE [bottom] 
+			END 
+		AS [bottom]
 		FROM cte_rectangles 
 		CROSS JOIN cte_rectangle_constants
 		ORDER BY TABLE_NAME
