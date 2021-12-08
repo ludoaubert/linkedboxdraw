@@ -774,6 +774,7 @@ function compute_key_distrib(fields)
 
 const MONOSPACE_FONT_PIXEL_WIDTH=7;
 const CHAR_RECT_HEIGHT=16;	// in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
+const RECTANGLE_BOTTOM_CAP=200;
 
 function compute_box_rectangles(boxes)
 {
@@ -813,7 +814,7 @@ function compute_box_rectangles(boxes)
 			max_width = Math.max(column_width * MONOSPACE_FONT_PIXEL_WIDTH, max_width);
 		}
 
-		rectangles.push({"left":0, "right":max_width, "top":0, "bottom":8 + CHAR_RECT_HEIGHT * (nr_col+1)}) ;
+		rectangles.push({"left":0, "right":Math.min(max_width, RECTANGLE_BOTTOM_CAP), "top":0, "bottom":8 + CHAR_RECT_HEIGHT * (nr_col+1)}) ;
 	}
 	return rectangles;
 }
