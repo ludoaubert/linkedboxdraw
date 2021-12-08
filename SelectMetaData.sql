@@ -99,7 +99,8 @@ WITH cte_fk AS (
 	FROM cte_table_list tl
 	CROSS JOIN cte_rectangle_constants rc
 ) , cte_diagdata AS (
-	SELECT (
+	SELECT 'Eptane' AS documentTitle,
+	(
 		SELECT *
 		FROM cte_fields
 		ORDER BY title
