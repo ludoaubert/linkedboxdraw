@@ -72,6 +72,8 @@ WITH cte_fk AS (
 				THEN (LEN('PK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
 			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NOT NULL
 				THEN (LEN('FK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NULL
+				THEN LEN(column_name) * MONOSPACE_FONT_PIXEL_WIDTH
 		END AS column_width
 	FROM cte_table_column_list tc
 	LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
@@ -125,8 +127,7 @@ WITH cte_fk AS (
 				WHEN [bottom] > RECTANGLE_BOTTOM_CAP 
 					THEN RECTANGLE_BOTTOM_CAP 
 				ELSE [bottom] 
-			END 
-		AS [bottom]
+			END AS [bottom]
 		FROM cte_rectangles 
 		CROSS JOIN cte_rectangle_constants
 		ORDER BY TABLE_NAME
