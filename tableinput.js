@@ -813,8 +813,10 @@ function compute_box_rectangles(boxes)
 
 			max_width = Math.max(column_width * MONOSPACE_FONT_PIXEL_WIDTH, max_width);
 		}
+		
+		const bottom = 8 + CHAR_RECT_HEIGHT * (nr_col+1) ;
 
-		rectangles.push({"left":0, "right":Math.min(max_width, RECTANGLE_BOTTOM_CAP), "top":0, "bottom":8 + CHAR_RECT_HEIGHT * (nr_col+1)}) ;
+		rectangles.push({"left":0, "right":max_width, "top":0, "bottom":Math.min(bottom, RECTANGLE_BOTTOM_CAP)}) ;
 	}
 	return rectangles;
 }
