@@ -123,8 +123,12 @@ WITH cte_fk AS (
 		FROM cte_rectangles 
 		ORDER BY TABLE_NAME
 		FOR JSON PATH
-	) AS rectangles
+	) AS rectangles,
+	json_query('[]') AS [values],
+	json_query('[]') AS boxComments,
+	json_query('[]') AS fieldComments,
+	json_query('[]') AS fieldColors
 )
 SELECT *
 FROM cte_diagdata
-FOR JSON PATH;
+FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
