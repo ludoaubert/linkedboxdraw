@@ -55,7 +55,7 @@ WITH cte_fk AS (
 		LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
 		LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
 		WHERE tc.TABLE_NAME = tl.table_name
-		ORDER BY tc.COLUMN_NAME
+		ORDER BY pk.pk_name DESC, fk.FK_NAME DESC, tc.COLUMN_NAME
 		FOR JSON PATH
 	) AS fields 
 	FROM cte_table_list tl
