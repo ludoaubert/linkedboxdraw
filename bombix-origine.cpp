@@ -2823,6 +2823,12 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	return{ targets, enlarged };
 }
 
+
+void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&range_matrix)[2])
+{
+	
+}
+
 void compute_polylines(const vector<Rect>& rects,
 						const Rect& frame,
 						const vector<Link>& links,
@@ -2856,6 +2862,9 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 	
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
+	
+	Matrix<Span> range_matrix[2];
+	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<int> origins;
 	while (int &nn = *max_element(begin(nblinks), end(nblinks)))
