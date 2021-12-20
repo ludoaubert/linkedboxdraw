@@ -703,6 +703,22 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 			int16_t value = (*m)[m->direction];
 			distance += tab[value+1] - tab[value];
 		}
+		
+		const Matrix<Span> &rm = range_matrix[next.direction];
+		Span span = rm(next.i, next.j);
+		uint64_t w = u;
+		while (w)
+		{
+			Maille m = parse(w);
+			if (m.direction != next.direction)
+				break;
+			Span sp = rm(m.i, m.j);
+			span = intersection(span, sp);
+			Edge& edge = predecessor.at(w);
+			assert(edge.v == w);
+			w = edge.u;
+		}
+		
 		adj.push_back({u, v, distance});
 	}
 	
