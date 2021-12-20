@@ -682,7 +682,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 }
 
 
-vector<Edge> adj_list(const Graph& graph, uint64_t u)
+vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint64_t u)
 {
 	vector<Edge> adj;
 
@@ -735,8 +735,8 @@ int compute_distance(const InnerRange &next, const vector<Range>& path, const ve
 	return distance;
 }
 
-template <typename Graph>
-vector<Edge> adj_list(const Graph& graph, uint64_t u)
+template <typename Graph, typename PredecessorMap>
+vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint64_t u)
 {
 	static_assert(is_same<Graph, InnerRangeGraph>::value || is_same<Graph, OuterRangeGraph>::value, "");
 	
@@ -971,7 +971,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
 			distance[queued_edge.v] = queued_edge.distance_v;
 			
-			for (const Edge& adj_edge : adj_list(graph, queued_edge.v))
+			for (const Edge& adj_edge : adj_list(graph, predecessor, queued_edge.v))
 			{
 				int distance_v = distance[adj_edge.u] + adj_edge.weight;
 				if (distance_v < distance[adj_edge.v])
