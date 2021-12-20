@@ -2841,16 +2841,16 @@ void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&
 		{
 			int imin = i, imax = i, jmin = j, jmax=j;
 			
-			while (imin > 0 && definition_matrix(imin, j) == definition_matrix(i,j))
+			while (imin > 0 && definition_matrix(imin - 1, j) == definition_matrix(i,j))
 				imin--;
 			
-			while (imax+1 < n && definition_matrix(imax, j) == definition_matrix(i,j))
+			while (imax+1 < n && definition_matrix(imax + 1, j) == definition_matrix(i,j))
 				imax++;
 			
-			while (jmin > 0 && definition_matrix(i, jmin) == definition_matrix(i,j))
+			while (jmin > 0 && definition_matrix(i, jmin - 1) == definition_matrix(i,j))
 				jmin--;
 			
-			while (jmax + 1 < m && definition_matrix(i, jmax) == definition_matrix(i,j))
+			while (jmax + 1 < m && definition_matrix(i, jmax + 1) == definition_matrix(i,j))
 				jmax++;
 			
 			range_matrix[HORIZONTAL](i,j) = {imin, imax};
