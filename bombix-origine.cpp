@@ -42,6 +42,8 @@ Convention for matrix:
 i (resp. j) corresponds to y (resp. x), which might seem surprising.
 */
 
+const int MIN_CORRIDOR_WIDTH = 5;
+const int NARROW_CORRIDOR_PENALTY = 1000;
 
 enum Direction : uint16_t
 {
@@ -731,6 +733,11 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 			assert(edge.v == w);
 			w = edge.u;
 		}
+		
+		const vector<int>& c = coords[other(next.direction)];
+		int range_width = c[span.max+1] - c[span.min];
+		if (range_width < MIN_CORRIDOR_WIDTH)
+			distance += NARROW_CORRIDOR_PENALTY;
 		
 		adj.push_back({u, v, distance});
 	}
