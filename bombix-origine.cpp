@@ -390,6 +390,10 @@ template <typename T>
 struct Matrix
 {
 	Matrix() {}
+	Matrix(int n, int m) : _n(n), _m(m)
+	{
+		_data = new T[n*m];
+	}
 	Matrix(int n, int m, T value) : _n(n), _m(m)
 	{
 		_data = new T[n*m];
@@ -457,6 +461,7 @@ struct Matrix
 struct Graph
 {
 	const Matrix<bool> &definition_matrix;
+	const Matrix<Span> (&range_matrix)[2];	
 	const vector<int> (&coords)[2];
 };
 
@@ -682,7 +687,7 @@ vector<Edge> adj_list(const Graph& graph, uint64_t u)
 	vector<Edge> adj;
 
 	const int TURN_PENALTY = 1;
-	const auto& [definition_matrix, coords] = graph;
+	const auto& [definition_matrix, range_matrix, coords] = graph;
 	
 	Maille r = parse(u);
 	Maille next = r;
@@ -2705,6 +2710,7 @@ Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par 
 
 FaiceauOutput compute_faiceau(const vector<Link>& links, 
 				const Matrix<bool>& definition_matrix_, 
+				const Matrix<Span>(&range_matrix)[2],
 				const vector<int>(&coords)[2], 
 				const vector<Rect>& rects,
 				int from)
@@ -2727,7 +2733,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	for (uint64_t u : source_nodes)
 		source_node_distance[u] = 0;
 
-	dijkstra(Graph{ definition_matrix_, coords }, source_node_distance, distance, predecessor);
+	dijkstra(Graph{ definition_matrix_, range_matrix, coords }, source_node_distance, distance, predecessor);
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
 	unordered_map<int, uint64_t> best_target_candidate;
@@ -2863,7 +2869,10 @@ void compute_polylines(const vector<Rect>& rects,
 	
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
 	
-	Matrix<Span> range_matrix[2];
+	const int n1=definition_matrix_.dim(VERTICAL);
+	const int n2=definition_matrix_.dim(HORIZONTAL);
+	
+	Matrix<Span> range_matrix[2] = {Matrix<Span>(n1,n2), Matrix<Span>(n1,n2)};
 	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<int> origins;
@@ -2897,7 +2906,7 @@ void compute_polylines(const vector<Rect>& rects,
 	#pragma omp parallel for
 	for (int i = 0; i < origins.size(); i++)
 	{
-		faiceau_output[i] = compute_faiceau(links, definition_matrix_, coords, rects, origins[i]);
+		faiceau_output[i] = compute_faiceau(links, definition_matrix_, range_matrix, coords, rects, origins[i]);
 	}
 	
 	unordered_map<Link, FaiceauPath> faiceau_paths;
