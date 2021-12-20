@@ -714,7 +714,7 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 				break;
 			Span sp = rm(m.i, m.j);
 			span = intersection(span, sp);
-			Edge& edge = predecessor.at(w);
+			const Edge& edge = predecessor.at(w);
 			assert(edge.v == w);
 			w = edge.u;
 		}
