@@ -428,17 +428,13 @@ struct Matrix
 		return _data[i*_m + j];
 	}
 	
-//suppose implicitement que T=bool.	
+
 	T operator()(int i, int j) const
 	{
-		if (i < 0)
-			return false;
-		if (i >= _n)
-			return false;
-		if (j < 0)
-			return false;
-		if (j >= _m)
-			return false;
+		assert(0 <= i);
+		assert(i < _n);
+		assert(0 <= j);
+		assert(j < _m);
 		return _data[i*_m + j];
 	}
 	
@@ -456,6 +452,22 @@ struct Matrix
 	int _n=0, _m=0;
 	T *_data = nullptr;
 };
+
+
+//suppose implicitement que T=bool.
+template <>	
+bool Matrix<bool>::operator()(int i, int j) const
+{
+	if (i < 0)
+		return false;
+	if (i >= _n)
+		return false;
+	if (j < 0)
+		return false;
+	if (j >= _m)
+		return false;
+	return _data[i*_m + j];
+}
 
 
 struct Graph
@@ -703,8 +715,9 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 			int16_t value = (*m)[m->direction];
 			distance += tab[value+1] - tab[value];
 		}
-		
+
 		const Matrix<Span> &rm = range_matrix[next.direction];
+
 		Span span = rm(next.i, next.j);
 		uint64_t w = u;
 		while (w)
