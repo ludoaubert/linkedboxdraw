@@ -42,8 +42,6 @@ Convention for matrix:
 i (resp. j) corresponds to y (resp. x), which might seem surprising.
 */
 
-const int MIN_CORRIDOR_WIDTH = 5;
-const int NARROW_CORRIDOR_PENALTY = 1000;
 
 enum Direction : uint16_t
 {
@@ -451,25 +449,22 @@ struct Matrix
 		}
 	}
 	
+	bool isdefined(int i, int j) const
+	{
+		if (i < 0)
+			return false;
+		if (i >= _n)
+			return false;
+		if (j < 0)
+			return false;
+		if (j >= _m)
+			return false;
+		return true;		
+	}
+	
 	int _n=0, _m=0;
 	T *_data = nullptr;
 };
-
-
-//suppose implicitement que T=bool.
-template <>	
-bool Matrix<bool>::operator()(int i, int j) const
-{
-	if (i < 0)
-		return false;
-	if (i >= _n)
-		return false;
-	if (j < 0)
-		return false;
-	if (j >= _m)
-		return false;
-	return _data[i*_m + j];
-}
 
 
 struct Graph
@@ -701,25 +696,34 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 	vector<Edge> adj;
 
 	const int TURN_PENALTY = 1;
+	const int MIN_CORRIDOR_WIDTH = 5;
+	const int NARROW_CORRIDOR_PENALTY = 1000;
+	const int WITHIN_RECTANGLE_PENALTY = 1000;
+	
 	const auto& [definition_matrix, range_matrix, coords] = graph;
 	
 	Maille r = parse(u);
+	
 	Maille next = r;
 	next[next.direction] += next.way;
-	
-	if (definition_matrix(next.i, next.j))
+		
+	if (definition_matrix.isdefined(next.i, next.j))
 	{
-		uint64_t v = serialize(next);
 		int distance = 0;
+		
+		uint64_t v = serialize(next);
+		
 		for (Maille* m : {&r, &next})
 		{
+			if (definition_matrix(m->i, m->j) == false)
+				distance += WITHIN_RECTANGLE_PENALTY;		
+			
 			auto& tab = coords[m->direction];
 			int16_t value = (*m)[m->direction];
 			distance += tab[value+1] - tab[value];
 		}
 
 		const Matrix<Span> &rm = range_matrix[next.direction];
-
 		Span span = rm(next.i, next.j);
 		uint64_t w = u;
 		while (w)
@@ -748,11 +752,13 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 		next.direction = other(r.direction);
 		next.way = way;
 		
-		if (definition_matrix(next.i, next.j))
-		{
-			uint64_t v = serialize(next);
-			adj.push_back({ u, v, TURN_PENALTY });
-		}
+		int distance = TURN_PENALTY;
+		
+		if (definition_matrix(r.i, r.j) == false)
+			distance += 2 * WITHIN_RECTANGLE_PENALTY;		
+		
+		uint64_t v = serialize(next);
+		adj.push_back({ u, v, distance });
 	}
 	
 	return adj;
@@ -903,25 +909,22 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	for (int16_t j = left; j <= right; j++)
 	{
-		if (top > 1)
-			result.insert({VERTICAL, input_output(ioswitch, DECREASE), int16_t(top-1), j});
-		if (bottom + 1 < coords[VERTICAL].size())
-			result.insert({VERTICAL, input_output(ioswitch, INCREASE), int16_t(bottom+1), j});
+		result.insert({VERTICAL, input_output(ioswitch, DECREASE), (int16_t)top, j});
+		result.insert({VERTICAL, input_output(ioswitch, INCREASE), (int16_t)bottom, j});
 	}
 	
 	for (int16_t i = top; i <= bottom; i++)
 	{
-		if (left > 1)
-			result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), i, int16_t(left-1)});
-		if (right+1 < coords[HORIZONTAL].size())
-			result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), i, int16_t(right+1)});
+		result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), i, (int16_t)left});
+		result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), i, (int16_t)right});
 	}
 	
 	unordered_set<uint64_t> defined;
 	
 	for (const Maille& m : result)
 	{
-		if (definition_matrix(m.i, m.j))
+	//TODO: should be an assert instead of an if
+		//if (definition_matrix(m.i, m.j))
 			defined.insert(serialize(m));
 	}
 	return defined;
@@ -2811,7 +2814,10 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			{
 				result.push_back(parse(u));
 			}
+			//remove first (resp. last) node because it is inside the source (resp. target) rectangle.
+			result.pop_back();
 			reverse(begin(result), end(result));
+			result.pop_back();
 
 			Target target = { from, to, result };
 
