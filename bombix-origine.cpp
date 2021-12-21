@@ -1337,6 +1337,51 @@ const TestContext contexts[] = {
 	/*polylines*/{}
 },
 #endif
+
+/*
+				+-----+
+				|  1  |
+				+-----+
+
+		   +-----+
+		   |  0  |
+		   +-----+
+*/
+{
+    /*testid*/0,
+    /*rectangles*/{
+        {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
+        {/*left*/28,/*right*/50,/*top*/10,/*bottom*/30 }
+    },
+    /*frame*/{ 0, 60, 0, 70 },
+    /*links*/{{/*source*/0,/*target*/1}},
+	
+	/*faiceau output*/{
+			{
+				/*targets*/{
+					{
+						/*from*/0,
+						/*to*/1,
+						/*expected path*/{
+							{VERTICAL, DECREASE, 2, 1},
+							{VERTICAL, DECREASE, 1, 1},
+							{HORIZONTAL, INCREASE, 1, 1}
+						}
+					}
+				},
+				/*enlarged*/{
+				}
+			}
+		},
+		/*polylines*/{
+          	{
+				/*from*/0,
+				/*to*/1,
+				/*data*/{ { 19, 40 }, {19, 20}, {28, 20} }
+			}
+		}
+},
+
 /*
                         +-----+
                         |  1  |
