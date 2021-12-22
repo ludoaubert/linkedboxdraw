@@ -114,6 +114,7 @@ function deselectElement()
 	console.log(sframe);
 	
 	const slinks = reduced_edges
+				.filter(ln => ln.from != ln.to)
 				.map(ln => [ln.from, ln.to])
 				.flat()
 				.map(i => hex(i,2))
