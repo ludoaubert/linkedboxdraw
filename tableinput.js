@@ -74,7 +74,8 @@ function download2(filename) {
 						.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
 	console.log(rectdim);
 						
-	const slinks = links.map(lk => [lk.from, lk.to])
+	const slinks = links.filter(lk => lk.from != lk.to)
+						.map(lk => [lk.from, lk.to])
 						.map(lk => JSON.stringify(lk))
 						.filter(function(lk, pos, self){
 									return self.indexOf(lk) == pos;}
@@ -133,6 +134,7 @@ function download2(filename) {
 			console.assert(rectdim_.size == translations.size);
 			console.log(links);
 			const links_ = links
+							.filter(lk => lk.from != lk.to)
 							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)})
 							.map( ({from,to}) => [idmap.get(from),idmap.get(to)])
 							.flat()
