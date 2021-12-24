@@ -2986,31 +2986,33 @@ void compute_polylines(const vector<Rect>& rects,
 	Matrix<Span> range_matrix[2] = {Matrix<Span>(n1,n2), Matrix<Span>(n1,n2)};
 	compute_range_matrix(definition_matrix_, range_matrix);
 
+	vector<const Link*> link_pointers;
+	std::transform(begin(links),
+					end(links),
+					std::back_inserter(link_pointers),
+					[](const Link& lk){return &lk;}
+					);
+
 	vector<int> origins;
 	while (int &nn = *max_element(begin(nblinks), end(nblinks)))
 	{
 		int from = distance(&nblinks[0], &nn);
 		origins.push_back(from);
-
-		vector<Link> adj_links;
-		for (const Link& link : links)
+			
+		for (const Link*& lkp : link_pointers)
 		{
-			if (link.from == from)
-				adj_links.push_back({ link.from, link.to });
-			else if (link.to == from)
-				adj_links.push_back({ link.to, link.from });
-		}
-
-		nblinks[from] = 0;
-		for (const Link& link : adj_links)
-		{
-			for (int n : {link.from, link.to})
+			if (lkp == 0)
+				continue;
+			if (lkp->from == from || lkp->to == from)
 			{
-				if (nblinks[n] == 1)
-					nblinks[n] = 0;
+				nblinks[lkp->from]--;
+				nblinks[lkp->to]--;
+				lkp=0;
 			}
 		}
 	}
+	
+	assert(nblinks == vector<int>(n,0));
 
 	faiceau_output.resize(origins.size());
 
@@ -3099,8 +3101,6 @@ void compute_polylines(const vector<Rect>& rects,
 		
 		polylines.push_back({from, to, compute_polyline(coords, mypath)});
 	}
-	
-	assert(nblinks == vector<int>(n,0));
 }
 
 
