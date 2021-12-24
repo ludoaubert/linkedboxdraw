@@ -19,6 +19,7 @@ function prettyData(json) {
 			.replaceAll('}}]', '}}\n]')
 			.replaceAll('}]}', '}\n]}')
 			.replaceAll('{"title"','\n{"title"')
+			.replaceAll('"id"', '\n"id"')
 			.replaceAll('"fields"', '\n"fields"')
 			.replaceAll('{"name"','\n\t{"name"')
 			.replaceAll('{"from"','\n{"from"')
