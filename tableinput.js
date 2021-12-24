@@ -676,9 +676,9 @@ function refreshJsonFromEditData()
 {	
 	var boxes = [];
 
-	for (let box of myBoxes)
+	for (let [id, box] of myBoxes.entries())
 	{
-		boxes.push({"title":box, "fields":box2fields[box]})
+		boxes.push({"title":box, "id":id, "fields":box2fields[box]})
 	}
 	
 	let values = [];
