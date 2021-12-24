@@ -49,7 +49,7 @@ WITH cte_fk AS (
 	LEFT JOIN cte_pk pk ON c.TABLE_NAME=pk.table_name AND c.COLUMN_NAME = pk.[columns]
 	LEFT JOIN cte_fk fk ON c.TABLE_NAME=fk.[table] AND c.COLUMN_NAME = fk.[column]
 ) , cte_fields AS (
-	SELECT tl.table_name AS title, tl.rn AS id, (
+	SELECT tl.table_name AS title, tl.rn-1 AS id, (
 		SELECT tc.COLUMN_NAME AS [name], 
 			CAST(CASE WHEN pk.pk_name IS NULL THEN 0 ELSE 1 END AS BIT) AS isPrimaryKey,
 			CAST(CASE WHEN fk.FK_NAME IS NULL THEN 0 ELSE 1 END AS BIT) AS isForeignKey
