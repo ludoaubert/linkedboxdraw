@@ -781,7 +781,7 @@ const RECTANGLE_BOTTOM_CAP=200;
 function compute_box_rectangles(boxes)
 {
 	var rectangles = []
-	for (let title of myBoxes)
+	for (const {title,id,fields} of boxes)
 	{
 		let fields = box2fields[title];
 		var key_distrib = compute_key_distrib(fields) ;
@@ -790,10 +790,10 @@ function compute_box_rectangles(boxes)
 		var width = 2*4 + title.length * MONOSPACE_FONT_PIXEL_WIDTH ;
 		var max_width = width;
 		
-		for (let field of fields)
+		for (const field of fields)
 		{
 			nr_col++ ;
-			var column_name = field.name;
+			const column_name = field.name;
 
 			var column_width=0;
 
