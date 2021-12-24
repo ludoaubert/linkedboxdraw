@@ -840,7 +840,7 @@ function refreshEditDataFromJson(Json)
 	removeOptions(colorsCombo);
 	
 	myBoxes = [];
-	for (const {title, fields} of boxes)
+	for (const {title, id, fields} of boxes)
 	{
 		myBoxes.push(title);
 	}
