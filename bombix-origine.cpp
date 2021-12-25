@@ -329,6 +329,7 @@ struct RectangleProjection
 	Rect* r=0;
 };
 
+
 struct Rect
 {
 	RectangleProjection operator[](Direction direction)
@@ -547,6 +548,15 @@ namespace std {
 			const int k = 31;
 		//TODO: use destructuring
 			return r.direction + k * r.way + k ^ 2 * r.value + k ^ 3 * r.min + k ^ 4 * r.max;
+		}
+	};
+	
+	template <>
+	struct hash<Point> {
+		size_t operator()(const Point &p) const
+		{
+			const int k = 31;
+			return p.x + k * p.y;
 		}
 	};
 }
@@ -3103,6 +3113,68 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 }
 
+struct PolylinePoint
+{
+	Polyline* polyline;
+	Point* p;
+	int next;
+};
+
+struct PointCollision
+{
+	PolylinePoint p1, p2;
+};
+
+const int TRANSLATION_ON_COLLISION = 4;
+
+int query_distance_to_rectangle_vertices(const Rect& rec, const Point& p)
+{
+	const auto& [left, right, top, bottom] = rec ;
+	const auto& [x, y] = p;
+
+	assert(x == left || x == right || y == top || y == bottom);
+	
+	if (x == left || x == right)
+		return std::min(bottom-y, y-top);
+	
+	if (y == top || y == bottom)
+		return std::min(x-left, right-x);
+}
+
+vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& rects, vector<Polyline> &polylines)
+{
+	vector<PolylinePoint> points;
+	for (Polyline& polyline : polylines)
+	{
+		auto& [from, to, data] = polyline;
+		if (data.size() <= 2)
+			continue;
+		if (int distance = query_distance_to_rectangle_vertices(rects[from], data[0]); distance > TRANSLATION_ON_COLLISION)
+			points.push_back({&polyline, &data[0], 1});
+		if (int distance = query_distance_to_rectangle_vertices(rects[to], data.back()); distance > TRANSLATION_ON_COLLISION)
+			points.push_back({&polyline, &data.back(), -1});
+	}
+	
+	vector<PointCollision> collisions;
+	
+	unordered_set<Point> locations;
+	
+	for (int i=0; i < points.size(); i++)
+	{
+		PolylinePoint& pi = points[i];
+		for (int j=i+2; j < points.size() && collisions.size()<2; j++)
+		{
+			PolylinePoint& pj = points[j];
+			if (*pi.p == *pj.p && locations.count(*pi.p)==0)
+			{
+				collisions.push_back({pi,pj});
+				locations.insert(*pi.p);
+			}
+		}
+	}
+	
+	return collisions;
+}
 
 /*
 direction = HORIZONTAL:
@@ -3188,6 +3260,25 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 
 void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
 {
+	vector<PointCollision> collisions = intersection_of_polyline_extremities(rects, polylines);
+	
+	for (auto [cp1, cp2] : collisions)
+	{
+		auto& [polyline1, p1, next1] = cp1;
+		auto& [polyline2, p2, next2] = cp2;
+		
+		for (Direction dir : {HORIZONTAL, VERTICAL})
+		{
+			if ( (*p1)[dir] == (*(p1+next1))[dir] && (*p2)[dir] == (*(p2+next2))[dir])
+			{
+				for (Point *p : {p1, p1+next1})
+					(*p)[other(dir)] += TRANSLATION_ON_COLLISION;
+				for (Point *p : {p2, p2+next2})
+					(*p)[other(dir)] -= TRANSLATION_ON_COLLISION;
+			}
+		}
+	}
+	
 	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
 	
 	for (auto [ver_seg, hor_seg] : intersections)
