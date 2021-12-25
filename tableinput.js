@@ -137,6 +137,11 @@ function download2(filename) {
 							.filter(lk => lk.from != lk.to)
 							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)})
 							.map( ({from,to}) => [idmap.get(from),idmap.get(to)])
+							.map(lk => JSON.stringify(lk))
+							.filter(function(lk, pos, self){
+										return self.indexOf(lk) == pos;}
+							) //removing duplicates
+							.map(lk => JSON.parse(lk))
 							.flat()
 							.map(i => hex(i,2))
 							.join('');							
