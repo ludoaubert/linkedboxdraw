@@ -3272,9 +3272,17 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 			if ( (*p1)[dir] == (*(p1+next1))[dir] && (*p2)[dir] == (*(p2+next2))[dir])
 			{
 				for (Point *p : {p1, p1+next1})
-					(*p)[other(dir)] += TRANSLATION_ON_COLLISION;
+					(*p)[dir] += TRANSLATION_ON_COLLISION;
+				
+				Point t = {0,0};
+				t[dir] = TRANSLATION_ON_COLLISION;
+				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline1->from, polyline1->to);
+
 				for (Point *p : {p2, p2+next2})
-					(*p)[other(dir)] -= TRANSLATION_ON_COLLISION;
+					(*p)[dir] -= TRANSLATION_ON_COLLISION;
+				
+				t[dir] = -TRANSLATION_ON_COLLISION;
+				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline2->from, polyline2->to);
 			}
 		}
 	}
