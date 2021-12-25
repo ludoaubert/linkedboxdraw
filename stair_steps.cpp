@@ -25,7 +25,7 @@
 #include <chrono>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <omp.h>
+//#include <omp.h>
 using namespace std ;
 using namespace std::chrono;
 using namespace Eigen ;
