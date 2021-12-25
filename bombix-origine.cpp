@@ -3104,6 +3104,157 @@ void compute_polylines(const vector<Rect>& rects,
 }
 
 
+/*
+direction = HORIZONTAL:
+xmin=min
+xmax=max
+x=value
+
+direction = VERTICAL:
+ymin=min
+ymax=max
+y=value
+*/
+
+struct PolylineSegment
+{
+	Polyline* polyline;
+	vector<Point>* data;
+	Point* p1;
+	Point* p2;
+	int min, max, value;
+	Direction direction;
+};
+
+struct SegmentIntersection
+{
+	PolylineSegment vertical_polyline_segment, horizontal_polyline_segment;
+};
+
+
+vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polylines)
+{
+	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
+	
+	for (Polyline& polyline : polylines)
+	{
+		auto& [from, to, data] = polyline;
+		for (int i=0; i+1 < data.size(); i++)
+		{
+			Point *p1=&data[i], *p2=&data[i+1];
+			if (p1->x == p2->x)
+			{
+				int ymin = min(p1->y, p2->y), ymax = max(p1->y, p2->y), x = p1->x ;
+				vertical_polyline_segments.push_back({&polyline, &data, p1, p2, ymin, ymax, x, VERTICAL});
+			}
+			if (p1->y == p2->y)
+			{
+				int xmin = min(p1->x, p2->x), xmax = max(p1->x, p2->x), y = p1->y ;
+				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2, xmin, xmax, y, HORIZONTAL});
+			}
+		}
+	}
+	
+	vector<SegmentIntersection> intersections;
+	
+	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
+	{
+		int xmin = hor_seg.min, xmax = hor_seg.max, y = hor_seg.value ;
+
+		for (PolylineSegment& ver_seg : vertical_polyline_segments)
+		{
+			int ymin = ver_seg.min, ymax = ver_seg.max, x = ver_seg.value ;
+			
+			if (xmin < x && x < xmax && ymin < y && y < ymax)
+			{
+				intersections.push_back({ver_seg, hor_seg});
+			}
+		}
+	}
+	
+	printf("%lu horizontal polyline segments\n", horizontal_polyline_segments.size());
+	printf("%lu vertical polyline segments\n", vertical_polyline_segments.size());
+	printf("intersection count: %lu\n", intersections.size());
+	
+	for (auto [ver_seg, hor_seg] : intersections)
+	{
+		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
+					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1->x, ver_seg.p1->y, ver_seg.p2->x, ver_seg.p2->y,
+					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1->x, hor_seg.p1->y, hor_seg.p2->x, hor_seg.p2->y);		
+	}
+
+	return intersections;
+}
+
+void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
+{
+	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
+	
+	for (auto [ver_seg, hor_seg] : intersections)
+	{
+		vector<SegmentIntersection> intersections_update ; 
+		
+		PolylineSegment seg2[2] = {ver_seg, hor_seg};
+		for (int i=0; i < 2; i++)
+		{
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x, direction] = seg2[i];
+			
+			if (int ipred = distance(&(*data)[0], p1) - 1, d = seg2[1-i].value - (*p1)[direction]; ipred >= 0 && abs(d) < 10)
+			{
+				vector<Point> copy_of_data = * data ;
+				const Rect& rfrom = rects[polyline->from] ;
+				Span sfrom = rfrom[direction];
+				bool start_docking_ko=false;
+				(*p1)[direction] += 2 * d;
+				Point *p0 = & (*data)[ipred] ;
+				(*p0)[direction] += 2 * d;
+				start_docking_ko = ipred==0 && ((*p0)[direction] <= sfrom.min || (*p0)[direction] >= sfrom.max);
+			
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				{
+					copy(begin(copy_of_data), end(copy_of_data), begin(*data));
+				}
+				else
+				{
+					Point translation;
+					translation[direction] = 2 * d;
+					auto& [tx, ty] = translation;
+					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
+				}	
+			}
+			
+			if (int inext = distance(&(*data)[0], p2) + 1, d = seg2[1-i].value - (*p2)[direction]; inext < (*data).size() && abs(d) < 10)
+			{
+				vector<Point> copy_of_data = * data ;
+				const Rect& rto = rects[polyline->to] ;
+				Span sto = rto[direction];
+				bool end_docking_ko=false;
+				(*p2)[direction] += 2 * d;
+				Point *p3 = & (*data)[inext] ;
+				(*p3)[direction] += 2 * d;
+				end_docking_ko = inext+1==(*data).size() && ((*p3)[direction] <= sto.min || (*p3)[direction] >= sto.max);
+
+				intersections_update = intersection_of_polylines(polylines);
+				if (intersections_update.size() >= intersections.size() || end_docking_ko)
+				{
+					copy(begin(copy_of_data), end(copy_of_data), begin(*data));
+				}
+				else
+				{
+					Point translation;
+					translation[direction] = 2 * d;
+					auto& [tx, ty] = translation;
+					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
+				}
+			}				
+		}
+		
+	}
+}
+
+
+
 void parse_command(const char* rectdim,
 					const char* translations,
 					const char* sframe,
@@ -3164,6 +3315,7 @@ int main(int argc, char* argv[])
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
+			post_process_polylines(ctx.rects, polylines);
 			
 			string serialized;
 			print(faisceau_output, serialized);
@@ -3325,6 +3477,8 @@ const char* bombix(const char *rectdim,
         vector<Polyline> polylines;
 
         compute_polylines(rects, frame, links, faiceau_output, polylines);
+		post_process_polylines(rects, polylines);
+
         string json = polyline2json(polylines);
         static char res[100000];
         std::copy(json.c_str(), json.c_str()+json.size(), res);
