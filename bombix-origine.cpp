@@ -49,6 +49,9 @@ enum Direction : uint16_t
 	VERTICAL
 };
 
+const char* dir[2] = { "HORIZONTAL", "VERTICAL"};
+const char* way_string[3] = {"DECREASE",0,"INCREASE"};
+
 Direction other(Direction direction)
 {
 	switch (direction)
@@ -208,7 +211,7 @@ RangeProjection& RangeProjection::operator=(const Span& s)
 
 
 //TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++17 ? C++20 ?
+// le code ? C++20 ?
 bool operator==(const Range& r1, const Range& r2)
 {
 	return memcmp(&r1, &r2, sizeof(Range)) == 0;
@@ -248,6 +251,8 @@ struct Maille
 
 };
 
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
 
 bool operator==(const Maille& m1, const Maille& m2)
 {
@@ -307,6 +312,9 @@ struct Point
 	}
 	int x, y;
 };
+
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
 
 bool operator==(const Point& p1, const Point& p2)
 {
@@ -488,6 +496,9 @@ struct Target
 	vector<Maille> expected_path;
 };
 
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
+
 bool operator==(const Target& t1, const Target& t2)
 {
 	return t1.from == t2.from && t1.to == t2.to && t1.expected_path == t2.expected_path;
@@ -499,6 +510,9 @@ struct Polyline
 	int to;
 	vector<Point> data;
 };
+
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
 
 bool operator==(const Polyline& p1, const Polyline& p2)
 {
@@ -515,12 +529,15 @@ struct Link
 	int from, to;
 };
 
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
+
 bool operator==(const Link& lk1, const Link& lk2)
 {
 	return memcmp(&lk1, &lk2, sizeof(Link)) == 0;
 }
 
-//TODO: could use a default compiler generated implementation ? C++17 ? C++20 ?
+//TODO: could use a default compiler generated implementation ? C++20 ? C++23 ?
 namespace std {
 
 	template <>
@@ -568,6 +585,9 @@ struct FaiceauOutput
 	vector<Target> targets;
 	unordered_map<Maille, Range> enlarged;
 };
+
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
 
 bool operator==(const FaiceauOutput& f1, const FaiceauOutput& f2)
 {
@@ -657,8 +677,6 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 {
 	char buffer[100 * 1024];
 	int pos = 0;
-	const char* dir[2] = { "HORIZONTAL", "VERTICAL"};
-	const char* way_string[3] = {"DECREASE",0,"INCREASE"};
 	
 	pos += sprintf(buffer + pos, "\t\t/*faiceau output*/{\n");
 	
@@ -751,7 +769,11 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 		const vector<int>& c = coords[other(next.direction)];
 		int range_width = c[span.max+1] - c[span.min];
 		if (range_width < MIN_CORRIDOR_WIDTH)
+		{
+			printf("detected narrow corridor range_witdh=%d at location (i=%hu, j=%hu, direction=%s, way=%s).\n", 
+					range_width, next.i, next.j, dir[next.direction], way_string[next.way+1]);
 			distance += NARROW_CORRIDOR_PENALTY;
+		}
 		
 		adj.push_back({u, v, distance});
 	}
@@ -964,6 +986,10 @@ Before Mai 18th 2018, order used to be e1.distance_v > e2.distance_v, and so it 
 in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
 all OK on 32 bit platforms but some were KO on 64 bit platforms.
 */
+
+//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
+// le code ? C++20 ?
+
 bool operator<(const QueuedEdge& e1, const QueuedEdge& e2)
 {		
 	if (e1.distance_v != e2.distance_v)
@@ -2809,6 +2835,8 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				const vector<Rect>& rects,
 				int from)
 {
+	printf("enter compute_faiceau() from=%d \n", from);
+	
 	vector<Target> targets;
 
 	vector<Link> adj_links;
@@ -2922,6 +2950,8 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	// enlarge the faiceau - END
+	
+	printf("exit compute_faiceau() from=%d \n", from);
 
 	return{ targets, enlarged };
 }
