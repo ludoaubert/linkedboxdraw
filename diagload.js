@@ -87,7 +87,8 @@ function deselectElement()
 
 	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
-	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, tB => ({
+	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, (tB, index) => ({
+			id: index,
 			name: mydata.boxes[tB.id].title, //of interest for test data investigations
 			left: mydata.rectangles[tB.id].left + tB.translation.x,
 			right: mydata.rectangles[tB.id].right + tB.translation.x,
