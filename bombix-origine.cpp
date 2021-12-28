@@ -3045,8 +3045,8 @@ void compute_polylines(const vector<Rect>& rects,
 				continue;
 			if (lkp->from == from || lkp->to == from)
 			{
-				nblinks[lkp->from]--;
-				nblinks[lkp->to]--;
+				nblinks[lkp->from] = 0;
+				nblinks[lkp->to] = 0;
 				lkp=0;
 			}
 		}
