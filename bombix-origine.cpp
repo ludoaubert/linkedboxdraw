@@ -3449,9 +3449,6 @@ int main(int argc, char* argv[])
 			string serialized;
 			print(faisceau_output, serialized);
 
-			const char* dir[2] = { "HORIZONTAL", "VERTICAL" };
-			const char* way[3] = { "DECREASE",0,"INCREASE" };
-
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
 			
@@ -3487,8 +3484,8 @@ int main(int argc, char* argv[])
 							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way[1+m.way], m.i, m.j, 
-									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
+									dir[m.direction], way_string[1+m.way], m.i, m.j, 
+									dir[r.direction], way_string[1 + r.way], r.value, r.min, r.max);
 							}
 						}
 						for (auto [m, r] : ctx.faisceau_output[i].enlarged)
@@ -3496,8 +3493,8 @@ int main(int argc, char* argv[])
 							if (faisceau_output[i].enlarged.count(m) == 0)
 							{
 								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way[1+m.way], m.i, m.j, 
-									dir[r.direction], way[1 + r.way], r.value, r.min, r.max);
+									dir[m.direction], way_string[1+m.way], m.i, m.j, 
+									dir[r.direction], way_string[1 + r.way], r.value, r.min, r.max);
 							}
 						}
 						for (auto [maille, r] : faisceau_output[i].enlarged)
@@ -3506,8 +3503,8 @@ int main(int argc, char* argv[])
 							{
 								Range r2 = ctx.faisceau_output[i].enlarged.at(maille);
 								printf("(%s, %s, %hu,%hu,%hu) in expected but (%s, %s,%hu,%hu,%hu) in output.\n", 
-									dir[r2.direction], way[1+r2.way], r2.value, r2.min, r2.max,
-									dir[r.direction], way[1+r.way], r.value, r.min, r.max);
+									dir[r2.direction], way_string[1+r2.way], r2.value, r2.min, r2.max,
+									dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 							}
 						}
 					}
