@@ -43,11 +43,12 @@ WITH cte_fk AS (
 	WHERE EXISTS (SELECT * FROM cte_fk WHERE TABLE_NAME IN ([table], [referenced_table]))
 ) , cte_table_column_list AS (
 	SELECT c.table_name, c.column_name, tl.rn AS rn_table,
-		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY pk.pk_name DESC, fk.FK_NAME DESC, c.column_name) AS rn_column
+		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY pk.pk_name DESC, fk_orig.FK_NAME DESC, fk_dest.FK_NAME DESC, c.column_name) AS rn_column
 	FROM INFORMATION_SCHEMA.COLUMNS c
 	JOIN cte_table_list tl ON c.TABLE_NAME=tl.TABLE_NAME
 	LEFT JOIN cte_pk pk ON c.TABLE_NAME=pk.table_name AND c.COLUMN_NAME = pk.[columns]
-	LEFT JOIN cte_fk fk ON c.TABLE_NAME=fk.[table] AND c.COLUMN_NAME = fk.[column]
+	LEFT JOIN cte_fk fk_orig ON c.TABLE_NAME=fk_orig.[table] AND c.COLUMN_NAME = fk_orig.[column]
+	LEFT JOIN cte_fk fk_dest ON c.TABLE_NAME=fk_dest.[referenced_table] AND c.COLUMN_NAME = fk_dest.[referenced_column]
 ) , cte_fields AS (
 	SELECT tl.table_name AS title, tl.rn-1 AS id, (
 		SELECT tc.COLUMN_NAME AS [name], 
