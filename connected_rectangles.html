@@ -4,15 +4,15 @@
     <title>connected rectangles</title>
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 	<link rel="icon" type="image/x-icon" href="favicon.ico" />
-  </head>
-  
-  <body>
+	
     <script type="text/javascript" src="bombix-origine.js"></script>
 	<script type="text/javascript" src="pretty.js"></script>
     <script type="text/javascript" src="diagload.js"></script>
     <link rel="stylesheet" type="text/css" href="diagstyle.css">
 	
-   <script>    
+   <script>   
+
+	function onLoad() {
 	var Module = {
 	  'print': function(text) { console.log('stdout: ' + text) },
 	  'printErr': function(text) { console.log('stderr: ' + text) }
@@ -47,8 +47,14 @@
 	};
 	xmlhttp2.open("GET", contexts_url, true);
 	xmlhttp2.send();
+	}
 
     </script>
+	
+  </head>
+  
+  <body onload="onLoad()">
+
 	
   </body>
 </html>
