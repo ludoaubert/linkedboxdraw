@@ -10,12 +10,17 @@
 	  'printErr': function(text) { console.log('stderr: ' + text) }
 	}; 
 	
+	var data = null;
+	var contexts = null;
+	
 	var xmlhttp1 = new XMLHttpRequest();
 	var data_url = "https://ludoaubert.github.io/linkedboxdraw/diagdata.json";
 
 	xmlhttp1.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var data = this.responseText;
+			data = this.responseText;
+			if (contexts != null)
+				loadDiag();
 		}
 	};
 	xmlhttp1.open("GET", data_url, true);
@@ -27,7 +32,9 @@
 
 	xmlhttp2.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var contexts = this.responseText;
+			contexts = this.responseText;
+			if (data != null)
+				loadDiag();
 		}
 	};
 	xmlhttp2.open("GET", contexts_url, true);
@@ -41,7 +48,7 @@
 
   </head>
   
-  <body onload="loadDiag()">
+  <body>
 
   </body>
 </html>
