@@ -4,14 +4,23 @@ Edition of relational diagrams, web based, serverless.
 
 Typical use case:
 
-Just been hired on a new software or data project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map. You type in the logical information, the diagram geometry will be computed by algorithms. 
+Just been hired on a new software or data project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
+To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
 
-https://ludoaubert.github.io/linkedboxdraw/tableinput.html
+In the case of relational diagrams, there are some database engine specific scripts that are available to produces a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
 
-Is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you will use the "Field Color" section.
+SQL Server : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_SQLServer.sql
+MySQL : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_MySQL.sql
+other engines : you can create your own script and share it.
 
-You can save your diagram data to a json file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.js) by pressing "Save As" in the "Data File Output" section. This file does not contain geometric information. 
-You can also compute and save a geometric information file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/contexts.js), simply by pressing "Save As" in the "Geometry File Output" section. 
+You can load your diagdata.json equivalent file in https://ludoaubert.github.io/linkedboxdraw/tableinput.html by pressing Data File Input.
+
+Or you can enter the information (box titles, box fields and links) manually.
+
+It is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you will use the "Field Color" section.
+
+You can save your diagram data to a json file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json) by pressing "Save As" in the "Data File Output" section. This file does not contain geometric information. 
+You can also compute and save a geometric information file (see example provided https://github.com/ludoaubert/linkedboxdraw/blob/master/contexts.json), simply by pressing "Save As" in the "Geometry File Output" section. 
 
 The process to compute this geometric information is :
 1) minimum cut: break the diagram down into clusters, with a maximum of 20 boxes per cluster, cutting as few links as possible.
@@ -19,7 +28,7 @@ The process to compute this geometric information is :
 3) links: compute geometric links materialized by New York City Street route like polylines (interconnected North South or East West segments). Polylines should be as short as possible, make as few turns as possible, cross each other as seldom as possible.
 
 This geometric information file contains cluster numbers, box translations and polylines.
-Both files have a json format (although a .js extension).
+Both files have a json format.
 
 https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
 
