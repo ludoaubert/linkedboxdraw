@@ -23,7 +23,7 @@
 		if (this.readyState == 4 && this.status == 200) {
 			data = this.responseText;
 			if (contexts != null)
-				loadDiag();
+				loadDiag(data, contexts);
 		}
 	};
 	xmlhttp1.open("GET", data_url, true);
@@ -37,7 +37,7 @@
 		if (this.readyState == 4 && this.status == 200) {
 			contexts = this.responseText;
 			if (data != null)
-				loadDiag();
+				loadDiag(data, contexts);
 		}
 	};
 	xmlhttp2.open("GET", contexts_url, true);
@@ -55,6 +55,5 @@
   
   <body onload="onLoad()">
 
-	
   </body>
 </html>
