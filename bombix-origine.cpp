@@ -1284,7 +1284,7 @@ string polyline2json(const vector<Polyline>& polylines)
 	char buffer[10 * 1024];
 	int pos = 0;
 	
-	pos += sprintf(buffer + pos, "[");
+	pos += sprintf(buffer + pos, "[\n");
 	
 	for (const auto& [from, to, data] : polylines)
 	{
@@ -1296,11 +1296,14 @@ string polyline2json(const vector<Polyline>& polylines)
 		}
 		if (buffer[pos-1]==',')
 			pos--;
-		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},", from, to);
+		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},\n", from, to);
 	}
 	
-	if (buffer[pos-1]==',')
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
 		pos--;
+	}
 	pos += sprintf(buffer + pos, "]");
 	
 	return buffer;
@@ -1340,9 +1343,9 @@ string diagdata(const TestContext& ctx)
 	return buffer;
 }
 
-string contexts(const TestContext& ctx, const vector<Polyline>& polylines)
+string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 {
-	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
+	const auto& [testid, rects, frame, links, faisceau_output, polylines_] = ctx;
 	
 	string pjson = polyline2json(polylines);
 	
@@ -1367,14 +1370,12 @@ string contexts(const TestContext& ctx, const vector<Polyline>& polylines)
 		pos--;
 	}
 	
-	pos += sprintf(buffer + pos, R"(
-],
+	pos += sprintf(buffer + pos, R"(],
 "reduced_edges":[],
-"links":[
-%s
+"links":%s
+}
 ]}
-]}
-)", pson.c_str());
+)", pjson.c_str());
 
 	return buffer;
 }
@@ -3519,7 +3520,7 @@ int main(int argc, char* argv[])
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
 			
-			string json = contexts(ctx, polylines);
+			string json = contexts_(ctx, polylines);
 			int i=distance(&contexts[0], &ctx);
 			char file_name[40];
 			sprintf(file_name, "regtest_%d_contexts.json", i);
@@ -3533,63 +3534,8 @@ int main(int argc, char* argv[])
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
 			
-			if (faisceau_output.size() != ctx.faisceau_output.size())
+			if (faisceau_output != ctx.faisceau_output)
 			{
-				string serialized;
-				print(faisceau_output, serialized);
-				printf("%s", serialized.c_str());
-				printf("\n\n\n\n");
-			}
-			
-			if (polylines.size() != ctx.polylines.size())
-			{
-				print(polylines, serialized);
-				printf("%s",serialized.c_str());
-				printf("\n\n\n\n");	
-				string json = polyline2json(polylines);
-				printf("%s",json.c_str());
-				printf("\n\n\n\n");				
-			}			
-			
-			if (faisceau_output != ctx.faisceau_output && faisceau_output.size() == ctx.faisceau_output.size())
-			{
-				for (int i = 0; i < faisceau_output.size(); i++)
-				{
-					if (faisceau_output[i].targets != ctx.faisceau_output[i].targets)
-						printf("faisceau_output[%d].targets does not match expected!\n", i);
-					if (faisceau_output[i].enlarged != ctx.faisceau_output[i].enlarged)
-					{
-						printf("faisceau_output[%d].enlarged does not match expected!\n", i);
-						for (auto [m, r] : faisceau_output[i].enlarged)
-						{
-							if (ctx.faisceau_output[i].enlarged.count(m) == 0)
-							{
-								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu, %hu, %hu}} in output but not in expected.\n", 
-									dir[m.direction], way_string[1+m.way], m.i, m.j, 
-									dir[r.direction], way_string[1 + r.way], r.value, r.min, r.max);
-							}
-						}
-						for (auto [m, r] : ctx.faisceau_output[i].enlarged)
-						{
-							if (faisceau_output[i].enlarged.count(m) == 0)
-							{
-								printf("{{%s, %s, %hu, %hu},{%s, %s, %hu,%hu,%hu}} in expected but not in output.\n", 
-									dir[m.direction], way_string[1+m.way], m.i, m.j, 
-									dir[r.direction], way_string[1 + r.way], r.value, r.min, r.max);
-							}
-						}
-						for (auto [maille, r] : faisceau_output[i].enlarged)
-						{
-							if (ctx.faisceau_output[i].enlarged.count(maille) == 1 && ctx.faisceau_output[i].enlarged.at(maille) != faisceau_output[i].enlarged.at(maille))
-							{
-								Range r2 = ctx.faisceau_output[i].enlarged.at(maille);
-								printf("(%s, %s, %hu,%hu,%hu) in expected but (%s, %s,%hu,%hu,%hu) in output.\n", 
-									dir[r2.direction], way_string[1+r2.way], r2.value, r2.min, r2.max,
-									dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
-							}
-						}
-					}
-				}
 				printf("%s\n", serialized.c_str());
 			}
 
@@ -3597,23 +3543,10 @@ int main(int argc, char* argv[])
 			duration<double> time_span = high_resolution_clock::now() - t1;
 			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
 			OK &= polylines == ctx.polylines;
-
-			string json = polyline2json(polylines);
 			
-			if (polylines != ctx.polylines && polylines.size() == ctx.polylines.size())
+			if (polylines != ctx.polylines)
 			{
-				for (int i = 0; i < polylines.size(); i++)
-				{
-					if (polylines[i] != ctx.polylines[i])
-					{
-						printf("polylines[%d] != ctx.polylines[%d]. from=%d to=%d\n", i, i, polylines[i].from, polylines[i].to);
-						for (const Point& p : polylines[i].data)
-						{
-							printf("{\"x\":%d,\"y\":%d},", p.x, p.y);
-						}
-						printf("\n");
-					}
-				}
+				string json = polyline2json(polylines);
 				printf("%s\n", json.c_str());
 			}
 
