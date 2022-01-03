@@ -3504,7 +3504,7 @@ int main(int argc, char* argv[])
 			string json = diagdata(ctx);
 			int i=distance(&contexts[0], &ctx);
 			char file_name[40];
-			sprintf(file_name, "regtest_%d_diagdata.json", i);
+			sprintf(file_name, "test-reg-%d-diagdata.json", i);
 			FILE *f = fopen(file_name, "w");
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
@@ -3530,7 +3530,7 @@ int main(int argc, char* argv[])
 			string json = contexts_(ctx, polylines);
 			int i=distance(&contexts[0], &ctx);
 			char file_name[40];
-			sprintf(file_name, "regtest_%d_contexts.json", i);
+			sprintf(file_name, "test-reg-%d-contexts.json", i);
 			FILE *f = fopen(file_name, "w");
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
