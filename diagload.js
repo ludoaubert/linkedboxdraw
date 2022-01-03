@@ -479,6 +479,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	document.body.appendChild(sheet);
 	
 	var input = document.getElementById("myFile");
+	
+	var data = null;
+	var contexts = null;
 
 	input.addEventListener("change", function () {
 	  if (this.files && this.files[0]) {
@@ -487,7 +490,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		
 		reader.addEventListener('load', function (e) {
 		  contexts = e.target.result;
-		  loadDiag();
+		  if (data != null && contexts != null)
+			loadDiag(data, contexts);
 		});
 		
 		reader.readAsBinaryString(myFile);
@@ -503,7 +507,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		
 		reader.addEventListener('load', function (e) {
 		  data = e.target.result;
-		  loadDiag();
+		  if (data != null && contexts != null)
+			loadDiag(data, contexts);
 		});
 		
 		reader.readAsBinaryString(myDataFile);
