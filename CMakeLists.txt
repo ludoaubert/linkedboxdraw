@@ -4,7 +4,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -fopenmp -O3" )
 
-add_executable(bombix bombix.cpp)
+add_executable(bombix bombix-origine.cpp)
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
