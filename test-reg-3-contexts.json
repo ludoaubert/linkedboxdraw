@@ -1,0 +1,15 @@
+
+{"contexts":[{
+"frame":{"left":0,"right":55,"top":0,"bottom":100},
+"translatedBoxes":[
+{"id":0,"translation":{"x":25,"y":15}},
+{"id":1,"translation":{"x":25,"y":45}},
+{"id":2,"translation":{"x":10,"y":25}},
+{"id":3,"translation":{"x":4,"y":70}}
+],
+"reduced_edges":[],
+"links":[
+{"polyline":[{"x":14,"y":70},{"x":14,"y":31},{"x":25,"y":31}],"from":3,"to":0}
+]
+}
+]}

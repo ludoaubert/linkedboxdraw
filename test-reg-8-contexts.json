@@ -1,0 +1,15 @@
+
+{"contexts":[{
+"frame":{"left":0,"right":80,"top":0,"bottom":60},
+"translatedBoxes":[
+{"id":0,"translation":{"x":2,"y":2}},
+{"id":1,"translation":{"x":2,"y":20}},
+{"id":2,"translation":{"x":36,"y":2}},
+{"id":3,"translation":{"x":36,"y":20}}
+],
+"reduced_edges":[],
+"links":[
+{"polyline":[{"x":6,"y":4},{"x":21,"y":4},{"x":21,"y":22},{"x":36,"y":22}],"from":0,"to":3}
+]
+}
+]}

@@ -1,0 +1,13 @@
+
+{"contexts":[{
+"frame":{"left":0,"right":60,"top":0,"bottom":70},
+"translatedBoxes":[
+{"id":0,"translation":{"x":10,"y":40}},
+{"id":1,"translation":{"x":28,"y":10}}
+],
+"reduced_edges":[],
+"links":[
+{"polyline":[{"x":19,"y":40},{"x":19,"y":20},{"x":28,"y":20}],"from":0,"to":1}
+]
+}
+]}
