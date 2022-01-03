@@ -210,8 +210,8 @@ RangeProjection& RangeProjection::operator=(const Span& s)
 }
 
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: impl par default
+
 bool operator==(const Range& r1, const Range& r2)
 {
 	return memcmp(&r1, &r2, sizeof(Range)) == 0;
@@ -251,8 +251,7 @@ struct Maille
 
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: impl par default
 
 bool operator==(const Maille& m1, const Maille& m2)
 {
@@ -313,8 +312,7 @@ struct Point
 	int x, y;
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: impl par default
 
 bool operator==(const Point& p1, const Point& p2)
 {
@@ -496,8 +494,7 @@ struct Target
 	vector<Maille> expected_path;
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: implementation par default
 
 bool operator==(const Target& t1, const Target& t2)
 {
@@ -511,8 +508,7 @@ struct Polyline
 	vector<Point> data;
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: impl par default
 
 bool operator==(const Polyline& p1, const Polyline& p2)
 {
@@ -529,15 +525,14 @@ struct Link
 	int from, to;
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: impl par default
 
 bool operator==(const Link& lk1, const Link& lk2)
 {
 	return memcmp(&lk1, &lk2, sizeof(Link)) == 0;
 }
 
-//TODO: could use a default compiler generated implementation ? C++20 ? C++23 ?
+//TODO: could use a default generated impl ? C++23 ?
 namespace std {
 
 	template <>
@@ -586,8 +581,7 @@ struct FaiceauOutput
 	unordered_map<Maille, Range> enlarged;
 };
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: generer une impl par default
 
 bool operator==(const FaiceauOutput& f1, const FaiceauOutput& f2)
 {
@@ -703,7 +697,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 		
 		pos += sprintf(buffer + pos, "\t\t\t\t/*enlarged*/{\n");
-	//TODO: use destructuring
+
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
 			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%hu,%hu},{%s,%s,%hu,%hu,%hu}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
@@ -955,9 +949,7 @@ unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matr
 	
 	for (const Maille& m : result)
 	{
-	//TODO: should be an assert instead of an if
-		//if (definition_matrix(m.i, m.j))
-			defined.insert(serialize(m));
+		defined.insert(serialize(m));
 	}
 	return defined;
 }
@@ -987,8 +979,7 @@ in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking t
 all OK on 32 bit platforms but some were KO on 64 bit platforms.
 */
 
-//TODO: le compilateur peut-il generer une implementation par default pour tout les operateurs == sans qu'il y ai besoin d'ecrire
-// le code ? C++20 ?
+//TODO: generer une impl par default
 
 bool operator<(const QueuedEdge& e1, const QueuedEdge& e2)
 {		
@@ -1037,7 +1028,6 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	
 	while (!Q.empty())
 	{
-	//TODO: use C++17 structured binding
 		QueuedEdge queued_edge = Q.top();
 		Q.pop();
 		
@@ -1213,7 +1203,7 @@ bool connect_outer_ranges(const OuterRangeGraph& graph)
 	
 	dijkstra(graph, source_node_distance, distance, predecessor);
 	vector<uint64_t> target_nodes;
-	//TODO: use destructuring
+
 	for (auto& p : distance)
 	{
 		int64_t u = p.first;
@@ -1296,11 +1286,10 @@ string polyline2json(const vector<Polyline>& polylines)
 	
 	pos += sprintf(buffer + pos, "[");
 	
-//TODO: use C++17 destructuring
 	for (const auto& [from, to, data] : polylines)
 	{
 		pos += sprintf(buffer + pos, "{\"polyline\":[");
-//TODO: use C++17 destructuring
+
 		for (const auto& [x, y] : data)
 		{
 			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", x, y);
@@ -1313,6 +1302,40 @@ string polyline2json(const vector<Polyline>& polylines)
 	if (buffer[pos-1]==',')
 		pos--;
 	pos += sprintf(buffer + pos, "]");
+	
+	return buffer;
+}
+
+string diagdata(const TestContext& ctx)
+{
+	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
+	
+	char buffer[10 * 1024];
+	int pos = 0;
+	
+	pos += sprintf(buffer + pos, "{\"documentTitle\":\"\",\n\"boxes\":[\n");
+	for (int i=0; i < rects.size(); i++)
+		pos += sprintf(buffer + pos, "\t{\"title\":\"\", \"fields\":[]}\n");
+	pos += sprintf(buffer + pos, R"(],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[],
+"fieldColors":[],
+"rectangles":[
+)");
+	for (const auto& [left, right, top, bottom] : rects)
+	{
+		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", left, right, top, bottom);
+	}
+	
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
+		pos--;
+	}
+	
+	pos += sprintf(buffer + pos, "]}\n");
 	
 	return buffer;
 }
@@ -3428,6 +3451,17 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		printf("testing bombix ...\n");
+		
+		for (const TestContext &ctx : contexts)
+		{
+			string json = diagdata(ctx);
+			int i=distance(&contexts[0], &ctx);
+			char file_name[40];
+			sprintf(file_name, "regtest_%d_diagdata.json", i);
+			FILE *f = fopen(file_name, "w");
+			fprintf(f, "%s", json.c_str());
+			fclose(f);
+		}
 
 		int nbOK=0;
 
