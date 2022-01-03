@@ -1318,7 +1318,14 @@ string diagdata(const TestContext& ctx)
 	
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"\",\n\"boxes\":[\n");
 	for (int i=0; i < rects.size(); i++)
-		pos += sprintf(buffer + pos, "\t{\"title\":\"\", \"fields\":[]}\n");
+		pos += sprintf(buffer + pos, "\t{\"title\":\"\", \"fields\":[]},\n");
+	
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
+		pos--;
+	}	
+	
 	pos += sprintf(buffer + pos, R"(],
 "values":[],
 "boxComments":[],
