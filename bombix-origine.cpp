@@ -1368,7 +1368,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 	int i=0;
 	for (const auto& [left, right, top, bottom] : rects)
 	{
-		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i, left, top);
+		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
 	}
 	
 	if (buffer[pos-2]==',')
