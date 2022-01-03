@@ -1326,7 +1326,7 @@ string diagdata(const TestContext& ctx)
 )");
 	for (const auto& [left, right, top, bottom] : rects)
 	{
-		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", left, right, top, bottom);
+		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
 	}
 	
 	if (buffer[pos-2]==',')
@@ -1337,6 +1337,45 @@ string diagdata(const TestContext& ctx)
 	
 	pos += sprintf(buffer + pos, "]}\n");
 	
+	return buffer;
+}
+
+string contexts(const TestContext& ctx, const vector<Polyline>& polylines)
+{
+	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
+	
+	string pjson = polyline2json(polylines);
+	
+	char buffer[10 * 1024];
+	int pos = 0;
+	
+	pos += sprintf(buffer + pos, R"(
+{"contexts":[{
+"frame":{"left":%hu,"right":%hu,"top":%hu,"bottom":%hu},
+"translatedBoxes":[
+)", frame.left, frame.right, frame.top, frame.bottom);
+	
+	int i=0;
+	for (const auto& [left, right, top, bottom] : rects)
+	{
+		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i, left, top);
+	}
+	
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
+		pos--;
+	}
+	
+	pos += sprintf(buffer + pos, R"(
+],
+"reduced_edges":[],
+"links":[
+%s
+]}
+]}
+)", pson.c_str());
+
 	return buffer;
 }
 
@@ -3479,6 +3518,14 @@ int main(int argc, char* argv[])
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
+			
+			string json = contexts(ctx, polylines);
+			int i=distance(&contexts[0], &ctx);
+			char file_name[40];
+			sprintf(file_name, "regtest_%d_contexts.json", i);
+			FILE *f = fopen(file_name, "w");
+			fprintf(f, "%s", json.c_str());
+			fclose(f);
 			
 			string serialized;
 			print(faisceau_output, serialized);
