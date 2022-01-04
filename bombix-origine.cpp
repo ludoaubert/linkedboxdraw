@@ -1518,10 +1518,9 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/1,
 						/*expected path*/{
-							{HORIZONTAL, INCREASE, 3, 4},
-							{VERTICAL, DECREASE, 3, 4},
-							{VERTICAL, DECREASE, 2, 4},
-							{VERTICAL, DECREASE, 1, 4},
+							{VERTICAL, DECREASE, 2, 3},
+							{VERTICAL, DECREASE, 1, 3},
+							{HORIZONTAL, INCREASE, 1, 3},
 							{HORIZONTAL, INCREASE, 1, 4}
 						}
 					},
@@ -1529,22 +1528,26 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/2,
 						/*expected path*/{
-							{HORIZONTAL, INCREASE, 4, 4}
+							{HORIZONTAL, INCREASE, 3, 4}
 						}
 					},
 					{
 						/*from*/0,
 						/*to*/3,
 						/*expected path*/{
-							{HORIZONTAL, INCREASE, 5, 4},
-							{VERTICAL, INCREASE, 5, 4},
-							{VERTICAL, INCREASE, 6, 4},
-							{VERTICAL, INCREASE, 7, 4},
+							{VERTICAL, INCREASE, 6, 3},
+							{VERTICAL, INCREASE, 7, 3},
+							{HORIZONTAL, INCREASE, 7, 3},
 							{HORIZONTAL, INCREASE, 7, 4}
 						}
 					}
 				},
 				/*enlarged*/{
+						{{VERTICAL,INCREASE,7,3},{VERTICAL,INCREASE,7,1,3}},
+						{{VERTICAL,INCREASE,6,3},{VERTICAL,INCREASE,6,1,3}},
+						{{HORIZONTAL,INCREASE,3,4},{HORIZONTAL,INCREASE,4,3,5}},
+						{{VERTICAL,DECREASE,1,3},{VERTICAL,DECREASE,1,1,3}},
+						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,1,3}}
 				}
 			}
 		},
@@ -1552,17 +1555,17 @@ const TestContext contexts[] = {
           	{
 				/*from*/0,
 				/*to*/1,
-				/*data*/{ { 30, 43 }, {55, 43}, {55, 25}, {80, 25} }
+				/*data*/{ { 20, 40 }, {20, 25}, {80, 25} }
 			},
 			{
 				/*from*/0,
 				/*to*/2,
-				/*data*/{{30, 49},{80,49 } }
+				/*data*/{{30, 50},{80,50 } }
 			},
 			{
 				/*from*/0,
 				/*to*/3,
-				/*data*/{{30,56},{55,56},{55,75},{80,75}}
+				/*data*/{{20,60},{20,75},{80,75}}
 			}
 		}
 },
