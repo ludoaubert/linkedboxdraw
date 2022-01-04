@@ -1684,9 +1684,8 @@ const TestContext contexts[] = {
 						/*from*/0,
 						/*to*/3,
 						/*expected path*/{
-							{ VERTICAL, INCREASE, 4, 4 },
-							{ HORIZONTAL, DECREASE, 4, 4 },
-							{ HORIZONTAL, DECREASE, 4, 3 },
+							{ HORIZONTAL, DECREASE, 3, 3 },
+							{ VERTICAL, INCREASE, 3, 3 },
 							{ VERTICAL, INCREASE, 4, 3 },
 							{ VERTICAL, INCREASE, 5, 3 },
 							{ VERTICAL, INCREASE, 6, 3 }
@@ -1694,10 +1693,10 @@ const TestContext contexts[] = {
 					}	
 				},
 				/*enlarged*/{
-					{ { VERTICAL, INCREASE, 4, 4 },{ VERTICAL, INCREASE,4,4,5 } },
-					{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
+					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } },
 					{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE,5,1,3 } },
-					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } }
+					{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
+					{ { VERTICAL, INCREASE, 3, 3 },{ VERTICAL, INCREASE,3,1,3 } }
 				}
 			}
 		},
@@ -1705,7 +1704,7 @@ const TestContext contexts[] = {
 			{
 				/*from*/3,
 				/*to*/0,
-				/*data*/{ { 14, 70 },{ 14, 40 }, { 35, 40 },{ 35, 35} }
+				/*data*/{ { 14, 70 },{ 14, 31 }, { 25, 31 } }
 			}
 		}
 },
@@ -3508,9 +3507,8 @@ int main(int argc, char* argv[])
 		for (const TestContext &ctx : contexts)
 		{
 			string json = diagdata(ctx);
-			int i=distance(&contexts[0], &ctx);
 			char file_name[40];
-			sprintf(file_name, "test-reg-%d-diagdata.json", i);
+			sprintf(file_name, "test-reg-%d-diagdata.json", ctx.testid);
 			FILE *f = fopen(file_name, "w");
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
@@ -3534,9 +3532,8 @@ int main(int argc, char* argv[])
 			post_process_polylines(ctx.rects, polylines);
 			
 			string json = contexts_(ctx, polylines);
-			int i=distance(&contexts[0], &ctx);
 			char file_name[40];
-			sprintf(file_name, "test-reg-%d-contexts.json", i);
+			sprintf(file_name, "test-reg-%d-contexts.json", ctx.testid);
 			FILE *f = fopen(file_name, "w");
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
