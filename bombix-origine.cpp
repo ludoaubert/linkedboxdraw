@@ -2655,11 +2655,11 @@ const TestContext contexts[] = {
 {
         /*testid*/6,
         /*rectangles*/{
-            { 8/*left*/,10/*right*/,4/*top*/,8/*bottom*/ },
-            { 4/*left*/,14/*right*/,12/*top*/,16/*bottom*/ },
-            { 6/*left*/,12/*right*/,20/*top*/,24/*bottom*/ }
+            { 80/*left*/,100/*right*/,40/*top*/,80/*bottom*/ },
+            { 40/*left*/,140/*right*/,120/*top*/,160/*bottom*/ },
+            { 60/*left*/,120/*right*/,200/*top*/,240/*bottom*/ }
         },
-        /*frame*/{ 0/*left*/,20/*right*/,0/*top*/,30/*bottom*/ },
+        /*frame*/{ 0/*left*/,200/*right*/,0/*top*/,300/*bottom*/ },
         /*links*/{{/*source*/2,/*target*/1},{/*source*/2,/*target*/0}},
 		/*faiceau output*/{
 			{
