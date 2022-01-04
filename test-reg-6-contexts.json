@@ -1,15 +1,15 @@
 
 {"contexts":[{
-"frame":{"left":0,"right":20,"top":0,"bottom":30},
+"frame":{"left":0,"right":200,"top":0,"bottom":300},
 "translatedBoxes":[
-{"id":0,"translation":{"x":8,"y":4}},
-{"id":1,"translation":{"x":4,"y":12}},
-{"id":2,"translation":{"x":6,"y":20}}
+{"id":0,"translation":{"x":80,"y":40}},
+{"id":1,"translation":{"x":40,"y":120}},
+{"id":2,"translation":{"x":60,"y":200}}
 ],
 "reduced_edges":[],
 "links":[
-{"polyline":[{"x":9,"y":20},{"x":9,"y":16}],"from":2,"to":1},
-{"polyline":[{"x":9,"y":24},{"x":9,"y":27},{"x":17,"y":27},{"x":17,"y":6},{"x":10,"y":6}],"from":2,"to":0}
+{"polyline":[{"x":90,"y":200},{"x":90,"y":160}],"from":2,"to":1},
+{"polyline":[{"x":60,"y":220},{"x":20,"y":220},{"x":20,"y":60},{"x":80,"y":60}],"from":2,"to":0}
 ]
 }
 ]}
