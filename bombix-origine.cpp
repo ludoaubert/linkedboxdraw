@@ -2857,11 +2857,11 @@ const TestContext contexts[] = {
 						/*from*/3,
 						/*to*/0,
 						/*expected path*/{
-							{HORIZONTAL,DECREASE,3,2},
-							{VERTICAL,DECREASE,3,2},
-							{VERTICAL,DECREASE,2,2},
-							{VERTICAL,DECREASE,1,2},
-							{HORIZONTAL,DECREASE,1,2}
+							{VERTICAL,DECREASE,2,3},
+							{HORIZONTAL,DECREASE,2,3},
+							{HORIZONTAL,DECREASE,2,2},
+							{HORIZONTAL,DECREASE,2,1},
+							{VERTICAL,DECREASE,2,1}
 						}
 					},
 					{
@@ -2872,19 +2872,22 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{}
+				/*enlarged*/{
+						{{HORIZONTAL,DECREASE,4,2},{HORIZONTAL,DECREASE,2,3,4}},
+						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}	
+				}
 			}
 		},
 		/*polylines*/{
 			{
 				/*from*/3,
 				/*to*/0,
-				/*data*/{{360,210},{210,210},{210,40},{60,40}}
+				/*data*/{{380,200},{380,130},{40,130},{40,60}}
 			},
 			{
 				/*from*/3,
 				/*to*/1,
-				/*data*/{{360,230},{60,230}}
+				/*data*/{{360,220},{60,220}}
 			}
 		}
 }
