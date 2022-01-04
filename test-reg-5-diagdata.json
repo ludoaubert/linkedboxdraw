@@ -1,8 +1,8 @@
-{"documentTitle":"",
+{"documentTitle":"reg-test-5",
 "boxes":[
-	{"title":"", "fields":[]},
-	{"title":"", "fields":[]},
-	{"title":"", "fields":[]}
+	{"title":"rec-0", "fields":[]},
+	{"title":"rec-1", "fields":[]},
+	{"title":"rec-2", "fields":[]}
 ],
 "values":[],
 "boxComments":[],
