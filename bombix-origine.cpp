@@ -1316,9 +1316,9 @@ string diagdata(const TestContext& ctx)
 	char buffer[10 * 1024];
 	int pos = 0;
 	
-	pos += sprintf(buffer + pos, "{\"documentTitle\":\"\",\n\"boxes\":[\n");
+	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
 	for (int i=0; i < rects.size(); i++)
-		pos += sprintf(buffer + pos, "\t{\"title\":\"\", \"fields\":[]},\n");
+		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\", \"fields\":[]},\n", i);
 	
 	if (buffer[pos-2]==',')
 	{
