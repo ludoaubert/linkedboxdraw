@@ -30,7 +30,7 @@ where tco.constraint_type = 'PRIMARY KEY'
 	WHERE EXISTS (SELECT * FROM cte_fk WHERE TABLE_NAME IN (cte_fk.table, cte_fk.referenced_table))
 ) , cte_table_column_list AS (
 	SELECT c.table_name, c.column_name, tl.rn AS rn_table,
-		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY MAX(pk.pk_name) DESC, MAX(fk_orig.FK_NAME) DESC, MAX(fk_dest.FK_NAME) DESC, c.column_name) AS rn_column
+		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY MAX(pk.pk_name) DESC, MAX(fk_dest.FK_NAME) DESC, MAX(fk_orig.FK_NAME) DESC, c.column_name) AS rn_column
 	FROM INFORMATION_SCHEMA.COLUMNS c
 	JOIN cte_table_list tl ON c.TABLE_NAME=tl.TABLE_NAME
 	LEFT JOIN cte_pk pk ON c.TABLE_NAME=pk.table_name AND c.COLUMN_NAME = pk.columns
