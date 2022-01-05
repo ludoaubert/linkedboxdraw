@@ -2211,7 +2211,7 @@ const TestContext contexts[] = {
 										{VERTICAL, DECREASE, 45, 1},
 										{VERTICAL, DECREASE, 44, 1}
 								}
-						}
+						},
 						{
 								/*from*/9,
 								/*to*/10,
