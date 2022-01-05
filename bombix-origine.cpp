@@ -1801,656 +1801,443 @@ const TestContext contexts[] = {
  {/*source*/19, /*target*/11 }
  },
 /*faiceau output*/{
-			{/*[0]*/
+		{
 				/*targets*/{
-					{
-						/*from*/7,
-						/*to*/0,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 20, 32 },
-							{ VERTICAL, DECREASE, 20, 32 },
-							{ VERTICAL, DECREASE, 19, 32 },
-							{ VERTICAL, DECREASE, 18, 32 },
-							{ VERTICAL, DECREASE, 17, 32 },
-							{ HORIZONTAL, INCREASE, 17, 32 }
+						{
+								/*from*/7,
+								/*to*/0,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 19, 31},
+										{VERTICAL, DECREASE, 18, 31},
+										{VERTICAL, DECREASE, 17, 31},
+										{HORIZONTAL, INCREASE, 17, 31},
+										{HORIZONTAL, INCREASE, 17, 32}
+								}
+						},
+						{
+								/*from*/7,
+								/*to*/16,
+								/*expected path*/{
+										{VERTICAL, INCREASE, 27, 20},
+										{VERTICAL, INCREASE, 28, 20},
+										{VERTICAL, INCREASE, 29, 20}
+								}
+						},
+						{
+								/*from*/7,
+								/*to*/14,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 20, 32},
+										{VERTICAL, DECREASE, 20, 32},
+										{VERTICAL, DECREASE, 19, 32},
+										{VERTICAL, DECREASE, 18, 32},
+										{VERTICAL, DECREASE, 17, 32},
+										{VERTICAL, DECREASE, 16, 32},
+										{VERTICAL, DECREASE, 15, 32},
+										{VERTICAL, DECREASE, 14, 32},
+										{VERTICAL, DECREASE, 13, 32},
+										{VERTICAL, DECREASE, 12, 32},
+										{HORIZONTAL, INCREASE, 12, 32}
+								}
+						},
+						{
+								/*from*/7,
+								/*to*/17,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 20, 19},
+										{HORIZONTAL, DECREASE, 20, 18},
+										{HORIZONTAL, DECREASE, 20, 17},
+										{HORIZONTAL, DECREASE, 20, 16},
+										{HORIZONTAL, DECREASE, 20, 15},
+										{HORIZONTAL, DECREASE, 20, 14}
+								}
+						},
+						{
+								/*from*/7,
+								/*to*/19,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 26, 32},
+										{VERTICAL, INCREASE, 26, 32},
+										{VERTICAL, INCREASE, 27, 32},
+										{VERTICAL, INCREASE, 28, 32},
+										{VERTICAL, INCREASE, 29, 32},
+										{VERTICAL, INCREASE, 30, 32},
+										{VERTICAL, INCREASE, 31, 32},
+										{VERTICAL, INCREASE, 32, 32},
+										{VERTICAL, INCREASE, 33, 32},
+										{VERTICAL, INCREASE, 34, 32},
+										{VERTICAL, INCREASE, 35, 32},
+										{HORIZONTAL, INCREASE, 35, 32}
+								}
 						}
-					},
-					{
-						/*from*/7,
-						/*to*/16,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 27, 20 },
-							{ VERTICAL, INCREASE, 28, 20 },
-							{ VERTICAL, INCREASE, 29, 20 }
-						}
-					},
-					{
-						/*from*/7,
-						/*to*/14,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 20, 32 },
-							{ VERTICAL, DECREASE, 20, 32 },
-							{ VERTICAL, DECREASE, 19, 32 },
-							{ VERTICAL, DECREASE, 18, 32 },
-							{ VERTICAL, DECREASE, 17, 32 },
-							{ VERTICAL, DECREASE, 16, 32 },
-							{ VERTICAL, DECREASE, 15, 32 },
-							{ VERTICAL, DECREASE, 14, 32 },
-							{ VERTICAL, DECREASE, 13, 32 },
-							{ VERTICAL, DECREASE, 12, 32 },
-							{ HORIZONTAL, INCREASE, 12, 32 }
-						}
-					},
-					{
-						/*from*/7,
-						/*to*/17,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 20, 19 },
-							{ HORIZONTAL, DECREASE, 20, 18 },
-							{ HORIZONTAL, DECREASE, 20, 17 },
-							{ HORIZONTAL, DECREASE, 20, 16 },
-							{ HORIZONTAL, DECREASE, 20, 15 },
-							{ HORIZONTAL, DECREASE, 20, 14 }
-						}
-					},
-					{
-						/*from*/7,
-						/*to*/19,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 26, 32 },
-							{ VERTICAL, INCREASE, 26, 32 },
-							{ VERTICAL, INCREASE, 27, 32 },
-							{ VERTICAL, INCREASE, 28, 32 },
-							{ VERTICAL, INCREASE, 29, 32 },
-							{ VERTICAL, INCREASE, 30, 32 },
-							{ VERTICAL, INCREASE, 31, 32 },
-							{ VERTICAL, INCREASE, 32, 32 },
-							{ VERTICAL, INCREASE, 33, 32 },
-							{ VERTICAL, INCREASE, 34, 32 },
-							{ VERTICAL, INCREASE, 35, 32 },
-							{ HORIZONTAL, INCREASE, 35, 32 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,DECREASE,20,16 },{ HORIZONTAL,DECREASE,16,20,26 } },
-					{ { HORIZONTAL,INCREASE,12,32 },{ HORIZONTAL,INCREASE,32,5,12 } },
-					{ { VERTICAL,INCREASE,29,20 },{ VERTICAL,INCREASE,29,20,31 } },
-					{ { HORIZONTAL,INCREASE,20,32 },{ HORIZONTAL,INCREASE,32,20,24 } },
-					{ { VERTICAL,INCREASE,27,20 },{ VERTICAL,INCREASE,27,20,31 } },
-					{ { HORIZONTAL,DECREASE,20,18 },{ HORIZONTAL,DECREASE,18,20,26 } },
-					{ { HORIZONTAL,DECREASE,20,17 },{ HORIZONTAL,DECREASE,17,20,26 } },
-					{ { VERTICAL,INCREASE,28,20 },{ VERTICAL,INCREASE,28,20,31 } },
-					{ { HORIZONTAL,DECREASE,20,19 },{ HORIZONTAL,DECREASE,19,20,26 } },
-					{ { HORIZONTAL,DECREASE,20,15 },{ HORIZONTAL,DECREASE,15,20,26 } },
-					{ { HORIZONTAL,DECREASE,20,14 },{ HORIZONTAL,DECREASE,14,20,26 } },
-					{ { HORIZONTAL,INCREASE,26,32 },{ HORIZONTAL,INCREASE,32,25,26 } },
-					{ { HORIZONTAL,INCREASE,35,32 },{ HORIZONTAL,INCREASE,32,35,44 } }
+						{{HORIZONTAL,DECREASE,20,14},{HORIZONTAL,DECREASE,14,20,26}},
+						{{VERTICAL,DECREASE,19,31},{VERTICAL,DECREASE,19,20,31}},
+						{{HORIZONTAL,INCREASE,26,32},{HORIZONTAL,INCREASE,32,24,26}},
+						{{VERTICAL,INCREASE,28,20},{VERTICAL,INCREASE,28,20,31}},
+						{{HORIZONTAL,INCREASE,35,32},{HORIZONTAL,INCREASE,32,35,44}},
+						{{VERTICAL,DECREASE,18,31},{VERTICAL,DECREASE,18,20,31}},
+						{{VERTICAL,INCREASE,27,20},{VERTICAL,INCREASE,27,20,31}},
+						{{HORIZONTAL,INCREASE,12,32},{HORIZONTAL,INCREASE,32,5,12}},
+						{{HORIZONTAL,DECREASE,20,18},{HORIZONTAL,DECREASE,18,20,26}},
+						{{VERTICAL,INCREASE,29,20},{VERTICAL,INCREASE,29,20,31}},
+						{{HORIZONTAL,INCREASE,20,32},{HORIZONTAL,INCREASE,32,20,23}},
+						{{HORIZONTAL,DECREASE,20,16},{HORIZONTAL,DECREASE,16,20,26}},
+						{{HORIZONTAL,DECREASE,20,19},{HORIZONTAL,DECREASE,19,20,26}},
+						{{HORIZONTAL,DECREASE,20,17},{HORIZONTAL,DECREASE,17,20,26}},
+						{{VERTICAL,DECREASE,17,31},{VERTICAL,DECREASE,17,20,31}},
+						{{HORIZONTAL,DECREASE,20,15},{HORIZONTAL,DECREASE,15,20,26}}
 				}
-			},
-			{/*[1]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/14,
-						/*to*/1,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 13, 44 },
-							{ VERTICAL, INCREASE, 14, 44 },
-							{ VERTICAL, INCREASE, 15, 44 },
-							{ HORIZONTAL, INCREASE, 15, 44 },
-							{ HORIZONTAL, INCREASE, 15, 45 },
-							{ HORIZONTAL, INCREASE, 15, 46 }
+						{
+								/*from*/10,
+								/*to*/18,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 36, 16},
+										{HORIZONTAL, DECREASE, 36, 15},
+										{HORIZONTAL, DECREASE, 36, 14},
+										{HORIZONTAL, DECREASE, 36, 13},
+										{HORIZONTAL, DECREASE, 36, 12},
+										{HORIZONTAL, DECREASE, 36, 11},
+										{HORIZONTAL, DECREASE, 36, 10},
+										{VERTICAL, DECREASE, 36, 10},
+										{VERTICAL, DECREASE, 35, 10},
+										{VERTICAL, DECREASE, 34, 10}
+								}
+						},
+						{
+								/*from*/10,
+								/*to*/16,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 35, 17},
+										{VERTICAL, DECREASE, 34, 17}
+								}
+						},
+						{
+								/*from*/10,
+								/*to*/9,
+								/*expected path*/{
+										{VERTICAL, INCREASE, 45, 17},
+										{VERTICAL, INCREASE, 46, 17},
+										{HORIZONTAL, DECREASE, 46, 17},
+										{HORIZONTAL, DECREASE, 46, 16},
+										{HORIZONTAL, DECREASE, 46, 15},
+										{HORIZONTAL, DECREASE, 46, 14},
+										{HORIZONTAL, DECREASE, 46, 13},
+										{HORIZONTAL, DECREASE, 46, 12}
+								}
+						},
+						{
+								/*from*/10,
+								/*to*/19,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 36, 32}
+								}
 						}
-					},
-					{
-						/*from*/14,
-						/*to*/2,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 7, 32 },
-							{ HORIZONTAL, DECREASE, 7, 31 },
-							{ HORIZONTAL, DECREASE, 7, 30 },
-							{ HORIZONTAL, DECREASE, 7, 29 },
-							{ HORIZONTAL, DECREASE, 7, 28 },
-							{ HORIZONTAL, DECREASE, 7, 27 },
-							{ HORIZONTAL, DECREASE, 7, 26 },
-							{ HORIZONTAL, DECREASE, 7, 25 },
-							{ HORIZONTAL, DECREASE, 7, 24 },
-							{ HORIZONTAL, DECREASE, 7, 23 },
-							{ HORIZONTAL, DECREASE, 7, 22 },
-							{ HORIZONTAL, DECREASE, 7, 21 },
-							{ HORIZONTAL, DECREASE, 7, 20 },
-							{ HORIZONTAL, DECREASE, 7, 19 },
-							{ HORIZONTAL, DECREASE, 7, 18 },
-							{ HORIZONTAL, DECREASE, 7, 17 },
-							{ HORIZONTAL, DECREASE, 7, 16 },
-							{ HORIZONTAL, DECREASE, 7, 15 },
-							{ VERTICAL, DECREASE, 7, 15 }
-						}
-					},
-					{
-						/*from*/14,
-						/*to*/6,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 5, 32 }
-						}
-					},
-					{
-						/*from*/14,
-						/*to*/12,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 6, 45 },
-							{ HORIZONTAL, INCREASE, 6, 46 }
-						}
-					},
-					{
-						/*from*/14,
-						/*to*/7,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 12, 32 },
-							{ VERTICAL, INCREASE, 12, 32 },
-							{ VERTICAL, INCREASE, 13, 32 },
-							{ VERTICAL, INCREASE, 14, 32 },
-							{ VERTICAL, INCREASE, 15, 32 },
-							{ VERTICAL, INCREASE, 16, 32 },
-							{ VERTICAL, INCREASE, 17, 32 },
-							{ VERTICAL, INCREASE, 18, 32 },
-							{ VERTICAL, INCREASE, 19, 32 },
-							{ VERTICAL, INCREASE, 20, 32 },
-							{ HORIZONTAL, DECREASE, 20, 32 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,DECREASE,7,25 },{ HORIZONTAL,DECREASE,25,7,9 } },
-					{ { HORIZONTAL,INCREASE,15,45 },{ HORIZONTAL,INCREASE,45,15,18 } },
-					{ { VERTICAL,INCREASE,13,44 },{ VERTICAL,INCREASE,13,43,44 } },
-					{ { HORIZONTAL,DECREASE,7,30 },{ HORIZONTAL,DECREASE,30,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,18 },{ HORIZONTAL,DECREASE,18,7,9 } },
-					{ { HORIZONTAL,INCREASE,15,46 },{ HORIZONTAL,INCREASE,46,15,18 } },
-					{ { HORIZONTAL,DECREASE,7,26 },{ HORIZONTAL,DECREASE,26,7,9 } },
-					{ { VERTICAL,INCREASE,14,44 },{ VERTICAL,INCREASE,14,43,44 } },
-					{ { HORIZONTAL,DECREASE,7,31 },{ HORIZONTAL,DECREASE,31,7,9 } },
-					{ { VERTICAL,INCREASE,15,44 },{ VERTICAL,INCREASE,15,43,44 } },
-					{ { HORIZONTAL,DECREASE,7,32 },{ HORIZONTAL,DECREASE,32,7,9 } },
-					{ { HORIZONTAL,INCREASE,15,44 },{ HORIZONTAL,INCREASE,44,15,18 } },
-					{ { HORIZONTAL,DECREASE,12,32 },{ HORIZONTAL,DECREASE,32,10,12 } },
-					{ { HORIZONTAL,DECREASE,7,29 },{ HORIZONTAL,DECREASE,29,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,28 },{ HORIZONTAL,DECREASE,28,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,27 },{ HORIZONTAL,DECREASE,27,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,24 },{ HORIZONTAL,DECREASE,24,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,23 },{ HORIZONTAL,DECREASE,23,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,22 },{ HORIZONTAL,DECREASE,22,7,9 } },
-					{ { HORIZONTAL,DECREASE,20,32 },{ HORIZONTAL,DECREASE,32,20,26 } },
-					{ { HORIZONTAL,DECREASE,7,21 },{ HORIZONTAL,DECREASE,21,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,20 },{ HORIZONTAL,DECREASE,20,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,19 },{ HORIZONTAL,DECREASE,19,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,17 },{ HORIZONTAL,DECREASE,17,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,16 },{ HORIZONTAL,DECREASE,16,7,9 } },
-					{ { HORIZONTAL,DECREASE,7,15 },{ HORIZONTAL,DECREASE,15,7,9 } },
-					{ { VERTICAL,DECREASE,7,15 },{ VERTICAL,DECREASE,7,9,15 } },
-					{ { HORIZONTAL,DECREASE,5,32 },{ HORIZONTAL,DECREASE,32,5,6 } },
-					{ { HORIZONTAL,INCREASE,6,45 },{ HORIZONTAL,INCREASE,45,6,11 } },
-					{ { HORIZONTAL,INCREASE,6,46 },{ HORIZONTAL,INCREASE,46,6,11 } }
+						{{VERTICAL,INCREASE,46,17},{VERTICAL,INCREASE,46,17,31}},
+						{{HORIZONTAL,DECREASE,36,16},{HORIZONTAL,DECREASE,16,36,44}},
+						{{HORIZONTAL,DECREASE,36,15},{HORIZONTAL,DECREASE,15,36,44}},
+						{{HORIZONTAL,DECREASE,36,14},{HORIZONTAL,DECREASE,14,36,44}},
+						{{HORIZONTAL,DECREASE,36,13},{HORIZONTAL,DECREASE,13,36,44}},
+						{{VERTICAL,DECREASE,34,10},{VERTICAL,DECREASE,34,7,10}},
+						{{HORIZONTAL,INCREASE,36,32},{HORIZONTAL,INCREASE,32,36,44}},
+						{{HORIZONTAL,DECREASE,36,12},{HORIZONTAL,DECREASE,12,36,44}},
+						{{VERTICAL,DECREASE,35,10},{VERTICAL,DECREASE,35,7,10}},
+						{{HORIZONTAL,DECREASE,36,11},{HORIZONTAL,DECREASE,11,36,44}},
+						{{VERTICAL,INCREASE,45,17},{VERTICAL,INCREASE,45,17,31}},
+						{{HORIZONTAL,DECREASE,36,10},{HORIZONTAL,DECREASE,10,36,44}},
+						{{VERTICAL,DECREASE,35,17},{VERTICAL,DECREASE,35,17,31}},
+						{{VERTICAL,DECREASE,36,10},{VERTICAL,DECREASE,36,7,10}},
+						{{VERTICAL,DECREASE,34,17},{VERTICAL,DECREASE,34,17,31}}
 				}
-			},
-			{/*[2]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/10,
-						/*to*/18,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 35, 17 },
-							{ VERTICAL, DECREASE, 34, 17 },
-							{ HORIZONTAL, DECREASE, 34, 17 },
-							{ HORIZONTAL, DECREASE, 34, 16 },
-							{ HORIZONTAL, DECREASE, 34, 15 },
-							{ HORIZONTAL, DECREASE, 34, 14 },
-							{ HORIZONTAL, DECREASE, 34, 13 },
-							{ HORIZONTAL, DECREASE, 34, 12 },
-							{ HORIZONTAL, DECREASE, 34, 11 },
-							{ HORIZONTAL, DECREASE, 34, 10 },
-							{ VERTICAL, DECREASE, 34, 10 }
+						{
+								/*from*/14,
+								/*to*/1,
+								/*expected path*/{
+										{VERTICAL, INCREASE, 13, 44},
+										{VERTICAL, INCREASE, 14, 44},
+										{VERTICAL, INCREASE, 15, 44},
+										{HORIZONTAL, INCREASE, 15, 44},
+										{HORIZONTAL, INCREASE, 15, 45},
+										{HORIZONTAL, INCREASE, 15, 46}
+								}
+						},
+						{
+								/*from*/14,
+								/*to*/2,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 7, 32},
+										{HORIZONTAL, DECREASE, 7, 31},
+										{HORIZONTAL, DECREASE, 7, 30},
+										{HORIZONTAL, DECREASE, 7, 29},
+										{HORIZONTAL, DECREASE, 7, 28},
+										{HORIZONTAL, DECREASE, 7, 27},
+										{HORIZONTAL, DECREASE, 7, 26},
+										{HORIZONTAL, DECREASE, 7, 25},
+										{HORIZONTAL, DECREASE, 7, 24},
+										{HORIZONTAL, DECREASE, 7, 23},
+										{HORIZONTAL, DECREASE, 7, 22},
+										{HORIZONTAL, DECREASE, 7, 21},
+										{HORIZONTAL, DECREASE, 7, 20},
+										{HORIZONTAL, DECREASE, 7, 19},
+										{HORIZONTAL, DECREASE, 7, 18},
+										{HORIZONTAL, DECREASE, 7, 17},
+										{HORIZONTAL, DECREASE, 7, 16},
+										{HORIZONTAL, DECREASE, 7, 15},
+										{VERTICAL, DECREASE, 7, 15}
+								}
+						},
+						{
+								/*from*/14,
+								/*to*/6,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 5, 32}
+								}
+						},
+						{
+								/*from*/14,
+								/*to*/12,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 6, 45},
+										{HORIZONTAL, INCREASE, 6, 46}
+								}
+						},
+						{
+								/*from*/14,
+								/*to*/7,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 12, 32},
+										{VERTICAL, INCREASE, 12, 32},
+										{VERTICAL, INCREASE, 13, 32},
+										{VERTICAL, INCREASE, 14, 32},
+										{VERTICAL, INCREASE, 15, 32},
+										{VERTICAL, INCREASE, 16, 32},
+										{VERTICAL, INCREASE, 17, 32},
+										{VERTICAL, INCREASE, 18, 32},
+										{VERTICAL, INCREASE, 19, 32},
+										{VERTICAL, INCREASE, 20, 32},
+										{HORIZONTAL, DECREASE, 20, 32}
+								}
 						}
-					},
-					{
-						/*from*/10,
-						/*to*/16,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 35, 18 },
-							{ VERTICAL, DECREASE, 34, 18 }
-						}
-					},
-					{
-						/*from*/10,
-						/*to*/9,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 45, 17 },
-							{ HORIZONTAL, DECREASE, 45, 17 },
-							{ HORIZONTAL, DECREASE, 45, 16 },
-							{ HORIZONTAL, DECREASE, 45, 15 },
-							{ HORIZONTAL, DECREASE, 45, 14 },
-							{ HORIZONTAL, DECREASE, 45, 13 },
-							{ HORIZONTAL, DECREASE, 45, 12 },
-							{ HORIZONTAL, DECREASE, 45, 11 },
-							{ VERTICAL, INCREASE, 45, 11 }
-						}
-					},
-					{
-						/*from*/10,
-						/*to*/19,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 36, 32 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,DECREASE,34,11 },{ HORIZONTAL,DECREASE,11,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,15 },{ HORIZONTAL,DECREASE,15,34,35 } },
-					{ { VERTICAL,INCREASE,45,11 },{ VERTICAL,INCREASE,45,1,11 } },
-					{ { HORIZONTAL,DECREASE,34,14 },{ HORIZONTAL,DECREASE,14,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,13 },{ HORIZONTAL,DECREASE,13,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,17 },{ HORIZONTAL,DECREASE,17,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,12 },{ HORIZONTAL,DECREASE,12,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,16 },{ HORIZONTAL,DECREASE,16,34,35 } },
-					{ { HORIZONTAL,DECREASE,34,10 },{ HORIZONTAL,DECREASE,10,34,35 } },
-					{ { VERTICAL,DECREASE,34,10 },{ VERTICAL,DECREASE,34,5,10 } },
-					{ { VERTICAL,DECREASE,35,18 },{ VERTICAL,DECREASE,35,18,31 } },
-					{ { VERTICAL,DECREASE,34,18 },{ VERTICAL,DECREASE,34,18,31 } },
-					{ { VERTICAL,INCREASE,45,17 },{ VERTICAL,INCREASE,45,17,31 } },
-					{ { HORIZONTAL,INCREASE,36,32 },{ HORIZONTAL,INCREASE,32,36,44 } }
+						{{HORIZONTAL,DECREASE,20,32},{HORIZONTAL,DECREASE,32,20,26}},
+						{{HORIZONTAL,INCREASE,6,45},{HORIZONTAL,INCREASE,45,6,11}},
+						{{HORIZONTAL,DECREASE,7,28},{HORIZONTAL,DECREASE,28,7,9}},
+						{{HORIZONTAL,DECREASE,7,27},{HORIZONTAL,DECREASE,27,7,9}},
+						{{HORIZONTAL,DECREASE,7,31},{HORIZONTAL,DECREASE,31,7,9}},
+						{{HORIZONTAL,INCREASE,15,45},{HORIZONTAL,INCREASE,45,15,18}},
+						{{HORIZONTAL,DECREASE,12,32},{HORIZONTAL,DECREASE,32,10,12}},
+						{{VERTICAL,INCREASE,14,44},{VERTICAL,INCREASE,14,43,44}},
+						{{HORIZONTAL,DECREASE,7,30},{HORIZONTAL,DECREASE,30,7,9}},
+						{{HORIZONTAL,INCREASE,15,44},{HORIZONTAL,INCREASE,44,15,18}},
+						{{VERTICAL,INCREASE,15,44},{VERTICAL,INCREASE,15,43,44}},
+						{{HORIZONTAL,DECREASE,7,29},{HORIZONTAL,DECREASE,29,7,9}},
+						{{HORIZONTAL,INCREASE,15,46},{HORIZONTAL,INCREASE,46,15,18}},
+						{{HORIZONTAL,DECREASE,7,32},{HORIZONTAL,DECREASE,32,7,9}},
+						{{HORIZONTAL,INCREASE,6,46},{HORIZONTAL,INCREASE,46,6,11}},
+						{{VERTICAL,INCREASE,13,44},{VERTICAL,INCREASE,13,43,44}},
+						{{HORIZONTAL,DECREASE,7,25},{HORIZONTAL,DECREASE,25,7,9}},
+						{{HORIZONTAL,DECREASE,7,24},{HORIZONTAL,DECREASE,24,7,9}},
+						{{HORIZONTAL,DECREASE,7,23},{HORIZONTAL,DECREASE,23,7,9}},
+						{{HORIZONTAL,DECREASE,7,22},{HORIZONTAL,DECREASE,22,7,9}},
+						{{HORIZONTAL,DECREASE,7,21},{HORIZONTAL,DECREASE,21,7,9}},
+						{{HORIZONTAL,DECREASE,7,20},{HORIZONTAL,DECREASE,20,7,9}},
+						{{HORIZONTAL,DECREASE,7,19},{HORIZONTAL,DECREASE,19,7,9}},
+						{{HORIZONTAL,DECREASE,7,18},{HORIZONTAL,DECREASE,18,7,9}},
+						{{HORIZONTAL,DECREASE,7,17},{HORIZONTAL,DECREASE,17,7,9}},
+						{{HORIZONTAL,DECREASE,7,16},{HORIZONTAL,DECREASE,16,7,9}},
+						{{HORIZONTAL,DECREASE,7,15},{HORIZONTAL,DECREASE,15,7,9}},
+						{{HORIZONTAL,DECREASE,7,26},{HORIZONTAL,DECREASE,26,7,9}},
+						{{HORIZONTAL,DECREASE,5,32},{HORIZONTAL,DECREASE,32,5,6}},
+						{{VERTICAL,DECREASE,7,15},{VERTICAL,DECREASE,7,9,15}}
 				}
-			},
-			{/*[3]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/19,
-						/*to*/10,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 36, 32 }
+						{
+								/*from*/5,
+								/*to*/2,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 9, 9},
+										{VERTICAL, DECREASE, 8, 9},
+										{VERTICAL, DECREASE, 7, 9}
+								}
+						},
+						{
+								/*from*/5,
+								/*to*/17,
+								/*expected path*/{
+										{VERTICAL, INCREASE, 17, 4},
+										{VERTICAL, INCREASE, 18, 4},
+										{VERTICAL, INCREASE, 19, 4}
+								}
+						},
+						{
+								/*from*/5,
+								/*to*/6,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 9, 22},
+										{VERTICAL, DECREASE, 8, 22},
+										{VERTICAL, DECREASE, 7, 22}
+								}
 						}
-					},
-					{
-						/*from*/19,
-						/*to*/7,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 35, 32 },
-							{ VERTICAL, DECREASE, 35, 32 },
-							{ VERTICAL, DECREASE, 34, 32 },
-							{ VERTICAL, DECREASE, 33, 32 },
-							{ VERTICAL, DECREASE, 32, 32 },
-							{ VERTICAL, DECREASE, 31, 32 },
-							{ VERTICAL, DECREASE, 30, 32 },
-							{ VERTICAL, DECREASE, 29, 32 },
-							{ VERTICAL, DECREASE, 28, 32 },
-							{ VERTICAL, DECREASE, 27, 32 },
-							{ VERTICAL, DECREASE, 26, 32 },
-							{ HORIZONTAL, DECREASE, 26, 32 }
-						}
-					},
-					{
-						/*from*/19,
-						/*to*/8,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 45, 33 },
-							{ VERTICAL, INCREASE, 46, 33 }
-						}
-					},
-					{
-						/*from*/19,
-						/*to*/11,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 35, 48 },
-							{ HORIZONTAL, INCREASE, 35, 49 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,INCREASE,35,49 },{ HORIZONTAL,INCREASE,49,35,44 } },
-					{ { VERTICAL,INCREASE,46,33 },{ VERTICAL,INCREASE,46,33,37 } },
-					{ { VERTICAL,INCREASE,45,33 },{ VERTICAL,INCREASE,45,33,37 } },
-					{ { HORIZONTAL,DECREASE,26,32 },{ HORIZONTAL,DECREASE,32,20,26 } },
-					{ { HORIZONTAL,INCREASE,35,48 },{ HORIZONTAL,INCREASE,48,35,44 } },
-					{ { HORIZONTAL, DECREASE, 36, 32 },{ HORIZONTAL, DECREASE, 32, 36, 44 } }
+						{{VERTICAL,INCREASE,19,4},{VERTICAL,INCREASE,19,4,13}},
+						{{VERTICAL,INCREASE,18,4},{VERTICAL,INCREASE,18,4,13}},
+						{{VERTICAL,INCREASE,17,4},{VERTICAL,INCREASE,17,4,13}},
+						{{VERTICAL,DECREASE,7,22},{VERTICAL,DECREASE,7,22,31}},
+						{{VERTICAL,DECREASE,7,9},{VERTICAL,DECREASE,7,9,15}},
+						{{VERTICAL,DECREASE,8,22},{VERTICAL,DECREASE,8,22,31}},
+						{{VERTICAL,DECREASE,8,9},{VERTICAL,DECREASE,8,9,15}},
+						{{VERTICAL,DECREASE,9,22},{VERTICAL,DECREASE,9,22,31}},
+						{{VERTICAL,DECREASE,9,9},{VERTICAL,DECREASE,9,9,15}}
 				}
-			},
-			{/*[4]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/5,
-						/*to*/2,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 9, 9 },
-							{ VERTICAL, DECREASE, 8, 9 },
-							{ VERTICAL, DECREASE, 7, 9 }
+						{
+								/*from*/3,
+								/*to*/4,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 29, 41},
+										{HORIZONTAL, INCREASE, 29, 42},
+										{HORIZONTAL, INCREASE, 29, 43},
+										{HORIZONTAL, INCREASE, 29, 44},
+										{HORIZONTAL, INCREASE, 29, 45}
+								}
 						}
-					},
-					{
-						/*from*/5,
-						/*to*/17,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 17, 4 },
-							{ VERTICAL, INCREASE, 18, 4 },
-							{ VERTICAL, INCREASE, 19, 4 }
+						{
+								/*from*/3,
+								/*to*/16,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 30, 32}
+								}
 						}
-					},
-					{
-						/*from*/5,
-						/*to*/6,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 9, 22 },
-							{ VERTICAL, DECREASE, 8, 22 },
-							{ VERTICAL, DECREASE, 7, 22 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,DECREASE,9,9 },{ VERTICAL,DECREASE,9,9,15 } },
-					{ { VERTICAL,DECREASE,7,22 },{ VERTICAL,DECREASE,7,22,31 } },
-					{ { VERTICAL,INCREASE,17,4 },{ VERTICAL,INCREASE,17,4,13 } },
-					{ { VERTICAL,DECREASE,8,9 },{ VERTICAL,DECREASE,8,9,15 } },
-					{ { VERTICAL,INCREASE,18,4 },{ VERTICAL,INCREASE,18,4,13 } },
-					{ { VERTICAL,DECREASE,8,22 },{ VERTICAL,DECREASE,8,22,31 } },
-					{ { VERTICAL,DECREASE,7,9 },{ VERTICAL,DECREASE,7,9,15 } },
-					{ { VERTICAL,DECREASE,9,22 },{ VERTICAL,DECREASE,9,22,31 } },
-					{ { VERTICAL,INCREASE,19,4 },{ VERTICAL,INCREASE,19,4,13 } }
+						{{HORIZONTAL,DECREASE,30,32},{HORIZONTAL,DECREASE,32,30,32}},
+						{{HORIZONTAL,INCREASE,29,45},{HORIZONTAL,INCREASE,45,29,32}},
+						{{HORIZONTAL,INCREASE,29,44},{HORIZONTAL,INCREASE,44,29,32}},
+						{{HORIZONTAL,INCREASE,29,43},{HORIZONTAL,INCREASE,43,29,32}},
+						{{HORIZONTAL,INCREASE,29,42},{HORIZONTAL,INCREASE,42,29,32}},
+						{{HORIZONTAL,INCREASE,29,41},{HORIZONTAL,INCREASE,41,29,32}}
 				}
-			},
-			{/*[5]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/9,
-						/*to*/8,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 47, 12 },
-							{ HORIZONTAL, INCREASE, 47, 13 },
-							{ HORIZONTAL, INCREASE, 47, 14 },
-							{ HORIZONTAL, INCREASE, 47, 15 },
-							{ HORIZONTAL, INCREASE, 47, 16 }
+						{
+								/*from*/8,
+								/*to*/9,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 47, 16},
+										{HORIZONTAL, DECREASE, 47, 15},
+										{HORIZONTAL, DECREASE, 47, 14},
+										{HORIZONTAL, DECREASE, 47, 13},
+										{HORIZONTAL, DECREASE, 47, 12}
+								}
+						},
+						{
+								/*from*/8,
+								/*to*/19,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 46, 33},
+										{VERTICAL, DECREASE, 45, 33}
+								}
 						}
-					},
-					{
-						/*from*/9,
-						/*to*/15,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 45, 1 },
-							{ VERTICAL, DECREASE, 44, 1 },
-						}
-					},
-					{
-						/*from*/9,
-						/*to*/10,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 45, 11 },
-							{ HORIZONTAL, INCREASE, 45, 11 },
-							{ HORIZONTAL, INCREASE, 45, 12 },
-							{ HORIZONTAL, INCREASE, 45, 13 },
-							{ HORIZONTAL, INCREASE, 45, 14 },
-							{ HORIZONTAL, INCREASE, 45, 15 },
-							{ HORIZONTAL, INCREASE, 45, 16 },
-							{ HORIZONTAL, INCREASE, 45, 17 },
-							{ VERTICAL, DECREASE, 45, 17 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,DECREASE,45,11 },{ VERTICAL,DECREASE,45,7,11 } },
-					{ { HORIZONTAL,INCREASE,47,12 },{ HORIZONTAL,INCREASE,12,47,50 } },
-					{ { VERTICAL,DECREASE,45,1 },{ VERTICAL,DECREASE,45,1,6 } },
-					{ { HORIZONTAL,INCREASE,47,16 },{ HORIZONTAL,INCREASE,16,47,50 } },
-					{ { VERTICAL,DECREASE,44,1 },{ VERTICAL,DECREASE,44,1,6 } },
-					{ { HORIZONTAL,INCREASE,47,13 },{ HORIZONTAL,INCREASE,13,47,50 } },
-					{ { VERTICAL,DECREASE,45,17 },{ VERTICAL,DECREASE,45,17,31 } },
-					{ { HORIZONTAL,INCREASE,47,14 },{ HORIZONTAL,INCREASE,14,47,50 } },
-					{ { HORIZONTAL,INCREASE,47,15 },{ HORIZONTAL,INCREASE,15,47,50 } }
+						{{VERTICAL,DECREASE,45,33},{VERTICAL,DECREASE,45,33,37}},
+						{{HORIZONTAL,DECREASE,47,12},{HORIZONTAL,DECREASE,12,47,50}},
+						{{VERTICAL,DECREASE,46,33},{VERTICAL,DECREASE,46,33,37}},
+						{{HORIZONTAL,DECREASE,47,13},{HORIZONTAL,DECREASE,13,47,50}},
+						{{HORIZONTAL,DECREASE,47,14},{HORIZONTAL,DECREASE,14,47,50}},
+						{{HORIZONTAL,DECREASE,47,15},{HORIZONTAL,DECREASE,15,47,50}},
+						{{HORIZONTAL,DECREASE,47,16},{HORIZONTAL,DECREASE,16,47,50}}
 				}
-			},
-			{/*[6]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/16,
-						/*to*/7,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 29, 20 },
-							{ VERTICAL, DECREASE, 28, 20 },
-							{ VERTICAL, DECREASE, 27, 20 }
+						{
+								/*from*/11,
+								/*to*/13,
+								/*expected path*/{
+										{VERTICAL, INCREASE, 45, 50},
+										{VERTICAL, INCREASE, 46, 50}
+								}
+						},
+						{
+								/*from*/11,
+								/*to*/19,
+								/*expected path*/{
+										{HORIZONTAL, DECREASE, 35, 49},
+										{HORIZONTAL, DECREASE, 35, 48}
+								}
 						}
-					},
-					{
-						/*from*/16,
-						/*to*/10,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 34, 17 },
-							{ VERTICAL, INCREASE, 35, 17 }
-						}
-					},
-					{
-						/*from*/16,
-						/*to*/3,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 30, 32 }
-						}
-					}
 				},
 				/*enlarged*/{
-					{ { VERTICAL,INCREASE,34,17 },{ VERTICAL,INCREASE,34,17,31 } },
-					{ { VERTICAL,DECREASE,29,20 },{ VERTICAL,DECREASE,29,20,31 } },
-					{ { HORIZONTAL,INCREASE,30,32 },{ HORIZONTAL,INCREASE,32,30,32 } },
-					{ { VERTICAL,INCREASE,35,17 },{ VERTICAL,INCREASE,35,17,31 } },
-					{ { VERTICAL,DECREASE,28,20 },{ VERTICAL,DECREASE,28,20,31 } },
-					{ { VERTICAL,DECREASE,27,20 },{ VERTICAL,DECREASE,27,20,31 } }
+						{{HORIZONTAL,DECREASE,35,48},{HORIZONTAL,DECREASE,48,35,44}},
+						{{HORIZONTAL,DECREASE,35,49},{HORIZONTAL,DECREASE,49,35,44}},
+						{{VERTICAL,INCREASE,46,50},{VERTICAL,INCREASE,46,50,52}},
+						{{VERTICAL,INCREASE,45,50},{VERTICAL,INCREASE,45,50,52}}
 				}
-			},
-			{/*[7]*/
+		},
+		{
 				/*targets*/{
-					{
-						/*from*/2,
-						/*to*/14,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 7, 15 },
-							{ HORIZONTAL, INCREASE, 7, 15 },
-							{ HORIZONTAL, INCREASE, 7, 16 },
-							{ HORIZONTAL, INCREASE, 7, 17 },
-							{ HORIZONTAL, INCREASE, 7, 18 },
-							{ HORIZONTAL, INCREASE, 7, 19 },
-							{ HORIZONTAL, INCREASE, 7, 20 },
-							{ HORIZONTAL, INCREASE, 7, 21 },
-							{ HORIZONTAL, INCREASE, 7, 22 },
-							{ HORIZONTAL, INCREASE, 7, 23 },
-							{ HORIZONTAL, INCREASE, 7, 24 },
-							{ HORIZONTAL, INCREASE, 7, 25 },
-							{ HORIZONTAL, INCREASE, 7, 26 },
-							{ HORIZONTAL, INCREASE, 7, 27 },
-							{ HORIZONTAL, INCREASE, 7, 28 },
-							{ HORIZONTAL, INCREASE, 7, 29 },
-							{ HORIZONTAL, INCREASE, 7, 30 },
-							{ HORIZONTAL, INCREASE, 7, 31 },
-							{ HORIZONTAL, INCREASE, 7, 32 }
+						{
+								/*from*/9,
+								/*to*/8,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 47, 12},
+										{HORIZONTAL, INCREASE, 47, 13},
+										{HORIZONTAL, INCREASE, 47, 14},
+										{HORIZONTAL, INCREASE, 47, 15},
+										{HORIZONTAL, INCREASE, 47, 16}
+								}
 						}
-					},
-					{
-						/*from*/2,
-						/*to*/5,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 7, 9 },
-							{ VERTICAL, INCREASE, 8, 9 },
-							{ VERTICAL, INCREASE, 9, 9 }
+						{
+								/*from*/9,
+								/*to*/15,
+								/*expected path*/{
+										{VERTICAL, DECREASE, 45, 1},
+										{VERTICAL, DECREASE, 44, 1}
+								}
 						}
-					}
+						{
+								/*from*/9,
+								/*to*/10,
+								/*expected path*/{
+										{HORIZONTAL, INCREASE, 46, 12},
+										{HORIZONTAL, INCREASE, 46, 13},
+										{HORIZONTAL, INCREASE, 46, 14},
+										{HORIZONTAL, INCREASE, 46, 15},
+										{HORIZONTAL, INCREASE, 46, 16},
+										{HORIZONTAL, INCREASE, 46, 17},
+										{VERTICAL, DECREASE, 46, 17},
+										{VERTICAL, DECREASE, 45, 17}
+								}
+						}
 				},
 				/*enlarged*/{
-					{ { HORIZONTAL,INCREASE,7,22 },{ HORIZONTAL,INCREASE,22,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,18 },{ HORIZONTAL,INCREASE,18,7,9 } },
-					{ { VERTICAL,INCREASE,7,15 },{ VERTICAL,INCREASE,7,12,15 } },
-					{ { HORIZONTAL,INCREASE,7,19 },{ HORIZONTAL,INCREASE,19,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,15 },{ HORIZONTAL,INCREASE,15,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,20 },{ HORIZONTAL,INCREASE,20,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,16 },{ HORIZONTAL,INCREASE,16,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,21 },{ HORIZONTAL,INCREASE,21,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,17 },{ HORIZONTAL,INCREASE,17,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,23 },{ HORIZONTAL,INCREASE,23,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,24 },{ HORIZONTAL,INCREASE,24,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,25 },{ HORIZONTAL,INCREASE,25,7,9 } },
-					{ { VERTICAL,INCREASE,7,9 },{ VERTICAL,INCREASE,7,9,11 } },
-					{ { HORIZONTAL,INCREASE,7,26 },{ HORIZONTAL,INCREASE,26,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,27 },{ HORIZONTAL,INCREASE,27,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,28 },{ HORIZONTAL,INCREASE,28,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,29 },{ HORIZONTAL,INCREASE,29,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,30 },{ HORIZONTAL,INCREASE,30,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,31 },{ HORIZONTAL,INCREASE,31,7,9 } },
-					{ { HORIZONTAL,INCREASE,7,32 },{ HORIZONTAL,INCREASE,32,7,9 } },
-					{ { VERTICAL,INCREASE,8,9 },{ VERTICAL,INCREASE,8,9,11 } },
-					{ { VERTICAL,INCREASE,9,9 },{ VERTICAL,INCREASE,9,9,11 } }
+						{{VERTICAL,DECREASE,45,17},{VERTICAL,DECREASE,45,17,31}},
+						{{VERTICAL,DECREASE,44,1},{VERTICAL,DECREASE,44,1,6}},
+						{{VERTICAL,DECREASE,45,1},{VERTICAL,DECREASE,45,1,6}},
+						{{HORIZONTAL,INCREASE,47,16},{HORIZONTAL,INCREASE,16,47,50}},
+						{{HORIZONTAL,INCREASE,47,15},{HORIZONTAL,INCREASE,15,47,50}},
+						{{HORIZONTAL,INCREASE,47,14},{HORIZONTAL,INCREASE,14,47,50}},
+						{{VERTICAL,DECREASE,46,17},{VERTICAL,DECREASE,46,17,31}},
+						{{HORIZONTAL,INCREASE,47,13},{HORIZONTAL,INCREASE,13,47,50}},
+						{{HORIZONTAL,INCREASE,47,12},{HORIZONTAL,INCREASE,12,47,50}}
 				}
-			},
-			{/*[8]*/
-				/*targets*/{
-					{
-						/*from*/3,
-						/*to*/4,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 29, 41 },
-							{ HORIZONTAL, INCREASE, 29, 42 },
-							{ HORIZONTAL, INCREASE, 29, 43 },
-							{ HORIZONTAL, INCREASE, 29, 44 },
-							{ HORIZONTAL, INCREASE, 29, 45 }
-						}
-					},
-					{
-						/*from*/3,
-						/*to*/16,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 30, 32 }
-						}
-					}
-				},
-				/*enlarged*/{
-					{ { HORIZONTAL,INCREASE,29,45 },{ HORIZONTAL,INCREASE,45,29,32 } },
-					{ { HORIZONTAL,INCREASE,29,41 },{ HORIZONTAL,INCREASE,41,29,32 } },
-					{ { HORIZONTAL,INCREASE,29,42 },{ HORIZONTAL,INCREASE,42,29,32 } },
-					{ { HORIZONTAL,INCREASE,29,43 },{ HORIZONTAL,INCREASE,43,29,32 } },
-					{ { HORIZONTAL,DECREASE,30,32 },{ HORIZONTAL,DECREASE,32,30,32 } },
-					{ { HORIZONTAL,INCREASE,29,44 },{ HORIZONTAL,INCREASE,44,29,32 } }
-				}
-			},
-			{/*[9]*/
-				/*targets*/{
-					{
-						/*from*/6,
-						/*to*/14,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 5, 32 }
-						}
-					},
-					{
-						/*from*/6,
-						/*to*/5,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 7, 22 },
-							{ VERTICAL, INCREASE, 8, 22 },
-							{ VERTICAL, INCREASE, 9, 22 }
-						}
-					}
-				},
-				/*enlarged*/{
-					{ { VERTICAL,INCREASE,7,22 },{ VERTICAL,INCREASE,7,22,31 } },
-					{ { HORIZONTAL,INCREASE,5,32 },{ HORIZONTAL,INCREASE,32,5,6 } },
-					{ { VERTICAL,INCREASE,8,22 },{ VERTICAL,INCREASE,8,22,31 } },
-					{ { VERTICAL,INCREASE,9,22 },{ VERTICAL,INCREASE,9,22,31 } }
-				}
-			},
-			{/*[10]*/
-				/*targets*/{
-					{
-						/*from*/8,
-						/*to*/9,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 47, 16 },
-							{ HORIZONTAL, DECREASE, 47, 15 },
-							{ HORIZONTAL, DECREASE, 47, 14 },
-							{ HORIZONTAL, DECREASE, 47, 13 },
-							{ HORIZONTAL, DECREASE, 47, 12 }
-						}
-					},
-					{
-						/*from*/8,
-						/*to*/19,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 46, 33 },
-							{ VERTICAL, DECREASE, 45, 33 }
-						}
-					}
-				},
-				/*enlarged*/{
-					{ { VERTICAL,DECREASE,46,33 },{ VERTICAL,DECREASE,46,33,37 } },
-					{ { HORIZONTAL,DECREASE,47,12 },{ HORIZONTAL,DECREASE,12,47,50 } },
-					{ { HORIZONTAL,DECREASE,47,16 },{ HORIZONTAL,DECREASE,16,47,50 } },
-					{ { VERTICAL,DECREASE,45,33 },{ VERTICAL,DECREASE,45,33,37 } },
-					{ { HORIZONTAL,DECREASE,47,15 },{ HORIZONTAL,DECREASE,15,47,50 } },
-					{ { HORIZONTAL,DECREASE,47,14 },{ HORIZONTAL,DECREASE,14,47,50 } },
-					{ { HORIZONTAL,DECREASE,47,13 },{ HORIZONTAL,DECREASE,13,47,50 } }
-				}
-			},
-			{/*[11]*/
-				/*targets*/{
-					{
-						/*from*/11,
-						/*to*/13,
-						/*expected path*/{
-							{ VERTICAL, INCREASE, 45, 50 },
-							{ VERTICAL, INCREASE, 46, 50 }
-						}
-					},
-					{
-						/*from*/11,
-						/*to*/19,
-						/*expected path*/{
-							{ HORIZONTAL, DECREASE, 35, 49 },
-							{ HORIZONTAL, DECREASE, 35, 48 }
-						}
-					}
-				},
-				/*enlarged*/{
-					{ { VERTICAL,INCREASE,45,50 },{ VERTICAL,INCREASE,45,50,52 } },
-					{ { HORIZONTAL,DECREASE,35,49 },{ HORIZONTAL,DECREASE,49,35,44 } },
-					{ { VERTICAL,INCREASE,46,50 },{ VERTICAL,INCREASE,46,50,52 } },
-					{ { HORIZONTAL,DECREASE,35,48 },{ HORIZONTAL,DECREASE,48,35,44 } }
-				}
-			},
-			{/*[12]*/
-				/*targets*/{
-					{
-						/*from*/17,
-						/*to*/5,
-						/*expected path*/{
-							{ VERTICAL, DECREASE, 19, 4 },
-							{ VERTICAL, DECREASE, 18, 4 },
-							{ VERTICAL, DECREASE, 17, 4 }
-						}
-					},
-					{
-						/*from*/17,
-						/*to*/7,
-						/*expected path*/{
-							{ HORIZONTAL, INCREASE, 20, 14 },
-							{ HORIZONTAL, INCREASE, 20, 15 },
-							{ HORIZONTAL, INCREASE, 20, 16 },
-							{ HORIZONTAL, INCREASE, 20, 17 },
-							{ HORIZONTAL, INCREASE, 20, 18 },
-							{ HORIZONTAL, INCREASE, 20, 19 }
-						}
-					}
-				},
-				/*enlarged*/{
-					{ { VERTICAL,DECREASE,19,4 },{ VERTICAL,DECREASE,19,4,13 } },
-					{ { HORIZONTAL,INCREASE,20,16 },{ HORIZONTAL,INCREASE,16,20,26 } },
-					{ { HORIZONTAL,INCREASE,20,17 },{ HORIZONTAL,INCREASE,17,20,26 } },
-					{ { VERTICAL,DECREASE,18,4 },{ VERTICAL,DECREASE,18,4,13 } },
-					{ { VERTICAL,DECREASE,17,4 },{ VERTICAL,DECREASE,17,4,13 } },
-					{ { HORIZONTAL,INCREASE,20,18 },{ HORIZONTAL,INCREASE,18,20,26 } },
-					{ { HORIZONTAL,INCREASE,20,14 },{ HORIZONTAL,INCREASE,14,20,26 } },
-					{ { HORIZONTAL,INCREASE,20,19 },{ HORIZONTAL,INCREASE,19,20,26 } },
-					{ { HORIZONTAL,INCREASE,20,15 },{ HORIZONTAL,INCREASE,15,20,26 } }
-				}/*enlarged*/
 			}
 		},
 		/*polylines*/ {
