@@ -10,8 +10,11 @@ To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/connec
 In the case of relational diagrams, there are some database engine specific scripts that are available to produces a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
 
 SQL Server : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_SQLServer.sql
+
 MySQL : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_MySQL.sql
+
 other engines : you can create your own script and share it.
+
 
 You can load your diagdata.json equivalent file in https://ludoaubert.github.io/linkedboxdraw/tableinput.html by pressing Data File Input.
 
