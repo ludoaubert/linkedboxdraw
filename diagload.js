@@ -116,12 +116,13 @@ function deselectElement()
 	
 	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
 				.map(tB => tB.id);
-	mydata.links.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
-				.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
-				.filter(lk => lk.from != lk.to)
-				.flat()
-				.map(i => hex(i,2))
-				.join('');
+	const slinks = mydata.links
+							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
+							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
+							.filter(lk => lk.from != lk.to)
+							.flat()
+							.map(i => hex(i,2))
+							.join('');
 	console.log(slinks);				
 /*	
 	const slinks = reduced_edges
