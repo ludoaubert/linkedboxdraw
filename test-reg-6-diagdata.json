@@ -7,7 +7,10 @@
 "values":[],
 "boxComments":[],
 "fieldComments":[],
-"links":[],
+"links":[
+{"from":2,"fromField":0,"fromCardinality":"undefined","to":1,"toField":0,"toCardinality":"undefined"},
+{"from":2,"fromField":0,"fromCardinality":"undefined","to":0,"toField":0,"toCardinality":"undefined"}
+],
 "fieldColors":[],
 "rectangles":[
 	{"left":0,"right":20,"top":0,"bottom":40},
