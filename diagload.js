@@ -116,7 +116,7 @@ function deselectElement()
 	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
 				.map(tB => tB.id);
 	const slinks = mydata.links
-							.map(lk => {lk.from, lk.to})
+							.map(lk => ({lk.from, lk.to}))
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
 							.filter(lk => lk.from != lk.to)
