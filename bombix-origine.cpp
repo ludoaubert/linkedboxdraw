@@ -1330,7 +1330,21 @@ string diagdata(const TestContext& ctx)
 "values":[],
 "boxComments":[],
 "fieldComments":[],
-"links":[],
+"links":[
+)");
+
+	for (const auto& [from, to] : links)
+	{
+		pos += sprintf(buffer + pos, "{\"from\":%d,\"fromField\":0,\"fromCardinality\":\"undefined\",\"to\":%d,\"toField\":0,\"toCardinality\":\"undefined\"},\n", from, to);
+	}
+	
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
+		pos--;
+	}
+
+	pos += sprintf(buffer + pos, R"(],
 "fieldColors":[],
 "rectangles":[
 )");
