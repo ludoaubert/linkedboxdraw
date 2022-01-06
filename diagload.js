@@ -115,24 +115,16 @@ function deselectElement()
 	
 	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
 				.map(tB => tB.id);
+				
 	const slinks = mydata.links
+							.filter(lk => lk.from != lk.to)
 							.map(lk => ({lk.from, lk.to}))
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
-							.filter(lk => lk.from != lk.to)
 							.flat()
 							.map(i => hex(i,2))
 							.join('');
 	console.log(slinks);				
-/*	
-	const slinks = reduced_edges
-				.filter(ln => ln.from != ln.to)
-				.map(ln => [ln.from, ln.to])
-				.flat()
-				.map(i => hex(i,2))
-				.join('');
-	console.log(slinks);
-*/
 
 //logging call input to produce test data for further investigations...
 	console.log({rectangles, frame});
