@@ -85,7 +85,6 @@ function deselectElement()
 	
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
-	const reduced_edges = mycontexts.contexts[selectedContextIndex].reduced_edges;
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, (tB, index) => ({
 			id: index,
@@ -117,6 +116,7 @@ function deselectElement()
 	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
 				.map(tB => tB.id);
 	const slinks = mydata.links
+							.map(lk => {lk.from, lk.to})
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
 							.filter(lk => lk.from != lk.to)
@@ -135,7 +135,7 @@ function deselectElement()
 */
 
 //logging call input to produce test data for further investigations...
-	console.log({rectangles, frame, reduced_edges});
+	console.log({rectangles, frame});
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
 	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
