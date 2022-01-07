@@ -135,7 +135,7 @@ function download2(filename) {
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
 			const polylines = JSON.parse(json2);
-			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, ids[from], ids[to]}));
+			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, from:ids[from], to:ids[to]}));
 			console.log(polylines2);
 			
 			return {frame, translatedBoxes, links:polylines2};
