@@ -110,22 +110,7 @@ function download2(filename) {
 							.join('');
 			console.log(translations);
 			
-			const idmap = new Map(
-				[...translatedBoxes
-					.map(({id,translation}) => id)
-					.entries()
-				].map(([index, id]) => ([id, index]))
-			);
-			
-			console.log(idmap);
-			
-			const reverse_idmap = new Map(
-				[...translatedBoxes
-					.map(({id,translation}) => id)
-					.entries()]
-			);
-
-			console.log(reverse_idmap);
+			const ids = translatedBoxes.map(tB => tB.id);
 			
 			const rectdim_ = translatedBoxes
 							.map(({id}) => rectdim[id])
@@ -135,21 +120,22 @@ function download2(filename) {
 			console.log(links);
 			const links_ = links
 							.filter(lk => lk.from != lk.to)
-							.filter( ({from,to}) => {return idmap.has(from) && idmap.has(to)})
-							.map( ({from,to}) => [idmap.get(from),idmap.get(to)])
+							.map(lk => ({from:lk.from, to:lk.to}))
+							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
+							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
 							.map(lk => JSON.stringify(lk))
 							.filter(function(lk, pos, self){
 										return self.indexOf(lk) == pos;}
 							) //removing duplicates
-							.map(lk => JSON.parse(lk))
+							.map(lk => JSON.parse(lk))							
 							.flat()
 							.map(i => hex(i,2))
-							.join('');							
+							.join('');	
 			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
 			const polylines = JSON.parse(json2);
-			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, from:reverse_idmap.get(from), to:reverse_idmap.get(to)}));
+			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, ids[from], ids[to]}));
 			console.log(polylines2);
 			
 			return {frame, translatedBoxes, links:polylines2};
