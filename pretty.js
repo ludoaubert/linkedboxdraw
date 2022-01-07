@@ -8,7 +8,6 @@ function prettyContexts(json) {
 			.replaceAll('"frame"', '\n"frame"')
 			.replaceAll('{"polyline"','\n{"polyline"')
 			.replaceAll('{"id"', '\n{"id"')
-			.replaceAll('"reduced_edges"','\n"reduced_edges"')
 			.replaceAll('"translatedBoxes"', '\n"translatedBoxes"')
 			.replaceAll('"links"', '\n"links"'); 
 }

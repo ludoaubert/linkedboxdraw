@@ -20,7 +20,6 @@ contexts=`{"contexts":[{"frame":{"left":0,"right":701,"top":0,"bottom":704},
 {"id":17,"translation":{"x":30,"y":122}},
 {"id":18,"translation":{"x":59,"y":346}},
 {"id":19,"translation":{"x":301,"y":442}}],
-"reduced_edges":[{"from":2,"to":14},{"from":2,"to":5},{"from":17,"to":7},{"from":6,"to":14},{"from":6,"to":5},{"from":1,"to":14},{"from":3,"to":4},{"from":5,"to":17},{"from":8,"to":9},{"from":14,"to":7},{"from":7,"to":0},{"from":7,"to":16},{"from":12,"to":14},{"from":10,"to":18},{"from":10,"to":16},{"from":10,"to":9},{"from":19,"to":10},{"from":19,"to":7},{"from":19,"to":8},{"from":19,"to":11},{"from":16,"to":3},{"from":11,"to":13},{"from":9,"to":15}],
 "links":[
 {"polyline":[{"x":423,"y":114},{"x":423,"y":154}],"from":2,"to":14},
 {"polyline":[{"x":391,"y":46},{"x":351,"y":46}],"from":2,"to":5},

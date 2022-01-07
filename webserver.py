@@ -109,10 +109,6 @@ while True:
                 print(json2)
                 
                 polylines = json.loads(json2)
-
-                reduced_edges=[{"from":polyline["from"], "to": polyline["to"]} for polyline in polylines]
-                print("reduced_edges=" + json.dumps(reduced_edges))
-                context['reduced_edges'] = reduced_edges
                 
                 for polyline in polylines:
                     for u in ['from','to']:

@@ -7,7 +7,6 @@
 {"id":2,"translation":{"x":360,"y":20}},
 {"id":3,"translation":{"x":360,"y":200}}
 ],
-"reduced_edges":[],
 "links":[
 {"polyline":[{"x":380,"y":200},{"x":380,"y":130},{"x":40,"y":130},{"x":40,"y":60}],"from":3,"to":0},
 {"polyline":[{"x":360,"y":220},{"x":60,"y":220}],"from":3,"to":1}

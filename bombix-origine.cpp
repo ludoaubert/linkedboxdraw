@@ -1392,7 +1392,6 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 	}
 	
 	pos += sprintf(buffer + pos, R"(],
-"reduced_edges":[],
 "links":%s
 }
 ]}

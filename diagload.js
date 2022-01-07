@@ -247,7 +247,7 @@ function drawDiag() {
 `;
 	
 	
-	for (const [selectedContextIndex, {title, frame, translatedBoxes, links, reduced_edges}] of mycontexts.contexts.entries())
+	for (const [selectedContextIndex, {title, frame, translatedBoxes, links}] of mycontexts.contexts.entries())
 	{
 		
 		innerHTML += `<svg id="${selectedContextIndex}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
@@ -558,7 +558,6 @@ function ApplyRepartition()
 			"title":"",
 			"frame":{"left":0,"right":1921,"top":0,"bottom":1488},
 			"translatedBoxes":[],
-			"reduced_edges":[],
 			"links":[]
 			});
 	}
@@ -591,24 +590,6 @@ function ApplyRepartition()
 	
 // if a context has become empty, remove it.
 	new_contexts.contexts = new_contexts.contexts.filter(context => context.translatedBoxes.length != 0);
-	
-// recalculer ensuite reduced_edges.
-	console.log(JSON.stringify(mydata.links));
-	for (let context of new_contexts.contexts)
-	{
-		const ids = Array.from(context.translatedBoxes, tB => tB.id);
-		console.log(JSON.stringify(ids));
-		for (const link of mydata.links)
-		{
-			const index_from = ids.indexOf(link.from);
-			const index_to = ids.indexOf(link.to);
-			if (index_from != -1 && index_to != -1)
-			{
-				context.reduced_edges.push({from:index_from,to:index_to});
-			}
-		}	
-	}
-
 	
 	for (let context of new_contexts.contexts)
 	{
