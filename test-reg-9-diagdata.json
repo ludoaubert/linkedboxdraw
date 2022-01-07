@@ -9,8 +9,8 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-{"from":3,"fromField":0,"fromCardinality":"undefined","to":0,"toField":0,"toCardinality":"undefined"},
-{"from":3,"fromField":0,"fromCardinality":"undefined","to":1,"toField":0,"toCardinality":"undefined"}
+{"from":3,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"},
+{"from":3,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined"}
 ],
 "fieldColors":[],
 "rectangles":[
