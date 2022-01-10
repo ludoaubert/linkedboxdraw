@@ -8,47 +8,47 @@
    <script type="module">   
 
 	export function onLoad() {
-	export var Module = {
-	  'print': function(text) { console.log('stdout: ' + text) },
-	  'printErr': function(text) { console.log('stderr: ' + text) }
-	}; 
-	
-	import data from "./diagdata.json" assert { type: "json" };
-	import contexts from "./contexts.json" assert { type: "json" };
-	loadDiag(data, contexts);
+		var Module = {
+		  'print': function(text) { console.log('stdout: ' + text) },
+		  'printErr': function(text) { console.log('stderr: ' + text) }
+		}; 
+		
+		import data from "./diagdata.json" assert { type: "json" };
+		import contexts from "./contexts.json" assert { type: "json" };
+		loadDiag(data, contexts);
 
 /*	
-	var data = null;
-	var contexts = null;
-	
-	var xmlhttp1 = new XMLHttpRequest();
-	var data_url = "https://ludoaubert.github.io/linkedboxdraw/diagdata.json";
+		var data = null;
+		var contexts = null;
+		
+		var xmlhttp1 = new XMLHttpRequest();
+		var data_url = "https://ludoaubert.github.io/linkedboxdraw/diagdata.json";
 
-	xmlhttp1.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			data = this.responseText;
-			if (contexts != null)
-				loadDiag(data, contexts);
-		}
-	};
-	xmlhttp1.open("GET", data_url, true);
-	xmlhttp1.send();
-	
+		xmlhttp1.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				data = this.responseText;
+				if (contexts != null)
+					loadDiag(data, contexts);
+			}
+		};
+		xmlhttp1.open("GET", data_url, true);
+		xmlhttp1.send();
+		
 
-	var xmlhttp2 = new XMLHttpRequest();
-	var contexts_url = "https://ludoaubert.github.io/linkedboxdraw/contexts.json";
+		var xmlhttp2 = new XMLHttpRequest();
+		var contexts_url = "https://ludoaubert.github.io/linkedboxdraw/contexts.json";
 
-	xmlhttp2.onreadystatechange = function() {
-		if (this.readyState == 4 && this.status == 200) {
-			contexts = this.responseText;
-			if (data != null)
-				loadDiag(data, contexts);
-		}
-	};
-	xmlhttp2.open("GET", contexts_url, true);
-	xmlhttp2.send();
-	}
+		xmlhttp2.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				contexts = this.responseText;
+				if (data != null)
+					loadDiag(data, contexts);
+			}
+		};
+		xmlhttp2.open("GET", contexts_url, true);
+		xmlhttp2.send();
 */
+	}
     </script>
 	
     <script type="text/javascript" src="bombix-origine.js"></script>
