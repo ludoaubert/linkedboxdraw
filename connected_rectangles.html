@@ -5,16 +5,16 @@
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 	<link rel="icon" type="image/x-icon" href="favicon.ico" />
 	
-   <script type="module">   
+   <script>   
+
+	import contexts from "./contexts.json" assert { type: "json" };
+	import data from "./diagdata.json" assert { type: "json" };
 
 	export function onLoad() {
 		var Module = {
 		  'print': function(text) { console.log('stdout: ' + text) },
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		}; 
-		
-		import * as contexts from "https://ludoaubert.github.io/linkedboxdraw/contexts.json" assert { type: "json" };
-		import * as data from "https://ludoaubert.github.io/linkedboxdraw/diagdata.json" assert { type: "json" };
 
 		loadDiag(data, contexts);
 
