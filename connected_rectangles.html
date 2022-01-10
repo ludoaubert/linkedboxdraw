@@ -13,8 +13,9 @@
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		}; 
 		
-		import data from "./diagdata.json" assert { type: "json" };
 		import contexts from "./contexts.json" assert { type: "json" };
+		import data from "./diagdata.json" assert { type: "json" };
+
 		loadDiag(data, contexts);
 
 /*	
