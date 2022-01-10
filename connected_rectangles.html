@@ -7,18 +7,17 @@
 	
    <script type="module">   
 
-	import contexts from "./contexts.json" assert { type: "json" };
-	import data from "./diagdata.json" assert { type: "json" };
+//	import contexts from "./contexts.json" assert { type: "json" };
+//	import data from "./diagdata.json" assert { type: "json" };
 
-	export function onLoad() {
+	function onLoad() {
 		var Module = {
 		  'print': function(text) { console.log('stdout: ' + text) },
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		}; 
 
-		loadDiag(data, contexts);
-
-/*	
+//		loadDiag(data, contexts);
+	
 		var data = null;
 		var contexts = null;
 		
@@ -48,7 +47,6 @@
 		};
 		xmlhttp2.open("GET", contexts_url, true);
 		xmlhttp2.send();
-*/
 	}
     </script>
 	
