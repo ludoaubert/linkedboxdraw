@@ -13,8 +13,8 @@
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		}; 
 		
-		import contexts from "https://ludoaubert.github.io/linkedboxdraw/contexts.json" assert { type: "json" };
-		import data from "https://ludoaubert.github.io/linkedboxdraw/diagdata.json" assert { type: "json" };
+		import * as contexts from "https://ludoaubert.github.io/linkedboxdraw/contexts.json" assert { type: "json" };
+		import * as data from "https://ludoaubert.github.io/linkedboxdraw/diagdata.json" assert { type: "json" };
 
 		loadDiag(data, contexts);
 
