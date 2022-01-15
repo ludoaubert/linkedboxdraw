@@ -7,7 +7,7 @@ Typical use case:
 Just been hired on a new software or data project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
 To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
 
-In the case of relational diagrams, there are some database engine specific scripts that are available to produces a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
+In the case of relational diagrams, there are some database engine specific scripts that are available to produce a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
 
 SQL Server : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_SQLServer.sql
 
