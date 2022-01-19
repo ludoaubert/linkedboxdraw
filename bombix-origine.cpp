@@ -1081,30 +1081,22 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 	vector<Range> result;
 	
 	for (int i=0; i < path.size();)
-	{
-		vector<int> index_range;
+	{	
+		vector<Range> ranges;
 		
 		int j = i;
+
 		while (j < path.size() && path[i].direction == path[j].direction)
 		{
-			index_range.push_back(j);
-			j++;
-		}
-		
-	//TODO: use destructuring
-	
-		vector<Range> ranges;
-		for (int k = i; k < j; k++)
-		{
-			const Range &r = path[k];
+			const Range &r = path[j];
 			ranges.push_back(r);
+			j++;
 		}
 		
 		for (Way way : {DECREASE, INCREASE})
 		{
-			if (all_of(begin(index_range), end(index_range), [&](int k){
+			if (all_of(begin(ranges), end(ranges), [&](Range r){
 				
-				Range r = path[k];
 				r[way] += way;
 				Coord c = r[way];
 
@@ -1118,12 +1110,13 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			}
 		}
 		
+		Direction other_direction = other( path[i].direction );
+		
 		if (i == 0)
 		{
 			for (Range &r : ranges)
 			{
-				Direction direction = other( path[i].direction );
-				r[direction] = intersection(r[direction], rfrom[direction]);
+				r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
 			}
 		}
 		
@@ -1131,8 +1124,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 		{
 			for (Range &r : ranges)
 			{
-				Direction direction = other(path[i].direction) ;
-				r[direction] = intersection(r[direction], rto[direction]);
+				r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 			}
 		}
 		
