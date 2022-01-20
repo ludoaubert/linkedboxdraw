@@ -1048,6 +1048,7 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	}
 }
 
+//TODO: use a projection instead of comparison operator
 
 void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const unordered_set<uint64_t> &target_nodes,
@@ -1092,6 +1093,9 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 			ranges.push_back(r);
 			j++;
 		}
+		
+	// TODO: avoid double copy using std::span instead of std::vector. std::span available in C++20.
+	//  std::span<Range> ranges( & path[i], j - i);
 		
 		for (Way way : {DECREASE, INCREASE})
 		{
