@@ -426,6 +426,8 @@ struct Matrix
 		delete [] _data;
 	}
 	
+//TODO: overload operator [] in C++23
+	
 	T& operator()(int i, int j)
 	{
 		assert(0 <= i);
@@ -1058,6 +1060,10 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 {	
 	uint64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](uint64_t u, uint64_t v){return distance.at(u) < distance.at(v);});
 
+//TODO
+//	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u);});
+
+//TODO
 	copy_if(begin(target_nodes),
 		end(target_nodes),
 		back_inserter(target_candidates),
@@ -1082,20 +1088,12 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 	vector<Range> result;
 	
 	for (int i=0; i < path.size();)
-	{	
-		vector<Range> ranges;
-		
-		int j = i;
-
-		while (j < path.size() && path[i].direction == path[j].direction)
-		{
-			const Range &r = path[j];
-			ranges.push_back(r);
-			j++;
-		}
+	{		
+		auto it = std::find_if(path.begin()+i, path.end(), [&](const Range& r){return r.direction != path[i].direction;});
+		int j = std::distance(path.begin(), it);
+		vector<Range> ranges(path.begin()+i, it);
 		
 	// TODO: avoid double copy using std::span instead of std::vector. std::span available in C++20.
-	//  std::span<Range> ranges( & path[i], j - i);
 		
 		for (Way way : {DECREASE, INCREASE})
 		{
