@@ -18,6 +18,7 @@
 #include <iterator>
 #include <chrono>
 #include <regex>
+#include <span>
 //#include <omp.h>
 using namespace std;
 using namespace std::chrono;
@@ -1050,29 +1051,23 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 	}
 }
 
-//TODO: use a projection instead of comparison operator
 
 void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const unordered_set<uint64_t> &target_nodes,
 								const vector<int> &distance,
 								const vector<Edge> &predecessor,
 								vector<uint64_t> &target_candidates)
-{	
-	uint64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](uint64_t u, uint64_t v){return distance.at(u) < distance.at(v);});
+{
+	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u);});
 
-//TODO
-//	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u);});
-
-//TODO
-	copy_if(begin(target_nodes),
-		end(target_nodes),
+	ranges::copy_if(target_nodes,
 		back_inserter(target_candidates),
 		[&](uint64_t v){
 			return distance.at(v) == distance.at(u);
 		}
 	);
 
-	sort(begin(target_candidates), end(target_candidates));
+	ranges::sort(target_candidates);
 }
 
 vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
@@ -1083,22 +1078,20 @@ vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
 	return result;
 }
 
-vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
+vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
 {
-	vector<Range> result;
-	
+	vector<Range> path = input_path;
+
 	for (int i=0; i < path.size();)
-	{		
+	{
 		auto it = std::find_if(path.begin()+i, path.end(), [&](const Range& r){return r.direction != path[i].direction;});
 		int j = std::distance(path.begin(), it);
-		vector<Range> ranges(path.begin()+i, it);
-		
-	// TODO: avoid double copy using std::span instead of std::vector. std::span available in C++20.
-		
+		span<Range> ranges(path.begin()+i, it);
+
 		for (Way way : {DECREASE, INCREASE})
 		{
-			if (all_of(begin(ranges), end(ranges), [&](Range r){
-				
+			if (ranges::all_of(ranges, [&](Range r){
+
 				r[way] += way;
 				Coord c = r[way];
 
@@ -1111,9 +1104,9 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				}
 			}
 		}
-		
+
 		Direction other_direction = other( path[i].direction );
-		
+
 		if (i == 0)
 		{
 			for (Range &r : ranges)
@@ -1121,7 +1114,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
 			}
 		}
-		
+
 		if (j == path.size())
 		{
 			for (Range &r : ranges)
@@ -1129,15 +1122,11 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 			}
 		}
-		
-		for (Range &r : ranges)
-			result.push_back(r);
-		
+
 		i = j;
 	}
-	
-	assert(path.size() == result.size());
-	return result;
+
+	return path;
 }
 
 
@@ -1169,7 +1158,7 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 		if (ir.range_index + 1 == ranges.size())
 			target_nodes.push_back(u);
 	}
-	int64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](int64_t u, int64_t v){return distance.at(u) < distance.at(v); });
+	int64_t u = *ranges::min_element(target_nodes, {}, [&](int64_t u){return distance.at(u).i; });
 	vector<Range> inner_ranges;
 	while (u)
 	{
