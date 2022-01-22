@@ -326,7 +326,7 @@ const char* latuile(const char *rectdim, const char *slinks)
 	{
 		sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
 	}
-	char res[100000];
+	static char res[100000];
 	write_json(contexts, res);
 	return res;
 }	
