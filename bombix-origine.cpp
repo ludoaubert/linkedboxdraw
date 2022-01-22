@@ -1216,22 +1216,22 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 	
 	for (Range& r : compact_path)
 	{
-		Direction direction = other(r.direction);
-		auto& tab = coords[direction];
-		p[direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+		Direction other_direction = other(r.direction);
+		auto& tab = coords[other_direction];
+		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
 		polyline.push_back(p);
 	}
 	
 	r = compact_path.back();
 	
 	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value : r.value + 1];
-	
+
 	polyline.push_back(p);
-	
+
 	auto it = unique(begin(polyline), end(polyline));
 	int n = distance(begin(polyline), it);
 	polyline.resize(n);
-	
+
 	return polyline;
 }
 
