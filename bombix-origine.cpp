@@ -150,6 +150,8 @@ struct Range
 		assert(direction == other(dir));
 		return RangeProjection{this, dir};
 	}
+
+	bool operator==(const Range&) const = default;
 };
 
 RangeExtremity& RangeExtremity::operator+=(Way way)
@@ -211,18 +213,6 @@ RangeProjection& RangeProjection::operator=(const Span& s)
 }
 
 
-//TODO: impl par default
-
-bool operator==(const Range& r1, const Range& r2)
-{
-	return memcmp(&r1, &r2, sizeof(Range)) == 0;
-}
-
-bool operator!=(const Range& r1, const Range& r2)
-{
-	return memcmp(&r1, &r2, sizeof(Range)) != 0;
-}
-
 struct Maille
 {
 	Direction direction;
@@ -250,19 +240,9 @@ struct Maille
 		}
 	}
 
+	bool operator==(const Maille&) const = default;
 };
 
-//TODO: impl par default
-
-bool operator==(const Maille& m1, const Maille& m2)
-{
-	return memcmp(&m1, &m2, sizeof(Maille)) == 0;
-}
-
-bool operator!=(const Maille& m1, const Maille& m2)
-{
-	return memcmp(&m1, &m2, sizeof(Maille)) != 0;
-}
 
 static_assert(sizeof(Maille)==sizeof(uint64_t),"");
 
@@ -311,19 +291,9 @@ struct Point
 		}
 	}
 	int x, y;
+
+	bool operator==(const Point&) const = default;
 };
-
-//TODO: impl par default
-
-bool operator==(const Point& p1, const Point& p2)
-{
-	return memcmp(&p1, &p2, sizeof(Point))==0;
-}
-
-bool operator!=(const Point& p1, const Point& p2)
-{
-	return memcmp(&p1, &p2, sizeof(Point)) != 0;
-}
 
 
 struct Rect;
@@ -495,45 +465,28 @@ struct Target
 	int from;
 	int to;
 	vector<Maille> expected_path;
+
+	bool operator==(const Target&) const = default;
 };
 
-//TODO: implementation par default
-
-bool operator==(const Target& t1, const Target& t2)
-{
-	return t1.from == t2.from && t1.to == t2.to && t1.expected_path == t2.expected_path;
-}
 
 struct Polyline
 {
 	int from;
 	int to;
 	vector<Point> data;
+
+	bool operator==(const Polyline&) const = default;
 };
 
-//TODO: impl par default
-
-bool operator==(const Polyline& p1, const Polyline& p2)
-{
-	return p1.from == p2.from && p1.to == p2.to && p1.data == p2.data;
-}
-
-bool operator!=(const Polyline& p1, const Polyline& p2)
-{
-	return p1.from != p2.from || p1.to != p2.to || p1.data != p2.data;
-}
 
 struct Link
 {
 	int from, to;
+
+	bool operator==(const Link&) const = default;
 };
 
-//TODO: impl par default
-
-bool operator==(const Link& lk1, const Link& lk2)
-{
-	return memcmp(&lk1, &lk2, sizeof(Link)) == 0;
-}
 
 //TODO: could use a default generated impl ? C++23 ?
 namespace std {
@@ -582,14 +535,9 @@ struct FaiceauOutput
 {
 	vector<Target> targets;
 	unordered_map<Maille, Range> enlarged;
+
+	bool operator==(const FaiceauOutput&) const = default;
 };
-
-//TODO: generer une impl par default
-
-bool operator==(const FaiceauOutput& f1, const FaiceauOutput& f2)
-{
-	return f1.targets == f2.targets && f1.enlarged == f2.enlarged;
-}
 
 
 struct FaiceauPath
@@ -674,21 +622,21 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 {
 	char buffer[100 * 1024];
 	int pos = 0;
-	
+
 	pos += sprintf(buffer + pos, "\t\t/*faiceau output*/{\n");
-	
+
 	for (const /*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
 	{
 		pos += sprintf(buffer + pos, "\t\t\t{\n");
 		pos += sprintf(buffer + pos, "\t\t\t\t/*targets*/{\n");
-		
+
 		for (const /*Target*/ auto& [from, to, expected_path] : targets)
 		{
 			pos += sprintf(buffer + pos, "\t\t\t\t\t{\n");
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*from*/%d,\n", from);
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", to);
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*expected path*/{\n");
-			
+
 			for (const Maille& m : expected_path)
 			{
 				pos += sprintf(buffer + pos, "\t\t\t\t\t\t\t{%s, %s, %hu, %hu},\n", dir[m.direction], way_string[1+m.way], m.i, m.j);
@@ -696,9 +644,9 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 			pos += sprintf(buffer + pos, "\t\t\t\t\t\t}\n");
 			pos += sprintf(buffer + pos, "\t\t\t\t\t}\n");
 		}
-		
+
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
-		
+
 		pos += sprintf(buffer + pos, "\t\t\t\t/*enlarged*/{\n");
 
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
@@ -706,12 +654,12 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 			pos += sprintf(buffer + pos, "\t\t\t\t\t{{%s,%s,%hu,%hu},{%s,%s,%hu,%hu,%hu}},\n", dir[m.direction], way_string[1+m.way], m.i, m.j, dir[r.direction], way_string[1+r.way], r.value, r.min, r.max);
 		}
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
-		
+
 		pos += sprintf(buffer + pos, "\t\t\t},\n");
 	}
-	
+
 	pos += sprintf(buffer + pos, "\t\t}\n");
-	
+
 	serialized = buffer;
 }
 
@@ -724,25 +672,25 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 	const int MIN_CORRIDOR_WIDTH = 5;
 	const int NARROW_CORRIDOR_PENALTY = 1000;
 	const int WITHIN_RECTANGLE_PENALTY = 1000;
-	
+
 	const auto& [definition_matrix, range_matrix, coords] = graph;
-	
+
 	Maille r = parse(u);
-	
+
 	Maille next = r;
 	next[next.direction] += next.way;
-		
+
 	if (definition_matrix.isdefined(next.i, next.j))
 	{
 		int distance = 0;
-		
+
 		uint64_t v = serialize(next);
-		
+
 		for (Maille* m : {&r, &next})
 		{
 			if (definition_matrix(m->i, m->j) == false)
-				distance += WITHIN_RECTANGLE_PENALTY;		
-			
+				distance += WITHIN_RECTANGLE_PENALTY;
+
 			auto& tab = coords[m->direction];
 			int16_t value = (*m)[m->direction];
 			distance += tab[value+1] - tab[value];
@@ -762,7 +710,7 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 			assert(edge.v == w);
 			w = edge.u;
 		}
-		
+
 		const vector<int>& c = coords[other(next.direction)];
 		int range_width = c[span.max+1] - c[span.min];
 		if (range_width < MIN_CORRIDOR_WIDTH)
@@ -771,25 +719,25 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 					range_width, next.i, next.j, dir[next.direction], way_string[next.way+1]);
 			distance += NARROW_CORRIDOR_PENALTY;
 		}
-		
+
 		adj.push_back({u, v, distance});
 	}
-	
+
 	for (Way way : { DECREASE, INCREASE})
 	{
 		Maille next = r;
 		next.direction = other(r.direction);
 		next.way = way;
-		
+
 		int distance = TURN_PENALTY;
-		
+
 		if (definition_matrix(r.i, r.j) == false)
-			distance += 2 * WITHIN_RECTANGLE_PENALTY;		
-		
+			distance += 2 * WITHIN_RECTANGLE_PENALTY;
+
 		uint64_t v = serialize(next);
 		adj.push_back({ u, v, distance });
 	}
-	
+
 	return adj;
 }
 
