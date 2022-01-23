@@ -1147,38 +1147,25 @@ bool connect_outer_ranges(const OuterRangeGraph& graph)
 
 vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range>& path)
 {
-	vector<Range> compact_path;
-	
-	for (int i=0; i < path.size(); i++)
-	{
-		if (i==0 || i + 1 == path.size() || path[i].direction != path[i-1].direction)
-			compact_path.push_back(path[i]);
-	}
-	
 	vector<Point> polyline;
 	Point p;
-	
-	Range r = compact_path.front();
-	
+
+	auto it = path.begin();
+	const Range &r = * it;
 	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
-	
-	for (Range& r : compact_path)
+
+	for (; it != path.end(); it = find_if(it, path.end(), [&](const Range &r){return r.direction != it->direction;}) )
 	{
-		Direction other_direction = other(r.direction);
-		auto& tab = coords[other_direction];
-		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
-		polyline.push_back(p);
+		const Range &r = * it;
+                Direction other_direction = other(r.direction);
+                auto& tab = coords[other_direction];
+                p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+                polyline.push_back(p);
 	}
-	
-	r = compact_path.back();
-	
-	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value : r.value + 1];
 
-	polyline.push_back(p);
-
-	auto it = unique(begin(polyline), end(polyline));
-	int n = distance(begin(polyline), it);
-	polyline.resize(n);
+        const Range & rr = path.back();
+        p[rr.direction] = coords[rr.direction][rr.way == DECREASE ? rr.value : rr.value + 1];
+        polyline.push_back(p);
 
 	return polyline;
 }
@@ -1197,7 +1184,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 			}
 		}
 	}
-	
+
 	int n=0;
 
 	for (auto [u, c] : hit_count)
