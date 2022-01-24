@@ -916,11 +916,14 @@ void add_rect(vector<int>(&coords)[2], const Rect& r, int nblink=1)
 	}
 }
 
+
 struct QueuedEdge
 {
+        int distance_v;
 	uint64_t u,v;
 	int weight;
-	int distance_v;
+
+        auto operator<=>(const QueuedEdge&) const = default;
 };
 
 /*
@@ -929,20 +932,6 @@ Before Mai 18th 2018, order used to be e1.distance_v > e2.distance_v, and so it 
 in case e1 != e2 having e1.distance_v = e2.distance_v. It led to some tricking testing issues. The tests were
 all OK on 32 bit platforms but some were KO on 64 bit platforms.
 */
-
-//TODO: generer une impl par default
-
-bool operator<(const QueuedEdge& e1, const QueuedEdge& e2)
-{		
-	if (e1.distance_v != e2.distance_v)
-		return e1.distance_v > e2.distance_v;
-	else if (e1.u != e2.u)
-		return e1.u > e2.u;
-	else if (e1.v != e2.v)
-		return e1.v > e2.v;
-	else
-		return e1.weight > e2.weight;
-};
 
 
 struct Distance
@@ -963,36 +952,36 @@ struct Distance
 template <typename GraphStruct, typename DistanceMap, typename PredecessorMap>
 void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &source_node_distance, 
 			DistanceMap &distance, PredecessorMap & predecessor)
-{	
+{
 	static_assert(is_same<DistanceMap, vector<int> >::value || is_same<DistanceMap, unordered_map<uint64_t, Distance> >::value, "");
 	static_assert(is_same<PredecessorMap, vector<Edge> >::value || is_same<PredecessorMap, unordered_map<uint64_t, Edge> >::value, "");
 
 	distance[0] = 0;
-	
-	priority_queue<QueuedEdge> Q;
-	
+
+	priority_queue<QueuedEdge, vector<QueuedEdge>, greater<QueuedEdge> > Q;
+
 	for (const auto& [u, distance_v] : source_node_distance)
 	{
 		int weight = distance_v;
-		Q.push({ 0, u, weight, distance_v});
+		Q.push({ distance_v, 0, u, weight });
 	}
-	
+
 	while (!Q.empty())
 	{
 		QueuedEdge queued_edge = Q.top();
 		Q.pop();
-		
+
 		if (queued_edge.distance_v < distance[queued_edge.v])
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
 			distance[queued_edge.v] = queued_edge.distance_v;
-			
+
 			for (const Edge& adj_edge : adj_list(graph, predecessor, queued_edge.v))
 			{
 				int distance_v = distance[adj_edge.u] + adj_edge.weight;
 				if (distance_v < distance[adj_edge.v])
 				{
-					Q.push({adj_edge.u, adj_edge.v, adj_edge.weight, distance_v});
+					Q.push({ distance_v, adj_edge.u, adj_edge.v, adj_edge.weight });
 				}
 			}
 		}
