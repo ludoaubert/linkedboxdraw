@@ -241,6 +241,17 @@ struct Maille
 	}
 
 	bool operator==(const Maille&) const = default;
+
+        operator Range() const
+        {
+                switch (direction)
+                {
+                case HORIZONTAL:
+                        return { direction, way, j, i, i };
+                case VERTICAL:
+                        return { direction, way, i, j, j };
+                }
+        }
 };
 
 
@@ -2691,9 +2702,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 				for (uint64_t u = best_target_candidate[other_link.to]; u != 0; u = predecessor.at(u).u)
 				{
 					Maille m = parse(u);
-					auto [direction, way, i, j] = m;
-					int16_t value = m[m.direction], other_val = m[other(m.direction)];
-					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range{ direction, way, value, other_val, other_val };
+					Range r = enlarged_update.count(m) ? enlarged_update[m] : Range(m);
 					for (int16_t other_value = r.min; other_value <= r.max; other_value++)
 					{
 						m[other(m.direction)] = other_value;
@@ -2704,8 +2713,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			vector<Range> ranges;
 			for (Maille& m : result)
 			{
-				int16_t value = m[m.direction], other_value = m[other(m.direction)];
-				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range{ m.direction, m.way,value,other_value,other_value });
+				ranges.push_back(enlarged_update.count(m) ? enlarged_update[m] : Range(m));
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
@@ -2838,7 +2846,7 @@ void compute_polylines(const vector<Rect>& rects,
 	{
 		faiceau_output[i] = compute_faiceau(links, definition_matrix_, range_matrix, coords, rects, origins[i]);
 	}
-	
+
 	unordered_map<Link, FaiceauPath> faiceau_paths;
 	for (/*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
 	{
@@ -2847,19 +2855,17 @@ void compute_polylines(const vector<Rect>& rects,
 			faiceau_paths[{from, to}] = {enlarged, expected_path};
 		}
 	}
-	
+
 	for (const auto& [from, to] : links)
 	{
 		vector<Range> mypath;
-		
+
 		if (!faiceau_paths.count({from,to}))
 		{
 			auto& [enlarged, path] = faiceau_paths[{to,from}];
 			for (Maille &maille : path)
 			{
-				auto [direction, way, i, j] = maille;
-				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
-				mypath.push_back({enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value}});
+				mypath.push_back( enlarged.count(maille) ? enlarged[maille] : Range(maille) );
 			}
 			reverse(begin(mypath),end(mypath));
 			for (Range &r : mypath)
@@ -2870,33 +2876,27 @@ void compute_polylines(const vector<Rect>& rects,
 			auto& [enlarged, path] = faiceau_paths[{from,to}];
 			for (Maille &maille : path)
 			{
-				auto [direction, way, i, j] = maille;
-				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
-				mypath.push_back(enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value});
+				mypath.push_back( enlarged.count(maille) ? enlarged[maille] : Range(maille) );
 			}
 		}
 		else
 		{
 			unordered_map<Range, int> entgegen_ranges;
-			
+
 			auto& [r_enlarged, r_path] = faiceau_paths[{to,from}];
 			for (Maille& maille : r_path)
 			{
-				auto [direction, way, i, j] = maille;
-				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];				
-				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other_value, other_value};
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range(maille);
 				reverse(range.way);
 				entgegen_ranges[range] = distance(&r_path[0], &maille);
 			}
-			
+
 			int i = -1;
-			
+
 			auto& [enlarged, path] = faiceau_paths[{from,to}];
 			for (const Maille& maille : path)
 			{
-				auto [direction, way, ii, j] = maille;
-				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
-				Range range = enlarged.count(maille) ? enlarged[maille] : Range{direction, way, value, other_value, other_value};
+				Range range = enlarged.count(maille) ? enlarged[maille] : Range(maille) ;
 				mypath.push_back(range);
 				if (entgegen_ranges.count(range))
 				{
@@ -2904,18 +2904,16 @@ void compute_polylines(const vector<Rect>& rects,
 					break;
 				}
 			}
-			
+
 			for (; i >= 0; i--)
 			{
 				Maille &maille = r_path[i];
-				auto [direction, way, ii, j] = maille;
-				int16_t value = maille[maille.direction], other_value = maille[other(maille.direction)];
-				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range{direction, way, value, other_value, other_value};
+				Range range = r_enlarged.count(maille) ? r_enlarged[maille] : Range(maille) ;
 				reverse(range.way);
 				mypath.push_back(range);
 			}
 		}
-		
+
 		polylines.push_back({from, to, compute_polyline(coords, mypath)});
 	}
 }
