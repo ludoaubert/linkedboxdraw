@@ -2779,51 +2779,50 @@ void compute_polylines(const vector<Rect>& rects,
 {
 	int n = rects.size();
 	vector<int> nblinks(n,0 );
-	
+
 	for (const auto& [from, to] : links)
 	{
 		nblinks[from]++;
 		nblinks[to]++;
 	}
-	
+
 	vector<int> coords[2];
-	
+
 	for (const Rect& r : rects)
 	{
 		int i = distance(&rects[0], &r);
 		add_rect(coords, r, nblinks[i]);
 	}
-	
+
 	add_rect(coords, frame);
-	
+
 	for (vector<int>& coords_ : coords)
 	{
 		sort(begin(coords_), end(coords_));
 		auto it = unique(begin(coords_), end(coords_));
 		coords_.resize(distance(begin(coords_), it));
 	}
-	
+
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
-	
+
 	const int n1=definition_matrix_.dim(VERTICAL);
 	const int n2=definition_matrix_.dim(HORIZONTAL);
-	
+
 	Matrix<Span> range_matrix[2] = {Matrix<Span>(n1,n2), Matrix<Span>(n1,n2)};
 	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<const Link*> link_pointers;
-	std::transform(begin(links),
-					end(links),
-					std::back_inserter(link_pointers),
-					[](const Link& lk){return &lk;}
-					);
+	ranges::transform(links,
+			std::back_inserter(link_pointers),
+			[](const Link& lk){return &lk;}
+			);
 
 	vector<int> origins;
-	while (int &nn = *max_element(begin(nblinks), end(nblinks)))
+	while (int &nn = *ranges::max_element(nblinks))
 	{
 		int from = distance(&nblinks[0], &nn);
 		origins.push_back(from);
-			
+
 		for (const Link*& lkp : link_pointers)
 		{
 			if (lkp == 0)
@@ -2836,7 +2835,7 @@ void compute_polylines(const vector<Rect>& rects,
 			}
 		}
 	}
-	
+
 	assert(nblinks == vector<int>(n,0));
 
 	faiceau_output.resize(origins.size());
@@ -2867,7 +2866,7 @@ void compute_polylines(const vector<Rect>& rects,
 			{
 				mypath.push_back( enlarged.count(maille) ? enlarged[maille] : Range(maille) );
 			}
-			reverse(begin(mypath),end(mypath));
+			ranges::reverse(mypath);
 			for (Range &r : mypath)
 				reverse(r.way);
 		}
