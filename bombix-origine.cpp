@@ -2649,13 +2649,11 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	for (const Link& lk : adj_links)
 	{
 		vector<uint64_t> &candidates = target_candidates_[lk.to];
-		uint64_t u = *min_element(begin(candidates), end(candidates), [&](uint64_t u, uint64_t v) {
+		uint64_t u = *ranges::min_element(candidates, {}, [&](uint64_t u) {
 			unordered_map<int, vector<uint64_t> > target_candidates = target_candidates_;
 			target_candidates[lk.to] = { u };
-			int n1 = overlap(adj_links, target_candidates, predecessor);
-			target_candidates[lk.to] = { v };
-			int n2 = overlap(adj_links, target_candidates, predecessor);
-			return n1 < n2;
+			int n = overlap(adj_links, target_candidates, predecessor);
+			return n ;
 		}
 		);
 		best_target_candidate[lk.to] = { u };
