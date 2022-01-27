@@ -2807,9 +2807,9 @@ void compute_polylines(const vector<Rect>& rects,
 
 	for (vector<int>& coords_ : coords)
 	{
-		sort(begin(coords_), end(coords_));
-		auto it = unique(begin(coords_), end(coords_));
-		coords_.resize(distance(begin(coords_), it));
+		ranges::sort(coords_);
+		auto ret = ranges::unique(coords_);
+		coords_.erase( begin(ret), end(ret) );
 	}
 
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
