@@ -1127,7 +1127,7 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 		assert(edge.v == u);
 		u = edge.u;
 	}
-	reverse(begin(inner_ranges), end(inner_ranges));
+	ranges::reverse(inner_ranges);
 	return inner_ranges;
 }
 
@@ -2697,7 +2697,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			}
 			//remove first (resp. last) node because it is inside the source (resp. target) rectangle.
 			result.pop_back();
-			reverse(begin(result), end(result));
+			ranges::reverse(result);
 			result.pop_back();
 
 			Target target = { from, to, result };
