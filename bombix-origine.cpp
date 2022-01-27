@@ -3121,11 +3121,11 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				Point *p0 = & (*data)[ipred] ;
 				(*p0)[direction] += 2 * d;
 				start_docking_ko = ipred==0 && ((*p0)[direction] <= sfrom.min || (*p0)[direction] >= sfrom.max);
-			
+
 				intersections_update = intersection_of_polylines(polylines);
 				if (intersections_update.size() >= intersections.size() || start_docking_ko)
 				{
-					copy(begin(copy_of_data), end(copy_of_data), begin(*data));
+					ranges::copy(copy_of_data, begin(*data));
 				}
 				else
 				{
@@ -3133,9 +3133,9 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 					translation[direction] = 2 * d;
 					auto& [tx, ty] = translation;
 					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
-				}	
+				}
 			}
-			
+
 			if (int inext = distance(&(*data)[0], p2) + 1, d = seg2[1-i].value - (*p2)[direction]; inext < (*data).size() && abs(d) < 10)
 			{
 				vector<Point> copy_of_data = * data ;
