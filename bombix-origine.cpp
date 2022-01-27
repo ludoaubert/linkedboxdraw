@@ -2702,7 +2702,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 
 			Target target = { from, to, result };
 
-			if (find(begin(targets), end(targets), target) == end(targets))
+			if (ranges::find(targets, target) == end(targets))
 				targets.push_back(target);
 			Matrix<bool> definition_matrix = definition_matrix_;
 			for (const Link& other_link : adj_links)
