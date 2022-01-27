@@ -378,6 +378,11 @@ Span intersection(const Span& r1, const Span& r2)
 template <typename T>
 struct Matrix
 {
+        struct Dim
+	{
+		int n,m;
+	};
+
 	Matrix() {}
 	Matrix(int n, int m) : _n(n), _m(m)
 	{
@@ -388,12 +393,12 @@ struct Matrix
 		_data = new T[n*m];
 		fill(_data, _data + n*m, value);
 	}
-	
+
 	Matrix(const Matrix& m) : Matrix(m._n, m._m, T())
 	{
 		memcpy(_data, m._data, sizeof(T)*_n*_m);
 	}
-	
+
 	Matrix& operator=(const Matrix& m)
 	{
 		_n = m._n;
@@ -402,14 +407,14 @@ struct Matrix
 		memcpy(_data, m._data, _n*_m*sizeof(T));
 		return *this;
 	}
-	
+
 	~Matrix()
 	{
 		delete [] _data;
 	}
-	
+
 //TODO: overload operator [] in C++23
-	
+
 	T& operator()(int i, int j)
 	{
 		assert(0 <= i);
@@ -418,7 +423,7 @@ struct Matrix
 		assert(j < _m);
 		return _data[i*_m + j];
 	}
-	
+
 
 	T operator()(int i, int j) const
 	{
@@ -428,7 +433,12 @@ struct Matrix
 		assert(j < _m);
 		return _data[i*_m + j];
 	}
-	
+
+	Dim dim() const
+	{
+		return {_n,_m};
+	}
+
 	int dim(Direction direction) const
 	{
 		switch (direction)
@@ -439,7 +449,7 @@ struct Matrix
 			return _n;
 		}
 	}
-	
+
 	bool isdefined(int i, int j) const
 	{
 		if (i < 0)
@@ -450,9 +460,9 @@ struct Matrix
 			return false;
 		if (j >= _m)
 			return false;
-		return true;		
+		return true;
 	}
-	
+
 	int _n=0, _m=0;
 	T *_data = nullptr;
 };
@@ -2735,7 +2745,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	// enlarge the faiceau - END
-	
+
 	printf("exit compute_faiceau() from=%d \n", from);
 
 	return{ targets, enlarged };
@@ -2744,27 +2754,26 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 
 void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&range_matrix)[2])
 {
-	const int n = definition_matrix.dim(VERTICAL);
-	const int m = definition_matrix.dim(HORIZONTAL);
-	
+	auto [n, m] = definition_matrix.dim();
+
 	for (int i=0; i < n; i++)
 	{
 		for (int j=0; j < m; j++)
 		{
 			int imin = i, imax = i, jmin = j, jmax=j;
-			
+
 			while (imin > 0 && definition_matrix(imin - 1, j) == definition_matrix(i,j))
 				imin--;
-			
+
 			while (imax+1 < n && definition_matrix(imax + 1, j) == definition_matrix(i,j))
 				imax++;
-			
+
 			while (jmin > 0 && definition_matrix(i, jmin - 1) == definition_matrix(i,j))
 				jmin--;
-			
+
 			while (jmax + 1 < m && definition_matrix(i, jmax + 1) == definition_matrix(i,j))
 				jmax++;
-			
+
 			range_matrix[HORIZONTAL](i,j) = {imin, imax};
 			range_matrix[VERTICAL](i,j) = {jmin, jmax};
 		}
@@ -2805,10 +2814,10 @@ void compute_polylines(const vector<Rect>& rects,
 
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
 
-	const int n1=definition_matrix_.dim(VERTICAL);
-	const int n2=definition_matrix_.dim(HORIZONTAL);
+	auto [n1, n2] = definition_matrix_.dim();
 
-	Matrix<Span> range_matrix[2] = {Matrix<Span>(n1,n2), Matrix<Span>(n1,n2)};
+	Matrix<Span> range_matrix[2] ;
+	ranges::fill(range_matrix, Matrix<Span>(n1,n2) );
 	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<const Link*> link_pointers;
