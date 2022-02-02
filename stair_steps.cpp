@@ -2068,8 +2068,8 @@ perm * A : permute rows
 		assert(frame.m_left == 0) ;
 		assert(frame.m_top == 0) ;
 
-		translation.x = -frame.m_left + FRAME_MARGIN/2 ;
-		translation.y = -frame.m_top + FRAME_MARGIN/2 ;
+		translation.x = FRAME_MARGIN/2 ;
+		translation.y = FRAME_MARGIN/2 ;
 
 		for (MyRect &rec : ctx.rectangles)
 			translate(rec, translation) ;
