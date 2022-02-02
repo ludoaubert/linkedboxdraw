@@ -603,25 +603,25 @@ function ApplyRepartition()
 
 function enforce_bounding_rectangle(context)
 {
-	let bounding_rectangle = {
-		left:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
-		right:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
-		top:-FRAME_MARGIN + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
+	const bounding_rectangle = {
+		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
 	}
-
-	bounding_rectangle.right -= bounding_rectangle.left;
-	bounding_rectangle.bottom -= bounding_rectangle.top;
-	bounding_rectangle.left = 0;
-	bounding_rectangle.top = 0;
 
 	console.log(JSON.stringify(bounding_rectangle));
 
 	for (let {id,translation} of context.translatedBoxes)
 	{
-		translation.x += FRAME_MARGIN/2;
-		translation.y += FRAME_MARGIN/2;
+		translation.x -= bounding_rectangle.left;
+		translation.y -= bounding_rectangle.top;
 	}
 	
-	context.frame = bounding_rectangle;
+	context.frame = {
+			left:0, 
+			right: bounding_rectangle.right - bounding_rectangle.left,
+			top:0,
+			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
 }
