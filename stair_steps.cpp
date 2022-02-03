@@ -74,7 +74,7 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 	}
 //ORDER each adjacency list BY rectangle width DESC. This is to make sure that lower steps of the stairway are larger.
 	for (vector<MyRect*>& adj : unordered_adjacency_list)
-		sort(adj.begin(), adj.end(), [&](MyRect* ri, MyRect* rj){return width(*ri) > width(*rj) ;}) ;
+		ranges::sort(adj, ranges::greater, [&](MyRect* r){return width(*r);}) ;
 
 	for (MyRect& r : rectangles)
 		r.selected = false ;
