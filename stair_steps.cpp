@@ -74,7 +74,7 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 	}
 //ORDER each adjacency list BY rectangle width DESC. This is to make sure that lower steps of the stairway are larger.
 	for (vector<MyRect*>& adj : unordered_adjacency_list)
-		ranges::sort(adj, ranges::greater, [&](MyRect* r){return width(*r);}) ;
+		ranges::sort(adj, ranges::greater(), [&](MyRect* r){return width(*r);}) ;
 
 	for (MyRect& r : rectangles)
 		r.selected = false ;
@@ -230,14 +230,14 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 void composite_from_selected_rectangles(vector<WidgetContext> &rects, vector<vector<MPD_Arc> > &adjacency_list)
 {
 	int n = rects.size() ;
-	int not_selected = count_if(rects.begin(), rects.end(), [](const WidgetContext& widget){return widget.r.selected==false ;}) ;
+	int not_selected = ranges::count_if(rects, [](const WidgetContext& widget){return widget.r.selected==false ;}) ;
 	int selected = rects.size() - not_selected ;
 
 //1) calcule de la matrice de permutation
 	vector<int> permutation(n) ;
-	iota(permutation.begin(), permutation.end(), 0) ;
+	ranges::copy(views::iota(0, n), begin(permutation)) ;
 //on met les selectionnes a droite.
-	sort(permutation.begin(), permutation.end(), [&](int i,int j){return rects[i].r.selected < rects[j].r.selected; }) ;
+	ranges::sort(permutation, {}, [&](int i){return rects[i].r.selected; }) ;
 	permutation = compute_reverse_permutation(permutation) ;
 	PermutationMatrix<Dynamic> perm(n) ;
 	for (int i=0; i < n; i++)
@@ -294,7 +294,7 @@ bool stair_steps_(vector<MyRect> &rectangles, vector<vector<MPD_Arc> > &adj_list
 			widget.r.selected = false ;
 		}
 
-		while(int not_selected = count_if(rects.begin(), rects.end(), [](const WidgetContext& widget){return widget.r.selected==false ;}))
+		while(int not_selected = ranges::count_if(rects, [](const WidgetContext& widget){return widget.r.selected==false ;}))
 		{
 			int selected = rects.size() - not_selected ;
 			int n = rects.size() ;
@@ -860,7 +860,7 @@ void test_stair_steps(int rect_border)
 		}
 		ctx.frame = compute_frame(ctx.rectangles) ;
 
-                sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect &r1, MyRect &r2){return r1.no_sequence < r2.no_sequence;});
+                ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
                 vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
@@ -1775,7 +1775,7 @@ void test_stair_steps_layout()
 
 		stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 		ctx.frame = compute_frame(ctx.rectangles) ;
-                sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect &r1, MyRect &r2){return r1.no_sequence < r2.no_sequence;});
+                ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
                 vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
@@ -1865,7 +1865,7 @@ void compute_contexts(vector<MyRect> &rectangles,
 	vector<int> connected_component(n, -1) ;
 	connected_components(compute_adjacency_list(W), connected_component) ;
 
-	int nr_comp = 1 + *max_element(connected_component.begin(), connected_component.end()) ;
+	int nr_comp = 1 + *ranges::max_element(connected_component) ;
 	vector<int> component_distribution(nr_comp, 0) ;
 	for (int comp : connected_component)
 		component_distribution[comp]++;
@@ -1887,11 +1887,11 @@ n3|     |       |  cc3      |
 */
 //to create a permutation matrix, permute the columns of the identity matrix.
 	vector<int> permutation1(n) ;
-	iota(permutation1.begin(), permutation1.end(), 0) ;
-	sort(permutation1.begin(), permutation1.end(), [&](int i,int j){return connected_component[i] < connected_component[j];}) ;
+	ranges::copy(views::iota(0,n), begin(permutation1)) ;
+	ranges::sort(permutation1, {}, [&](int i){return connected_component[i];}) ;
 	permutation1 = compute_reverse_permutation(permutation1) ;
 	PermutationMatrix<Dynamic> perm1(n) ;
-	copy(permutation1.begin(), permutation1.end(), perm1.indices().data()) ;
+	ranges::copy(permutation1, perm1.indices().data()) ;
 
 	Matrix<int8_t,-1,-1> OW = Matrix<int8_t,-1,-1>::Zero(n, n) ;	//Oriented Weights
 
@@ -2032,7 +2032,7 @@ perm * A : permute rows
 				float lower_bound = 1.0, upper_bound, spread = 0.001 ;
 				
 				auto tree_layout = [&](float factor){
-					copy(rects.begin(), rects.end(), ctx2.rectangles.begin()) ;
+					ranges::copy(rects, ctx2.rectangles.begin()) ;
 					rr = expand(rr, factor) ;
 					return stair_steps(ctx2.rectangles, rr, ctx2.adjacency_list) ;
 				} ;
@@ -2656,7 +2656,7 @@ void test_stair_steps_layout_from_111_boxes()
         int c=0;
         for (Context &ctx : contexts)
         {
-            sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect &r1, MyRect &r2){return r1.no_sequence < r2.no_sequence;});
+            ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
             vector<TranslatedBox> translations;
             for (MyRect &r : ctx.rectangles)
                 translations.push_back({r.no_sequence,{width(r), height(r)}});
@@ -2767,7 +2767,7 @@ bool minimum_cut(const MatrixXd& W,
 
 	std::vector<double*> evp(n) ;
 	transform(ev.data(), ev.data()+n, evp.data(), [](double& val){return &val;}) ; 
-	sort(evp.begin(), evp.end(), [](double *p1, double *p2){return *p1 < *p2;}) ;
+	ranges::sort(evp, {}, [](double *p){return *p;}) ;
 /*
 non null eigenvalues => each corresponds to a cut.
 */
@@ -2786,8 +2786,8 @@ non null eigenvalues => each corresponds to a cut.
 		const char *initname = "random" ;//either "random" or "plusplus"
 		vector<double> Mu_OUT(K), Z_OUT(n) ;
 		RunKMeans(fiedler_vector.data(), n, DD, K, Niter, seed, initname, &Mu_OUT[0], &Z_OUT[0]);
-		n1 = count(Z_OUT.begin(), Z_OUT.end(), 1.0) ;
-		n2 = count(Z_OUT.begin(), Z_OUT.end(), 0.0) ;
+		n1 = ranges::count(Z_OUT, 1.0) ;
+		n2 = ranges::count(Z_OUT, 0.0) ;
 
 		if (n1 == 0 || n2 == 0)
 			return false ;
@@ -2803,14 +2803,14 @@ non null eigenvalues => each corresponds to a cut.
 			adj[arc->_i].push_back(*arc) ;
 		}
 		connected_components(adj, cc) ;
-		int nr_comp = 1 + *max_element(cc.begin(), cc.end()) ;
+		int nr_comp = 1 + *ranges::max_element(cc) ;
 		vector<int> distribution(nr_comp, 0) ;
 		for (int comp : cc)
 			distribution[comp]++ ;
 		vector<int> component(nr_comp) ;
 		for (int comp=0; comp < nr_comp; comp++)
 			component[comp] = comp ;
-		std::sort(component.begin(), component.end(), [&](int comp1, int comp2){return distribution[comp1] < distribution[comp2] ;}) ;
+		ranges::sort(component, {}, [&](int comp){return distribution[comp]; }) ;
 		if (component.size() < 2)
 			return false ;
 		component.pop_back() ;
@@ -2824,8 +2824,8 @@ non null eigenvalues => each corresponds to a cut.
 				Z_OUT[i] = 1 - Z_OUT[i] ;
 			}
 		}
-		n1 = count(Z_OUT.begin(), Z_OUT.end(), 1.0) ;
-		n2 = count(Z_OUT.begin(), Z_OUT.end(), 0.0) ;
+		n1 = ranges::count(Z_OUT, 1.0) ;
+		n2 = ranges::count(Z_OUT, 0.0) ;
 
 		adj = vector<vector<MPD_Arc> >(n) ;
 		cc = vector<int>(n,0) ;
@@ -2836,14 +2836,14 @@ non null eigenvalues => each corresponds to a cut.
 			adj[arc->_i].push_back(*arc) ;
 		}
 		connected_components(adj, cc) ;
-		nr_comp = 1 + *max_element(cc.begin(), cc.end()) ;
+		nr_comp = 1 + *ranges::max_element(cc) ;
 
 //to create a permutation matrix, permute the columns of the identity matrix
 		vector<int> permutation2(n) ;
-		iota(permutation2.begin(), permutation2.end(), 0) ;
-		std::sort(permutation2.begin(), permutation2.end(), [&](int i,int j){return Z_OUT[i] > Z_OUT[j];}) ;
+		ranges::copy(views::iota(0,n), begin(permutation2)) ;
+		ranges::sort(permutation2, ranges::greater(), [&](int i){return Z_OUT[i];}) ;
 		permutation2 = compute_reverse_permutation(permutation2) ;
-		copy(permutation2.begin(), permutation2.end(), perm2.indices().data()) ;
+		ranges::copy(permutation2, perm2.indices().data()) ;
 /*
 		P2 = MatrixXd::Zero(n,n) ;
 		for (int i=0 ; i < n; i++)
@@ -2900,21 +2900,21 @@ n2|  C  |        D          |
 	connected_components(compute_adjacency_list( (perm2 * W * perm2.transpose()).block(n1, n1, n2, n2) ),
 						  cc2) ;
 	for (int &comp : cc2)
-		comp += 1 + *max_element(cc1.begin(), cc1.end()) ;
+		comp += 1 + *ranges::max_element(cc1) ;
 	vector<int> connected_component ;
-	copy(cc1.begin(), cc1.end(), back_inserter(connected_component)) ;
-	copy(cc2.begin(), cc2.end(), back_inserter(connected_component)) ;
-	int nr_comp = 1 + *max_element(connected_component.begin(), connected_component.end()) ;
+	ranges::copy(cc1, back_inserter(connected_component)) ;
+	ranges::copy(cc2, back_inserter(connected_component)) ;
+	int nr_comp = 1 + *ranges::max_element(connected_component) ;
 	component_distribution = vector<int>(nr_comp, 0) ;
 	for (int comp : connected_component)
 		component_distribution[comp]++;
 
 	vector<int> permutation(n) ;
-	iota(permutation.begin(), permutation.end(), 0) ;
-	sort(permutation.begin(), permutation.end(), [&](int i,int j){return connected_component[i] < connected_component[j];}) ;
+	ranges::copy(views::iota(0,n), begin(permutation)) ;
+	ranges::sort(permutation, {}, [&](int i){return connected_component[i];}) ;
 	permutation = compute_reverse_permutation(permutation) ;
 	PermutationMatrix<Dynamic> perm1(n) ;
-	copy(permutation.begin(), permutation.end(), perm1.indices().data()) ;
+	ranges::copy(permutation, perm1.indices().data()) ;
 /*
 //output: P1, component_distribution
 	MatrixXd P1 = MatrixXd::Zero(n,n) ;
