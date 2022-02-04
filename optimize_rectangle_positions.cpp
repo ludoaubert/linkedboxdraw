@@ -133,7 +133,7 @@ void generate_candidate_nodes(int parent_node_index,
                 decision_tree.push_back(DecisionTreeNode_{parent_node_index, rr.m_left, rr.m_top, (int8_t)rr.i, _diameter, _distance, _intersection_penalty}) ;
 		measures.push_back(_diameter + _distance + _intersection_penalty) ;
 		priority_queue.push_back(node_index) ;
-		push_heap(priority_queue.begin(), priority_queue.end(), [&](int i, int j){return measures[i] > measures[j];});
+		ranges::push_heap(priority_queue, ranges::greater(), [&](int i){return measures[i];});
 	}
 }
 
@@ -152,7 +152,7 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 
 	while (true)
 	{
-		MyRect& r = *min_element(rectangles.begin(), rectangles.end(), [&](MyRect& r1, MyRect& r2){return frame_dim_max(rectangles-r1)<frame_dim_max(rectangles-r2);}) ;
+		MyRect& r = *ranges::min_element(rectangles, {}, [&](MyRect& r){return frame_dim_max(rectangles-r);}) ;
 		vector<DecisionTreeNode_> decision_tree ;
 		vector<int16_t> measures;
 		vector<int> priority_queue ;
@@ -182,7 +182,7 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 		{
 			loop_counter++ ;
 
-			pop_heap(priority_queue.begin(), priority_queue.end(), [&](int i, int j){return measures[i] > measures[j];});
+			ranges::pop_heap(priority_queue, ranges::greater(), [&](int i){return measures[i];});
 			int node_index = priority_queue.back();
 			DecisionTreeNode_ n = decision_tree[node_index];
 			priority_queue.pop_back() ;
@@ -190,7 +190,7 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 		//look for intersections: 2 rectangles that intersect. retrieve the list of translated rectangles from the ancestors
 
                         rectangles_ = rectangles ;
-                        fill(begin(translated_ancestors), end(translated_ancestors), false) ;
+                        std::fill(translated_ancestors.begin(), translated_ancestors.end(), false) ;
 			int depth = 0;
 
                         for (int i=node_index; i!=-1; i=decision_tree[i].parent_node_index)
@@ -202,7 +202,7 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 				r.m_right = int16_t(p.left + width(r));
 				r.m_bottom = int16_t(p.top + height(r));
                                 r.m_left = p.left ;
-                                r.m_top = p.top;				
+                                r.m_top = p.top;
 			}
 
 			if (depth == MAX_TREE_DEPTH)
@@ -236,13 +236,12 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 		}
 
 
-		DecisionTreeNode_ &n = *min_element(
-			decision_tree.begin(),
-			decision_tree.end(), 
-			[&](DecisionTreeNode_& n1, DecisionTreeNode_& n2){
-				int i1 = distance(&decision_tree[0], &n1);
-				int i2 = distance(&decision_tree[0], &n2);
-				return measures[i1] + n1.intersection_penalty*1000 < measures[i2] + n2.intersection_penalty*1000;
+		DecisionTreeNode_ &n = *ranges::min_element(
+			decision_tree,
+			{},
+			[&](DecisionTreeNode_& n){
+				int i = distance(&decision_tree[0], &n);
+				return measures[i] + n.intersection_penalty*1000;
 			}
 		) ;
 
