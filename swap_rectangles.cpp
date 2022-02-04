@@ -87,7 +87,7 @@ void swap_rectangles(vector<MyRect> &rectangles, vector<const MPD_Arc*> edges, v
 			{
 				for (RectCorner rcj : RectCorners)
 				{
-					std::copy(rectangles.begin(), rectangles.end(), rectangles_.begin()) ;
+					ranges::copy(rectangles, rectangles_.begin()) ;
 					MyRect &ri = rectangles_[i], &rj = rectangles_[j] ;
 
 					MyPoint translation_ri = corner(rj, rci) - corner(ri, rci) ;
@@ -156,7 +156,7 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 			for (DecisionTreeNode* p=&parent_node; p!=0; p=p->parent_index==-1 ? 0 : &decision_tree[p->parent_index])
 				ancestors[--ind]=p ;
 
-			std::copy(rectangles.begin(), rectangles.end(), _rectangles.begin()) ;
+			ranges::copy(rectangles, _rectangles.begin()) ;
 			for (DecisionTreeNode *node : ancestors)
 			{
 				MyRect &ri = _rectangles[node->i], &rj = _rectangles[node->j] ;
@@ -180,7 +180,7 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 
 						for (MyRect* ri : r2)
 						{
-							std::copy(_rectangles.begin(), _rectangles.end(), rectangles_.begin()) ;
+							ranges::copy(_rectangles, rectangles_.begin()) ;
 //TODO: appliquer les swap des parents
 
 							MyPoint translate_ri = corner(rk, rci) - corner(*ri, rci) ;
@@ -221,7 +221,7 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 		}
 	}
 
-	auto it = min_element(decision_tree.begin(), decision_tree.end(), [](DecisionTreeNode& node1, DecisionTreeNode& node2){return node1.edge_distance < node2.edge_distance;}) ;
+	auto it = ranges::min_element(decision_tree, {}, [](DecisionTreeNode& node){return node.edge_distance;}) ;
 
 	DecisionTreeNode *node = &* it ;
 	if (node->edge_distance >= edge_distance)
