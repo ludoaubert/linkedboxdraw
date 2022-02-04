@@ -39,6 +39,7 @@ extern const int RECT_BORDER ;
 struct MyPoint
 {
 	int16_t x, y ;
+	bool operator==(const MyPoint&) const = default;
 } ;
 
 
@@ -48,16 +49,6 @@ inline MyPoint operator-(const MyPoint& p)
         result.x = -p.x ;
         result.y = -p.y ;
         return result ;
-}
-
-inline bool operator==(const MyPoint& p1, const MyPoint& p2)
-{
-        return p1.x==p2.x && p1.y==p2.y ;
-}
-
-inline bool operator!=(const MyPoint& p1, const MyPoint& p2)
-{
-        return p1.x!=p2.x || p1.y!=p2.y ;
 }
 
 inline MyPoint operator-(const MyPoint& p1, const MyPoint& p2)
