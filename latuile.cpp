@@ -193,7 +193,7 @@ void test()
     for (int i=0; i < contexts.size(); i++)
     {
         Context &ctx = contexts[i];
-        sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+        ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
         MyRect &frame = ctx.frame;
         printf("frame={%d, %d, %d, %d}\n", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
         for (MyRect& rec : ctx.rectangles)
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
 
 		if (!check)
 			return false;
-	
+
 		parse_command(args["--rectdim"], args["--links"], rectangles, edges);
 
 		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 //on ne conserve que les rectangles
         for (Context &ctx : contexts)
         {
-            sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+            ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
         }
 		char res[100000];
         write_json(contexts, res);
@@ -312,7 +312,7 @@ const char* latuile(const char *rectdim, const char *slinks)
 {
 	vector<MyRect> rectangles;
 	vector<MPD_Arc> edges;
-	
+
 	parse_command(rectdim, slinks, rectangles, edges);
 
 	vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
@@ -324,12 +324,12 @@ const char* latuile(const char *rectdim, const char *slinks)
 //on ne conserve que les rectangles
 	for (Context &ctx : contexts)
 	{
-		sort(begin(ctx.rectangles), end(ctx.rectangles), [](MyRect& r1, MyRect& r2){return r1.no_sequence < r2.no_sequence;});
+		ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
 	}
 	static char res[100000];
 	write_json(contexts, res);
 	return res;
-}	
+}
 }
 
 /*
