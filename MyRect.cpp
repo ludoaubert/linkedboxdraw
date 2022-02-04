@@ -23,12 +23,6 @@ const int RECT_BORDER = 20 ;
 
 
 
-bool operator==(const TranslatedBox& tb1, const TranslatedBox& tb2)
-{
-    return memcmp(&tb1, &tb2, sizeof(TranslatedBox))==0; 
-}
-
-
 MyRect::MyRect(initializer_list<int> il)
 {
 	auto it = il.begin();
@@ -190,7 +184,7 @@ bool range_intersect_strict(int16_t left1, int16_t right1, int16_t left2, int16_
 
 
 int edge_overlap(const MyRect& r1, const MyRect& r2)
-{		
+{
 	if (r1.m_left == r2.m_right || r1.m_right == r2.m_left)
 		return range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
 	else if (r1.m_top == r2.m_bottom || r1.m_bottom == r2.m_top)

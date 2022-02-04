@@ -110,9 +110,12 @@ struct MyRect
 } ;
 
 
-struct TranslatedBox{int16_t id; MyPoint translation;};
-
-bool operator==(const TranslatedBox& tb1, const TranslatedBox& tb2);
+struct TranslatedBox
+{
+	int16_t id;
+	MyPoint translation;
+	bool operator==(const TranslatedBox&) const = default;
+};
 
 
 bool operator==(const MyRect& r1, const MyRect& r2) ;
