@@ -173,13 +173,13 @@ void binpack(vector<BPBlock>& blocks, int &w, int &h)
 	root_node.id = 0 ;
 	vector<BPNode> nodes ;
 	nodes.push_back(root_node) ;
-        
-	sort(blocks.rbegin(), blocks.rend(), [](BPBlock& b1, BPBlock& b2){return b1.h*b1.w < b2.h*b2.w; }) ;
+
+	ranges::sort(blocks, ranges::greater(), [](BPBlock& b){return b.h*b.w; }) ;
 
 	for (BPBlock& block : blocks)
 	{
-		sort(nodes.begin(), nodes.end(), [](BPNode& n1, BPNode& n2){return n1.w*n1.h < n2.w*n2.h ;}) ;
-		
+		ranges::sort(nodes, {}, [](BPNode& n){return n.w*n.h ;}) ;
+
 		int n = nodes.size() ;
 
 		for (int i=0; i < nodes.size(); i++)
@@ -520,8 +520,8 @@ void collapse(vector<MyRect> &rectangles)
 
 	while (true)
 	{
-		MyRect * r1 = * max_element(rects.begin(), rects.end(), [](MyRect* r1, MyRect* r2){return r1->m_right<r2->m_right;}) ;
-	
+		MyRect * r1 = * ranges::max_element(rects, {}, [](MyRect* r){return r->m_right;}) ;
+
 		vector<MyRect> neighboors ;
 
 		for (MyRect *r2: rects)
@@ -614,8 +614,8 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 //remove duplicates.
 		{
 			vector<MyRect> v ;
-			sort(selected_neighboors.begin(), selected_neighboors.end()) ;
-			unique_copy(selected_neighboors.begin(), selected_neighboors.end(), back_inserter(v)) ;
+			std::sort(selected_neighboors.begin(), selected_neighboors.end()) ;
+			ranges::unique_copy(selected_neighboors, back_inserter(v)) ;
 			selected_neighboors = v ;
 		}
 
@@ -640,7 +640,7 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 			fprintf(f, "(%d,%d,%d,%d) widht=%d height=%d\n", h.m_left, h.m_right, h.m_top, h.m_bottom, width(h), height(h)) ;
 
 		MyRect *selected_hole=0, *selected_horizontal_strip=0, *selection=0 ;
-		std::sort(holes.rbegin(), holes.rend(), [](MyRect& r1, MyRect& r2){return width(r1)*height(r1) < width(r2)*height(r2);}) ;
+		ranges::sort(holes, ranges::greater(), [](MyRect& r){return width(r)*height(r);}) ;
 		for (MyRect &hole : holes)
 		{
 			if (width(hole)>=width(*r1) && height(hole)>=width(*r1))
@@ -649,7 +649,7 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 				break ;
 			}
 		}
-		std::sort(right_edge.begin(), right_edge.end(), [](MyRect& r1, MyRect& r2){return r1.m_left < r2.m_left;}) ;
+		ranges::sort(right_edge, {}, [](MyRect& r){return r.m_left;}) ;
 		for (MyRect &strip : right_edge)
 		{
 			if (height(strip) >= height(*r1) && strip.m_left < r1->m_left)
@@ -686,7 +686,7 @@ void gravity(vector<MyRect> &rectangles)
 	for (MyRect &r : rectangles)
 		rects.push_back(&r) ;
 
-	std::sort(rects.begin(), rects.end(), [](MyRect* r1, MyRect* r2){return r1->m_left<r2->m_left;}) ;
+	ranges::sort(rects, {}, [](MyRect* r){return r->m_left;}) ;
 
 	for (MyRect *r1 : rects)
 	{
