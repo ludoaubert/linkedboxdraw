@@ -13,8 +13,8 @@ bool compact_rectangles(vector<MyRect> &rectangles, const vector<vector<MPD_Arc>
 {	
         FunctionTimer ft("compact_rectangles");
 
-	auto it = min_element(rectangles.begin(), rectangles.end(), [&](const MyRect& r1, const MyRect& r2){
-		return frame_diameter(rectangles - r1) < frame_diameter(rectangles - r2) ;
+	auto it = ranges::min_element(rectangles, {}, [&](const MyRect& r){
+		return frame_diameter(rectangles - r) ;
 		}
 	) ;
 	
