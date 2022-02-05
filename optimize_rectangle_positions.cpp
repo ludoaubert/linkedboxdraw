@@ -73,12 +73,12 @@ int measure(const vector<MyRect> &rectangles, const vector<MPD_Arc>& edges, int&
 }
 
 
-				 
-void generate_candidate_nodes(int parent_node_index, 
+
+void generate_candidate_nodes(int parent_node_index,
 				const vector<MyRect> &rectangles,
 				MyRect r,
 				const vector<vector<MPD_Arc> >& unordered_edges,
-				int diameter_, 
+				int diameter_,
 				int distance_,
 				int intersection_penalty_,
 				vector<DecisionTreeNode_>& decision_tree,
@@ -98,7 +98,7 @@ void generate_candidate_nodes(int parent_node_index,
                 frame.m_top = min(frame.m_top, rec.m_top) ;
                 frame.m_bottom = max(frame.m_bottom, rec.m_bottom) ;
         }
-	
+
 	for (MyPoint& translation : generate_candidate_translations(rectangles, r))
 	{
 		int16_t _diameter = diameter_ ;
@@ -159,16 +159,16 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 		int parent_node_index = -1 ;
 		int diameter_, distance_, intersection_penalty_ ;
 		measure(rectangles, edges, diameter_, distance_, intersection_penalty_) ;
-		generate_candidate_nodes(parent_node_index, 
+		generate_candidate_nodes(parent_node_index,
 					rectangles,
 					r,
 					unordered_edges,
 					diameter_,
 					distance_,
-					intersection_penalty_, 
+					intersection_penalty_,
 					decision_tree,
 					measures,
-					priority_queue) ;	
+					priority_queue) ;
 
 		vector<MyRect> rectangles_ = rectangles ;
                 vector<bool> translated_ancestors(n) ;
@@ -271,7 +271,7 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 			break ;
 		}
 	}
-} 
+}
 
 
 void test_optimize_rectangle_positions()
@@ -340,6 +340,9 @@ void test_optimize_rectangle_positions()
 	}
 
 	optimize_rectangle_positions(rectangles, adjacency_list) ;
+
+	for (MyRect &r : rectangles)
+		r.i = -1 ;
 
         printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
 }

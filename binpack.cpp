@@ -31,7 +31,7 @@ struct BPNode
 		this->x = x ;
 		this->y = y ;
 		suppress_id[0] = suppress_id[1] = -1 ;
-	}	
+	}
     int w,h,x,y ;
 	bool used ;
 
@@ -69,19 +69,19 @@ void split_and_fit(BPBlock& b, vector<BPNode>& nodes)
 //move bb to the top left corner of ni
 		bb.x = ni.x ;
 		bb.y = ni.y ;
-		
+
 		stack<MyRect> sub_rects ;
 		sub_rects.push(rect(bb)) ;
 //update a copy of the nodes. It will be committed back if successful.
 		vector<BPNode> mynodes = nodes ;
-		
+
 		for (int j=0; !sub_rects.empty() && j < mynodes.size(); j++)
 		{
 			BPNode &nj = mynodes[j] ;
 			if (nj.used)
 				continue ;
 			MyRect r = sub_rects.top() ;
-			
+
 			if (!intersect_strict(r, rect(nj)))
 				continue ;
 
@@ -145,8 +145,8 @@ or
 |node_down |                     |
 +----------+--------------------+
 */
-        
-    
+
+
 void split1(BPNode& node, const BPBlock& block, BPNode& node_down, BPNode& node_right)
 {
 	node_down = BPNode(node.w, node.h - block.h, node.x, node.y + block.h) ;
@@ -199,7 +199,7 @@ void binpack(vector<BPBlock>& blocks, int &w, int &h)
 
 				BPNode node_down, node_right ;
 				split1(nodes[i], block, node_down, node_right) ;
-                
+
 				node_down.suppress_id[0] = node_right.suppress_id[0] = n+2 ;
 				node_down.suppress_id[1] = node_right.suppress_id[1] = n+3 ;
 
@@ -214,7 +214,7 @@ void binpack(vector<BPBlock>& blocks, int &w, int &h)
 
 				node_down.suppress_id[0] = node_right.suppress_id[0] = n ;
 				node_down.suppress_id[1] = node_right.suppress_id[1] = n+1 ;
-                
+
 				assert (node_down.w >= 0 && node_down.h >= 0) ;
 				node_down.id = n+2 ;
 				nodes.push_back(node_down) ;
@@ -341,7 +341,7 @@ or
 	h = root_node.h ;
 }
 
- 
+
 void test_binpack()
 {
         TestFunctionTimer ft("test_binpack");
@@ -367,7 +367,7 @@ void test_binpack()
 				{0,280,525,540}
                 	}
 		},
-	
+
 		{//test 2
 			/*rectangles*/ {
 				{0,181,0,56},
@@ -397,12 +397,12 @@ void test_binpack()
 				{0,173,0,248},
 				{0,162,0,152},
 				{0,126,0,88},
-			
+
 				{0,114,0,56},
 				{0,131,0,56},
 				{0,116,0,88},
 				{0,96,0,40},
-			
+
 				{0,66,0,56},
 				{0,109,0,104},
 				{0,104,0,72},
@@ -455,7 +455,7 @@ void test_split_and_fit()
         TestFunctionTimer ft("test_split_and_fit");
 
 	BPBlock block(3,2) ;
-	
+
 	vector<MyRect> rectangles = {
 		{2,2,0,0},
 		{2,2,2,0}
@@ -614,7 +614,7 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 //remove duplicates.
 		{
 			vector<MyRect> v ;
-			std::sort(selected_neighboors.begin(), selected_neighboors.end()) ;
+			ranges::sort(selected_neighboors) ;
 			ranges::unique_copy(selected_neighboors, back_inserter(v)) ;
 			selected_neighboors = v ;
 		}

@@ -10,14 +10,14 @@ using namespace std ;
 
 
 bool compact_rectangles(vector<MyRect> &rectangles, const vector<vector<MPD_Arc> >& adjacency_list)
-{	
+{
         FunctionTimer ft("compact_rectangles");
 
 	auto it = ranges::min_element(rectangles, {}, [&](const MyRect& r){
 		return frame_diameter(rectangles - r) ;
 		}
 	) ;
-	
+
 	MyRect *rr = &*it ;
 
 	int n = rectangles.size() ;
@@ -156,6 +156,9 @@ void test_compact_rectangles()
 		adjacency_list[i].push_back(MPD_Arc{i,j}) ;
 	}
 	compact_rectangles(rectangles, adjacency_list) ;
+
+	for (MyRect& r : rectangles)
+		r.i=-1;
 
         printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
 }

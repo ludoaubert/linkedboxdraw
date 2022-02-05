@@ -22,15 +22,6 @@ const int FRAME_BORDER = 30 ;
 const int RECT_BORDER = 20 ;
 
 
-bool operator==(const MyRect& r1, const MyRect& r2)
-{
-	return r1.m_left==r2.m_left &&
-		r1.m_right==r2.m_right &&
-		r1.m_top==r2.m_top &&
-		r1.m_bottom==r2.m_bottom ;
-}
-
-
 void expand_by(MyRect& r, int border) 
 {
 	r.m_left -= border ;
@@ -70,21 +61,6 @@ vector<MyRect> operator-(const vector<MyRect>& rectangles, const MyRect& r)
 		back_inserter(rectangles_), [&](const MyRect& rr){return rr == r;}
 	) ;
 	return rectangles_ ;
-}
-
-
-bool operator<(const MyRect& r1, const MyRect& r2)
-{
-	if (r1.m_left != r2.m_left)
-		return r1.m_left < r2.m_left;
-	if (r1.m_right != r2.m_right)
-		return r1.m_right < r2.m_right;
-	if (r1.m_top != r2.m_top)
-		return r1.m_top < r2.m_top;
-	if (r1.m_bottom != r2.m_bottom)
-		return r1.m_bottom < r2.m_bottom;
-	//if we got here, r1==r2
-	return false;
 }
 
 

@@ -104,6 +104,8 @@ struct MyRect
 	int16_t no_sequence=0 ;
 	int16_t i=-1 ;
 	bool selected=false ;
+
+	auto operator<=>(const MyRect&) const = default;
 } ;
 
 
@@ -113,10 +115,6 @@ struct TranslatedBox
 	MyPoint translation;
 	bool operator==(const TranslatedBox&) const = default;
 };
-
-
-bool operator==(const MyRect& r1, const MyRect& r2) ;
-bool operator<(const MyRect& r1, const MyRect& r2);
 
 
 inline int width(const MyRect& r)
