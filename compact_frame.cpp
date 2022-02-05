@@ -43,7 +43,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		vector<int> index2partition(n,0) ;
 		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
 		MyPoint translation = {0,0} ;
-		
+
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
@@ -63,9 +63,9 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			translation.y = -1 ;
 			break ;
 		}
-		 
+
 		stack<MyRect> my_stack ;
-		 
+
 		for (const MyRect &r : rectangles)
 		{
 			if (intersect(rake, r))
@@ -73,7 +73,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				my_stack.push(r) ;
 			}
 		}
-		 
+
 		while (!my_stack.empty())
 		{
 			const MyRect r = my_stack.top() ;
@@ -89,7 +89,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
 					my_stack.push(rj) ;
 			}
-			
+
 			for (const MyRect& rr : rectangles)
 			{
 				if (rr.i == r.i)
@@ -103,7 +103,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 		if (index_from(index2partition, 0)==-1 || index_from(index2partition, 1)==-1)
 			continue ;
-		 
+
 		bool collision = false ;
 
 		while (collision == false)
@@ -116,7 +116,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 						 collision = true ;
 				 }
 			}
-		 
+
 			if (collision)
 				continue ;
 
@@ -146,6 +146,8 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 void test_compact_frame()
 {
+	TestFunctionTimer ft("test_compact_frame");
+
 	{
 		vector<MyRect> rectangles = {
 			{209,411,352,672},//datamart_metric
@@ -159,7 +161,7 @@ void test_compact_frame()
 			{641,836,272,464},//folder_preference
 			{411,641,160,672} //sfuser
 		};
-	
+
 		int edges[11][2]={
 			{0,7},
 			{0,9},
@@ -174,6 +176,19 @@ void test_compact_frame()
 			{9,9}
 		};
 
+		const vector<MyRect> expected_rectangles = {
+			{209,411,352,672},
+			{495,641,0,160},
+			{0,188,224,352},
+			{641,843,464,672},
+			{641,829,144,272},
+			{-14,209,608,720},
+			{21,209,352,480},
+			{188,390,96,352},
+			{641,836,272,464},
+			{411,641,160,672}
+		};
+
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(10) ;
@@ -183,6 +198,11 @@ void test_compact_frame()
 			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
+
+		for (MyRect& r : rectangles)
+			r.i=-1;
+
+        	printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
 	}
 
 	{
@@ -195,6 +215,11 @@ void test_compact_frame()
 			{0,1}
 		} ;
 
+		const vector<MyRect> expected_rectangles = {
+			{0,10,10,20},
+			{0,10,20,30}
+		};
+
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(2) ;
@@ -204,5 +229,10 @@ void test_compact_frame()
 			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
+
+		for (MyRect& r : rectangles)
+			r.i=-1;
+
+        	printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
 	}
 }

@@ -17,6 +17,7 @@
 #include "permutation.h"
 #include "stair_steps.h"
 #include "compact_rectangles.h"
+#include "compact_frame.h"
 #include "fit_together.h"
 #include "optimize_rectangle_positions.h"
 #include "swap_rectangles.h"
@@ -251,8 +252,9 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		test();
-        test_optimize_rectangle_positions();
+        	test_optimize_rectangle_positions();
 		test_compact_rectangles();
+		test_compact_frame();
 		test_fit_together();
 		test_swap_rectangles();
 		test_binpack();
