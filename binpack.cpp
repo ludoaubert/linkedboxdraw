@@ -613,10 +613,9 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 
 //remove duplicates.
 		{
-			vector<MyRect> v ;
 			ranges::sort(selected_neighboors) ;
-			ranges::unique_copy(selected_neighboors, back_inserter(v)) ;
-			selected_neighboors = v ;
+			auto r = ranges::unique(selected_neighboors) ;
+			selected_neighboors.resize(r.size()) ;
 		}
 
 		vector<MyRect> holes, right_edge ;
