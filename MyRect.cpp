@@ -22,26 +22,6 @@ const int FRAME_BORDER = 30 ;
 const int RECT_BORDER = 20 ;
 
 
-
-MyRect::MyRect(initializer_list<int> il)
-{
-	auto it = il.begin();
-	m_left = *it++;
-	m_right = *it++;
-	m_top = *it++;
-	m_bottom = *it++;
-        if (it != il.end())
-            no_sequence = *it++;
-        if (it != il.end())
-            i = *it++;
-        if (it != il.end())
-            selected = *it++;
-}
-
-MyRect::MyRect()
-{}
-
-
 bool operator==(const MyRect& r1, const MyRect& r2)
 {
 	return r1.m_left==r2.m_left &&

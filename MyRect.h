@@ -10,7 +10,6 @@
 
 
 #include <vector>
-#include <initializer_list>
 #include <algorithm>
 #include <stdint.h>
 
@@ -81,7 +80,7 @@ enum RectCorner
 const RectCorner RectCorners[4]={TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT} ;
 
 
-enum RectDim 
+enum RectDim
 {
   LEFT,
   RIGHT,
@@ -92,7 +91,7 @@ enum RectDim
 
 const RectDim RectDims[NR_RECT_DIMENSIONS]=
 {
-   RectDim::LEFT, 
+   RectDim::LEFT,
    RectDim::RIGHT,
    RectDim::TOP,
    RectDim::BOTTOM
@@ -101,8 +100,6 @@ const RectDim RectDims[NR_RECT_DIMENSIONS]=
 
 struct MyRect
 {
-	MyRect(std::initializer_list<int> i);
-	MyRect();
 	int16_t m_left=0, m_right=0, m_top=0, m_bottom=0 ;
 	int16_t no_sequence=0 ;
 	int16_t i=-1 ;
