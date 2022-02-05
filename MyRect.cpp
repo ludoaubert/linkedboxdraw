@@ -55,9 +55,8 @@ int16_t frame_dim_max(const vector<MyRect>& rectangles)
 vector<MyRect> operator-(const vector<MyRect>& rectangles, const MyRect& r)
 {
 	vector<MyRect> rectangles_ ;
-	std::remove_copy_if(
-		rectangles.begin(),
-		rectangles.end(), 
+	ranges::remove_copy_if(
+		rectangles,
 		back_inserter(rectangles_), [&](const MyRect& rr){return rr == r;}
 	) ;
 	return rectangles_ ;
