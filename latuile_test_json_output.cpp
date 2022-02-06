@@ -13,12 +13,16 @@ void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 {
 	char file_name[100];
         sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, test_number);
+
         sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, test_number);
 	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, test_number);
-test-reg-5-diagdata.json
+
 
 	char buffer[10 * 1024];
 	int pos = 0;
+
+	MyRect frame = compute_frame(input_rectangles);
+	expand_by(frame, FRAME_BORDER);
 
 	pos += sprintf(buffer + pos, R"(
 {"contexts":[{
@@ -27,7 +31,7 @@ test-reg-5-diagdata.json
 )", frame.left, frame.right, frame.top, frame.bottom);
 
 	int i=0;
-	for (const auto& [left, right, top, bottom] : rects)
+	for (const auto& [left, right, top, bottom] : input_rectangles)
 	{
 		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
 	}
