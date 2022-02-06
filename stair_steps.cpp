@@ -840,7 +840,7 @@ void test_stair_steps(int rect_border)
 	        }
 
 		const vector<MyRect> input_rectangles = ctx.rectangles;
-	
+
 		for (MyRect &r : ctx.rectangles)
 		{
 			r.m_right += 2*rect_border ;
@@ -859,14 +859,6 @@ void test_stair_steps(int rect_border)
 		}
 		ctx.frame = compute_frame(ctx.rectangles) ;
 
-                latuile_test_json_output(input_rectangles,
-					ctx.rectangles,
-                                        //edges,
-                                        ctx.rectangles,//expected_rectangles,
-                                        "stair_steps",
-                                        testid++);
-
-
                 ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
                 vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
@@ -874,6 +866,20 @@ void test_stair_steps(int rect_border)
                 const DataContext& dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
                 printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO", dctx.title.c_str(), time_span.count());
+
+                vector<MyRect> expected_rectangles = input_rectangles;
+                int n = input_rectangles.size();
+                for (int i=0; i<n; i++)
+                {
+                        expected_rectangles[i] = translate(input_rectangles[i], dctx.expected_translations[i].translation);
+                }
+
+                latuile_test_json_output(input_rectangles,
+                                        ctx.rectangles,
+                                        //edges,
+                                        expected_rectangles,
+                                        "stair_steps",
+                                        testid++);
 	}
 }
 
