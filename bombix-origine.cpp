@@ -31,7 +31,7 @@ Convention for geometry:
   |
   V
   y
-  
+
 Convention for matrix:
   +------> j
   |
@@ -39,7 +39,7 @@ Convention for matrix:
   |
   V
   i
-  
+
 i (resp. j) corresponds to y (resp. x), which might seem surprising.
 */
 
@@ -139,7 +139,7 @@ struct Range
 	Direction direction;
 	Way way;
 	int16_t value, min, max;
-	
+
 	RangeExtremity operator[](Way way)
 	{
 		return RangeExtremity{this, way};
@@ -199,7 +199,7 @@ RangeExtremity::operator Coord() const
 	return c;
 }
 
-RangeProjection::operator Span() const 
+RangeProjection::operator Span() const
 {
 	assert(direction==other(r->direction));
 	 return Span{r->min, r->max};
@@ -218,7 +218,7 @@ struct Maille
 	Direction direction;
 	Way way;
 	int16_t i, j;
-	
+
 	int16_t& operator[](Direction input_direction)
 	{
 		switch (input_direction)
@@ -365,13 +365,13 @@ Span intersection(const Span& r1, const Span& r2)
 	Span r = r1;
 	r.min = max<int>(r.min, r2.min);
 	r.max = min<int>(r.max, r2.max);
-	
+
 #if 0
-	FILE* f = fopen("/tmp/intersection_io_log.txt","a");	
+	FILE* f = fopen("/tmp/intersection_io_log.txt","a");
 	fprintf(f, "r1:{min=%d, max=%d}, r2:{min=%d, max=%d}, r:{min:%d, max:%d}\n", r1.min, r1.max, r2.min, r2.max, r.min, r.max);
 	fclose(f);
-#endif	
-	
+#endif
+
 	return r;
 }
 
@@ -520,7 +520,7 @@ namespace std {
 			return hash<uint64_t>()(u);
 		}
 	};
-	
+
 	template <>
 	struct hash<Link> {
 		size_t operator()(const Link &lk) const
@@ -529,7 +529,7 @@ namespace std {
 			return lk.from + k * lk.to;
 		}
 	};
-	
+
 	template <>
 	struct hash<Range> {
 		size_t operator()(const Range &r) const
@@ -539,7 +539,7 @@ namespace std {
 			return r.direction + k * r.way + k ^ 2 * r.value + k ^ 3 * r.min + k ^ 4 * r.max;
 		}
 	};
-	
+
 	template <>
 	struct hash<Point> {
 		size_t operator()(const Point &p) const
@@ -573,7 +573,7 @@ struct TestContext
 	vector<Rect> rects;
 	Rect frame;
 	vector<Link> links;
-	
+
 	vector<FaiceauOutput> faisceau_output;
 	vector<Polyline> polylines;
 };
@@ -618,7 +618,7 @@ void print(const vector<Polyline>& polylines, string& serialized)
 {
 	char buffer[100 * 1024];
 	int pos = 0;
-	
+
 	pos += sprintf(buffer + pos, "\t\t/*polylines*/ {\n");
 	for (const auto& [from, to, data] : polylines)
 	{
@@ -626,7 +626,7 @@ void print(const vector<Polyline>& polylines, string& serialized)
 		pos += sprintf(buffer + pos, "\t\t\t\t/*from*/%d,\n", from);
 		pos += sprintf(buffer + pos, "\t\t\t\t/*to*/%d,\n", to);
 		pos += sprintf(buffer + pos, "\t\t\t\t/*data*/{");
-		
+
 		for (const auto& [x,y] : data)
 		{
 			pos += sprintf(buffer + pos, "{%d, %d},", x, y);
@@ -779,18 +779,18 @@ template <typename Graph, typename PredecessorMap>
 vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint64_t u)
 {
 	static_assert(is_same<Graph, InnerRangeGraph>::value || is_same<Graph, OuterRangeGraph>::value, "");
-	
+
 	const auto& [path, definition_matrix, coords] = graph;
-	
+
 	InnerRange ir = parse_ir(u);
-	
+
 	vector<Edge> adj;
-	
+
 	if (ir.range_index + 1 == path.size())
 		return adj;
 
 	const Range &r = path[ir.range_index], &next_r = path[ir.range_index + 1];
-	
+
 	if (next_r.direction == r.direction)
 	{
 		InnerRange next = ir;
@@ -802,12 +802,12 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 	{
 		Rect rec = {0,0,0,0};
 		rec[other(r.direction)] = Span{ ir.min, ir.max };
-		
+
 		struct Bound
 		{
 			int16_t min, max;
 		};
-		
+
 		vector<Bound> bounds;
 
 		if constexpr (is_same<Graph, InnerRangeGraph>::value)
@@ -824,11 +824,11 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 		{
 			bounds.push_back({ next_r.min, next_r.max });
 		}
-	
+
 		for (const auto& [min, max] : bounds)
-		{	
+		{
 			rec[other(next_r.direction)] = Span{ min, max};
-				
+
 			bool detect = false;
 			for (int j = rec.left; j <= rec.right; j++)
 			{
@@ -846,7 +846,7 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 			}
 		}
 	}
-	
+
 	return adj;
 }
 
@@ -863,7 +863,7 @@ Rect index(const vector<int>(&coords)[2], const Rect& r)
 	uint16_t right = binary_search(coords[HORIZONTAL], r.right);
 	uint16_t top = binary_search(coords[VERTICAL], r.top);
 	uint16_t bottom = binary_search(coords[VERTICAL], r.bottom);
-	
+
 	return { left, right - 1, top, bottom-1 };
 }
 
@@ -874,7 +874,7 @@ Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<i
 	for (const Rect& r : rects)
 	{
 		auto [left, right, top, bottom] = index(coords, r);
-		
+
 		for (int j = left; j <= right; j++)
 		{
 			for (int i = top; i <= bottom; i++)
@@ -883,7 +883,7 @@ Matrix<bool> compute_definition_matrix(const vector<Rect>& rects, const vector<i
 			}
 		}
 	}
-	
+
 	return m;
 }
 
@@ -902,23 +902,23 @@ Way input_output(InputOutputSwitch input_output_switch, Way normale)
 unordered_set<uint64_t> compute_nodes(const vector<int> (&coords)[2], const Matrix<bool>& definition_matrix, const Rect& r, InputOutputSwitch ioswitch)
 {
 	unordered_set<Maille> result;
-	
+
 	auto [left, right, top, bottom] = index(coords, r);
-	
+
 	for (int16_t j = left; j <= right; j++)
 	{
 		result.insert({VERTICAL, input_output(ioswitch, DECREASE), (int16_t)top, j});
 		result.insert({VERTICAL, input_output(ioswitch, INCREASE), (int16_t)bottom, j});
 	}
-	
+
 	for (int16_t i = top; i <= bottom; i++)
 	{
 		result.insert({HORIZONTAL, input_output(ioswitch, DECREASE), i, (int16_t)left});
 		result.insert({HORIZONTAL, input_output(ioswitch, INCREASE), i, (int16_t)right});
 	}
-	
+
 	unordered_set<uint64_t> defined;
-	
+
 	for (const Maille& m : result)
 	{
 		defined.insert(serialize(m));
@@ -1091,7 +1091,7 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 {
 	const auto& [ranges/*path*/, definition_matrix, coords] = graph;
-	
+
 	unordered_map<uint64_t, int> source_node_distance;
 	unordered_map<uint64_t, Distance> distance;
 	unordered_map<uint64_t, Edge> predecessor;
@@ -1141,7 +1141,7 @@ bool connect_outer_ranges(const OuterRangeGraph& graph)
 	unordered_map<uint64_t, int> source_node_distance = {{u,0}};
 	unordered_map<uint64_t, Distance> distance;
 	unordered_map<uint64_t, Edge> predecessor;
-	
+
 	dijkstra(graph, source_node_distance, distance, predecessor);
 	vector<uint64_t> target_nodes;
 
@@ -1202,7 +1202,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 		if (c >= 2)
 			n += c;
 	}
-	
+
 	return n;
 }
 
@@ -1211,9 +1211,9 @@ string polyline2json(const vector<Polyline>& polylines)
 {
 	char buffer[10 * 1024];
 	int pos = 0;
-	
+
 	pos += sprintf(buffer + pos, "[\n");
-	
+
 	for (const auto& [from, to, data] : polylines)
 	{
 		pos += sprintf(buffer + pos, "{\"polyline\":[");
@@ -1226,34 +1226,34 @@ string polyline2json(const vector<Polyline>& polylines)
 			pos--;
 		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},\n", from, to);
 	}
-	
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
 		pos--;
 	}
 	pos += sprintf(buffer + pos, "]");
-	
+
 	return buffer;
 }
 
 string diagdata(const TestContext& ctx)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
-	
+
 	char buffer[10 * 1024];
 	int pos = 0;
-	
+
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
 	for (int i=0; i < rects.size(); i++)
 		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\", \"fields\":[]},\n", i);
-	
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
 		pos--;
-	}	
-	
+	}
+
 	pos += sprintf(buffer + pos, R"(],
 "values":[],
 "boxComments":[],
@@ -1265,7 +1265,7 @@ string diagdata(const TestContext& ctx)
 	{
 		pos += sprintf(buffer + pos, "{\"from\":%d,\"fromField\":-1,\"fromCardinality\":\"undefined\",\"to\":%d,\"toField\":-1,\"toCardinality\":\"undefined\"},\n", from, to);
 	}
-	
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
@@ -1280,45 +1280,45 @@ string diagdata(const TestContext& ctx)
 	{
 		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
 	}
-	
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
 		pos--;
 	}
-	
+
 	pos += sprintf(buffer + pos, "]}\n");
-	
+
 	return buffer;
 }
 
 string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines_] = ctx;
-	
+
 	string pjson = polyline2json(polylines);
-	
+
 	char buffer[10 * 1024];
 	int pos = 0;
-	
+
 	pos += sprintf(buffer + pos, R"(
 {"contexts":[{
 "frame":{"left":%hu,"right":%hu,"top":%hu,"bottom":%hu},
 "translatedBoxes":[
 )", frame.left, frame.right, frame.top, frame.bottom);
-	
+
 	int i=0;
 	for (const auto& [left, right, top, bottom] : rects)
 	{
 		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
 	}
-	
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
 		pos--;
 	}
-	
+
 	pos += sprintf(buffer + pos, R"(],
 "links":%s
 }
@@ -1353,7 +1353,7 @@ const TestContext contexts[] = {
 /*16:*/ {/*name: 'LEG_VTQP',*/ /*left*/ 279, /*right*/ 426, /*top*/ 591, /*bottom*/ 759},
 /*17:*/ {/*name: 'COM_PARAMETRAGE_FICHE',*/ /*left*/ 32, /*right*/ 187, /*top*/ 123, /*bottom*/ 243},
 /*18:*/ {/*name: 'PRE_PRESTATION',*/ /*left*/ 225, /*right*/ 400, /*top*/ 31, /*bottom*/ 167},
-/*19:*/ {/*name: 'PAR_GENERALITE',*/ /*left*/ 244, /*right*/ 384, /*top*/ 201, /*bottom*/ 289}	
+/*19:*/ {/*name: 'PAR_GENERALITE',*/ /*left*/ 244, /*right*/ 384, /*top*/ 201, /*bottom*/ 289}
 	},
 	/*frame*/{/*left*/ 0, /*right*/ 1016, /*top*/ 0, /*bottom*/ 769},
 	/*links*/{
@@ -1402,7 +1402,7 @@ const TestContext contexts[] = {
     },
     /*frame*/{ 0, 60, 0, 70 },
     /*links*/{{/*source*/0,/*target*/1}},
-	
+
 	/*faiceau output*/{
 			{
 				/*targets*/{
@@ -1631,7 +1631,7 @@ const TestContext contexts[] = {
 							{ VERTICAL, INCREASE, 5, 3 },
 							{ VERTICAL, INCREASE, 6, 3 }
 						}
-					}	
+					}
 				},
 				/*enlarged*/{
 					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } },
@@ -2601,7 +2601,7 @@ const TestContext contexts[] = {
 				},
 				/*enlarged*/{
 						{{HORIZONTAL,DECREASE,4,2},{HORIZONTAL,DECREASE,2,3,4}},
-						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}	
+						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}
 				}
 			}
 		},
@@ -2628,15 +2628,15 @@ Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par 
 */
 
 
-FaiceauOutput compute_faiceau(const vector<Link>& links, 
-				const Matrix<bool>& definition_matrix_, 
+FaiceauOutput compute_faiceau(const vector<Link>& links,
+				const Matrix<bool>& definition_matrix_,
 				const Matrix<Span>(&range_matrix)[2],
-				const vector<int>(&coords)[2], 
+				const vector<int>(&coords)[2],
 				const vector<Rect>& rects,
 				int from)
 {
 	printf("enter compute_faiceau() from=%d \n", from);
-	
+
 	vector<Target> targets;
 
 	vector<Link> adj_links;
@@ -2946,10 +2946,10 @@ int query_distance_to_rectangle_vertices(const Rect& rec, const Point& p)
 	const auto& [x, y] = p;
 
 	assert(x == left || x == right || y == top || y == bottom);
-	
+
 	if (x == left || x == right)
 		return std::min(bottom-y, y-top);
-	
+
 	if (y == top || y == bottom)
 		return std::min(x-left, right-x);
 }
@@ -2967,11 +2967,11 @@ vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& 
 		if (int distance = query_distance_to_rectangle_vertices(rects[to], data.back()); distance > TRANSLATION_ON_COLLISION)
 			points.push_back({&polyline, &data.back(), -1});
 	}
-	
+
 	vector<PointCollision> collisions;
-	
+
 	unordered_set<Point> locations;
-	
+
 	for (int i=0; i < points.size(); i++)
 	{
 		PolylinePoint& pi = points[i];
@@ -2985,7 +2985,7 @@ vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& 
 			}
 		}
 	}
-	
+
 	return collisions;
 }
 
@@ -3020,7 +3020,7 @@ struct SegmentIntersection
 vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polylines)
 {
 	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
-	
+
 	for (Polyline& polyline : polylines)
 	{
 		auto& [from, to, data] = polyline;
@@ -3039,9 +3039,9 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 			}
 		}
 	}
-	
+
 	vector<SegmentIntersection> intersections;
-	
+
 	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
 	{
 		int xmin = hor_seg.min, xmax = hor_seg.max, y = hor_seg.value ;
@@ -3049,18 +3049,18 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 		for (PolylineSegment& ver_seg : vertical_polyline_segments)
 		{
 			int ymin = ver_seg.min, ymax = ver_seg.max, x = ver_seg.value ;
-			
+
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
 				intersections.push_back({ver_seg, hor_seg});
 			}
 		}
 	}
-	
+
 	printf("%lu horizontal polyline segments\n", horizontal_polyline_segments.size());
 	printf("%lu vertical polyline segments\n", vertical_polyline_segments.size());
 	printf("intersection count: %lu\n", intersections.size());
-	
+
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
 		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
@@ -3074,43 +3074,43 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
 {
 	vector<PointCollision> collisions = intersection_of_polyline_extremities(rects, polylines);
-	
+
 	for (auto [cp1, cp2] : collisions)
 	{
 		auto& [polyline1, p1, next1] = cp1;
 		auto& [polyline2, p2, next2] = cp2;
-		
+
 		for (Direction dir : {HORIZONTAL, VERTICAL})
 		{
 			if ( (*p1)[dir] == (*(p1+next1))[dir] && (*p2)[dir] == (*(p2+next2))[dir])
 			{
 				for (Point *p : {p1, p1+next1})
 					(*p)[dir] += TRANSLATION_ON_COLLISION;
-				
+
 				Point t = {0,0};
 				t[dir] = TRANSLATION_ON_COLLISION;
 				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline1->from, polyline1->to);
 
 				for (Point *p : {p2, p2+next2})
 					(*p)[dir] -= TRANSLATION_ON_COLLISION;
-				
+
 				t[dir] = -TRANSLATION_ON_COLLISION;
 				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline2->from, polyline2->to);
 			}
 		}
 	}
-	
+
 	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
-	
+
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
-		vector<SegmentIntersection> intersections_update ; 
-		
+		vector<SegmentIntersection> intersections_update ;
+
 		PolylineSegment seg2[2] = {ver_seg, hor_seg};
 		for (int i=0; i < 2; i++)
 		{
 			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x, direction] = seg2[i];
-			
+
 			if (int ipred = distance(&(*data)[0], p1) - 1, d = seg2[1-i].value - (*p1)[direction]; ipred >= 0 && abs(d) < 10)
 			{
 				vector<Point> copy_of_data = * data ;
@@ -3159,9 +3159,9 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 					auto& [tx, ty] = translation;
 					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
 				}
-			}				
+			}
 		}
-		
+
 	}
 }
 
@@ -3176,7 +3176,7 @@ void parse_command(const char* rectdim,
 					vector<Link> &links)
 {
 	int pos;
-	
+
 	pos = 0;
 	int width, height, x, y;
 	while (sscanf(rectdim + pos, "%3x%3x", &width, &height) == 2 &&
@@ -3185,7 +3185,7 @@ void parse_command(const char* rectdim,
 		rects.push_back({x, x + width, y, y + height});
 		pos += 6;
 	}
-	
+
 	pos = 0;
 	int from, to;
 	while (sscanf(slinks + pos, "%2x%2x", &from, &to) == 2)
@@ -3193,7 +3193,7 @@ void parse_command(const char* rectdim,
 		links.push_back({from, to});
 		pos += 4;
 	}
-	
+
 	sscanf(sframe, "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
 }
 
@@ -3207,11 +3207,11 @@ int main(int argc, char* argv[])
 	Rect frame;
 	vector<Rect> rects;
 	vector<Link> links;
-		
+
 	if (argc == 1)
 	{
 		printf("testing bombix ...\n");
-		
+
 		for (const TestContext &ctx : contexts)
 		{
 			string json = diagdata(ctx);
@@ -3230,28 +3230,28 @@ int main(int argc, char* argv[])
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
 			bool OK=true;
-			
+
 			vector<FaiceauOutput> faisceau_output;
 			vector<Polyline> polylines;
-			
+
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
-			
+
 			string json = contexts_(ctx, polylines);
 			char file_name[40];
 			sprintf(file_name, "test-reg-%d-contexts.json", ctx.testid);
 			FILE *f = fopen(file_name, "w");
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
-			
+
 			string serialized;
 			print(faisceau_output, serialized);
 
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
-			
+
 			if (faisceau_output != ctx.faisceau_output)
 			{
 				printf("%s\n", serialized.c_str());
@@ -3261,7 +3261,7 @@ int main(int argc, char* argv[])
 			duration<double> time_span = high_resolution_clock::now() - t1;
 			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
 			OK &= polylines == ctx.polylines;
-			
+
 			if (polylines != ctx.polylines)
 			{
 				string json = polyline2json(polylines);
@@ -3270,12 +3270,12 @@ int main(int argc, char* argv[])
 
 			if (OK)
 				nbOK++;
-			
+
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
 		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
-		
+
 		return 0;
 	}
 	else if (argc == 9)
@@ -3288,7 +3288,7 @@ int main(int argc, char* argv[])
 				 {"--frame", 0},
 				 {"--links", 0}
 			};
-		
+
 		for (int i=1; i+1 < argc; i+=2)
 		{
 					if (args.count(argv[i]))
@@ -3298,15 +3298,15 @@ int main(int argc, char* argv[])
 		bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
 					 strlen(args["--translations"]) == strlen(args["--rectdim"]) &&regex_match(args["--translations"], hexa) &&
 					 strlen(args["--links"]) % 4 == 0 && regex_match(args["--links"], hexa);
-					 
+
 		if (!check)
 			return -1;
-		
+
 		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["--links"], frame, rects, links);
 
 		vector<FaiceauOutput> faiceau_output;
 		vector<Polyline> polylines;
-		
+
 		compute_polylines(rects, frame, links, faiceau_output, polylines);
 		string json = polyline2json(polylines);
 		printf("%s", json.c_str());
@@ -3349,9 +3349,9 @@ const char* bombix(const char *rectdim,
 puis dans https://dev.diskloud.fr/ludo/bombix.html
 
 bombix=Module.cwrap("bombix","string",["string","string","string","string"])
-exemple: 
-2 rectangles taille (56,56)=("038,"038") en hexa. 
-translations: (10,10) et (100,10) = ("00a","00a") et ("064","00a"). 
+exemple:
+2 rectangles taille (56,56)=("038,"038") en hexa.
+translations: (10,10) et (100,10) = ("00a","00a") et ("064","00a").
 frame=(left,right,top,bottom):(0,200,0,100)=("0000","00c8","0000","0064").
 links=(0,1):("00","01").
 bombix("038038038038","00a00a06400a","000000c800000064","0001")
