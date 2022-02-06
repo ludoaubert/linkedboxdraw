@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <cstdint>
+#include "latuile_test_json_output.h"
 using namespace std ;
 
 
@@ -346,10 +347,10 @@ void test_binpack()
 {
         TestFunctionTimer ft("test_binpack");
 
-        struct TestContext { vector<MyRect> rectangles; int w,h; vector<MyRect> expected_rectangles;};
+        struct TestContext { int testid; vector<MyRect> input_rectangles; int w,h; vector<MyRect> expected_rectangles;};
 
         const vector<TestContext> test_contexts = {
-        	{//test 1
+        	{	/*testid*/ 1,
 			/*rectangles*/ {
 				{0,90,0,230},
 				{0,115,0,166},
@@ -358,7 +359,7 @@ void test_binpack()
 				{0,280,0,15}
 			},
                 	/*w*/ 346,
-                	/*h*/ 568, 
+                	/*h*/ 568,
                 	/*expected_rectangles*/ {
 				{0,90,129,359},
 				{0,115,359,525},
@@ -368,7 +369,7 @@ void test_binpack()
                 	}
 		},
 
-		{//test 2
+		{	/*testid*/ 2,
 			/*rectangles*/ {
 				{0,181,0,56},
 				{0,101,0,56},
@@ -391,7 +392,7 @@ void test_binpack()
                 	}
 		},
 
-		{//test 3
+		{	/*testid*/ 3,
 			/*rectangles*/ {
 				{0,147,0,104},
 				{0,173,0,248},
@@ -437,12 +438,18 @@ void test_binpack()
 	};
 
 //TODO: use C++17 destructuring
-	for (const TestContext &ctx : test_contexts)
+	for (auto [testid, input_rectangles, w,h, expected_rectangles] : test_contexts)
 	{
-		int w = ctx.w, h = ctx.h ;
-		vector<MyRect> rectangles = ctx.rectangles;
-                vector<MyRect> expected_rectangles = ctx.expected_rectangles;
+		vector<MyRect> rectangles = input_rectangles;
+
 		binpack(rectangles, w,h) ;
+
+                latuile_test_json_output(input_rectangles,
+					rectangles,
+                                        //edges,
+                                        expected_rectangles,
+                                        "binpack",
+                                        testid);
 
                 printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
 	}

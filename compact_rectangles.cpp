@@ -5,6 +5,7 @@
 #include "FunctionTimer.h"
 #include <vector>
 #include <algorithm>
+#include "latuile_test_json_output.h"
 using namespace std ;
 
 
@@ -89,7 +90,7 @@ void test_compact_rectangles()
 {
 	TestFunctionTimer ft("test_compact_rectangles");
 
-	vector<MyRect> rectangles = {
+	const vector<MyRect> input_rectangles = {
 		{202,404,240,544}, //role
 		{42,195,544,656}, //role_auto_grant
 		{195,397,896,1024},//ancestor_project
@@ -147,6 +148,8 @@ void test_compact_rectangles()
 		{404,620,512,640}
         };
 
+	vector<MyRect> rectangles = input_rectangles;
+
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i ;
 	vector<vector<MPD_Arc> > adjacency_list(15) ;
@@ -156,6 +159,13 @@ void test_compact_rectangles()
 		adjacency_list[i].push_back(MPD_Arc{i,j}) ;
 	}
 	compact_rectangles(rectangles, adjacency_list) ;
+
+	latuile_test_json_output(input_rectangles,
+				rectangles,
+				//edges,
+				expected_rectangles,
+				"compact_rectangles",
+				1);
 
 	for (MyRect& r : rectangles)
 		r.i=-1;

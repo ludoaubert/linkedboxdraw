@@ -4,6 +4,7 @@
 #include "FunctionTimer.h"
 #include <vector>
 #include <algorithm>
+#include "latuile_test_json_output.h"
 using namespace std ;
 
 
@@ -278,21 +279,21 @@ void test_optimize_rectangle_positions()
 {
 	TestFunctionTimer ft("test_optimize_rectangle_positions");
 
-	vector<MyRect> rectangles = {
-		{369,529,272,384},	//0:discussion_topic
-		{599,780,400,544},	//1:external_system
-		{780,1003,416,544},	//2:external_system_parameter
-		{146,369,240,544},	//3:folder
-		{42,146,240,320},	//4:category
-		{42,195,160,240},	//5:document_folder
-		{0,146,416,544},	//6:objecttype
-		{369,494,160,272},	//7:page
-		{369,536,0,160},	//8:sfcomment
-		{599,759,288,400},	//9:scm_file
-		{759,919,224,400},	//10:scm_file_version
-		{369,599,384,544},	//11:scm_repository
-		{536,710,64,160},	//12:taskmgr_app_folder
-		{195,369,112,240}	//13:taskmgr_task_group
+	const vector<MyRect> input_rectangles = {
+		{369,529,272,384},
+		{599,780,400,544},
+		{780,1003,416,544},
+		{146,369,240,544},
+		{42,146,240,320},
+		{42,195,160,240},
+		{0,146,416,544},
+		{369,494,160,272},
+		{369,536,0,160},
+		{599,759,288,400},
+		{759,919,224,400},
+		{369,599,384,544},
+		{536,710,64,160},
+		{195,369,112,240}
 	};
 
 	vector<MPD_Arc> edges={
@@ -330,6 +331,8 @@ void test_optimize_rectangle_positions()
 		{195,369,112,240}
         };
 
+	vector<MyRect> rectangles = input_rectangles;
+
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i ;
 	vector<vector<MPD_Arc> > adjacency_list(14) ;
@@ -340,6 +343,13 @@ void test_optimize_rectangle_positions()
 	}
 
 	optimize_rectangle_positions(rectangles, adjacency_list) ;
+
+	latuile_test_json_output(input_rectangles,
+				rectangles,
+				//edges,
+				expected_rectangles,
+				"optimize_rectangle_positions",
+				1);
 
 	for (MyRect &r : rectangles)
 		r.i = -1 ;
