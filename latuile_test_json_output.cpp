@@ -102,6 +102,7 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 
 
 void latuile_test_json_output(const vector<MyRect> &input_rectangles,
+				const vector<MyRect> &output_rectangles,
 			//	const vector<int[2]> &edges,
 				const vector<MyRect> &expected_rectangles,
 				const char* test_name,
@@ -114,4 +115,6 @@ void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 	json_context_output(input_rectangles, file_name);
 	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, test_number);
 	json_context_output(expected_rectangles, file_name);
+        sprintf(file_name, "test-latuile-%s-%d-output-contexts.json", test_name, test_number);
+        json_context_output(output_rectangles, file_name);
 }

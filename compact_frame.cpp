@@ -150,7 +150,7 @@ void test_compact_frame()
 	TestFunctionTimer ft("test_compact_frame");
 
 	{
-		vector<MyRect> rectangles = {
+		const vector<MyRect> input_rectangles = {
 			{209,411,352,672},//datamart_metric
 			{495,641,0,160},//preference
 			{0,188,224,352},//datamart_report_prop
@@ -190,11 +190,7 @@ void test_compact_frame()
 			{411,641,160,672}
 		};
 
-		latuile_test_json_output(rectangles,
-					//edges,
-					expected_rectangles,
-					"compact_frame",
-					1);
+		vector<MyRect> rectangles = input_rectangles;
 
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
@@ -206,6 +202,13 @@ void test_compact_frame()
 		}
 		compact_frame(rectangles, adjacency_list) ;
 
+                latuile_test_json_output(input_rectangles,
+					rectangles,
+                                        //edges,
+                                        expected_rectangles,
+                                        "compact_frame",
+                                        1);
+
 		for (MyRect& r : rectangles)
 			r.i=-1;
 
@@ -213,7 +216,7 @@ void test_compact_frame()
 	}
 
 	{
-		vector<MyRect> rectangles = {
+		const vector<MyRect> input_rectangles = {
 			{0, 10, 0, 10},
 			{0, 10, 20, 30}
 		} ;
@@ -227,11 +230,7 @@ void test_compact_frame()
 			{0,10,20,30}
 		};
 
-                latuile_test_json_output(rectangles,
-					//edges,
-					expected_rectangles,
-					"compact_frame",
-					2);
+		vector<MyRect> rectangles = input_rectangles;
 
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
@@ -242,6 +241,13 @@ void test_compact_frame()
 			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
+
+                latuile_test_json_output(input_rectangles,
+					rectangles,
+                                        //edges,
+                                        expected_rectangles,
+                                        "compact_frame",
+                                        2);
 
 		for (MyRect& r : rectangles)
 			r.i=-1;
