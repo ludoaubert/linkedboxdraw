@@ -1,0 +1,13 @@
+
+{"contexts":[{
+"frame":{"left":65506,"right":250,"top":65506,"bottom":230},
+"translatedBoxes":[
+{"id":0,"translation":{"x":90,"y":50}},
+{"id":1,"translation":{"x":0,"y":80}},
+{"id":2,"translation":{"x":180,"y":70}},
+{"id":3,"translation":{"x":90,"y":150}},
+{"id":4,"translation":{"x":20,"y":0}}
+],
+"links":[]
+}
+]}

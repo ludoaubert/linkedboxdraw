@@ -25,6 +25,7 @@
 #include <chrono>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
+#include "latuile_test_json_output.h"
 //#include <omp.h>
 using namespace std ;
 using namespace std::chrono;
@@ -61,7 +62,7 @@ std::string implode(Container c, std::string e)
 
 bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> > &adjacency_list)
 {
-        FunctionTimer ft("stair_steps");		
+        FunctionTimer ft("stair_steps");
 	int n = rectangles.size() ;
 
 	vector<vector<MyRect*> > unordered_adjacency_list(n) ;
@@ -163,7 +164,7 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 				normal = normal4 - 1 ;
 				while (normal+1 < normal4+4 &&
 					index_from_if(rectangles, [&](const MyRect& rec){return rec.i!=r->i && rec.selected && intersect_strict(rec, *r) ;}) != -1)
-				{	
+				{
 					translate(*r, {rr->m_left - r->m_left, rr->m_top - r->m_top}) ;
 			// same code as 'no more room for another step. start using the next side'
 					MyPoint translation ;
@@ -214,8 +215,8 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 			}//if (index != -1 && prec==0)
 
 		}//for (MyRect* r : unordered_adjacency_list[rr->i])
-	
-	}//while (!pending_stack.empty())	
+
+	}//while (!pending_stack.empty())
 
 	MyRect frame = compute_frame(rectangles) ;
 	for (MyRect &r : rectangles)
@@ -317,7 +318,7 @@ bool stair_steps_(vector<MyRect> &rectangles, vector<vector<MPD_Arc> > &adj_list
 			{
 				break ;
 			}
-		
+
 			n = rects.size() ;
 			vector<MyRect> rectangles_(n) ;
 			for (int i=0; i < n; i++)
@@ -431,12 +432,7 @@ Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self)
 	if (solutions.empty())
 		return false ;
 
-	auto it = min_element(solutions.begin(),
-						solutions.end(), 
-						[](const vector<MyRect>& rectangles1, const vector<MyRect>& rectangles2){
-							return dim_max(compute_frame(rectangles1)) < dim_max(compute_frame(rectangles2)) ;                                                                                                      
-						}
-	) ;
+	auto it = ranges::min_element(solutions, {}, [](const vector<MyRect>& rectangles){return dim_max(compute_frame(rectangles)) ;}) ;
 	int index = distance(solutions.begin(), it) ;
 	rectangles = *it ;
 	MyRect frame = compute_frame(rectangles) ;
@@ -490,10 +486,10 @@ void test_stair_steps(int rect_border)
         TestFunctionTimer ft("test_stair_steps");
 
         struct Edge{int from,to;};
-        struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
+        struct DataContext{int testid; string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
         const vector<DataContext> vdctx = {
                 {
-                    "My first SVG",
+		    1,"My first SVG",
                     {
                         {0, 50, 0, 60},
                         {0, 50, 0, 120},
@@ -517,7 +513,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,220,0,200}
                 },
                 {
-                    "RANELITEG/1",
+                    2,"RANELITEG/1",
 	            {
 			{0, 121, 0, 104},
 			{0, 137, 0, 248},
@@ -553,7 +549,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,447,0,440}
                 },
                 {
-		    "RANELITEG/2",
+		    3,"RANELITEG/2",
 		    {
 			{0, 135, 0, 152},
 			{0, 105, 0, 88},
@@ -582,8 +578,8 @@ void test_stair_steps(int rect_border)
                     },
                     /*frame*/{0,515,0,296}
                 },
-                { 		
-		    "SINITAX/1",
+                {
+		    4,"SINITAX/1",
 		    {
 			{0, 77, 0, 104},
 			{0, 79, 0, 88},
@@ -620,7 +616,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,448,0,376}
                 },
                 {
-		    "SINITAX/2",
+		    5,"SINITAX/2",
 		    {
 			{0, 102, 0, 104},
 			{0, 88, 0, 104},
@@ -649,7 +645,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,339,0,232}
                 },
                 {
-		    "SINITAX/3",
+		    6,"SINITAX/3",
 		    {
 			{0, 58, 0, 72},
 			{0, 78, 0, 88},
@@ -667,7 +663,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,195,0,200}
                 },
                 {
-		    "SAKILA/1",
+		    7,"SAKILA/1",
 		    {
 			{0, 92, 0, 168},
 			{0, 93, 0, 88},
@@ -693,7 +689,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,348,0,376}
                 },
                 {
-		    "SAKILA/2",
+		    8,"SAKILA/2",
                     {
 			{0, 84, 0, 152},
 			{0, 89, 0, 168},
@@ -714,7 +710,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,364,0,328}
                 },
                 {
-                    "SAKILA/3",
+                    9,"SAKILA/3",
                     {
 			{0, 80, 0, 88},
 			{0, 89, 0, 72},
@@ -741,7 +737,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,410,0,312}
                 },
                 {
-                    "COCOGIRL/1",
+                    10,"COCOGIRL/1",
                     {
 			{0, 100, 0, 136},
 			{0, 100, 0, 136},
@@ -780,7 +776,7 @@ void test_stair_steps(int rect_border)
                     /*frame*/{0,479,0,584}
                 },
                 {
-                    "COCOGIRL/2",
+                    11,"COCOGIRL/2",
                     {
 			{0, 127, 0, 120},
 			{0, 142, 0, 232},
@@ -831,6 +827,7 @@ void test_stair_steps(int rect_border)
             contexts.push_back(ctx);
         } 
 
+	int testid=0;
         int c=0;
 	for (Context &ctx : contexts)
 	{
@@ -841,6 +838,8 @@ void test_stair_steps(int rect_border)
                 {
                     r.i = r.no_sequence = i++;
 	        }
+
+		const vector<MyRect> input_rectangles = ctx.rectangles;
 	
 		for (MyRect &r : ctx.rectangles)
 		{
@@ -859,6 +858,14 @@ void test_stair_steps(int rect_border)
 			translate(r, {- frame.m_left,- frame.m_top}) ;
 		}
 		ctx.frame = compute_frame(ctx.rectangles) ;
+
+                latuile_test_json_output(input_rectangles,
+					ctx.rectangles,
+                                        //edges,
+                                        ctx.rectangles,//expected_rectangles,
+                                        "stair_steps",
+                                        testid++);
+
 
                 ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
                 vector<TranslatedBox> translations;

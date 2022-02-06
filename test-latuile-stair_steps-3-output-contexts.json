@@ -1,0 +1,16 @@
+
+{"contexts":[{
+"frame":{"left":65506,"right":478,"top":65506,"bottom":406},
+"translatedBoxes":[
+{"id":0,"translation":{"x":0,"y":0}},
+{"id":1,"translation":{"x":236,"y":128}},
+{"id":2,"translation":{"x":0,"y":144}},
+{"id":3,"translation":{"x":91,"y":144}},
+{"id":4,"translation":{"x":117,"y":0}},
+{"id":5,"translation":{"x":371,"y":288}},
+{"id":6,"translation":{"x":236,"y":256}},
+{"id":7,"translation":{"x":1,"y":272}}
+],
+"links":[]
+}
+]}
