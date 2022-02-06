@@ -3,23 +3,24 @@
 #include "MyRect.h"
 using namespace std;
 
+
 void json_context_output(const vector<MyRect> &rectangles,
 			const char* file_name)
 {
         char buffer[10 * 1024];
         int pos = 0;
 
-        MyRect frame = compute_frame(input_rectangles);
+        MyRect frame = compute_frame(rectangles);
         expand_by(frame, FRAME_BORDER);
 
         pos += sprintf(buffer + pos, R"(
 {"contexts":[{
 "frame":{"left":%hu,"right":%hu,"top":%hu,"bottom":%hu},
 "translatedBoxes":[
-)", frame.left, frame.right, frame.top, frame.bottom);
+)", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
 
         int i=0;
-        for (const auto& [left, right, top, bottom] : input_rectangles)
+        for (const auto& [left, right, top, bottom, j, jj, selected] : rectangles)
         {
                 pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
         }
@@ -37,7 +38,7 @@ void json_context_output(const vector<MyRect> &rectangles,
 )");
 
         FILE *f = fopen(file_name, "w");
-        fwrite(f, buffer);
+        fprintf(f, "%s", buffer);
         fclose(f);
 }
 
@@ -81,7 +82,7 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 "fieldColors":[],
 "rectangles":[
 )");
-	for (const auto& [left, right, top, bottom] : rectangles)
+	for (const auto& [left, right, top, bottom, i, ii, selected] : rectangles)
 	{
 		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
 	}
@@ -95,13 +96,13 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 	pos += sprintf(buffer + pos, "]}\n");
 
 	FILE *f = fopen(file_name, "w");
-        fwrite(f, buffer);
+        fprintf(f, "%s", buffer);
         fclose(f);
 }
 
-template <unsigned N>
+
 void latuile_test_json_output(const vector<MyRect> &input_rectangles,
-				int (&edges)[N][2],
+			//	const vector<int[2]> &edges,
 				const vector<MyRect> &expected_rectangles,
 				const char* test_name,
 				int test_number)

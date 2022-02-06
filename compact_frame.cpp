@@ -6,6 +6,7 @@
 #include <vector>
 #include <stack>
 #include <cstdint>
+#include "latuile_test_json_output.h"
 using namespace std ;
 
 /*
@@ -162,7 +163,7 @@ void test_compact_frame()
 			{411,641,160,672} //sfuser
 		};
 
-		int edges[11][2]={
+		const int edges[11][2]={
 			{0,7},
 			{0,9},
 			{1,9},
@@ -189,10 +190,16 @@ void test_compact_frame()
 			{411,641,160,672}
 		};
 
+		latuile_test_json_output(rectangles,
+					//edges,
+					expected_rectangles,
+					"compact_frame",
+					1);
+
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(10) ;
-		for (int (&edge)[2] : edges)
+		for (const int (&edge)[2] : edges)
 		{
 			int i = edge[0], j = edge[1] ;
 			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
@@ -211,7 +218,7 @@ void test_compact_frame()
 			{0, 10, 20, 30}
 		} ;
 
-		int edges[1][2]={
+		const int edges[1][2]={
 			{0,1}
 		} ;
 
@@ -220,10 +227,16 @@ void test_compact_frame()
 			{0,10,20,30}
 		};
 
+                latuile_test_json_output(rectangles,
+					//edges,
+					expected_rectangles,
+					"compact_frame",
+					2);
+
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(2) ;
-		for (int (&edge)[2] : edges)
+		for (const int (&edge)[2] : edges)
 		{
 			int i = edge[0], j = edge[1] ;
 			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
