@@ -1,0 +1,15 @@
+{"documentTitle":"reg-test-0",
+"boxes":[
+	{"title":"rec-0", "fields":[]},
+	{"title":"rec-1", "fields":[]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+],
+"fieldColors":[],
+"rectangles":[
+	{"left":0,"right":10,"top":0,"bottom":10},
+	{"left":0,"right":10,"top":0,"bottom":10}
+]}
