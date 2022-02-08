@@ -132,21 +132,7 @@ float rectangle_diameter(const MyRect& r) ;
 float frame_diameter(const std::vector<MyRect>& rectangles) ;
 int16_t frame_dim_max(const std::vector<MyRect>& rectangles) ;
 
-inline MyRect compute_frame(const std::vector<MyRect>& rectangles)
-{
-        MyRect frame = {+INT16_MAX,-INT16_MAX,+INT16_MAX,-INT16_MAX};
-
-        for (const MyRect& r : rectangles)
-        {
-                frame.m_left = std::min(frame.m_left, r.m_left) ;
-                frame.m_right = std::max(frame.m_right, r.m_right) ;
-                frame.m_top = std::min(frame.m_top, r.m_top) ;
-                frame.m_bottom = std::max(frame.m_bottom, r.m_bottom) ;
-        }
-
-        return frame ;
-}
-
+MyRect compute_frame(const std::vector<MyRect>& rectangles) ;
 
 inline int rectangle_diameter_(const MyRect& r)
 {
