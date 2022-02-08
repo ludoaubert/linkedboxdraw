@@ -18,6 +18,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <algorithm>
+#include <ranges>
 #include <numeric>
 #include <random>
 #include <fstream>
