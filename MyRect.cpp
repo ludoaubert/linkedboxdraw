@@ -8,6 +8,7 @@
 #include "MyRect.h"
 #include <vector>
 #include <algorithm>
+#include <ranges>
 #include <assert.h>
 #include <stdio.h>
 #include <iterator>
@@ -21,18 +22,30 @@ const int THIN_FRAME_BORDER = 10 ;
 const int FRAME_BORDER = 30 ;
 const int RECT_BORDER = 20 ;
 
+/*
+vector rects = {{1,2,3,4},{10,20,30,40}};
+auto r = rects | ranges::views::transform([](const MyRect& r){return vector{r.left, r.right};}) | views::join ;
+for (int const e : r) std::cout << e << ' ';
+std::cout << '\n';
+int min = ranges::min(r);
+int max = ranges::max(r);
+*/
 
 MyRect compute_frame(const vector<MyRect>& rectangles)
 {
-        MyRect frame = {+INT16_MAX,-INT16_MAX,+INT16_MAX,-INT16_MAX};
+        MyRect frame ;
 
-        for (const MyRect& r : rectangles)
-        {
-                frame.m_left = std::min(frame.m_left, r.m_left) ;
-                frame.m_right = std::max(frame.m_right, r.m_right) ;
-                frame.m_top = std::min(frame.m_top, r.m_top) ;
-                frame.m_bottom = std::max(frame.m_bottom, r.m_bottom) ;
-        }
+	if (rectangles.size()==0)
+		return frame;
+
+	auto r1 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_left;});
+	frame.m_left = ranges::min(r1);
+	auto r2 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_right;});
+	frame.m_right = ranges::max(r2);
+	auto r3 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_top;});
+	frame.m_top = ranges::min(r3);
+	auto r4 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_bottom;});
+	frame.m_bottom = ranges::max(r4);
 
         return frame ;
 }
