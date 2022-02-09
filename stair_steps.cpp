@@ -1165,7 +1165,7 @@ void test_stair_steps_layout()
 	TestFunctionTimer ft("test_stair_steps_layout");
 
         vector<Context> contexts ;
-        
+
         struct Edge{int from,to;};
         struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
         const vector<DataContext> vdctx = {
@@ -1799,20 +1799,20 @@ void test_expand_rectangles()
 {
 	MyRect r ;
 	r.m_left = r.m_top = 0 ;
-	
+
 	r.m_right = 10 ;
 	r.m_bottom = 60 ;
-//check that only m_right has expanded 
+//check that only m_right has expanded
 	assert(expand(r, 2.5) == MyRect({0, 25, 0, 60}));
-	
+
 //check that result has become a square
 	assert(expand(r, 10.0) == MyRect({ 0, 100, 0, 100 }));
-	
+
 	r.m_right = 60 ;
 	r.m_bottom = 10 ;
-//check that only m_right has expanded 
+//check that only m_right has expanded
 	assert(expand(r, 2.5) == MyRect({ 0, 60, 0, 25 }));
-	
+
 //check that result has become a square
 	assert(expand(r, 10.0) == MyRect({ 0, 100, 0, 100 }));
 }
@@ -1823,11 +1823,11 @@ template <typename Pr>
 void dichotomy(float &lower_bound, float &upper_bound, float spread, Pr& pr)
 {
 	upper_bound = lower_bound ;
-	
+
 //explode
 	while (!pr(upper_bound))
 		upper_bound *= 2 ;
-		
+
 //converge
 	while (upper_bound - lower_bound > spread)
 	{
@@ -2049,7 +2049,7 @@ perm * A : permute rows
 		int frame_border = RECT_BORDER*2 ;
 
 		MyRect frame = compute_frame(ctx.rectangles) ;
-		
+
 		const int FRAME_MARGIN = 20; // consistent with diagload.js head of file.
 
 // consistent with function encode_bounding_rectangle(context) in diagload.js bottom of file.
@@ -2633,18 +2633,21 @@ void test_stair_steps_layout_from_111_boxes()
 
         for (Edge& e : dctx.edges)
         {
-            MPD_Arc edge;
-            edge._i = e.from;
-            edge._j = e.to;
-            assert(edge._i < n);
-            assert(edge._j < n);
-            adjacency_list[edge._i].push_back(edge) ;
+            adjacency_list[e.from].push_back({e.from, e.to}) ;
         }
 
         int no_sequence_from_center = -1 ;
 
         vector<Context> contexts ;
         compute_contexts(dctx.rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+
+	char buffer[100000];
+	write_json(contexts, buffer);
+        FILE *f = fopen("test-latuile-101boxes-output-contexts.json", "w");
+        fprintf(f, "%s", buffer);
+        fclose(f);
+	json_diagdata_output(dctx.rectangles, "test-latuile-101boxes-diagdata.json");
+
         int c=0;
         for (Context &ctx : contexts)
         {
