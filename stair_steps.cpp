@@ -357,11 +357,10 @@ bool stair_steps_(vector<MyRect> &rectangles, vector<vector<MPD_Arc> > &adj_list
 	if (solutions.empty())
 		return false ;
 
-	auto it = min_element(solutions.begin(), solutions.end(), [](vector<MyRect>& rectangles1, vector<MyRect>& rectangles2){
-		return dim_max(compute_frame(rectangles1)) < dim_max(compute_frame(rectangles2)); 
+	rectangles = * ranges::min_element(solutions, {}, [](const vector<MyRect>& rects){
+		return dim_max(compute_frame(rects));
 	}) ;
-	int index = distance(solutions.begin(), it) ;
-	rectangles = * it ;
+
 	MyRect frame = compute_frame(rectangles) ;
 	for (MyRect &r : rectangles)
 		translate(r, {-frame.m_left, -frame.m_top}) ;
@@ -1113,7 +1112,7 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 		}
 
 //on verifie que les rectangles n'ont pas été permutés.
-		assert(equal(vec.begin(), vec.end(), vect.begin(), [](MyRect& r1, MyRect& r2){return dimensions(r1)==dimensions(r2);})) ;
+		assert(ranges::equal(vec, vect, {}, [](MyRect& r){return dimensions(r);})) ;
 		int total_distance = 0 ;
 		for (const MPD_Arc *edge : list_edges(adjacency_list))
 		{
@@ -1173,7 +1172,7 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 	}
 
 //on verifie que les rectangles n'ont pas été permutés.
-	assert(equal(vec.begin(), vec.end(), vect.begin(), [](MyRect& r1, MyRect& r2){return dimensions(r1)==dimensions(r2);})) ;
+	assert(ranges::equal(vec, vect, {}, [](MyRect& r){return dimensions(r);})) ;
 	vect = vec ;
 }
 
@@ -1930,8 +1929,6 @@ n3|     |       |  cc3      |
 
 	int n_acc = 0 ;
 
-//	while (int& np = *find_if(begin(component_distribution), end(component_distribution), [=](int& np) { return np > max_nb_boxes_per_diagram; }))
-
 	for (int i=0; i < component_distribution.size(); i++)
 	{
 		int np = component_distribution[i] ;
@@ -1945,7 +1942,7 @@ n3|     |       |  cc3      |
 
 			bool b = minimum_cut(
 					(perm1 * WW * perm1.transpose()).block(n_acc, n_acc, np, np),
-					perm3, 
+					perm3,
 					sub_component_distribution
 				) ;
 
@@ -1953,7 +1950,7 @@ n3|     |       |  cc3      |
 			{
 				transform(
 					perm3.indices().data(),
-					perm3.indices().data()+np, 
+					perm3.indices().data()+np,
 					perm2.indices().data()+n_acc,
 					[&](int pi){return pi+n_acc;}
 				) ;
@@ -1973,12 +1970,12 @@ n3|     |       |  cc3      |
 
 		n_acc += np ;
 	}
-	
+
 	vector<MyRect> single_tables ;
 
 	n_acc=0 ;
 	for (int np : component_distribution)
-	{			
+	{
 		vector<vector<MPD_Arc> > my_adjacency_list = compute_adjacency_list_( (perm1 * OW * perm1.transpose()).block(n_acc, n_acc, np, np)) ;
 		vector<MyRect> my_rectangles(np) ;
 /*
@@ -2002,8 +1999,6 @@ perm * A : permute rows
 
 		n_acc += np ;
 	}
-
-//	sort(single_tables.begin(), single_tables.end(), [](WidgetContext& widg1, WidgetContext& widg2){return widg1.label<widg2.label;}) ;
 
 	if (!single_tables.empty())
 	{
@@ -2031,7 +2026,7 @@ perm * A : permute rows
 		{
 			Context ctx2 = ctx ;
 			stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
-			
+
 			auto it = find_if(ctx2.rectangles.begin(), ctx2.rectangles.end(), [&](MyRect& r){ return r.no_sequence==no_sequence_from_center;}) ;
 			if (it != ctx2.rectangles.end())
 			{
