@@ -432,9 +432,7 @@ Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self)
 	if (solutions.empty())
 		return false ;
 
-	auto it = ranges::min_element(solutions, {}, [](const vector<MyRect>& rectangles){return dim_max(compute_frame(rectangles)) ;}) ;
-	int index = distance(solutions.begin(), it) ;
-	rectangles = *it ;
+	rectangles = * ranges::min_element(solutions, {}, [](const vector<MyRect>& rectangles){return dim_max(compute_frame(rectangles)) ;}) ;
 	MyRect frame = compute_frame(rectangles) ;
 	for (MyRect &r : rectangles)
 		translate(r, {-frame.m_left, -frame.m_top}) ;
