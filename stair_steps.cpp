@@ -440,16 +440,6 @@ Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self)
 }
 
 
-template <unsigned N>
-void make_adjacency_list(int (&edges)[N][2], vector<vector<MPD_Arc> >& adjacency_list)
-{
-	for (int (&edge)[2] : edges)
-	{
-		adjacency_list[edge[0]].push_back(MPD_Arc{edge[0], edge[1]}) ;
-	}
-}
-
-
 void write_json(const vector<Context>& contexts, char (&buffer)[100000])
 {
 	int pos=0;
