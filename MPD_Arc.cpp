@@ -11,12 +11,6 @@
 using namespace std ;
 
 
-bool operator==(const MPD_Arc& a, const MPD_Arc& b)
-{
-	return a._i == b._i && a._j == b._j ;
-}
-
-
 vector<MPD_Arc> list_edges_(const vector<vector<MPD_Arc> >& graph)
 {
 	vector<MPD_Arc> edges ;

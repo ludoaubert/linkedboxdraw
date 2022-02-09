@@ -16,9 +16,10 @@ struct MPD_Arc
 {
 	int _i ;
 	int _j ;
+
+	bool operator==(const MPD_Arc&) const = default;
 } ;
 
-bool operator==(const MPD_Arc& a, const MPD_Arc& b) ;
 
 std::vector<const MPD_Arc*> list_edges(const std::vector<std::vector<MPD_Arc> >& graph) ;
 std::vector<MPD_Arc*> list_edges(std::vector<std::vector<MPD_Arc> >& graph) ;
