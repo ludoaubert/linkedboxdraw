@@ -816,16 +816,11 @@ void test_stair_steps(int rect_border)
 
             for (const Edge& e : dctx.edges)
             {
-                MPD_Arc edge;
-                edge._i = e.from;
-                edge._j = e.to;
-                assert(edge._i < n);
-                assert(edge._j < n);
-                ctx.adjacency_list[edge._i].push_back(edge) ;
+                ctx.adjacency_list[e.from].push_back({e.from, e.to}) ;
             }
 
             contexts.push_back(ctx);
-        } 
+        }
 
 	int testid=0;
         int c=0;
