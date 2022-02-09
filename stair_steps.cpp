@@ -2027,7 +2027,7 @@ perm * A : permute rows
 			Context ctx2 = ctx ;
 			stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 
-			auto it = find_if(ctx2.rectangles.begin(), ctx2.rectangles.end(), [&](MyRect& r){ return r.no_sequence==no_sequence_from_center;}) ;
+			auto it = ranges::find_if(ctx2.rectangles, [&](MyRect& r){ return r.no_sequence==no_sequence_from_center;}) ;
 			if (it != ctx2.rectangles.end())
 			{
 				for (MyRect &r : ctx2.rectangles)
@@ -2039,7 +2039,7 @@ perm * A : permute rows
 				MyRect& rr = *it ;
 
 				float lower_bound = 1.0, upper_bound, spread = 0.001 ;
-				
+
 				auto tree_layout = [&](float factor){
 					ranges::copy(rects, ctx2.rectangles.begin()) ;
 					rr = expand(rr, factor) ;
