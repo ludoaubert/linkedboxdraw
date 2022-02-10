@@ -296,7 +296,7 @@ void test_optimize_rectangle_positions()
 		{195,369,112,240}
 	};
 
-	vector<MPD_Arc> edges={
+	const vector<Edge> edges={
 		{2,1},
 		{3,0},
 		{3,3},
@@ -336,17 +336,16 @@ void test_optimize_rectangle_positions()
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i ;
 	vector<vector<MPD_Arc> > adjacency_list(14) ;
-	for (MPD_Arc &edge : edges)
+	for (const Edge e : edges)
 	{
-		int i = edge._i, j = edge._j ;
-		adjacency_list[i].push_back(MPD_Arc{i,j}) ;
+		adjacency_list[e.from].push_back({e.from, e.to}) ;
 	}
 
 	optimize_rectangle_positions(rectangles, adjacency_list) ;
 
 	latuile_test_json_output(input_rectangles,
 				rectangles,
-				//edges,
+				edges,
 				expected_rectangles,
 				"optimize_rectangle_positions",
 				1);

@@ -437,16 +437,17 @@ void test_binpack()
 		}
 	};
 
-//TODO: use C++17 destructuring
 	for (auto [testid, input_rectangles, w,h, expected_rectangles] : test_contexts)
 	{
 		vector<MyRect> rectangles = input_rectangles;
 
 		binpack(rectangles, w,h) ;
 
+		vector<Edge> edges;
+
                 latuile_test_json_output(input_rectangles,
 					rectangles,
-                                        //edges,
+                                        edges,
                                         expected_rectangles,
                                         "binpack",
                                         testid);

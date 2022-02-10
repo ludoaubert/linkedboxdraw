@@ -1,6 +1,8 @@
 #include <vector>
 #include <algorithm>
+#include <ranges>
 #include "MyRect.h"
+#include "latuile_test_json_output.h"
 using namespace std;
 
 
@@ -42,6 +44,7 @@ void json_context_output(const vector<MyRect> &rectangles,
 }
 
 void json_diagdata_output(const vector<MyRect> &rectangles,
+			const std::vector<Edge> &edges,
                         const char* file_name)
 {
 	char buffer[10 * 1024];
@@ -51,7 +54,15 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
 	for (int i=0; i < rectangles.size(); i++)
-		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\", \"fields\":[]},\n", i);
+	{
+		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\"\n",i);
+		pos += sprintf(buffer + pos, "\t\"fields\":[\n");
+		auto r = edges | ranges::views::filter( [=](const Edge& e){return e.from==i || e.to==i;}) |
+			ranges::views::transform( [=](const Edge& e){return e.from==i ? e.to : e.from;});
+		for (int j : r)
+			pos += sprintf(buffer + pos, "\t\t{\"name\":\"rec-%d\",\"isPrimaryKey\":false,\"isForeignKey\":false},\n", j);
+		pos += sprintf(buffer + pos, "\t]},\n");
+	}
 
 	if (buffer[pos-2]==',')
 	{
@@ -65,12 +76,13 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 "fieldComments":[],
 "links":[
 )");
-/*
-	for (const auto& [from, to] : links)
+
+	for (auto [from, to] : edges)
 	{
-		pos += sprintf(buffer + pos, "{\"from\":%d,\"fromField\":-1,\"fromCardinality\":\"undefined\",\"to\":%d,\"toField\":-1,\"toCardinality\":\"undefined\"},\n", from, to);
+		pos += sprintf(buffer + pos, "\t{\"from\":%d,\"fromField\":-1,\"fromCardinality\":\"undefined\",\"to\":%d,\"toField\":-1,\"toCardinality\":\"undefined\"}\n",from, to);
+
 	}
-*/
+
 	if (buffer[pos-2]==',')
 	{
 		buffer[pos-2]='\n';
@@ -102,14 +114,14 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 
 void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 				const vector<MyRect> &output_rectangles,
-			//	const vector<int[2]> &edges,
+				const vector<Edge> &edges,
 				const vector<MyRect> &expected_rectangles,
 				const char* test_name,
 				int test_number)
 {
 	char file_name[100];
         sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, test_number);
-	json_diagdata_output(input_rectangles, file_name);
+	json_diagdata_output(input_rectangles, edges, file_name);
         sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, test_number);
 	json_context_output(input_rectangles, file_name);
 	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, test_number);

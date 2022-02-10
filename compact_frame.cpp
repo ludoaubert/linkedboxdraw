@@ -163,7 +163,7 @@ void test_compact_frame()
 			{411,641,160,672} //sfuser
 		};
 
-		const int edges[11][2]={
+		const vector<Edge> edges = {
 			{0,7},
 			{0,9},
 			{1,9},
@@ -195,16 +195,15 @@ void test_compact_frame()
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(10) ;
-		for (const int (&edge)[2] : edges)
+		for (const Edge& e : edges)
 		{
-			int i = edge[0], j = edge[1] ;
-			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
+			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
 
                 latuile_test_json_output(input_rectangles,
 					rectangles,
-                                        //edges,
+                                        edges,
                                         expected_rectangles,
                                         "compact_frame",
                                         1);
@@ -221,7 +220,7 @@ void test_compact_frame()
 			{0, 10, 20, 30}
 		} ;
 
-		const int edges[1][2]={
+		const vector<Edge> edges = {
 			{0,1}
 		} ;
 
@@ -235,16 +234,15 @@ void test_compact_frame()
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(2) ;
-		for (const int (&edge)[2] : edges)
+		for (const Edge &e : edges)
 		{
-			int i = edge[0], j = edge[1] ;
-			adjacency_list[i].push_back(MPD_Arc{i,j}) ;
+			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
 
                 latuile_test_json_output(input_rectangles,
 					rectangles,
-                                        //edges,
+                                        edges,
                                         expected_rectangles,
                                         "compact_frame",
                                         2);

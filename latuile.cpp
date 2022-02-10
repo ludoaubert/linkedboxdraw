@@ -2,7 +2,7 @@
 // latuile.cpp
 // ~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2016-2017 Ludovic Aubert - All Rights reserved
+// Copyright (c) 2016-2022 Ludovic Aubert - All Rights reserved
 //
 //
 
@@ -23,6 +23,7 @@
 #include "swap_rectangles.h"
 #include "binpack.h"
 #include "FunctionTimer.h"
+#include "latuile_test_json_output.h"
 #include <chrono>
 #include <cmath>
 #include <numeric>
@@ -35,7 +36,6 @@ void test()
     TestFunctionTimer ft("test_latuile");
 
     struct Rect {int left,right,top,bottom;};
-    struct Edge {int from,to;};
     struct TestInput{vector<Rect> rectangles; vector<Edge> edges;};
     struct TestOutputContext{string title; Rect frame; vector<TranslatedBox> translatedBoxes;};
     struct TestContext{TestInput input; vector<TestOutputContext> output;};
@@ -178,13 +178,7 @@ void test()
 
     for (Edge& e : context.input.edges)
     {
-        MPD_Arc edge;
-	edge._i = e.from;
-	edge._j = e.to;
-        assert(edge._i < n);
-        assert(edge._j < n);
-//si on ne met rien, compute_adjacency_list_() ne va pas voir ces arcs
-        adjacency_list[edge._i].push_back(edge) ;
+        adjacency_list[e.from].push_back({e.from, e.to}) ;
     }
     int no_sequence_from_center = -1;
     vector<Context> contexts ;
@@ -207,6 +201,13 @@ void test()
             translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
         }
         printf("%s\n", context.output[i].translatedBoxes == translatedBoxes ? "OK" : "KO");
+	int test_number = i;
+	latuile_test_json_output(ctx.rectangles,
+                                ctx.rectangles,
+                                context.input.edges,
+                                ctx.rectangles,
+                                "test_latuile",
+                                test_number);
     }
 }
 

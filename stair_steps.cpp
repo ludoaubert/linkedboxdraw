@@ -474,7 +474,6 @@ void test_stair_steps(int rect_border)
 {
         TestFunctionTimer ft("test_stair_steps");
 
-        struct Edge{int from,to;};
         struct DataContext{int testid; string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
         const vector<DataContext> vdctx = {
                 {
@@ -860,7 +859,7 @@ void test_stair_steps(int rect_border)
 
                 latuile_test_json_output(input_rectangles,
                                         ctx.rectangles,
-                                        //edges,
+                                        dctx.edges,
                                         expected_rectangles,
                                         "stair_steps",
                                         testid++);
@@ -1167,7 +1166,6 @@ void test_stair_steps_layout()
 
         vector<Context> contexts ;
 
-        struct Edge{int from,to;};
         struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
         const vector<DataContext> vdctx = {
 	        {
@@ -1779,11 +1777,11 @@ void test_stair_steps_layout()
 
 		int test_number=c;
 		latuile_test_json_output(ctx.rectangles,
-								ctx.rectangles,
-                               // const std::vector<int[2]> &edges,
-                                ctx.rectangles,
-                                ctx.title.c_str(),
-                                test_number);
+					ctx.rectangles,
+                               		dctx.edges,
+                                	ctx.rectangles,
+                                	ctx.title.c_str(),
+                                	test_number);
 	}
 }
 
@@ -2079,7 +2077,6 @@ void test_stair_steps_layout_from_111_boxes()
 {
 	TestFunctionTimer ft("test_stair_steps_layout_from_111_boxes");
 
-        struct Edge{int from,to;};
         struct Result{vector<TranslatedBox> expected_translations; MyRect frame;};
         struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<Result> contexts;};
         DataContext dctx = {
@@ -2650,7 +2647,7 @@ void test_stair_steps_layout_from_111_boxes()
         FILE *f = fopen("test-latuile-101boxes-output-contexts.json", "w");
         fprintf(f, "%s", buffer);
         fclose(f);
-	json_diagdata_output(dctx.rectangles, "test-latuile-101boxes-diagdata.json");
+	json_diagdata_output(dctx.rectangles, dctx.edges, "test-latuile-101boxes-diagdata.json");
 
         int c=0;
         for (Context &ctx : contexts)

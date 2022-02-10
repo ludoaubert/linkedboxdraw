@@ -107,7 +107,7 @@ void test_compact_rectangles()
 		{84,244,0,128},  //transition
 		{404,620,512,640}//role_default_user
 	};
-	int edges[20][2]={
+	const vector<Edge> edges = {
 		{0,9},
 		{1,0},
 		{1,9},
@@ -153,16 +153,15 @@ void test_compact_rectangles()
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i ;
 	vector<vector<MPD_Arc> > adjacency_list(15) ;
-	for (int (&edge)[2] : edges)
+	for (const Edge &e : edges)
 	{
-		int i = edge[0], j = edge[1] ;
-		adjacency_list[i].push_back(MPD_Arc{i,j}) ;
+		adjacency_list[e.from].push_back({e.from, e.to}) ;
 	}
 	compact_rectangles(rectangles, adjacency_list) ;
 
 	latuile_test_json_output(input_rectangles,
 				rectangles,
-				//edges,
+				edges,
 				expected_rectangles,
 				"compact_rectangles",
 				1);

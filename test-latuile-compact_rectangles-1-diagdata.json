@@ -1,25 +1,114 @@
 {"documentTitle":"reg-test-0",
 "boxes":[
-	{"title":"rec-0", "fields":[]},
-	{"title":"rec-1", "fields":[]},
-	{"title":"rec-2", "fields":[]},
-	{"title":"rec-3", "fields":[]},
-	{"title":"rec-4", "fields":[]},
-	{"title":"rec-5", "fields":[]},
-	{"title":"rec-6", "fields":[]},
-	{"title":"rec-7", "fields":[]},
-	{"title":"rec-8", "fields":[]},
-	{"title":"rec-9", "fields":[]},
-	{"title":"rec-10", "fields":[]},
-	{"title":"rec-11", "fields":[]},
-	{"title":"rec-12", "fields":[]},
-	{"title":"rec-13", "fields":[]},
-	{"title":"rec-14", "fields":[]}
+	{"title":"rec-0"
+	"fields":[
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-12","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-1"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-2"
+	"fields":[
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-3"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-12","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-4"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-5"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-6"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-7"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-13","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-8"
+	"fields":[
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-9"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-8","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-10"
+	"fields":[
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-11"
+	"fields":[
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-12"
+	"fields":[
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-13"
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+	]},
+	{"title":"rec-14"
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+	]}
 ],
 "values":[],
 "boxComments":[],
 "fieldComments":[],
 "links":[
+	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":2,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":3,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":3,"fromField":-1,"fromCardinality":"undefined","to":12,"toField":-1,"toCardinality":"undefined"}
+	{"from":4,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":5,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":5,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":6,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":6,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":7,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":7,"fromField":-1,"fromCardinality":"undefined","to":13,"toField":-1,"toCardinality":"undefined"}
+	{"from":8,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":9,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":10,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":11,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
+	{"from":12,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":14,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
+	{"from":14,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"}
 ],
 "fieldColors":[],
 "rectangles":[

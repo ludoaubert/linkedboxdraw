@@ -1,10 +1,20 @@
 {"documentTitle":"reg-test-0",
 "boxes":[
-	{"title":"rec-0", "fields":[]},
-	{"title":"rec-1", "fields":[]},
-	{"title":"rec-2", "fields":[]},
-	{"title":"rec-3", "fields":[]},
-	{"title":"rec-4", "fields":[]}
+	{"title":"rec-0"
+	"fields":[
+	]},
+	{"title":"rec-1"
+	"fields":[
+	]},
+	{"title":"rec-2"
+	"fields":[
+	]},
+	{"title":"rec-3"
+	"fields":[
+	]},
+	{"title":"rec-4"
+	"fields":[
+	]}
 ],
 "values":[],
 "boxComments":[],
