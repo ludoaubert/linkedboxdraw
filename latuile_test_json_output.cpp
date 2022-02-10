@@ -11,7 +11,6 @@ void json_context_output(const vector<MyRect> &rectangles,
         int pos = 0;
 
         MyRect frame = compute_frame(rectangles);
-        expand_by(frame, FRAME_BORDER);
 
         pos += sprintf(buffer + pos, R"(
 {"contexts":[{
