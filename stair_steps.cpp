@@ -1750,12 +1750,7 @@ void test_stair_steps_layout()
             ctx.adjacency_list.resize(n) ;
             for (const Edge& e : dctx.edges)
             {
-                MPD_Arc edge;
-                edge._i = e.from;
-                edge._j = e.to;
-                assert(edge._i < n);
-                assert(edge._j < n);
-                ctx.adjacency_list[edge._i].push_back(edge) ;
+                ctx.adjacency_list[e.from].push_back({e.from, e.to}) ;
             }
 
             contexts.push_back(ctx);
@@ -1773,14 +1768,22 @@ void test_stair_steps_layout()
 		stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 		ctx.frame = compute_frame(ctx.rectangles) ;
                 ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
-                vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
-                    translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
+                    ctx.translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
                 const DataContext &dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
 
-                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
+                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == ctx.translations ? "OK": "KO",
                        dctx.title.c_str(), time_span.count());
+
+		char buffer[100000], file_name[100];
+		write_json({ctx}, buffer);
+		sprintf(file_name, "test-latuile-%s-output-contexts.json", ctx.title);
+		FILE *f = fopen(file_name, "w");
+		fprintf(f, "%s", buffer);
+		fclose(f);
+		sprintf(file_name, "test-latuile-%s-diagdata.json", ctx.title);
+		json_diagdata_output(dctx.rectangles, file_name);
 	}
 }
 
