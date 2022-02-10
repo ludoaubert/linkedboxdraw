@@ -2,36 +2,36 @@
 "boxes":[
 	{"title":"rec-0"
 	"fields":[
-		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-1"
 	"fields":[
-		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-2"
 	"fields":[
 		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-3"
 	"fields":[
 		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-16","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-16","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-4"
 	"fields":[
-		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-5"
 	"fields":[
 		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-17","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-6"
 	"fields":[
 		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-7"
 	"fields":[
@@ -39,38 +39,38 @@
 		{"name":"rec-16","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-17","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-8"
 	"fields":[
 		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-9"
 	"fields":[
 		{"name":"rec-8","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-15","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-10"
 	"fields":[
 		{"name":"rec-18","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-16","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-11"
 	"fields":[
 		{"name":"rec-13","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-19","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-12"
 	"fields":[
-		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-13"
 	"fields":[
-		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-14"
 	"fields":[
@@ -78,33 +78,33 @@
 		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-12","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-15"
 	"fields":[
-		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-16"
 	"fields":[
 		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-17"
 	"fields":[
 		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-18"
 	"fields":[
-		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-19"
 	"fields":[
 		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
 		{"name":"rec-8","isPrimaryKey":false,"isForeignKey":false},
-		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false}
 	]}
 ],
 "values":[],

@@ -2,11 +2,11 @@
 "boxes":[
 	{"title":"rec-0"
 	"fields":[
-		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false}
 	]},
 	{"title":"rec-1"
 	"fields":[
-		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false}
 	]}
 ],
 "values":[],

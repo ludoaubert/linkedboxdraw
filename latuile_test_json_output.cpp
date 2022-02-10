@@ -61,6 +61,11 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 			ranges::views::transform( [=](const Edge& e){return e.from==i ? e.to : e.from;});
 		for (int j : r)
 			pos += sprintf(buffer + pos, "\t\t{\"name\":\"rec-%d\",\"isPrimaryKey\":false,\"isForeignKey\":false},\n", j);
+        	if (buffer[pos-2]==',')
+ 		{
+ 			buffer[pos-2]='\n';
+ 			pos--;
+ 		}
 		pos += sprintf(buffer + pos, "\t]},\n");
 	}
 
