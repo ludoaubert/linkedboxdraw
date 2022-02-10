@@ -1768,22 +1768,22 @@ void test_stair_steps_layout()
 		stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 		ctx.frame = compute_frame(ctx.rectangles) ;
                 ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
+                vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
-                    ctx.translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
+                    translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
                 const DataContext &dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
 
-                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == ctx.translations ? "OK": "KO",
+                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
                        dctx.title.c_str(), time_span.count());
 
-		char buffer[100000], file_name[100];
-		write_json({ctx}, buffer);
-		sprintf(file_name, "test-latuile-%s-output-contexts.json", ctx.title);
-		FILE *f = fopen(file_name, "w");
-		fprintf(f, "%s", buffer);
-		fclose(f);
-		sprintf(file_name, "test-latuile-%s-diagdata.json", ctx.title);
-		json_diagdata_output(dctx.rectangles, file_name);
+		int test_number=c;
+		latuile_test_json_output(ctx.rectangles,
+								ctx.rectangles,
+                               // const std::vector<int[2]> &edges,
+                                ctx.rectangles,
+                                ctx.title.c_str(),
+                                test_number);
 	}
 }
 
