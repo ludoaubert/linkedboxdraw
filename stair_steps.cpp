@@ -461,7 +461,7 @@ void write_json(const vector<Context>& contexts, char (&buffer)[100000])
 		}
 
 		pos += sprintf(buffer + pos, "],\n");
-		pos += sprintf(buffer + pos, "\"links\":[]\n")
+		pos += sprintf(buffer + pos, "\"links\":[]\n");
 		pos += sprintf(buffer + pos, "}%c\n", &ctx == &contexts.back() ? ' ' : ',');
 	}
 

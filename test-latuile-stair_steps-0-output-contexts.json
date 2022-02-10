@@ -1,6 +1,6 @@
 
 {"contexts":[{
-"frame":{"left":65506,"right":250,"top":65506,"bottom":230},
+"frame":{"left":0,"right":220,"top":0,"bottom":200},
 "translatedBoxes":[
 {"id":0,"translation":{"x":90,"y":50}},
 {"id":1,"translation":{"x":0,"y":80}},
