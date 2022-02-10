@@ -443,28 +443,29 @@ Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self)
 void write_json(const vector<Context>& contexts, char (&buffer)[100000])
 {
 	int pos=0;
-	pos += sprintf(buffer + pos, "{\"contexts\":[");
+	pos += sprintf(buffer + pos, "{\"contexts\":[\n");
 
 	for (const Context& ctx : contexts)
 	{
-		pos += sprintf(buffer + pos, "{\"title\":\"%s\",", ctx.title.c_str());
-		pos += sprintf(buffer + pos, "\"frame\":{\"left\":%d,\"right\":%d,\"top\":%d,\"bottom\":%d},", 0, width(ctx.frame), 0, height(ctx.frame));
+		pos += sprintf(buffer + pos, "{\"title\":\"%s\",\n", ctx.title.c_str());
+		pos += sprintf(buffer + pos, "\"frame\":{\"left\":%d,\"right\":%d,\"top\":%d,\"bottom\":%d},\n", 0, width(ctx.frame), 0, height(ctx.frame));
 
-		pos += sprintf(buffer + pos, "\"translatedBoxes\":[");
+		pos += sprintf(buffer + pos, "\"translatedBoxes\":[\n");
 
 		for (const MyRect& r : ctx.rectangles)
 		{
 			assert(r.m_left < r.m_right);
 			assert(r.m_top < r.m_bottom);
-			pos += sprintf(buffer + pos, "{\"id\":%d, \"translation\":{\"x\":%d,\"y\":%d}}%c", r.no_sequence, r.m_left, r.m_top,
+			pos += sprintf(buffer + pos, "{\"id\":%d, \"translation\":{\"x\":%d,\"y\":%d}}%c\n", r.no_sequence, r.m_left, r.m_top,
                               &r == &ctx.rectangles.back() ? ' ' : ',');
 		}
 
-		pos += sprintf(buffer + pos, "]");
-		pos += sprintf(buffer + pos, "}%c", &ctx == &contexts.back() ? ' ' : ',');
+		pos += sprintf(buffer + pos, "],\n");
+		pos += sprintf(buffer + pos, "\"links\":[]\n")
+		pos += sprintf(buffer + pos, "}%c\n", &ctx == &contexts.back() ? ' ' : ',');
 	}
 
-	pos += sprintf(buffer + pos, "]}");
+	pos += sprintf(buffer + pos, "]}\n");
 	buffer[pos]=0;
 	assert(pos < 100000);
 }
