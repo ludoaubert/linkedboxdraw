@@ -1,24 +1,31 @@
 {"documentTitle":"reg-test-0",
 "boxes":[
-	{"title":"rec-0"
+	{"title":"rec-0",
+	"id":0,
 	"fields":[
 	]},
-	{"title":"rec-1"
+	{"title":"rec-1",
+	"id":1,
 	"fields":[
 	]},
-	{"title":"rec-2"
+	{"title":"rec-2",
+	"id":2,
 	"fields":[
 	]},
-	{"title":"rec-3"
+	{"title":"rec-3",
+	"id":3,
 	"fields":[
 	]},
-	{"title":"rec-4"
+	{"title":"rec-4",
+	"id":4,
 	"fields":[
 	]},
-	{"title":"rec-5"
+	{"title":"rec-5",
+	"id":5,
 	"fields":[
 	]},
-	{"title":"rec-6"
+	{"title":"rec-6",
+	"id":6,
 	"fields":[
 	]}
 ],

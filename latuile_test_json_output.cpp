@@ -56,7 +56,7 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 	for (int i=0; i < rectangles.size(); i++)
 	{
 		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\",\n",i);
-		pos += sprintf(buffer + pos, "\t\"\id\":%d,\n",i);
+		pos += sprintf(buffer + pos, "\t\"id\":%d,\n",i);
 		pos += sprintf(buffer + pos, "\t\"fields\":[\n");
 		auto r = edges | ranges::views::filter( [=](const Edge& e){return e.from==i || e.to==i;}) |
 			ranges::views::transform( [=](const Edge& e){return e.from==i ? e.to : e.from;});

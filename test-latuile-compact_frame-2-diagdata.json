@@ -1,10 +1,12 @@
 {"documentTitle":"reg-test-0",
 "boxes":[
-	{"title":"rec-0"
+	{"title":"rec-0",
+	"id":0,
 	"fields":[
 		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false}
 	]},
-	{"title":"rec-1"
+	{"title":"rec-1",
+	"id":1,
 	"fields":[
 		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false}
 	]}

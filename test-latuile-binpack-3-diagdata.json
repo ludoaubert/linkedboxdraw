@@ -1,51 +1,67 @@
 {"documentTitle":"reg-test-0",
 "boxes":[
-	{"title":"rec-0"
+	{"title":"rec-0",
+	"id":0,
 	"fields":[
 	]},
-	{"title":"rec-1"
+	{"title":"rec-1",
+	"id":1,
 	"fields":[
 	]},
-	{"title":"rec-2"
+	{"title":"rec-2",
+	"id":2,
 	"fields":[
 	]},
-	{"title":"rec-3"
+	{"title":"rec-3",
+	"id":3,
 	"fields":[
 	]},
-	{"title":"rec-4"
+	{"title":"rec-4",
+	"id":4,
 	"fields":[
 	]},
-	{"title":"rec-5"
+	{"title":"rec-5",
+	"id":5,
 	"fields":[
 	]},
-	{"title":"rec-6"
+	{"title":"rec-6",
+	"id":6,
 	"fields":[
 	]},
-	{"title":"rec-7"
+	{"title":"rec-7",
+	"id":7,
 	"fields":[
 	]},
-	{"title":"rec-8"
+	{"title":"rec-8",
+	"id":8,
 	"fields":[
 	]},
-	{"title":"rec-9"
+	{"title":"rec-9",
+	"id":9,
 	"fields":[
 	]},
-	{"title":"rec-10"
+	{"title":"rec-10",
+	"id":10,
 	"fields":[
 	]},
-	{"title":"rec-11"
+	{"title":"rec-11",
+	"id":11,
 	"fields":[
 	]},
-	{"title":"rec-12"
+	{"title":"rec-12",
+	"id":12,
 	"fields":[
 	]},
-	{"title":"rec-13"
+	{"title":"rec-13",
+	"id":13,
 	"fields":[
 	]},
-	{"title":"rec-14"
+	{"title":"rec-14",
+	"id":14,
 	"fields":[
 	]},
-	{"title":"rec-15"
+	{"title":"rec-15",
+	"id":15,
 	"fields":[
 	]}
 ],
