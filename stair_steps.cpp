@@ -1780,7 +1780,7 @@ void test_stair_steps_layout()
 					ctx.rectangles,
                                		dctx.edges,
                                 	ctx.rectangles,
-                                	ctx.title.c_str(),
+                                	"test_stair_steps_layout",
                                 	test_number);
 	}
 }
