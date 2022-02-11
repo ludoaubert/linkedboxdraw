@@ -47,7 +47,7 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 			const std::vector<Edge> &edges,
                         const char* file_name)
 {
-	char buffer[10 * 1024];
+	char buffer[100 * 1024];
 	int pos = 0;
 
 	int testid=0;
