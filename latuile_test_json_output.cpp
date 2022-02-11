@@ -14,8 +14,7 @@ void json_context_output(const vector<MyRect> &rectangles,
 
         MyRect frame = compute_frame(rectangles);
 
-        pos += sprintf(buffer + pos, R"(
-{"contexts":[{
+        pos += sprintf(buffer + pos, R"({"contexts":[{
 "frame":{"left":%hu,"right":%hu,"top":%hu,"bottom":%hu},
 "translatedBoxes":[
 )", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
@@ -125,7 +124,7 @@ void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 				const char* test_name,
 				int test_number)
 {
-	char file_name[100];
+	char file_name[200];
         sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, test_number);
 	json_diagdata_output(input_rectangles, edges, file_name);
         sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, test_number);
