@@ -810,7 +810,6 @@ void test_stair_steps(int rect_border)
             contexts.push_back(ctx);
         }
 
-	int testid=0;
         int c=0;
 	for (Context &ctx : contexts)
 	{
@@ -862,7 +861,7 @@ void test_stair_steps(int rect_border)
                                         dctx.edges,
                                         expected_rectangles,
                                         "stair_steps",
-                                        testid++);
+                                        dctx.testid);
 	}
 }
 
@@ -1166,10 +1165,10 @@ void test_stair_steps_layout()
 
         vector<Context> contexts ;
 
-        struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
+        struct DataContext{int testid; string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
         const vector<DataContext> vdctx = {
 	        {
-		    "RANELITEG",
+		    1,"RANELITEG",
                     {
 			{0, 120, 0, 104},
 			{0, 137, 0, 248},
@@ -1227,7 +1226,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,738,0,584}
                 },
                 {
-		    "SAKILA",
+		    2,"SAKILA",
                     {
 			{0, 80, 0, 88},
 			{0, 84, 0, 152},
@@ -1287,7 +1286,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,713,0,728}  
                 },
                 {
-		    "SINITAX",
+		    3,"SINITAX",
                     {
 			{0, 103, 0, 104},
 			{0, 58, 0, 72},
@@ -1357,7 +1356,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,547,0,664}
                 },
                 {
-                    "COCOGIRL/1",
+                    4,"COCOGIRL/1",
                     {
 			{0, 131, 0, 184},
 			{0, 56, 0, 40},
@@ -1395,7 +1394,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,466,0,392}
                 },
                 {
-		    "COCOGIRL/2",
+		    5,"COCOGIRL/2",
                     {
 			{0, 110, 0, 136},
 			{0, 135, 0, 104},
@@ -1444,7 +1443,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,802,0,616}
                 },
                 {
-                    "COCOGIRL/3",
+                    6,"COCOGIRL/3",
                     {
 			{0, 131, 0, 280},
 			{0, 154, 0, 72},
@@ -1488,7 +1487,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,683,0,680}
                 },
                 {
-                    "COCOGIRL/4",
+                    7,"COCOGIRL/4",
                     {
 			{0, 134, 0, 88},
 			{0, 149, 0, 392},
@@ -1539,7 +1538,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,648,0,648}
                 },
                 {
-		    "COCOGIRL/5",
+		    8,"COCOGIRL/5",
                     {
 			{0, 106, 0, 248},
 			{0, 112, 0, 104},
@@ -1612,7 +1611,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,1270,0,696}
                 },
                 {
-                    "COCOGIRL/6",
+                    9,"COCOGIRL/6",
                     {
 			{0, 131, 0, 376},
 			{0, 90, 0, 216},
@@ -1647,7 +1646,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,605,0,456}
                 },
                 {
-                    "COCOGIRL/7",
+                    10,"COCOGIRL/7",
                     {
 			{0, 130, 0, 200},
 			{0, 127, 0, 120},
@@ -1681,7 +1680,7 @@ void test_stair_steps_layout()
                     /*frame*/{0,444,0,520}
                 },
                 {
-                    "COCOGIRL/8",
+                    11,"COCOGIRL/8",
                     {
 			{0, 101, 0, 136},
 			{0, 100, 0, 136},
@@ -1763,6 +1762,8 @@ void test_stair_steps_layout()
 		for (MyRect &r : ctx.rectangles)
 	            r.i = r.no_sequence = i++ ;
 
+		const vector<MyRect> input_rectangles = ctx.rectangles;
+
 		stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 		ctx.frame = compute_frame(ctx.rectangles) ;
                 ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
@@ -1775,13 +1776,19 @@ void test_stair_steps_layout()
                 printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
                        dctx.title.c_str(), time_span.count());
 
-		int test_number=c;
-		latuile_test_json_output(ctx.rectangles,
+                vector<MyRect> expected_rectangles = input_rectangles;
+                int n = input_rectangles.size();
+                for (int i=0; i<n; i++)
+                {
+                        expected_rectangles[i] = translate(input_rectangles[i], dctx.expected_translations[i].translation);
+                }
+
+		latuile_test_json_output(input_rectangles,
 					ctx.rectangles,
                                		dctx.edges,
-                                	ctx.rectangles,
+                                	expected_rectangles,
                                 	"test_stair_steps_layout",
-                                	test_number);
+                                	dctx.testid);
 	}
 }
 
