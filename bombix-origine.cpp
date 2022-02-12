@@ -1396,8 +1396,8 @@ const TestContext contexts[] = {
 {
     /*testid*/0,
     /*rectangles*/{
-        {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
-        {/*left*/28,/*right*/50,/*top*/10,/*bottom*/30 }
+        {.left=10,.right=30,.top=40,.bottom=60 },
+        {.left=28,.right=50,.top=10,.bottom=30 }
     },
     /*frame*/{ 0, 60, 0, 70 },
     /*links*/{{/*source*/0,/*target*/1}},
