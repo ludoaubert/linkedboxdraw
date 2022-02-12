@@ -2315,11 +2315,11 @@ const TestContext contexts[] = {
 {
         .testid=5,
         .rects={
-            { 40/*left*/,80/*right*/,40/*top*/,80/*bottom*/ },
-            { 120/*left*/,160/*right*/,60/*top*/,100/*bottom*/ },
-            { 200/*left*/,240/*right*/,80/*top*/,120/*bottom*/ }
+            {.left=40,.right=80,.top=40,.bottom=80},
+            {.left=120,.right=160,.top=60,.bottom=100},
+            {.left=200,.right=240,.top=80,.bottom=120}
         },
-        .frame={ 0/*left*/,280/*right*/,0/*top*/,200/*bottom*/ },
+        .frame={.left=0,.right=280,.top=0,.bottom=200},
         .links={{.from=0,.to=2}},
         .faisceau_output={
                        {
@@ -2380,11 +2380,11 @@ const TestContext contexts[] = {
 {
         .testid=6,
         .rects={
-            { 80/*left*/,100/*right*/,40/*top*/,80/*bottom*/ },
-            { 40/*left*/,140/*right*/,120/*top*/,160/*bottom*/ },
-            { 60/*left*/,120/*right*/,200/*top*/,240/*bottom*/ }
+            {.left=80,.right=100,.top=40,.bottom=80},
+            {.left=40,.right=140,.top=120,.bottom=160},
+            {.left=60,.right=120,.top=200,.bottom=240}
         },
-        .frame={ 0/*left*/,200/*right*/,0/*top*/,300/*bottom*/ },
+        .frame={.left=0,.right=200,.top=0,.bottom=300},
         .links={{.from=2,.to=1},{.from=2,.to=0}},
 		.faisceau_output={
 			{
@@ -2449,10 +2449,10 @@ const TestContext contexts[] = {
 {
         .testid=7,
         .rects={
-            { .left=0, .right=2, .top=0, .bottom=2 },
-            { .left=4, .right=5, .top=4, .bottom=5 }
+            {.left=0,.right=2,.top=0,.bottom=2},
+            {.left=4,.right=5,.top=4,.bottom=5}
         },
-        .frame={0/*left*/, 5/*right*/,0/*top*/,5/*bottom*/},
+        .frame={.left=0,.right=5,.top=0,.bottom=5},
         .links={{.from=0,.to=1}},
         .faisceau_output={
 			{
@@ -2513,7 +2513,7 @@ const TestContext contexts[] = {
             { .left=36, .right=40, .top=2, .bottom=6 },
             { .left=36, .right=40, .top=20, .bottom=24 }
         },
-        .frame={0/*left*/,80/*right*/,0/*top*/,60/*bottom*/},
+        .frame={.left=0,.right=80,.top=0,.bottom=60},
         .links={{.from=0,.to=3}},
         .faisceau_output={
             {
@@ -2569,12 +2569,12 @@ const TestContext contexts[] = {
 {
         .testid=9,
         .rects={
-            { .left=20, .right=60, .top=20, .bottom=60 },
-            { .left=20, .right=60, .top=200, .bottom=240 },
-            { .left=360, .right=400, .top=20, .bottom=60 },
-            { .left=360, .right=400, .top=200, .bottom=240 }
+            {.left=20,.right=60,.top=20,.bottom=60 },
+            {.left=20,.right=60,.top=200,.bottom=240 },
+            {.left=360,.right=400,.top=20,.bottom=60 },
+            {.left=360,.right=400,.top=200,.bottom=240 }
         },
-        .frame={0/*left*/,800/*right*/,0/*top*/,600/*bottom*/},
+        .frame={.left=0,.right=800,.top=0,.bottom=600},
         .links={{.from=3,.to=0},{.from=3,.to=1}},
 		.faisceau_output={
 			{
