@@ -654,9 +654,9 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 		for (const /*Target*/ auto& [from, to, expected_path] : targets)
 		{
 			pos += sprintf(buffer + pos, "\t\t\t\t\t{\n");
-			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*from*/%d,\n", from);
-			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*to*/%d,\n", to);
-			pos += sprintf(buffer + pos, "\t\t\t\t\t\t/*expected path*/{\n");
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t.from=%d,\n", from);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t.to=%d,\n", to);
+			pos += sprintf(buffer + pos, "\t\t\t\t\t\t.expected_path={\n");
 
 			for (const Maille& m : expected_path)
 			{
@@ -1406,9 +1406,9 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/0,
-						/*to*/1,
-						/*expected path*/{
+						.from=0,
+						.to=1,
+						.expected_path={
 							{VERTICAL, DECREASE, 2, 1},
 							{VERTICAL, DECREASE, 1, 1},
 							{HORIZONTAL, INCREASE, 1, 1}
@@ -1455,9 +1455,9 @@ const TestContext contexts[] = {
 			{
 				/*target*/{
 					{
-						/*from*/0,
-						/*to*/1,
-						/*expected path*/{
+						.from=0,
+						.to=1,
+						.expected_path={
 							{VERTICAL, DECREASE, 2, 3},
 							{VERTICAL, DECREASE, 1, 3},
 							{HORIZONTAL, INCREASE, 1, 3},
@@ -1465,16 +1465,16 @@ const TestContext contexts[] = {
 						}
 					},
 					{
-						/*from*/0,
-						/*to*/2,
-						/*expected path*/{
+						.from=0,
+						.to=2,
+						.expected_path={
 							{HORIZONTAL, INCREASE, 3, 4}
 						}
 					},
 					{
-						/*from*/0,
-						/*to*/3,
-						/*expected path*/{
+						.from=0,
+						.to=3,
+						.expected_path={
 							{VERTICAL, INCREASE, 6, 3},
 							{VERTICAL, INCREASE, 7, 3},
 							{HORIZONTAL, INCREASE, 7, 3},
@@ -1546,16 +1546,16 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/0,
-						/*to*/1,
-						/*expected path*/{
+						.from=0,
+						.to=1,
+						.expected_path={
 							{ VERTICAL, INCREASE, 4, 4 }
 						}
 					},
 					{
-						/*from*/0,
-						/*to*/3,
-						/*expected path*/{
+						.from=0,
+						.to=3,
+						.expected_path={
 							{ HORIZONTAL, DECREASE, 3, 3},
 							{ VERTICAL, INCREASE, 3, 3 },
 							{ VERTICAL, INCREASE, 4, 3 },
@@ -1621,9 +1621,9 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/0,
-						/*to*/3,
-						/*expected path*/{
+						.from=0,
+						.to=3,
+						.expected_path={
 							{ HORIZONTAL, DECREASE, 3, 3 },
 							{ VERTICAL, INCREASE, 3, 3 },
 							{ VERTICAL, INCREASE, 4, 3 },
@@ -1744,9 +1744,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/7,
-								/*to*/0,
-								/*expected path*/{
+								.from=7,
+								.to=0,
+								.expected_path={
 										{VERTICAL, DECREASE, 19, 31},
 										{VERTICAL, DECREASE, 18, 31},
 										{VERTICAL, DECREASE, 17, 31},
@@ -1755,18 +1755,18 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/7,
-								/*to*/16,
-								/*expected path*/{
+								.from=7,
+								.to=16,
+								.expected_path={
 										{VERTICAL, INCREASE, 27, 20},
 										{VERTICAL, INCREASE, 28, 20},
 										{VERTICAL, INCREASE, 29, 20}
 								}
 						},
 						{
-								/*from*/7,
-								/*to*/14,
-								/*expected path*/{
+								.from=7,
+								.to=14,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 20, 32},
 										{VERTICAL, DECREASE, 20, 32},
 										{VERTICAL, DECREASE, 19, 32},
@@ -1781,9 +1781,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/7,
-								/*to*/17,
-								/*expected path*/{
+								.from=7,
+								.to=17,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 20, 19},
 										{HORIZONTAL, DECREASE, 20, 18},
 										{HORIZONTAL, DECREASE, 20, 17},
@@ -1793,9 +1793,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/7,
-								/*to*/19,
-								/*expected path*/{
+								.from=7,
+								.to=19,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 26, 32},
 										{VERTICAL, INCREASE, 26, 32},
 										{VERTICAL, INCREASE, 27, 32},
@@ -1833,9 +1833,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/10,
-								/*to*/18,
-								/*expected path*/{
+								.from=10,
+								.to=18,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 36, 16},
 										{HORIZONTAL, DECREASE, 36, 15},
 										{HORIZONTAL, DECREASE, 36, 14},
@@ -1849,17 +1849,17 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/10,
-								/*to*/16,
-								/*expected path*/{
+								.from=10,
+								.to=16,
+								.expected_path={
 										{VERTICAL, DECREASE, 35, 17},
 										{VERTICAL, DECREASE, 34, 17}
 								}
 						},
 						{
-								/*from*/10,
-								/*to*/9,
-								/*expected path*/{
+								.from=10,
+								.to=9,
+								.expected_path={
 										{VERTICAL, INCREASE, 45, 17},
 										{VERTICAL, INCREASE, 46, 17},
 										{HORIZONTAL, DECREASE, 46, 17},
@@ -1871,9 +1871,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/10,
-								/*to*/19,
-								/*expected path*/{
+								.from=10,
+								.to=19,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 36, 32}
 								}
 						}
@@ -1899,9 +1899,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/14,
-								/*to*/1,
-								/*expected path*/{
+								.from=14,
+								.to=1,
+								.expected_path={
 										{VERTICAL, INCREASE, 13, 44},
 										{VERTICAL, INCREASE, 14, 44},
 										{VERTICAL, INCREASE, 15, 44},
@@ -1911,9 +1911,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/14,
-								/*to*/2,
-								/*expected path*/{
+								.from=14,
+								.to=2,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 7, 32},
 										{HORIZONTAL, DECREASE, 7, 31},
 										{HORIZONTAL, DECREASE, 7, 30},
@@ -1936,24 +1936,24 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/14,
-								/*to*/6,
-								/*expected path*/{
+								.from=14,
+								.to=6,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 5, 32}
 								}
 						},
 						{
-								/*from*/14,
-								/*to*/12,
-								/*expected path*/{
+								.from=14,
+								.to=12,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 6, 45},
 										{HORIZONTAL, INCREASE, 6, 46}
 								}
 						},
 						{
-								/*from*/14,
-								/*to*/7,
-								/*expected path*/{
+								.from=14,
+								.to=7,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 12, 32},
 										{VERTICAL, INCREASE, 12, 32},
 										{VERTICAL, INCREASE, 13, 32},
@@ -2004,27 +2004,27 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/5,
-								/*to*/2,
-								/*expected path*/{
+								.from=5,
+								.to=2,
+								.expected_path={
 										{VERTICAL, DECREASE, 9, 9},
 										{VERTICAL, DECREASE, 8, 9},
 										{VERTICAL, DECREASE, 7, 9}
 								}
 						},
 						{
-								/*from*/5,
-								/*to*/17,
-								/*expected path*/{
+								.from=5,
+								.to=17,
+								.expected_path={
 										{VERTICAL, INCREASE, 17, 4},
 										{VERTICAL, INCREASE, 18, 4},
 										{VERTICAL, INCREASE, 19, 4}
 								}
 						},
 						{
-								/*from*/5,
-								/*to*/6,
-								/*expected path*/{
+								.from=5,
+								.to=6,
+								.expected_path={
 										{VERTICAL, DECREASE, 9, 22},
 										{VERTICAL, DECREASE, 8, 22},
 										{VERTICAL, DECREASE, 7, 22}
@@ -2046,9 +2046,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/3,
-								/*to*/4,
-								/*expected path*/{
+								.from=3,
+								.to=4,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 29, 41},
 										{HORIZONTAL, INCREASE, 29, 42},
 										{HORIZONTAL, INCREASE, 29, 43},
@@ -2057,9 +2057,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/3,
-								/*to*/16,
-								/*expected path*/{
+								.from=3,
+								.to=16,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 30, 32}
 								}
 						}
@@ -2076,9 +2076,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/8,
-								/*to*/9,
-								/*expected path*/{
+								.from=8,
+								.to=9,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 47, 16},
 										{HORIZONTAL, DECREASE, 47, 15},
 										{HORIZONTAL, DECREASE, 47, 14},
@@ -2087,9 +2087,9 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/8,
-								/*to*/19,
-								/*expected path*/{
+								.from=8,
+								.to=19,
+								.expected_path={
 										{VERTICAL, DECREASE, 46, 33},
 										{VERTICAL, DECREASE, 45, 33}
 								}
@@ -2108,17 +2108,17 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/11,
-								/*to*/13,
-								/*expected path*/{
+								.from=11,
+								.to=13,
+								.expected_path={
 										{VERTICAL, INCREASE, 45, 50},
 										{VERTICAL, INCREASE, 46, 50}
 								}
 						},
 						{
-								/*from*/11,
-								/*to*/19,
-								/*expected path*/{
+								.from=11,
+								.to=19,
+								.expected_path={
 										{HORIZONTAL, DECREASE, 35, 49},
 										{HORIZONTAL, DECREASE, 35, 48}
 								}
@@ -2134,9 +2134,9 @@ const TestContext contexts[] = {
 		{
 				/*targets*/{
 						{
-								/*from*/9,
-								/*to*/8,
-								/*expected path*/{
+								.from=9,
+								.to=8,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 47, 12},
 										{HORIZONTAL, INCREASE, 47, 13},
 										{HORIZONTAL, INCREASE, 47, 14},
@@ -2145,17 +2145,17 @@ const TestContext contexts[] = {
 								}
 						},
 						{
-								/*from*/9,
-								/*to*/15,
-								/*expected path*/{
+								.from=9,
+								.to=15,
+								.expected_path={
 										{VERTICAL, DECREASE, 45, 1},
 										{VERTICAL, DECREASE, 44, 1}
 								}
 						},
 						{
-								/*from*/9,
-								/*to*/10,
-								/*expected path*/{
+								.from=9,
+								.to=10,
+								.expected_path={
 										{HORIZONTAL, INCREASE, 46, 12},
 										{HORIZONTAL, INCREASE, 46, 13},
 										{HORIZONTAL, INCREASE, 46, 14},
@@ -2325,9 +2325,9 @@ const TestContext contexts[] = {
                        {
 				/*targets*/{
 					{
-						/*from*/0,
-						/*to*/2,
-						/*expected path*/{
+						.from=0,
+						.to=2,
+						.expected_path={
 							{VERTICAL, INCREASE, 3, 1},
 							{VERTICAL, INCREASE, 4, 1},
 							{HORIZONTAL, INCREASE, 4, 1},
@@ -2390,16 +2390,16 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/2,
-						/*to*/1,
-						/*expected path*/{
+						.from=2,
+						.to=1,
+						.expected_path={
 							{ VERTICAL, DECREASE, 4, 2 },
 						}
 					},
 					{
-						/*from*/2,
-						/*to*/0,
-						/*expected path*/{
+						.from=2,
+						.to=0,
+						.expected_path={
 							{HORIZONTAL, DECREASE, 5, 1},
 							{HORIZONTAL, DECREASE, 5, 0},
 							{VERTICAL, DECREASE, 5, 0},
@@ -2458,9 +2458,9 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/0,
-						/*to*/1,
-						/*expected path*/{
+						.from=0,
+						.to=1,
+						.expected_path={
 							{VERTICAL,INCREASE,1,0},
 							{VERTICAL,INCREASE,2,0},
 							{HORIZONTAL,INCREASE,2,0},
@@ -2519,9 +2519,9 @@ const TestContext contexts[] = {
             {
 				/*targets*/{
 					{
-                        /*from*/0,
-                        /*to*/3,
-						/*expected path*/{
+                        .from=0,
+                        .to=3,
+						.expected_path={
                             {HORIZONTAL,INCREASE,1,2},
                             {VERTICAL,INCREASE,1,2},
                             {VERTICAL,INCREASE,2,2},
@@ -2580,9 +2580,9 @@ const TestContext contexts[] = {
 			{
 				/*targets*/{
 					{
-						/*from*/3,
-						/*to*/0,
-						/*expected path*/{
+						.from=3,
+						.to=0,
+						.expected_path={
 							{VERTICAL,DECREASE,2,3},
 							{HORIZONTAL,DECREASE,2,3},
 							{HORIZONTAL,DECREASE,2,2},
@@ -2591,9 +2591,9 @@ const TestContext contexts[] = {
 						}
 					},
 					{
-						/*from*/3,
-						/*to*/1,
-						/*expected path*/{
+						.from=3,
+						.to=1,
+						.expected_path={
 							{HORIZONTAL,DECREASE,4,2}
 						}
 					}
