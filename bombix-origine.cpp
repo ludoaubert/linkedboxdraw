@@ -1354,7 +1354,7 @@ const TestContext contexts[] = {
 /*18:*/ {/*name: 'PRE_PRESTATION',*/ /*left*/ 225, /*right*/ 400, /*top*/ 31, /*bottom*/ 167},
 /*19:*/ {/*name: 'PAR_GENERALITE',*/ /*left*/ 244, /*right*/ 384, /*top*/ 201, /*bottom*/ 289}
 	},
-	/*frame*/{/*left*/ 0, /*right*/ 1016, /*top*/ 0, /*bottom*/ 769},
+	/*frame*/{.left= 0, .right= 1016, .top= 0, .bottom= 769},
 	/*links*/{
 /*0*/ {/*source*/ 17, /*target*/ 19},
 /*1*/ {/*source*/ 17, /*target*/ 18},
@@ -1444,10 +1444,10 @@ const TestContext contexts[] = {
 {
     /*testid*/1,
     /*rectangles*/{
-        {/*left*/10,/*right*/30,/*top*/40,/*bottom*/60 },
-        {/*left*/80,/*right*/100,/*top*/20,/*bottom*/30 },
-        {/*left*/80,/*right*/100,/*top*/40,/*bottom*/60 },
-        {/*left*/80,/*right*/100,/*top*/70,/*bottom*/80 }
+        {.left=10,.right=30,.top=40,.bottom=60 },
+        {.left=80,.right=100,.top=20,.bottom=30 },
+        {.left=80,.right=100,.top=40,.bottom=60 },
+        {.left=80,.right=100,.top=70,.bottom=80 }
     },
     /*frame*/{ 0, 120, 0, 100 },
     /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/2},{/*source*/0,/*target*/3}},
@@ -1535,10 +1535,10 @@ const TestContext contexts[] = {
 {
 	/*testid*/2,
 	/*rectangles*/{
-		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
-		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
-		{/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
-		{/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+		{.left=25,.right=45,.top=15,.bottom=35 },
+		{.left=25,.right=45,.top=45,.bottom=65 },
+		{.left=10,.right=15,.top=25,.bottom=28 },
+		{.left=4,.right=30,.top=70,.bottom=90 }
 	},
 	/*frame*/{ 0, 55, 0, 100 },
 	/*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
@@ -1610,10 +1610,10 @@ const TestContext contexts[] = {
 {
 	/*testid*/3,
 	/*rectangles*/{
-		{/*left*/25,/*right*/45,/*top*/15,/*bottom*/35 },
-		{/*left*/25,/*right*/45,/*top*/45,/*bottom*/65 },
-		{/*left*/10,/*right*/15,/*top*/25,/*bottom*/28 },
-		{/*left*/4,/*right*/30,/*top*/70,/*bottom*/90 }
+		{.left=25,.right=45,.top=15,.bottom=35 },
+		{.left=25,.right=45,.top=45,.bottom=65 },
+		{.left=10,.right=15,.top=25,.bottom=28 },
+		{.left=4,.right=30,.top=70,.bottom=90 }
 	},
 	/*frame*/{ 0, 55, 0, 100 },
 	/*links*/{{/*source*/3,/*target*/0}},
@@ -1693,26 +1693,26 @@ const TestContext contexts[] = {
 {
  /*testid*/4,
  /*rectangles*/{
- /*0*/{/*left*/329,/*right*/141 + 329,/*top*/250,/*bottom*/40 + 250 },
- /*1*/{/*left*/523,/*right*/162 + 523,/*top*/235,/*bottom*/56 + 235 },
- /*2*/{/*left*/114,/*right*/64 + 114,/*top*/42,/*bottom*/104 + 42 },
- /*3*/{/*left*/329,/*right*/120 + 329,/*top*/330,/*bottom*/120 + 330 },
- /*4*/{/*left*/489,/*right*/141 + 489,/*top*/394,/*bottom*/56 + 394 },
- /*5*/{/*left*/22,/*right*/267 + 22,/*top*/186,/*bottom*/72 + 186 },
- /*6*/{/*left*/218,/*right*/71 + 218,/*top*/10,/*bottom*/136 + 10 },
- /*7*/{/*left*/211,/*right*/78 + 211,/*top*/298,/*bottom*/72 + 298 },
- /*8*/{/*left*/183,/*right*/211 + 183,/*top*/650,/*bottom*/72 + 650 },
- /*9*/{/*left*/10,/*right*/133 + 10,/*top*/634,/*bottom*/88 + 634 },
- /*10*/{/*left*/183,/*right*/106 + 183,/*top*/506,/*bottom*/104 + 506 },
- /*11*/{/*left*/565,/*right*/105 + 565,/*top*/490,/*bottom*/120 + 490 },
- /*12*/{/*left*/523,/*right*/57 + 523,/*top*/139,/*bottom*/56 + 139 },
- /*13*/{/*left*/564,/*right*/63 + 564,/*top*/650,/*bottom*/72 + 650 },
- /*14*/{/*left*/329,/*right*/154 + 329,/*top*/122,/*bottom*/88 + 122 },
- /*15*/{/*left*/10,/*right*/98 + 10,/*top*/538,/*bottom*/56 + 538 },
- /*16*/{/*left*/177,/*right*/112 + 177,/*top*/410,/*bottom*/56 + 410 },
- /*17*/{/*left*/59,/*right*/112 + 59,/*top*/298,/*bottom*/72 + 298 },
- /*18*/{/*left*/87,/*right*/50 + 87,/*top*/410,/*bottom*/56 + 410 },
- /*19*/{/*left*/329,/*right*/196 + 329,/*top*/490,/*bottom*/120 + 490 }
+ /*0*/{.left=329,.right=141 + 329,.top=250,.bottom=40 + 250 },
+ /*1*/{.left=523,.right=162 + 523,.top=235,.bottom=56 + 235 },
+ /*2*/{.left=114,.right=64 + 114,.top=42,.bottom=104 + 42 },
+ /*3*/{.left=329,.right=120 + 329,.top=330,.bottom=120 + 330 },
+ /*4*/{.left=489,.right=141 + 489,.top=394,.bottom=56 + 394 },
+ /*5*/{.left=22,.right=267 + 22,.top=186,.bottom=72 + 186 },
+ /*6*/{.left=218,.right=71 + 218,.top=10,.bottom=136 + 10 },
+ /*7*/{.left=211,.right=78 + 211,.top=298,.bottom=72 + 298 },
+ /*8*/{.left=183,.right=211 + 183,.top=650,.bottom=72 + 650 },
+ /*9*/{.left=10,.right=133 + 10,.top=634,.bottom=88 + 634 },
+ /*10*/{.left=183,.right=106 + 183,.top=506,.bottom=104 + 506 },
+ /*11*/{.left=565,.right=105 + 565,.top=490,.bottom=120 + 490 },
+ /*12*/{.left=523,.right=57 + 523,.top=139,.bottom=56 + 139 },
+ /*13*/{.left=564,.right=63 + 564,.top=650,.bottom=72 + 650 },
+ /*14*/{.left=329,.right=154 + 329,.top=122,.bottom=88 + 122 },
+ /*15*/{.left=10,.right=98 + 10,.top=538,.bottom=56 + 538 },
+ /*16*/{.left=177,.right=112 + 177,.top=410,.bottom=56 + 410 },
+ /*17*/{.left=59,.right=112 + 59,.top=298,.bottom=72 + 298 },
+ /*18*/{.left=87,.right=50 + 87,.top=410,.bottom=56 + 410 },
+ /*19*/{.left=329,.right=196 + 329,.top=490,.bottom=120 + 490 }
  },
  /*frame*/{ 0, 707, 0, 744 },
  /*links*/{
@@ -2449,8 +2449,8 @@ const TestContext contexts[] = {
 {
         /*testid*/7,
         /*rectangles*/{
-            { /*left*/0, /*right*/2, /*top*/0, /*bottom*/2 },
-            { /*left*/4, /*right*/5, /*top*/4, /*bottom*/5 }
+            { .left=0, .right=2, .top=0, .bottom=2 },
+            { .left=4, .right=5, .top=4, .bottom=5 }
         },
         /*frame*/{0/*left*/, 5/*right*/,0/*top*/,5/*bottom*/},
         /*links*/{{/*source*/0,/*target*/1}},
@@ -2508,10 +2508,10 @@ const TestContext contexts[] = {
 {
         /*testid*/8,
         /*rectangles*/{
-            { /*left*/2, /*right*/6, /*top*/2, /*bottom*/6 },
-            { /*left*/2, /*right*/6, /*top*/20, /*bottom*/24 },
-            { /*left*/36, /*right*/40, /*top*/2, /*bottom*/6 },
-            { /*left*/36, /*right*/40, /*top*/20, /*bottom*/24 }
+            { .left=2, .right=6, .top=2, .bottom=6 },
+            { .left=2, .right=6, .top=20, .bottom=24 },
+            { .left=36, .right=40, .top=2, .bottom=6 },
+            { .left=36, .right=40, .top=20, .bottom=24 }
         },
         /*frame*/{0/*left*/,80/*right*/,0/*top*/,60/*bottom*/},
         /*links*/{{/*source*/0,/*target*/3}},
@@ -2569,10 +2569,10 @@ const TestContext contexts[] = {
 {
         /*testid*/9,
         /*rectangles*/{
-            { /*left*/20, /*right*/60, /*top*/20, /*bottom*/60 },
-            { /*left*/20, /*right*/60, /*top*/200, /*bottom*/240 },
-            { /*left*/360, /*right*/400, /*top*/20, /*bottom*/60 },
-            { /*left*/360, /*right*/400, /*top*/200, /*bottom*/240 }
+            { .left=20, .right=60, .top=20, .bottom=60 },
+            { .left=20, .right=60, .top=200, .bottom=240 },
+            { .left=360, .right=400, .top=20, .bottom=60 },
+            { .left=360, .right=400, .top=200, .bottom=240 }
         },
         /*frame*/{0/*left*/,800/*right*/,0/*top*/,600/*bottom*/},
         /*links*/{{/*source*/3,/*target*/0},{/*source*/3,/*target*/1}},
