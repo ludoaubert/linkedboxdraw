@@ -649,7 +649,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	for (const /*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
 	{
 		pos += sprintf(buffer + pos, "\t\t\t{\n");
-		pos += sprintf(buffer + pos, "\t\t\t\t/*targets*/{\n");
+		pos += sprintf(buffer + pos, "\t\t\t\t.targets={\n");
 
 		for (const /*Target*/ auto& [from, to, expected_path] : targets)
 		{
@@ -668,7 +668,7 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 
 		pos += sprintf(buffer + pos, "\t\t\t\t},\n");
 
-		pos += sprintf(buffer + pos, "\t\t\t\t/*enlarged*/{\n");
+		pos += sprintf(buffer + pos, "\t\t\t\t.enlarged={\n");
 
 		for (const /*pair<Maille, Range>*/ auto& [m, r] : enlarged)
 		{
@@ -1404,7 +1404,7 @@ const TestContext contexts[] = {
 
 	/*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=0,
 						.to=1,
@@ -1415,7 +1415,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 				}
 			}
 		},
@@ -1453,7 +1453,7 @@ const TestContext contexts[] = {
     /*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/2},{/*source*/0,/*target*/3}},
     /*faiceau output*/{
 			{
-				/*target*/{
+				.targets={
 					{
 						.from=0,
 						.to=1,
@@ -1482,7 +1482,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{VERTICAL,INCREASE,7,3},{VERTICAL,INCREASE,7,1,3}},
 						{{VERTICAL,INCREASE,6,3},{VERTICAL,INCREASE,6,1,3}},
 						{{HORIZONTAL,INCREASE,3,4},{HORIZONTAL,INCREASE,4,3,5}},
@@ -1544,7 +1544,7 @@ const TestContext contexts[] = {
 	/*links*/{{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
 	/*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=0,
 						.to=1,
@@ -1564,7 +1564,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 					{ { VERTICAL,INCREASE,6,3 },{ VERTICAL,INCREASE,6,1,3 } },
 					{ { VERTICAL,INCREASE,5,3 },{ VERTICAL,INCREASE,5,1,3 } },
 					{ { VERTICAL,INCREASE,4,3 },{ VERTICAL,INCREASE,4,1,3 } },
@@ -1619,7 +1619,7 @@ const TestContext contexts[] = {
 	/*links*/{{/*source*/3,/*target*/0}},
 	/*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=0,
 						.to=3,
@@ -1632,7 +1632,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 					{ { VERTICAL, INCREASE, 6, 3 },{ VERTICAL, INCREASE,6,1,3 } },
 					{ { VERTICAL, INCREASE, 5, 3 },{ VERTICAL, INCREASE,5,1,3 } },
 					{ { VERTICAL, INCREASE, 4, 3 },{ VERTICAL, INCREASE,4,1,3 } },
@@ -1742,7 +1742,7 @@ const TestContext contexts[] = {
  },
 /*faiceau output*/{
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=7,
 								.to=0,
@@ -1811,7 +1811,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{HORIZONTAL,DECREASE,20,14},{HORIZONTAL,DECREASE,14,20,26}},
 						{{VERTICAL,DECREASE,19,31},{VERTICAL,DECREASE,19,20,31}},
 						{{HORIZONTAL,INCREASE,26,32},{HORIZONTAL,INCREASE,32,24,26}},
@@ -1831,7 +1831,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=10,
 								.to=18,
@@ -1878,7 +1878,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{VERTICAL,INCREASE,46,17},{VERTICAL,INCREASE,46,17,31}},
 						{{HORIZONTAL,DECREASE,36,16},{HORIZONTAL,DECREASE,16,36,44}},
 						{{HORIZONTAL,DECREASE,36,15},{HORIZONTAL,DECREASE,15,36,44}},
@@ -1897,7 +1897,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=14,
 								.to=1,
@@ -1968,7 +1968,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{HORIZONTAL,DECREASE,20,32},{HORIZONTAL,DECREASE,32,20,26}},
 						{{HORIZONTAL,INCREASE,6,45},{HORIZONTAL,INCREASE,45,6,11}},
 						{{HORIZONTAL,DECREASE,7,28},{HORIZONTAL,DECREASE,28,7,9}},
@@ -2002,7 +2002,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=5,
 								.to=2,
@@ -2031,7 +2031,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{VERTICAL,INCREASE,19,4},{VERTICAL,INCREASE,19,4,13}},
 						{{VERTICAL,INCREASE,18,4},{VERTICAL,INCREASE,18,4,13}},
 						{{VERTICAL,INCREASE,17,4},{VERTICAL,INCREASE,17,4,13}},
@@ -2044,7 +2044,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=3,
 								.to=4,
@@ -2064,7 +2064,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{HORIZONTAL,DECREASE,30,32},{HORIZONTAL,DECREASE,32,30,32}},
 						{{HORIZONTAL,INCREASE,29,45},{HORIZONTAL,INCREASE,45,29,32}},
 						{{HORIZONTAL,INCREASE,29,44},{HORIZONTAL,INCREASE,44,29,32}},
@@ -2074,7 +2074,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=8,
 								.to=9,
@@ -2095,7 +2095,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{VERTICAL,DECREASE,45,33},{VERTICAL,DECREASE,45,33,37}},
 						{{HORIZONTAL,DECREASE,47,12},{HORIZONTAL,DECREASE,12,47,50}},
 						{{VERTICAL,DECREASE,46,33},{VERTICAL,DECREASE,46,33,37}},
@@ -2106,7 +2106,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=11,
 								.to=13,
@@ -2124,7 +2124,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{HORIZONTAL,DECREASE,35,48},{HORIZONTAL,DECREASE,48,35,44}},
 						{{HORIZONTAL,DECREASE,35,49},{HORIZONTAL,DECREASE,49,35,44}},
 						{{VERTICAL,INCREASE,46,50},{VERTICAL,INCREASE,46,50,52}},
@@ -2132,7 +2132,7 @@ const TestContext contexts[] = {
 				}
 		},
 		{
-				/*targets*/{
+				.targets={
 						{
 								.from=9,
 								.to=8,
@@ -2167,7 +2167,7 @@ const TestContext contexts[] = {
 								}
 						}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{VERTICAL,DECREASE,45,17},{VERTICAL,DECREASE,45,17,31}},
 						{{VERTICAL,DECREASE,44,1},{VERTICAL,DECREASE,44,1,6}},
 						{{VERTICAL,DECREASE,45,1},{VERTICAL,DECREASE,45,1,6}},
@@ -2323,7 +2323,7 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/0,/*target*/2}},
         /*faiceau output*/{
                        {
-				/*targets*/{
+				.targets={
 					{
 						.from=0,
 						.to=2,
@@ -2337,7 +2337,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 				}
 			}
 		},
@@ -2388,7 +2388,7 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/2,/*target*/1},{/*source*/2,/*target*/0}},
 		/*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=2,
 						.to=1,
@@ -2413,7 +2413,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 					{{HORIZONTAL,DECREASE,5,0},{HORIZONTAL,DECREASE,0,5,6}},
 					{{HORIZONTAL,DECREASE,5,1},{HORIZONTAL,DECREASE,1,5,6}},
 					{{VERTICAL,DECREASE,4,2},{VERTICAL,DECREASE,4,2,5}}
@@ -2456,7 +2456,7 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/0,/*target*/1}},
         /*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=0,
 						.to=1,
@@ -2468,7 +2468,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{}
+				.enlarged={}
 			}
 		},
 		/*polylines*/{
@@ -2517,7 +2517,7 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/0,/*target*/3}},
         /*faiceau output*/{
             {
-				/*targets*/{
+				.targets={
 					{
                         .from=0,
                         .to=3,
@@ -2530,7 +2530,7 @@ const TestContext contexts[] = {
                         }
 					}
 				},
-                /*enlarged*/{}
+                .enlarged={}
             }
         },
         /*polylines*/{
@@ -2578,7 +2578,7 @@ const TestContext contexts[] = {
         /*links*/{{/*source*/3,/*target*/0},{/*source*/3,/*target*/1}},
 		/*faiceau output*/{
 			{
-				/*targets*/{
+				.targets={
 					{
 						.from=3,
 						.to=0,
@@ -2598,7 +2598,7 @@ const TestContext contexts[] = {
 						}
 					}
 				},
-				/*enlarged*/{
+				.enlarged={
 						{{HORIZONTAL,DECREASE,4,2},{HORIZONTAL,DECREASE,2,3,4}},
 						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}
 				}
