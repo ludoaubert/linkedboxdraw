@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <assert.h>
 #include <algorithm>
+#include <ranges>
 #include <numeric>
 #include <iterator>
 #include <chrono>
@@ -1042,7 +1043,7 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 
 	for (int i=0; i < path.size();)
 	{
-		auto it = std::find_if(path.begin()+i, path.end(), [&](const Range& r){return r.direction != path[i].direction;});
+		auto it = ranges::find_if(path | ranges::views::drop(i), [&](const Range& r){return r.direction != path[i].direction;});
 		int j = std::distance(path.begin(), it);
 		span<Range> ranges(path.begin()+i, it);
 
