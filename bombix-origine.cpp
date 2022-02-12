@@ -19,7 +19,6 @@
 #include <iterator>
 #include <chrono>
 #include <regex>
-#include <span>
 //#include <omp.h>
 using namespace std;
 using namespace std::chrono;
@@ -1043,9 +1042,8 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 
 	for (int i=0; i < path.size();)
 	{
-		auto it = ranges::find_if(path | ranges::views::drop(i), [&](const Range& r){return r.direction != path[i].direction;});
-		int j = std::distance(path.begin(), it);
-		span<Range> ranges(path.begin()+i, it);
+		auto ranges = path | ranges::views::drop(i) | views::take_while([&](const Range& r){return r.direction == path[i].direction;});
+		int j = i + ranges::distance(ranges) ;
 
 		for (Way way : {DECREASE, INCREASE})
 		{
