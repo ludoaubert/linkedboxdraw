@@ -1356,28 +1356,28 @@ const TestContext contexts[] = {
 	},
 	.frame={.left= 0, .right= 1016, .top= 0, .bottom= 769},
 	.links={
-/*0*/ {/*source*/ 17, /*target*/ 19},
-/*1*/ {/*source*/ 17, /*target*/ 18},
-/*2*/ {/*source*/ 7, /*target*/ 9},
-/*3*/ {/*source*/ 7, /*target*/ 0},
-/*4*/ {/*source*/ 3, /*target*/ 9},
-/*5*/ {/*source*/ 8, /*target*/ 9},
-/*6*/ {/*source*/ 1, /*target*/ 9},
-/*7*/ {/*source*/ 1, /*target*/ 0},
-/*8*/ {/*source*/ 9, /*target*/ 16},
-/*9*/ {/*source*/ 0, /*target*/ 9},
-/*10*/ {/*source*/ 0, /*target*/ 0},
-/*11*/ {/*source*/ 12, /*target*/ 0},
-/*12*/ {/*source*/ 6, /*target*/ 0},
-/*13*/ {/*source*/ 14, /*target*/ 0},
-/*14*/ {/*source*/ 15, /*target*/ 9},
-/*15*/ {/*source*/ 13, /*target*/ 9},
-/*16*/ {/*source*/ 11, /*target*/ 9},
-/*17*/ {/*source*/ 4, /*target*/ 9},
-/*18*/ {/*source*/ 5, /*target*/ 9},
-/*19*/ {/*source*/ 2, /*target*/ 9},
-/*20*/ {/*source*/ 10, /*target*/ 9},
-/*21*/ {/*source*/ 19, /*target*/ 15}
+/*0*/ {.from= 17, .to= 19},
+/*1*/ {.from= 17, .to= 18},
+/*2*/ {.from= 7, .to= 9},
+/*3*/ {.from= 7, .to= 0},
+/*4*/ {.from= 3, .to= 9},
+/*5*/ {.from= 8, .to= 9},
+/*6*/ {.from= 1, .to= 9},
+/*7*/ {.from= 1, .to= 0},
+/*8*/ {.from= 9, .to= 16},
+/*9*/ {.from= 0, .to= 9},
+/*10*/ {.from= 0, .to= 0},
+/*11*/ {.from= 12, .to= 0},
+/*12*/ {.from= 6, .to= 0},
+/*13*/ {.from= 14, .to= 0},
+/*14*/ {.from= 15, .to= 9},
+/*15*/ {.from= 13, .to= 9},
+/*16*/ {.from= 11, .to= 9},
+/*17*/ {.from= 4, .to= 9},
+/*18*/ {.from= 5, .to= 9},
+/*19*/ {.from= 2, .to= 9},
+/*20*/ {.from= 10, .to= 9},
+/*21*/ {.from= 19, .to= 15}
 	},
 	.faisceau_output={},
 	.polylines={}
@@ -1400,7 +1400,7 @@ const TestContext contexts[] = {
         {.left=28,.right=50,.top=10,.bottom=30 }
     },
     .frame={ 0, 60, 0, 70 },
-    .links={{/*source*/0,/*target*/1}},
+    .links={{.from=0,.to=1}},
 
 	.faisceau_output={
 			{
@@ -1450,7 +1450,7 @@ const TestContext contexts[] = {
         {.left=80,.right=100,.top=70,.bottom=80 }
     },
     .frame={ 0, 120, 0, 100 },
-    .links={{/*source*/0,/*target*/1},{/*source*/0,/*target*/2},{/*source*/0,/*target*/3}},
+    .links={{.from=0,.to=1},{.from=0,.to=2},{.from=0,.to=3}},
     .faisceau_output={
 			{
 				.targets={
@@ -1541,7 +1541,7 @@ const TestContext contexts[] = {
 		{.left=4,.right=30,.top=70,.bottom=90 }
 	},
 	.frame={ 0, 55, 0, 100 },
-	.links={{/*source*/0,/*target*/1},{/*source*/0,/*target*/3}},
+	.links={{.from=0,.to=1},{.from=0,.to=3}},
 	.faisceau_output={
 			{
 				.targets={
@@ -1616,7 +1616,7 @@ const TestContext contexts[] = {
 		{.left=4,.right=30,.top=70,.bottom=90 }
 	},
 	.frame={ 0, 55, 0, 100 },
-	.links={{/*source*/3,/*target*/0}},
+	.links={{.from=3,.to=0}},
 	.faisceau_output={
 			{
 				.targets={
@@ -1716,29 +1716,29 @@ const TestContext contexts[] = {
  },
  .frame={ 0, 707, 0, 744 },
  .links={
- {/*source*/1, /*target*/14 },
- {/*source*/2, /*target*/14 },
- {/*source*/2, /*target*/5 },
- {/*source*/3, /*target*/4 },
- {/*source*/5, /*target*/17 },
- {/*source*/6, /*target*/14 },
- {/*source*/6, /*target*/5 },
- {/*source*/7, /*target*/0 },
- {/*source*/7, /*target*/16 },
- {/*source*/8, /*target*/9 },
- {/*source*/9, /*target*/15 },
- {/*source*/10, /*target*/18 },
- {/*source*/10, /*target*/16 },
- {/*source*/10, /*target*/9 },
- {/*source*/11, /*target*/13 },
- {/*source*/12, /*target*/14 },
- {/*source*/14, /*target*/7 },
- {/*source*/16, /*target*/3 },
- {/*source*/17, /*target*/7 },
- {/*source*/19, /*target*/10 },
- {/*source*/19, /*target*/7 },
- {/*source*/19, /*target*/8 },
- {/*source*/19, /*target*/11 }
+ {.from=1, .to=14 },
+ {.from=2, .to=14 },
+ {.from=2, .to=5 },
+ {.from=3, .to=4 },
+ {.from=5, .to=17 },
+ {.from=6, .to=14 },
+ {.from=6, .to=5 },
+ {.from=7, .to=0 },
+ {.from=7, .to=16 },
+ {.from=8, .to=9 },
+ {.from=9, .to=15 },
+ {.from=10, .to=18 },
+ {.from=10, .to=16 },
+ {.from=10, .to=9 },
+ {.from=11, .to=13 },
+ {.from=12, .to=14 },
+ {.from=14, .to=7 },
+ {.from=16, .to=3 },
+ {.from=17, .to=7 },
+ {.from=19, .to=10 },
+ {.from=19, .to=7 },
+ {.from=19, .to=8 },
+ {.from=19, .to=11 }
  },
 .faisceau_output={
 		{
@@ -2320,7 +2320,7 @@ const TestContext contexts[] = {
             { 200/*left*/,240/*right*/,80/*top*/,120/*bottom*/ }
         },
         .frame={ 0/*left*/,280/*right*/,0/*top*/,200/*bottom*/ },
-        .links={{/*source*/0,/*target*/2}},
+        .links={{.from=0,.to=2}},
         .faisceau_output={
                        {
 				.targets={
@@ -2385,7 +2385,7 @@ const TestContext contexts[] = {
             { 60/*left*/,120/*right*/,200/*top*/,240/*bottom*/ }
         },
         .frame={ 0/*left*/,200/*right*/,0/*top*/,300/*bottom*/ },
-        .links={{/*source*/2,/*target*/1},{/*source*/2,/*target*/0}},
+        .links={{.from=2,.to=1},{.from=2,.to=0}},
 		.faisceau_output={
 			{
 				.targets={
@@ -2453,7 +2453,7 @@ const TestContext contexts[] = {
             { .left=4, .right=5, .top=4, .bottom=5 }
         },
         .frame={0/*left*/, 5/*right*/,0/*top*/,5/*bottom*/},
-        .links={{/*source*/0,/*target*/1}},
+        .links={{.from=0,.to=1}},
         .faisceau_output={
 			{
 				.targets={
@@ -2514,7 +2514,7 @@ const TestContext contexts[] = {
             { .left=36, .right=40, .top=20, .bottom=24 }
         },
         .frame={0/*left*/,80/*right*/,0/*top*/,60/*bottom*/},
-        .links={{/*source*/0,/*target*/3}},
+        .links={{.from=0,.to=3}},
         .faisceau_output={
             {
 				.targets={
@@ -2575,7 +2575,7 @@ const TestContext contexts[] = {
             { .left=360, .right=400, .top=200, .bottom=240 }
         },
         .frame={0/*left*/,800/*right*/,0/*top*/,600/*bottom*/},
-        .links={{/*source*/3,/*target*/0},{/*source*/3,/*target*/1}},
+        .links={{.from=3,.to=0},{.from=3,.to=1}},
 		.faisceau_output={
 			{
 				.targets={
