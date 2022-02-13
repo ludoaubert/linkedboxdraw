@@ -19,6 +19,7 @@
 #include <iterator>
 #include <chrono>
 #include <regex>
+#include <span>
 //#include <omp.h>
 using namespace std;
 using namespace std::chrono;
@@ -1040,11 +1041,19 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 {
 	vector<Range> path = input_path;
 
-	for (int i=0; i < path.size();)
-	{
-		auto ranges = path | ranges::views::drop(i) | views::take_while([&](const Range& r){return r.direction == path[i].direction;});
-		int j = i + ranges::distance(ranges) ;
+	vector<span<Range> > spans;
 
+        for (int i=0; i < path.size();)
+        {
+                auto r = path | ranges::views::drop(i) | views::take_while([&](const Range& r){return r.direction == path[i].direction;});
+		int size = ranges::distance(r);
+                span<Range> ranges(&path[i], size);
+		spans.push_back(ranges);
+                i += size ;
+	}
+
+	for (span<Range>& ranges : spans)
+	{
 		for (Way way : {DECREASE, INCREASE})
 		{
 			if (ranges::all_of(ranges, [&](Range r){
@@ -1061,26 +1070,18 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 				}
 			}
 		}
+	}
 
-		Direction other_direction = other( path[i].direction );
+	for (Range &r : spans[0])
+	{
+       		Direction other_direction = other( r.direction );
+		r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
+	}
 
-		if (i == 0)
-		{
-			for (Range &r : ranges)
-			{
-				r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
-			}
-		}
-
-		if (j == path.size())
-		{
-			for (Range &r : ranges)
-			{
-				r[other_direction] = intersection(r[other_direction], rto[other_direction]);
-			}
-		}
-
-		i = j;
+	for (Range &r : spans.back())
+	{
+       		Direction other_direction = other( r.direction );
+		r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 	}
 
 	return path;
