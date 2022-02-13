@@ -1037,20 +1037,26 @@ vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
 	return result;
 }
 
+/*
+use views::chunk_by
+when it will be available. C++23 hopefully.
+*/
 vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
 {
 	vector<Range> path = input_path;
 
 	vector<span<Range> > spans;
 
-        for (int i=0; i < path.size();)
-        {
-                auto r = path | ranges::views::drop(i) | views::take_while([&](const Range& r){return r.direction == path[i].direction;});
-		int size = ranges::distance(r);
-                span<Range> ranges(&path[i], size);
-		spans.push_back(ranges);
-                i += size ;
+	int i_prev=0;
+	for (int i=0;i < path.size(); i++)
+	{
+		if (path[i].direction != path[i_prev].direction)
+		{
+			spans.push_back(span<Range>(&path[i_prev], i - i_prev));
+                	i_prev=i ;
+		}
 	}
+	spans.push_back(span<Range>(&path[i_prev], path.size() - i_prev));
 
 	for (span<Range>& ranges : spans)
 	{
