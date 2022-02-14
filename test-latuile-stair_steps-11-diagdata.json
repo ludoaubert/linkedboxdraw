@@ -1,0 +1,59 @@
+{"documentTitle":"reg-test-0",
+"boxes":[
+	{"title":"rec-0",
+	"id":0,
+	"fields":[
+		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-1",
+	"id":1,
+	"fields":[
+		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-2",
+	"id":2,
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-3",
+	"id":3,
+	"fields":[
+		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-4",
+	"id":4,
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-5",
+	"id":5,
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
+	]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined"},
+	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined"},
+	{"from":4,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"},
+	{"from":4,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined"},
+	{"from":5,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"},
+	{"from":5,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined"}
+],
+"fieldColors":[],
+"rectangles":[
+	{"left":0,"right":127,"top":0,"bottom":120},
+	{"left":0,"right":142,"top":0,"bottom":232},
+	{"left":0,"right":114,"top":0,"bottom":168},
+	{"left":0,"right":63,"top":0,"bottom":72},
+	{"left":0,"right":89,"top":0,"bottom":104},
+	{"left":0,"right":146,"top":0,"bottom":248}
+]}
