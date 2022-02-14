@@ -5,6 +5,9 @@
 #include <vector>
 #include "MyRect.h"
 
+extern int nbOK;
+extern int nbKO;
+
 struct Edge
 {
 	int from, to;

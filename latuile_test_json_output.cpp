@@ -6,6 +6,10 @@
 using namespace std;
 
 
+int nbOK=0;
+int nbKO=0;
+
+
 void json_context_output(const vector<MyRect> &rectangles,
 			const char* file_name)
 {

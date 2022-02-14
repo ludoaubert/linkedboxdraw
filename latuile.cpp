@@ -252,6 +252,7 @@ int main(int argc, char* argv[])
 
 	if (argc == 1)
 	{
+		nbOK = nbKO = 0;
 		test();
         	test_optimize_rectangle_positions();
 		test_compact_rectangles();
@@ -263,6 +264,7 @@ int main(int argc, char* argv[])
 		test_stair_steps_layout_from_111_boxes();
 		test_stair_steps(RECT_BORDER);
 		test_stair_steps_layout();
+		printf("latuile: %d/%d tests successful.\n", nbOK, nbOK + nbKO);
 	}
 	else if (argc == 5)
 	{
@@ -271,7 +273,7 @@ int main(int argc, char* argv[])
 		unordered_map<string, const char*> args={
 			 {"--rectdim", 0},
 			 {"--links", 0}
-		};        
+		};
 
 		for (int i = 1; i + 1 < argc; i += 2)
 		{
