@@ -452,7 +452,9 @@ void test_binpack()
                                         "binpack",
                                         testid);
 
-                printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
+		bool bOK = rectangles == expected_rectangles;
+                printf("%s\n", bOK ? "OK" : "KO");
+		(bOK ? nbOK : nbKO)++;
 	}
 }
 

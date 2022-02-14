@@ -200,7 +200,9 @@ void test()
         {
             translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
         }
-        printf("%s\n", context.output[i].translatedBoxes == translatedBoxes ? "OK" : "KO");
+	bool bOK = context.output[i].translatedBoxes == translatedBoxes;
+        printf("%s\n", bOK ? "OK" : "KO");
+	(bOK ? nbOK : nbKO)++;
 	int test_number = i;
 	latuile_test_json_output(ctx.rectangles,
                                 ctx.rectangles,

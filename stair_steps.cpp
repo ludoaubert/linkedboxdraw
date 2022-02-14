@@ -847,8 +847,10 @@ void test_stair_steps(int rect_border)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
                 const DataContext& dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
-                printf("%s [%d] %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO", 
+		bool bOK = dctx.expected_translations == translations;
+                printf("%s [%d] %20s %f seconds elapsed\n", bOK ? "OK": "KO", 
 					dctx.testid, dctx.title.c_str(), time_span.count());
+		(bOK ? nbOK : nbKO)++;
 
                 vector<MyRect> expected_rectangles = input_rectangles;
                 int n = input_rectangles.size();
@@ -1774,8 +1776,10 @@ void test_stair_steps_layout()
                 const DataContext &dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
 
-                printf("%s [%d] %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
+		bool bOK = dctx.expected_translations == translations;
+                printf("%s [%d] %20s %f seconds elapsed\n", bOK ? "OK": "KO",
                        dctx.testid, dctx.title.c_str(), time_span.count());
+		(bOK ? nbOK : nbKO)++;
 
                 vector<MyRect> expected_rectangles = input_rectangles;
                 int n = input_rectangles.size();
@@ -2664,7 +2668,9 @@ void test_stair_steps_layout_from_111_boxes()
             vector<TranslatedBox> translations;
             for (MyRect &r : ctx.rectangles)
                 translations.push_back({r.no_sequence,{width(r), height(r)}});
-            printf("%s\n", translations == dctx.contexts[c++].expected_translations ? "OK" : "KO");
+	    bool bOK = translations == dctx.contexts[c++].expected_translations;
+            printf("%s\n", bOK ? "OK" : "KO");
+	    (bOK ? nbOK : nbKO)++;
         }
 }
 

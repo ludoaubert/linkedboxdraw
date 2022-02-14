@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <stdio.h>
+#include "latuile_test_json_output.h"
 using namespace std ;
 
 /* in this example: +-----> direction = EAST_WEST
@@ -67,7 +68,9 @@ void test_fit_together()
 	MyPoint translation ;
 	fit_together(A, B, EAST_WEST, translation) ;
 
-        printf("%s\n", translation == expected_translation ? "OK" : "KO");
+	bool bOK = translation == expected_translation;
+        printf("%s\n", bOK ? "OK" : "KO");
+	(bOK ? nbOK : nbKO)++;
 }
 
 

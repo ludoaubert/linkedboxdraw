@@ -169,5 +169,7 @@ void test_compact_rectangles()
 	for (MyRect& r : rectangles)
 		r.i=-1;
 
-        printf("%s\n", rectangles == expected_rectangles ? "OK" : "KO");
+	bool bOK = rectangles == expected_rectangles;
+        printf("%s\n", bOK ? "OK" : "KO");
+	(bOK ? nbOK : nbKO)++;
 }
