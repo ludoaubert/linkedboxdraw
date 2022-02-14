@@ -847,7 +847,8 @@ void test_stair_steps(int rect_border)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
                 const DataContext& dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
-                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO", dctx.title.c_str(), time_span.count());
+                printf("%s [%d] %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO", 
+					dctx.testid, dctx.title.c_str(), time_span.count());
 
                 vector<MyRect> expected_rectangles = input_rectangles;
                 int n = input_rectangles.size();
@@ -1773,8 +1774,8 @@ void test_stair_steps_layout()
                 const DataContext &dctx = vdctx[c++];
                 duration<double> time_span = high_resolution_clock::now() - t1;
 
-                printf("%s %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
-                       dctx.title.c_str(), time_span.count());
+                printf("%s [%d] %20s %f seconds elapsed\n", dctx.expected_translations == translations ? "OK": "KO",
+                       dctx.testid, dctx.title.c_str(), time_span.count());
 
                 vector<MyRect> expected_rectangles = input_rectangles;
                 int n = input_rectangles.size();
