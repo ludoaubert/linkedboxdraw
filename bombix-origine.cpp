@@ -1041,8 +1041,8 @@ vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
 use views::chunk_by
 when it will be available. C++23 hopefully.
 	path | views::chunk_by([](const Range& ri, const Range& rj){return ri.direction==rj.direction;}) |
-		for_each([](const std::span<Range>& ranges){
-			if (ranges::all_of(ranges, [&](Range r){
+		for_each([](const std::span<Range>& chunk){
+			if (ranges::all_of(chunk, [&](Range r){
 
 				r[way] += way;
 				Coord c = r[way];
@@ -1050,7 +1050,7 @@ when it will be available. C++23 hopefully.
 				return 0 <= r.min && r.max < m.dim(other(r.direction)) && m(c.i, c.j);
 			}))
 			{
-				for (Range &r : ranges)
+				for (Range &r : chunk)
 				{
 					r[way] += way;
 				}
@@ -1060,18 +1060,20 @@ when it will be available. C++23 hopefully.
 template <typename Pr>
 vector<span<Range> > chunk_by(const vector<Range>& path, const Pr& InSameChunk)
 {
-	vector<span<Range> > spans;
+	vector<span<Range> > chunks;
 
 	int i_prev=0
 	for (int i=1;i < path.size(); i++)
 	{
 		if (!InSameChunk(path[i-1], path[i]))
 		{
-			spans.push_back(span<Range>(&path[i_prev], i - i_prev));
+			chunks.push_back(span<Range>(&path[i_prev], i - i_prev));
 			i_prev=i ;
 		}
 	}
-	spans.push_back(span<Range>(&path[i_prev], path.size() - i_prev));	
+	chunks.push_back(span<Range>(&path[i_prev], path.size() - i_prev));
+
+	return chunks;
 }
 
 
@@ -1079,13 +1081,13 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 {
 	vector<Range> path = input_path;
 
-	vector<span<Range> > spans = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
+	vector<span<Range> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
 
-	for (span<Range>& ranges : spans)
+	for (span<Range>& chunk : chunks)
 	{
 		for (Way way : {DECREASE, INCREASE})
 		{
-			if (ranges::all_of(ranges, [&](Range r){
+			if (ranges::all_of(chunk, [&](Range r){
 
 				r[way] += way;
 				Coord c = r[way];
@@ -1093,7 +1095,7 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 				return 0 <= r.min && r.max < m.dim(other(r.direction)) && m(c.i, c.j);
 			}))
 			{
-				for (Range &r : ranges)
+				for (Range &r : chunk)
 				{
 					r[way] += way;
 				}
@@ -1189,19 +1191,17 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 	vector<Point> polyline;
 	Point p;
 
-	auto it = path.begin();
-	const Range &r = * it;
+	const Range &r = path.front();
 	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
 
-//TODO: use chunk_by()
-
-	for (; it != path.end(); it = find_if(it, path.end(), [&](const Range &r){return r.direction != it->direction;}) )
+	vector<span<Range> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
+	for (const span<Range> &chunk : chunks)
 	{
-		const Range &r = * it;
+		const Range& r = chunk[0];
 		Direction other_direction = other(r.direction);
 		auto& tab = coords[other_direction];
 		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
-		polyline.push_back(p);
+		polyline.push_back(p);		
 	}
 
 	const Range & rr = path.back();
