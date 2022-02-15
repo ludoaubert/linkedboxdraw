@@ -1054,26 +1054,49 @@ when it will be available. C++23 hopefully.
 				{
 					r[way] += way;
 				}
-			}			
+			}
 		});
 */
 template <typename Pr>
-vector<span<Range> > chunk_by(const vector<Range>& path, const Pr& InSameChunk)
+vector<span<Range> > chunk_by(vector<Range>& path, const Pr& InSameChunk)
 {
 	vector<span<Range> > chunks;
 
-	int i_prev=0
+	int i_prev=0;
 	for (int i=1;i < path.size(); i++)
 	{
 		if (!InSameChunk(path[i-1], path[i]))
 		{
-			chunks.push_back(span<Range>(&path[i_prev], i - i_prev));
+			span<Range> chunk(&path[i_prev], i - i_prev);
+			chunks.push_back(chunk);
 			i_prev=i ;
 		}
 	}
-	chunks.push_back(span<Range>(&path[i_prev], path.size() - i_prev));
+	span<Range> chunk(&path[i_prev], path.size() - i_prev);
+	chunks.push_back(chunk);
 
 	return chunks;
+}
+
+template <typename Pr>
+vector<span<Range const> > chunk_by(const vector<Range>& path, const Pr& InSameChunk)
+{
+        vector<span<Range const> > chunks;
+
+        int i_prev=0;
+        for (int i=1;i < path.size(); i++)
+        {
+                if (!InSameChunk(path[i-1], path[i]))
+                {
+                        span<Range const> chunk(&path[i_prev], i - i_prev);
+                        chunks.push_back(chunk);
+                        i_prev=i ;
+                }
+        }
+        span<Range const> chunk(&path[i_prev], path.size() - i_prev);
+        chunks.push_back(chunk);
+
+        return chunks;
 }
 
 
@@ -1103,15 +1126,15 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 		}
 	}
 
-	for (Range &r : spans[0])
+	for (Range &r : chunks[0])
 	{
-       	Direction other_direction = other( r.direction );
+       		Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
 	}
 
-	for (Range &r : spans.back())
+	for (Range &r : chunks.back())
 	{
-       	Direction other_direction = other( r.direction );
+       		Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 	}
 
@@ -1194,14 +1217,14 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 	const Range &r = path.front();
 	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
 
-	vector<span<Range> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
-	for (const span<Range> &chunk : chunks)
+	vector<span<Range const> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
+	for (span<Range const> &chunk : chunks)
 	{
 		const Range& r = chunk[0];
 		Direction other_direction = other(r.direction);
 		auto& tab = coords[other_direction];
 		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
-		polyline.push_back(p);		
+		polyline.push_back(p);
 	}
 
 	const Range & rr = path.back();
