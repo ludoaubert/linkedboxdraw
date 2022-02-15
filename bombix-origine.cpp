@@ -1040,23 +1040,46 @@ vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
 /*
 use views::chunk_by
 when it will be available. C++23 hopefully.
+	path | views::chunk_by([](const Range& ri, const Range& rj){return ri.direction==rj.direction;}) |
+		for_each([](const std::span<Range>& ranges){
+			if (ranges::all_of(ranges, [&](Range r){
+
+				r[way] += way;
+				Coord c = r[way];
+
+				return 0 <= r.min && r.max < m.dim(other(r.direction)) && m(c.i, c.j);
+			}))
+			{
+				for (Range &r : ranges)
+				{
+					r[way] += way;
+				}
+			}			
+		});
 */
+template <typename Pr>
+vector<span<Range> > chunk_by(const vector<Range>& path, const Pr& InSameChunk)
+{
+	vector<span<Range> > spans;
+
+	int i_prev=0
+	for (int i=1;i < path.size(); i++)
+	{
+		if (!InSameChunk(path[i-1], path[i]))
+		{
+			spans.push_back(span<Range>(&path[i_prev], i - i_prev));
+			i_prev=i ;
+		}
+	}
+	spans.push_back(span<Range>(&path[i_prev], path.size() - i_prev));	
+}
+
+
 vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
 {
 	vector<Range> path = input_path;
 
-	vector<span<Range> > spans;
-
-	int i_prev=0;
-	for (int i=0;i < path.size(); i++)
-	{
-		if (path[i].direction != path[i_prev].direction)
-		{
-			spans.push_back(span<Range>(&path[i_prev], i - i_prev));
-                	i_prev=i ;
-		}
-	}
-	spans.push_back(span<Range>(&path[i_prev], path.size() - i_prev));
+	vector<span<Range> > spans = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
 
 	for (span<Range>& ranges : spans)
 	{
@@ -1080,13 +1103,13 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 
 	for (Range &r : spans[0])
 	{
-       		Direction other_direction = other( r.direction );
+       	Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
 	}
 
 	for (Range &r : spans.back())
 	{
-       		Direction other_direction = other( r.direction );
+       	Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 	}
 
@@ -1170,18 +1193,20 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 	const Range &r = * it;
 	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
 
+//TODO: use chunk_by()
+
 	for (; it != path.end(); it = find_if(it, path.end(), [&](const Range &r){return r.direction != it->direction;}) )
 	{
 		const Range &r = * it;
-                Direction other_direction = other(r.direction);
-                auto& tab = coords[other_direction];
-                p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
-                polyline.push_back(p);
+		Direction other_direction = other(r.direction);
+		auto& tab = coords[other_direction];
+		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+		polyline.push_back(p);
 	}
 
-        const Range & rr = path.back();
-        p[rr.direction] = coords[rr.direction][rr.way == DECREASE ? rr.value : rr.value + 1];
-        polyline.push_back(p);
+	const Range & rr = path.back();
+	p[rr.direction] = coords[rr.direction][rr.way == DECREASE ? rr.value : rr.value + 1];
+	polyline.push_back(p);
 
 	return polyline;
 }
