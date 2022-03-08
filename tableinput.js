@@ -63,6 +63,7 @@ function download(filename) {
 }
 
 
+//this function is cloned in diagload.js
 function enforce_bounding_rectangle(context)
 {
 	const bounding_rectangle = {

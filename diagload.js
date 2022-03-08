@@ -601,6 +601,7 @@ function ApplyRepartition()
 	drawDiag();
 }
 
+//this function is cloned in tableinput.js
 function enforce_bounding_rectangle(context)
 {
 	const bounding_rectangle = {
