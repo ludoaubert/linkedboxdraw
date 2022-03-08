@@ -63,6 +63,32 @@ function download(filename) {
 }
 
 
+function enforce_bounding_rectangle(context)
+{
+	const bounding_rectangle = {
+		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
+	}
+
+	console.log(JSON.stringify(bounding_rectangle));
+
+	for (let {id,translation} of context.translatedBoxes)
+	{
+		translation.x -= bounding_rectangle.left;
+		translation.y -= bounding_rectangle.top;
+	}
+	
+	context.frame = {
+			left:0, 
+			right: bounding_rectangle.right - bounding_rectangle.left,
+			top:0,
+			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
+}
+
+
 function download2(filename) {
 	var element = document.createElement('a');
 	const Json = refreshJsonFromEditData();
@@ -94,6 +120,11 @@ function download2(filename) {
 	console.log(jsonResponse);
 	
 	data = JSON.parse(jsonResponse);
+	
+	for (let context of data.contexts)
+	{
+		enforce_bounding_rectangle(context);
+	}
 	
 	data.contexts = data.contexts.map(
 		({frame, translatedBoxes}) => {
