@@ -65,13 +65,13 @@ function download(filename) {
 
 
 //this function is cloned in diagload.js
-function enforce_bounding_rectangle(context)
+function enforce_bounding_rectangle(context, rectangles)
 {
 	const bounding_rectangle = {
-		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
-		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
-		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
+		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => rectangles[tB.id].bottom + tB.translation.y))
 	}
 
 	console.log(JSON.stringify(bounding_rectangle));
@@ -125,7 +125,7 @@ function download2(filename) {
 	
 	for (let context of data.contexts)
 	{
-		enforce_bounding_rectangle(context);
+		enforce_bounding_rectangle(context, rectangles);
 	}
 	
 	data.contexts = data.contexts.map(
