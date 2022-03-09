@@ -5,6 +5,7 @@ var currentX = 0;
 var currentY = 0;
 var g = 0;
 
+// FRAME_MARGIN is duplicated in table_input.js
 const FRAME_MARGIN = 20;
 
 
