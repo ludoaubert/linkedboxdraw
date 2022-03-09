@@ -122,6 +122,11 @@ function deselectElement()
 							.map(lk => ({from:lk.from, to:lk.to}))
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
+							.map(lk => JSON.stringify(lk))
+							.filter(function(lk, pos, self){
+										return self.indexOf(lk) == pos;}
+							) //removing duplicates
+							.map(lk => JSON.parse(lk))							
 							.flat()
 							.map(i => hex(i,2))
 							.join('');
