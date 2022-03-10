@@ -52,11 +52,11 @@ WITH cte_fk AS (
 	SELECT tc.TABLE_NAME,
 		CASE 
 			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NOT NULL
-				THEN (LEN('PK FK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+				THEN (LEN('PK_FK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
 			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NULL
-				THEN (LEN('PK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+				THEN (LEN('PK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
 			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NOT NULL
-				THEN (LEN('FK ') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
+				THEN (LEN('FK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
 			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NULL
 				THEN LEN(column_name) * MONOSPACE_FONT_PIXEL_WIDTH
 		END AS column_width
