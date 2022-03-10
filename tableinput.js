@@ -128,6 +128,8 @@ function download2(filename) {
 		enforce_bounding_rectangle(context, rectangles);
 	}
 	
+	data.rectangles = rectangles;
+	
 	data.contexts = data.contexts.map(
 		({frame, translatedBoxes}) => {
 			const {left,right,top,bottom} = frame;
