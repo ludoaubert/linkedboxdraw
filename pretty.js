@@ -9,7 +9,9 @@ function prettyContexts(json) {
 			.replaceAll('{"polyline"','\n{"polyline"')
 			.replaceAll('{"id"', '\n{"id"')
 			.replaceAll('"translatedBoxes"', '\n"translatedBoxes"')
-			.replaceAll('"links"', '\n"links"'); 
+			.replaceAll('"links"', '\n"links"')
+			.replaceAll('"rectangles"','\n"rectangles"')
+			.replaceAll('{"left"','\n{"left"'); 
 }
 
 
