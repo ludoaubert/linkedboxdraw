@@ -90,10 +90,10 @@ function deselectElement()
 	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, (tB, index) => ({
 			id: index,
 			name: mydata.boxes[tB.id].title, //of interest for test data investigations
-			left: mydata.rectangles[tB.id].left + tB.translation.x,
-			right: mydata.rectangles[tB.id].right + tB.translation.x,
-			top: mydata.rectangles[tB.id].top + tB.translation.y,
-			bottom: mydata.rectangles[tB.id].bottom + tB.translation.y
+			left: mycontexts.rectangles[tB.id].left + tB.translation.x,
+			right: mycontexts.rectangles[tB.id].right + tB.translation.x,
+			top: mycontexts.rectangles[tB.id].top + tB.translation.y,
+			bottom: mycontexts.rectangles[tB.id].bottom + tB.translation.y
 		})
 	);
 
@@ -187,7 +187,8 @@ function loadDiag(data, contexts) {
 
 function drawDiag() {
 
-	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors, rectangles} = mydata;
+	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	const {rectangles} = mycontexts;
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -611,10 +612,10 @@ function ApplyRepartition()
 function enforce_bounding_rectangle(context)
 {
 	const bounding_rectangle = {
-		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].left + tB.translation.x)),
-		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].right + tB.translation.x)),
-		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mydata.rectangles[tB.id].bottom + tB.translation.y))
+		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
 	}
 
 	console.log(JSON.stringify(bounding_rectangle));
