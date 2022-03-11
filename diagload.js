@@ -529,7 +529,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 function download(filename) {
   var element = document.createElement('a');
-  const Json = prettyContexts(JSON.stringify({contexts:mycontexts.contexts}));
+  const Json = prettyContexts(JSON.stringify(mycontexts));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
   element.setAttribute('download', filename);
   element.style.display = 'none';
