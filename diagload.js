@@ -141,24 +141,6 @@ function deselectElement()
 }
 
 
-/*TODO: this function is present also in tableinput.html */
-function compute_key_distrib(fields)
-{
-	var key_distrib = {"PK":0,"FK":0,"PKFK":0};
-	
-	for (let field of fields)
-	{
-		if (field.isPrimaryKey && field.isForeignKey)
-			key_distrib["PKFK"]++;
-		else if (field.isPrimaryKey)
-			key_distrib["PK"]++;
-		else if (field.isForeignKey)
-			key_distrib["FK"]++;
-	}
-
-	return key_distrib;
-}
-
 function zeroPad(num, places) 
 {
   const zero = places - num.toString().length + 1;
