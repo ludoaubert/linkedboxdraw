@@ -297,6 +297,44 @@ function drawComponent(id) {
 	return innerHTML;
 }
 
+function expressCutLinks(cut_links){
+	
+	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	
+// listing unexpressed link targets - beginning
+	const cut_link_targets = [... new Set(cut_links.map( link => `${link.to}.${link.toField}`))];
+	console.log(cut_link_targets);
+//https://www.w3.org/wiki/CSS/Properties/color/keywords
+	const cut_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
+	
+	const colormap = new Map(
+		[...cut_link_targets.entries()]
+								.map(([i, to_toField]) => ([to_toField, cut_link_colors[i % cut_link_colors.length]]))
+	);
+	console.log(colormap);
+
+// listing unexpressed link targets - end
+	
+	var sheet = document.createElement('style')
+	
+	const style = [...fieldColors
+						.map( ({index,box,field,color})=>({index, field, color}) ),
+				   ...cut_links
+						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
+																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
+																			{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}
+																							  ])
+							)
+				  ]
+		.flat()
+		.map(({index, field, color}) => `foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`)
+		.join('\n');
+
+	console.log(style);
+	sheet.innerHTML = style;
+	document.body.appendChild(sheet);
+}
+
 
 function drawDiag() {
 
@@ -472,7 +510,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 	let repartition=[];
 	
-	for (let id=0; id < mydata.boxes.length; id++)
+	for (let id=0; id < mycontexts.rectangles.length; id++)
 	{
 		repartition[id] = -1;
 	}
@@ -491,38 +529,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	console.log(cut_links);
 // listing unexpressed links - end
 
-// listing unexpressed link targets - beginning
-	const cut_link_targets = [... new Set(cut_links.map( link => `${link.to}.${link.toField}`))];
-	console.log(cut_link_targets);
-//https://www.w3.org/wiki/CSS/Properties/color/keywords
-	const cut_link_colors = ['lime','fuchsia','teal','aqua','aquamarine','coral','cornflowerblue','darkgray','darkkhaki']
-	
-	const colormap = new Map(
-		[...cut_link_targets.entries()]
-								.map(([i, to_toField]) => ([to_toField, cut_link_colors[i % cut_link_colors.length]]))
-	);
-	console.log(colormap);
-
-// listing unexpressed link targets - end
-	
-	var sheet = document.createElement('style')
-	
-	const style = [...fieldColors
-						.map( ({index,box,field,color})=>({index, field, color}) ),
-				   ...cut_links
-						.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
-																			{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
-																			{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}
-																							  ])
-							)
-				  ]
-		.flat()
-		.map(({index, field, color}) => `foreignObject#box${index} > table > tbody > tr#${field}{background-color: ${color};}`)
-		.join('\n');
-
-	console.log(style);
-	sheet.innerHTML = style;
-	document.body.appendChild(sheet);
+	expressCutLinks(cut_links);
 	
 	var input = document.getElementById("myFile");
 	
