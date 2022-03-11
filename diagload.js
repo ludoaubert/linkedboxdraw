@@ -169,9 +169,7 @@ function loadDiag(data, contexts) {
 
 function drawDiag() {
 
-	const {documentTitle} = mydata;
 	const {rectangles} = mycontexts;
-
 	
 	var innerHTML = `<div><h1>Repartition</h1>
       <table id="repartition">`;
@@ -311,7 +309,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 <li><input type="file" accept=".json" id="myDataFile" value="Load"></li>
 </ul>`;
 	
-	document.title = documentTitle;
+
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
 	
 // listing unexpressed links - beginning

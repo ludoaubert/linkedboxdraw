@@ -135,6 +135,8 @@ function expressCutLinks(mydata, repartition){
 	
 	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
 	
+	document.title = documentTitle;
+	
 	const cut_links = links_.filter(link => repartition[link.from] != repartition[link.to])
 									.filter(link => link.fromField!=-1 && link.toField!=-1);
 	console.log(cut_links);
