@@ -342,7 +342,7 @@ function expressCutLinks(repartition){
 
 function drawDiag() {
 
-	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	const {documentTitle} = mydata;
 	const {rectangles} = mycontexts;
 
 	
