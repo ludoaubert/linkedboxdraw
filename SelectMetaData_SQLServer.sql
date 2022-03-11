@@ -44,49 +44,7 @@ WITH cte_fk AS (
 		FOR JSON PATH
 	) AS fields 
 	FROM cte_table_list tl
-),  cte_rectangle_constants AS (
-	SELECT 7 AS MONOSPACE_FONT_PIXEL_WIDTH,
-		16 AS CHAR_RECT_HEIGHT,	-- in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
-		200 AS RECTANGLE_BOTTOM_CAP
-),  cte_rectangles_staging AS (
-	SELECT tc.TABLE_NAME,
-		CASE 
-			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NOT NULL
-				THEN (LEN('PK_FK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
-			WHEN pk.pk_name IS NOT NULL AND fk.FK_NAME IS NULL
-				THEN (LEN('PK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
-			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NOT NULL
-				THEN (LEN('FK_') + LEN(column_name)) * MONOSPACE_FONT_PIXEL_WIDTH
-			WHEN pk.pk_name IS NULL AND fk.FK_NAME IS NULL
-				THEN LEN(column_name) * MONOSPACE_FONT_PIXEL_WIDTH
-		END AS column_width
-	FROM cte_table_column_list tc
-	LEFT JOIN cte_pk pk ON tc.TABLE_NAME=pk.table_name AND tc.COLUMN_NAME = pk.[columns]
-	LEFT JOIN cte_fk fk ON tc.TABLE_NAME=fk.[table] AND tc.COLUMN_NAME = fk.[column]
-	CROSS JOIN cte_rectangle_constants
-
-	UNION ALL
-
-	SELECT table_name, 2*4 + LEN(table_name) * MONOSPACE_FONT_PIXEL_WIDTH
-	FROM cte_table_list 
-	CROSS JOIN cte_rectangle_constants
-), cte_rectangles AS (
-	SELECT tl.TABLE_NAME,
-		0 AS [left], 
-		(
-			SELECT MAX(column_width)
-			FROM cte_rectangles_staging rs 
-			WHERE rs.table_name = tl.table_name
-		) AS [right],
-		0 AS [top],
-		(
-			SELECT 8 + CHAR_RECT_HEIGHT * (COUNT(*) + 1)
-			FROM cte_table_column_list tcl 
-			WHERE tcl.table_name = tl.table_name
-		) AS [bottom]
-	FROM cte_table_list tl
-	CROSS JOIN cte_rectangle_constants rc
-) , cte_diagdata AS (
+),  cte_diagdata AS (
 	SELECT 'Eptane' AS documentTitle,
 	(
 		SELECT *
@@ -106,18 +64,6 @@ WITH cte_fk AS (
 		JOIN cte_table_column_list tcl_to ON fk.referenced_table=tcl_to.TABLE_NAME AND fk.referenced_column=tcl_to.COLUMN_NAME
 		FOR JSON PATH
 	) AS links,
-	(
-		SELECT [left], [right], [top],
-			CASE 
-				WHEN [bottom] > RECTANGLE_BOTTOM_CAP 
-					THEN RECTANGLE_BOTTOM_CAP 
-				ELSE [bottom] 
-			END AS [bottom]
-		FROM cte_rectangles 
-		CROSS JOIN cte_rectangle_constants
-		ORDER BY TABLE_NAME
-		FOR JSON PATH
-	) AS rectangles,
 	json_query('[]') AS [values],
 	json_query('[]') AS boxComments,
 	json_query('[]') AS fieldComments,
