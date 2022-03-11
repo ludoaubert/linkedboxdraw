@@ -297,9 +297,13 @@ function drawComponent(id) {
 	return innerHTML;
 }
 
-function expressCutLinks(cut_links){
+function expressCutLinks(repartition){
 	
 	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	
+	const cut_links = links_.filter(link => repartition[link.from] != repartition[link.to])
+									.filter(link => link.fromField!=-1 && link.toField!=-1);
+	console.log(cut_links);
 	
 // listing unexpressed link targets - beginning
 	const cut_link_targets = [... new Set(cut_links.map( link => `${link.to}.${link.toField}`))];
@@ -524,12 +528,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	}
 	console.log(repartition);
 	
-	const cut_links = links_.filter(link => repartition[link.from] != repartition[link.to])
-									.filter(link => link.fromField!=-1 && link.toField!=-1);
-	console.log(cut_links);
-// listing unexpressed links - end
-
-	expressCutLinks(cut_links);
+	expressCutLinks(repartition);
 	
 	var input = document.getElementById("myFile");
 	
