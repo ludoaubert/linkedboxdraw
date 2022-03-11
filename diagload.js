@@ -315,12 +315,13 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		for (const {id, translation} of translatedBoxes)
 		{
 			const rectangle = rectangles[id];
-			const box = boxes[id];
-			const key_distrib = compute_key_distrib(box.fields);
 			
 			innerHTML += `<g id="g_${id}" class="draggable" transform="translate(${translation.x},${translation.y})">
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
+
+			const box = boxes[id];
+			const key_distrib = compute_key_distrib(box.fields);
 
 			const titleAttribute = box.title in box2comment ? `title="${box2comment[box.title]}"` : '';
 
