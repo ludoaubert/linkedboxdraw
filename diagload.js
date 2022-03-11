@@ -345,29 +345,6 @@ function drawDiag() {
 	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
 	const {rectangles} = mycontexts;
 
-	let field2values = {};
-	for (let {box, field, value} of values)
-	{
-		if (!(`${box}.${field}` in field2values))
-			field2values[`${box}.${field}`] = [];
-		field2values[`${box}.${field}`].push(value);
-	}
-	for (let boxField in field2values)
-	{
-		field2values[boxField].sort();
-	}
-	
-	let box2comment = {};
-	for (let {box, comment} of boxComments)
-	{
-		box2comment[box] = comment;
-	}
-	
-	let field2comment = {};
-	for (let {box, field, comment} of fieldComments)
-	{
-		field2comment[`${box}.${field}`] = comment;
-	}
 	
 	var innerHTML = `<div><h1>Repartition</h1>
       <table id="repartition">`;
