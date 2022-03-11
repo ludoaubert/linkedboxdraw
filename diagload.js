@@ -185,7 +185,7 @@ function loadDiag(data, contexts) {
 }
 
 
-function drawComponent(id) {
+function drawComponent(mydata, id) {
 
 	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
 	
@@ -297,7 +297,7 @@ function drawComponent(id) {
 	return innerHTML;
 }
 
-function expressCutLinks(repartition){
+function expressCutLinks(mydata, repartition){
 	
 	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
 	
@@ -452,7 +452,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 			
-			innerHTML += drawComponent(id);
+			innerHTML += drawComponent(mydata, id);
 			
 			innerHTML += `</foreignObject>
 			</g>`;
@@ -505,7 +505,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	}
 	console.log(repartition);
 	
-	expressCutLinks(repartition);
+	expressCutLinks(mydata, repartition);
 	
 	var input = document.getElementById("myFile");
 	
