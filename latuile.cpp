@@ -306,7 +306,7 @@ int main(int argc, char* argv[])
             ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
         }
 		char res[100000];
-        write_json(contexts, res);
+        write_json(rectangles, contexts, res);
 		printf("%s", res);
 	}
 
@@ -334,7 +334,7 @@ const char* latuile(const char *rectdim, const char *slinks)
 		ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
 	}
 	static char res[100000];
-	write_json(contexts, res);
+	write_json(rectangles, contexts, res);
 	return res;
 }
 }
