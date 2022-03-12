@@ -37,16 +37,29 @@ void json_context_output(const vector<MyRect> &rectangles,
 
         pos += sprintf(buffer + pos, R"(],
 "links":[]
-}
-]}
+}],
+"rectangles":[
 )");
+		for (const auto& [left, right, top, bottom, i, ii, selected] : rectangles)
+		{
+			pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
+		}
+
+		if (buffer[pos-2]==',')
+		{
+			buffer[pos-2]='\n';
+			pos--;
+		}
+
+		pos += sprintf(buffer + pos, "]}\n");
+
 
         FILE *f = fopen(file_name, "w");
         fprintf(f, "%s", buffer);
         fclose(f);
 }
 
-void json_diagdata_output(const vector<MyRect> &rectangles,
+void json_diagdata_output(int n,
 			const std::vector<Edge> &edges,
                         const char* file_name)
 {
@@ -56,7 +69,7 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 	int testid=0;
 
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
-	for (int i=0; i < rectangles.size(); i++)
+	for (int i=0; i < n; i++)
 	{
 		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\",\n",i);
 		pos += sprintf(buffer + pos, "\t\"id\":%d,\n",i);
@@ -99,21 +112,8 @@ void json_diagdata_output(const vector<MyRect> &rectangles,
 	}
 
 	pos += sprintf(buffer + pos, R"(],
-"fieldColors":[],
-"rectangles":[
-)");
-	for (const auto& [left, right, top, bottom, i, ii, selected] : rectangles)
-	{
-		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
-	}
-
-	if (buffer[pos-2]==',')
-	{
-		buffer[pos-2]='\n';
-		pos--;
-	}
-
-	pos += sprintf(buffer + pos, "]}\n");
+"fieldColors":[]
+})");
 
 	FILE *f = fopen(file_name, "w");
         fprintf(f, "%s", buffer);
@@ -130,7 +130,7 @@ void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 {
 	char file_name[200];
         sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, test_number);
-	json_diagdata_output(input_rectangles, edges, file_name);
+	json_diagdata_output(input_rectangles.size(), edges, file_name);
         sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, test_number);
 	json_context_output(input_rectangles, file_name);
 	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, test_number);
