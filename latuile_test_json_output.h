@@ -14,7 +14,7 @@ struct Edge
 };
 
 
-void json_diagdata_output(const std::vector<MyRect> &rectangles,
+void json_diagdata_output(int n,
 			const std::vector<Edge> &edges,
                         const char* file_name);
 
