@@ -440,7 +440,7 @@ Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self)
 }
 
 
-void write_json(const vector<Context>& contexts, char (&buffer)[100000])
+void write_json(const vector<MyRect>& rectangles, const vector<Context>& contexts, char (&buffer)[100000])
 {
 	int pos=0;
 	pos += sprintf(buffer + pos, "{\"contexts\":[\n");
@@ -465,7 +465,16 @@ void write_json(const vector<Context>& contexts, char (&buffer)[100000])
 		pos += sprintf(buffer + pos, "}%c\n", &ctx == &contexts.back() ? ' ' : ',');
 	}
 
-	pos += sprintf(buffer + pos, "]}\n");
+	pos += sprintf(buffer + pos, "],\n");
+	
+	pos += sprintf(buffer + pos, "\"rectangles\":[\n");
+	for (const MyRect& r : rectangles)
+	{
+		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu}%c\n", 0, width(r), 0, height(r), &r == &rectangles.back() ? ' ' : ',');
+	}	
+	pos += sprintf(buffer + pos, "]\n");	
+	
+	pos += sprintf(buffer + pos, "}\n");
 	buffer[pos]=0;
 	assert(pos < 100000);
 }
@@ -2655,7 +2664,7 @@ void test_stair_steps_layout_from_111_boxes()
         compute_contexts(dctx.rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
 
 	char buffer[100000];
-	write_json(contexts, buffer);
+	write_json(dctx.rectangles, contexts, buffer);
         FILE *f = fopen("test-latuile-101boxes-output-contexts.json", "w");
         fprintf(f, "%s", buffer);
         fclose(f);
