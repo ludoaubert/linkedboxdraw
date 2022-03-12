@@ -11,10 +11,5 @@
 "links":[
 {"from":3,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined"}
 ],
-"fieldColors":[],
-"rectangles":[
-	{"left":0,"right":20,"top":0,"bottom":20},
-	{"left":0,"right":20,"top":0,"bottom":20},
-	{"left":0,"right":5,"top":0,"bottom":3},
-	{"left":0,"right":26,"top":0,"bottom":20}
-]}
+"fieldColors":[]
+}

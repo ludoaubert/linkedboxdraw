@@ -11,4 +11,10 @@
 {"polyline":[{"x":6,"y":4},{"x":21,"y":4},{"x":21,"y":22},{"x":36,"y":22}],"from":0,"to":3}
 ]
 }
+],
+"rectangles":[
+	{"left":0,"right":4,"top":0,"bottom":4},
+	{"left":0,"right":4,"top":0,"bottom":4},
+	{"left":0,"right":4,"top":0,"bottom":4},
+	{"left":0,"right":4,"top":0,"bottom":4}
 ]}

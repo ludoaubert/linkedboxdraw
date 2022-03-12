@@ -13,10 +13,5 @@
 {"from":0,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined"},
 {"from":0,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined"}
 ],
-"fieldColors":[],
-"rectangles":[
-	{"left":0,"right":20,"top":0,"bottom":20},
-	{"left":0,"right":20,"top":0,"bottom":10},
-	{"left":0,"right":20,"top":0,"bottom":20},
-	{"left":0,"right":20,"top":0,"bottom":10}
-]}
+"fieldColors":[]
+}

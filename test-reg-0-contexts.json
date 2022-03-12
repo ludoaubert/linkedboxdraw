@@ -9,4 +9,8 @@
 {"polyline":[{"x":19,"y":40},{"x":19,"y":20},{"x":28,"y":20}],"from":0,"to":1}
 ]
 }
+],
+"rectangles":[
+	{"left":0,"right":20,"top":0,"bottom":20},
+	{"left":0,"right":22,"top":0,"bottom":20}
 ]}

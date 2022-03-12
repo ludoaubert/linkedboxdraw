@@ -10,4 +10,9 @@
 {"polyline":[{"x":60,"y":80},{"x":60,"y":110},{"x":200,"y":110}],"from":0,"to":2}
 ]
 }
+],
+"rectangles":[
+	{"left":0,"right":40,"top":0,"bottom":40},
+	{"left":0,"right":40,"top":0,"bottom":40},
+	{"left":0,"right":40,"top":0,"bottom":40}
 ]}
