@@ -841,7 +841,7 @@ void test_stair_steps(int rect_border)
 		}
 		ctx.frame = compute_frame(ctx.rectangles) ;
 
-                ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
+                ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
                 vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
@@ -1769,7 +1769,7 @@ void test_stair_steps_layout()
 
 		stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
 		ctx.frame = compute_frame(ctx.rectangles) ;
-                ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
+                ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
                 vector<TranslatedBox> translations;
                 for (MyRect &r : ctx.rectangles)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
@@ -2664,7 +2664,7 @@ void test_stair_steps_layout_from_111_boxes()
         int c=0;
         for (Context &ctx : contexts)
         {
-            ranges::sort(ctx.rectangles, {}, [](MyRect &r){return r.no_sequence;});
+            ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
             vector<TranslatedBox> translations;
             for (MyRect &r : ctx.rectangles)
                 translations.push_back({r.no_sequence,{width(r), height(r)}});

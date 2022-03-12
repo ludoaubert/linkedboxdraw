@@ -188,7 +188,7 @@ void test()
     for (int i=0; i < contexts.size(); i++)
     {
         Context &ctx = contexts[i];
-        ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
+        ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
         MyRect &frame = ctx.frame;
         printf("frame={%d, %d, %d, %d}\n", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
         for (MyRect& rec : ctx.rectangles)
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 //on ne conserve que les rectangles
         for (Context &ctx : contexts)
         {
-            ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
+            ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
         }
 		char res[100000];
         write_json(contexts, res);
@@ -331,7 +331,7 @@ const char* latuile(const char *rectdim, const char *slinks)
 //on ne conserve que les rectangles
 	for (Context &ctx : contexts)
 	{
-		ranges::sort(ctx.rectangles, {}, [](MyRect& r){return r.no_sequence;});
+		ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
 	}
 	static char res[100000];
 	write_json(contexts, res);
@@ -344,7 +344,7 @@ Linux command to install eigen3 directory:
  sudo apt-get install libeigen3-dev
 Linux command to lookup eigen3 directory:
  sudo find / -type d -name "eigen3"
- 
+
 To generate latuile.wasm and latuile.js:
 emcc bombix.cpp latuile.cpp binpack.cpp compact_frame.cpp compact_rectangles.cpp fit_together.cpp KMeansRexCore.cpp MPD_Arc.cpp MyRect.cpp optimize_rectangle_positions.cpp permutation.cpp stair_steps.cpp swap_rectangles.cpp WidgetContext.cpp FunctionTimer.cpp -o latuile.js -I/usr/include/eigen3 -Wno-c++11-narrowing -s EXPORTED_FUNCTIONS='["_latuile","_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
 

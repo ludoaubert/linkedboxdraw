@@ -984,7 +984,7 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const vector<int> &distance,
 								const vector<Edge> &predecessor,
 								vector<uint64_t> &target_candidates)
-{	
+{
 	uint64_t u = *min_element(begin(target_nodes), end(target_nodes), [&](uint64_t u, uint64_t v){return distance.at(u) < distance.at(v);});
 
 	copy_if(begin(target_nodes),
@@ -995,7 +995,7 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 		}
 	);
 
-	sort(begin(target_candidates), end(target_candidates));
+	ranges::sort(target_candidates);
 }
 
 vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
@@ -1009,31 +1009,31 @@ vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
 vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
 {
 	vector<Range> result;
-	
+
 	for (int i=0; i < path.size();)
 	{
 		vector<int> index_range;
-		
+
 		int j = i;
 		while (j < path.size() && path[i].direction == path[j].direction)
 		{
 			index_range.push_back(j);
 			j++;
 		}
-		
+
 	//TODO: use destructuring
-	
+
 		vector<Range> ranges;
 		for (int k = i; k < j; k++)
 		{
 			const Range &r = path[k];
 			ranges.push_back(r);
 		}
-		
+
 		for (Way way : {DECREASE, INCREASE})
 		{
 			if (all_of(begin(index_range), end(index_range), [&](int k){
-				
+
 				Range r = path[k];
 				r[way] += way;
 				Coord c = r[way];
@@ -1047,7 +1047,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				}
 			}
 		}
-		
+
 		if (i == 0)
 		{
 			for (Range &r : ranges)
@@ -1056,7 +1056,7 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[direction] = intersection(r[direction], rfrom[direction]);
 			}
 		}
-		
+
 		if (j == path.size())
 		{
 			for (Range &r : ranges)
@@ -1065,13 +1065,13 @@ vector<Range> enlarge(const vector<Range>& path, const Matrix<bool>& m, const Re
 				r[direction] = intersection(r[direction], rto[direction]);
 			}
 		}
-		
+
 		for (Range &r : ranges)
 			result.push_back(r);
-		
+
 		i = j;
 	}
-	
+
 	assert(path.size() == result.size());
 	return result;
 }
@@ -2831,30 +2831,30 @@ void compute_polylines(const vector<Rect>& rects,
 {
 	int n = rects.size();
 	vector<int> nblinks(n,0 );
-	
+
 	for (const auto& [from, to] : links)
 	{
 		nblinks[from]++;
 		nblinks[to]++;
 	}
-	
+
 	vector<int> coords[2];
-	
+
 	for (const Rect& r : rects)
 	{
 		int i = distance(&rects[0], &r);
 		add_rect(coords, r, nblinks[i]);
 	}
-	
+
 	add_rect(coords, frame);
-	
+
 	for (vector<int>& coords_ : coords)
 	{
-		sort(begin(coords_), end(coords_));
+		ranges::sort(coords_);
 		auto it = unique(begin(coords_), end(coords_));
 		coords_.resize(distance(begin(coords_), it));
 	}
-	
+
 	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
 
 	vector<int> origins;

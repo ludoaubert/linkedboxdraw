@@ -658,7 +658,7 @@ if for example rec1.m_right = INT_MAX => rec1 is on the right edge of the frame.
 				break ;
 			}
 		}
-		ranges::sort(right_edge, {}, [](MyRect& r){return r.m_left;}) ;
+		ranges::sort(right_edge, {}, &MyRect::m_left) ;
 		for (MyRect &strip : right_edge)
 		{
 			if (height(strip) >= height(*r1) && strip.m_left < r1->m_left)
