@@ -6,5 +6,9 @@
 {"id":2,"translation":{"x":118,"y":64}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":58,"top":0,"bottom":72},
+	{"left":0,"right":78,"top":0,"bottom":88},
+	{"left":0,"right":77,"top":0,"bottom":136}
 ]}

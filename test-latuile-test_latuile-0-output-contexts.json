@@ -23,5 +23,26 @@
 {"id":19,"translation":{"x":329,"y":490}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":141,"top":0,"bottom":40},
+	{"left":0,"right":162,"top":0,"bottom":56},
+	{"left":0,"right":64,"top":0,"bottom":104},
+	{"left":0,"right":120,"top":0,"bottom":120},
+	{"left":0,"right":141,"top":0,"bottom":56},
+	{"left":0,"right":267,"top":0,"bottom":72},
+	{"left":0,"right":71,"top":0,"bottom":136},
+	{"left":0,"right":78,"top":0,"bottom":72},
+	{"left":0,"right":211,"top":0,"bottom":72},
+	{"left":0,"right":133,"top":0,"bottom":88},
+	{"left":0,"right":106,"top":0,"bottom":104},
+	{"left":0,"right":105,"top":0,"bottom":120},
+	{"left":0,"right":57,"top":0,"bottom":56},
+	{"left":0,"right":63,"top":0,"bottom":72},
+	{"left":0,"right":154,"top":0,"bottom":88},
+	{"left":0,"right":98,"top":0,"bottom":56},
+	{"left":0,"right":112,"top":0,"bottom":56},
+	{"left":0,"right":112,"top":0,"bottom":72},
+	{"left":0,"right":50,"top":0,"bottom":56},
+	{"left":0,"right":196,"top":0,"bottom":120}
 ]}

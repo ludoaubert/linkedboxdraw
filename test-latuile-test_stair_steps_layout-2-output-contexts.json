@@ -18,5 +18,21 @@
 {"id":14,"translation":{"x":453,"y":432}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":80,"top":0,"bottom":88},
+	{"left":0,"right":84,"top":0,"bottom":152},
+	{"left":0,"right":89,"top":0,"bottom":72},
+	{"left":0,"right":89,"top":0,"bottom":168},
+	{"left":0,"right":111,"top":0,"bottom":312},
+	{"left":0,"right":92,"top":0,"bottom":168},
+	{"left":0,"right":136,"top":0,"bottom":232},
+	{"left":0,"right":89,"top":0,"bottom":72},
+	{"left":0,"right":105,"top":0,"bottom":72},
+	{"left":0,"right":93,"top":0,"bottom":88},
+	{"left":0,"right":91,"top":0,"bottom":72},
+	{"left":0,"right":93,"top":0,"bottom":136},
+	{"left":0,"right":92,"top":0,"bottom":136},
+	{"left":0,"right":83,"top":0,"bottom":200},
+	{"left":0,"right":109,"top":0,"bottom":88}
 ]}

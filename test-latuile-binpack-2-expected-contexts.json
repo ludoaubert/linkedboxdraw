@@ -10,5 +10,13 @@
 {"id":6,"translation":{"x":158,"y":264}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":181,"top":0,"bottom":56},
+	{"left":0,"right":101,"top":0,"bottom":56},
+	{"left":0,"right":234,"top":0,"bottom":120},
+	{"left":0,"right":234,"top":0,"bottom":88},
+	{"left":0,"right":128,"top":0,"bottom":56},
+	{"left":0,"right":30,"top":0,"bottom":56},
+	{"left":0,"right":20,"top":0,"bottom":50}
 ]}

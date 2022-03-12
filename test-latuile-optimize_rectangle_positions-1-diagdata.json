@@ -106,20 +106,5 @@
 	{"from":10,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined"},
 	{"from":11,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined"}
 ],
-"fieldColors":[],
-"rectangles":[
-	{"left":0,"right":160,"top":0,"bottom":112},
-	{"left":0,"right":181,"top":0,"bottom":144},
-	{"left":0,"right":223,"top":0,"bottom":128},
-	{"left":0,"right":223,"top":0,"bottom":304},
-	{"left":0,"right":104,"top":0,"bottom":80},
-	{"left":0,"right":153,"top":0,"bottom":80},
-	{"left":0,"right":146,"top":0,"bottom":128},
-	{"left":0,"right":125,"top":0,"bottom":112},
-	{"left":0,"right":167,"top":0,"bottom":160},
-	{"left":0,"right":160,"top":0,"bottom":112},
-	{"left":0,"right":160,"top":0,"bottom":176},
-	{"left":0,"right":230,"top":0,"bottom":160},
-	{"left":0,"right":174,"top":0,"bottom":96},
-	{"left":0,"right":174,"top":0,"bottom":128}
-]}
+"fieldColors":[]
+}

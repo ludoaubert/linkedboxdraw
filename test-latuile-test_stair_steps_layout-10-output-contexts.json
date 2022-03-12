@@ -11,5 +11,14 @@
 {"id":7,"translation":{"x":331,"y":352}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":130,"top":0,"bottom":200},
+	{"left":0,"right":127,"top":0,"bottom":120},
+	{"left":0,"right":142,"top":0,"bottom":232},
+	{"left":0,"right":101,"top":0,"bottom":88},
+	{"left":0,"right":101,"top":0,"bottom":120},
+	{"left":0,"right":115,"top":0,"bottom":56},
+	{"left":0,"right":121,"top":0,"bottom":248},
+	{"left":0,"right":69,"top":0,"bottom":40}
 ]}

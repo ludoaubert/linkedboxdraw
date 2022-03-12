@@ -9,5 +9,12 @@
 {"id":5,"translation":{"x":176,"y":128}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":80,"top":0,"bottom":88},
+	{"left":0,"right":89,"top":0,"bottom":72},
+	{"left":0,"right":136,"top":0,"bottom":232},
+	{"left":0,"right":89,"top":0,"bottom":72},
+	{"left":0,"right":105,"top":0,"bottom":72},
+	{"left":0,"right":91,"top":0,"bottom":72}
 ]}

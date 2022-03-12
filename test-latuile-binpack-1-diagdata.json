@@ -26,11 +26,5 @@
 "fieldComments":[],
 "links":[
 ],
-"fieldColors":[],
-"rectangles":[
-	{"left":0,"right":90,"top":0,"bottom":230},
-	{"left":0,"right":115,"top":0,"bottom":166},
-	{"left":0,"right":186,"top":0,"bottom":129},
-	{"left":0,"right":60,"top":0,"bottom":23},
-	{"left":0,"right":280,"top":0,"bottom":15}
-]}
+"fieldColors":[]
+}

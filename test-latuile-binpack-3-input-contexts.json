@@ -19,5 +19,22 @@
 {"id":15,"translation":{"x":0,"y":0}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":147,"top":0,"bottom":104},
+	{"left":0,"right":173,"top":0,"bottom":248},
+	{"left":0,"right":162,"top":0,"bottom":152},
+	{"left":0,"right":126,"top":0,"bottom":88},
+	{"left":0,"right":114,"top":0,"bottom":56},
+	{"left":0,"right":131,"top":0,"bottom":56},
+	{"left":0,"right":116,"top":0,"bottom":88},
+	{"left":0,"right":96,"top":0,"bottom":40},
+	{"left":0,"right":66,"top":0,"bottom":56},
+	{"left":0,"right":109,"top":0,"bottom":104},
+	{"left":0,"right":104,"top":0,"bottom":72},
+	{"left":0,"right":100,"top":0,"bottom":72},
+	{"left":0,"right":147,"top":0,"bottom":72},
+	{"left":0,"right":113,"top":0,"bottom":72},
+	{"left":0,"right":162,"top":0,"bottom":40},
+	{"left":0,"right":116,"top":0,"bottom":56}
 ]}

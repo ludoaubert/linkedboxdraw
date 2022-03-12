@@ -13,5 +13,16 @@
 {"id":9,"translation":{"x":411,"y":160}}
 ],
 "links":[]
-}
+}],
+"rectangles":[
+	{"left":0,"right":202,"top":0,"bottom":320},
+	{"left":0,"right":146,"top":0,"bottom":160},
+	{"left":0,"right":188,"top":0,"bottom":128},
+	{"left":0,"right":202,"top":0,"bottom":208},
+	{"left":0,"right":188,"top":0,"bottom":128},
+	{"left":0,"right":223,"top":0,"bottom":112},
+	{"left":0,"right":188,"top":0,"bottom":128},
+	{"left":0,"right":202,"top":0,"bottom":256},
+	{"left":0,"right":195,"top":0,"bottom":192},
+	{"left":0,"right":230,"top":0,"bottom":512}
 ]}
