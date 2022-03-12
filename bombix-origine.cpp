@@ -1327,21 +1327,9 @@ string diagdata(const TestContext& ctx)
 	}
 
 	pos += sprintf(buffer + pos, R"(],
-"fieldColors":[],
-"rectangles":[
+"fieldColors":[]
+}
 )");
-	for (const auto& [left, right, top, bottom] : rects)
-	{
-		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
-	}
-
-	if (buffer[pos-2]==',')
-	{
-		buffer[pos-2]='\n';
-		pos--;
-	}
-
-	pos += sprintf(buffer + pos, "]}\n");
 
 	return buffer;
 }
@@ -1367,17 +1355,25 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 		pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
 	}
 
-	if (buffer[pos-2]==',')
-	{
-		buffer[pos-2]='\n';
-		pos--;
-	}
+	buffer[pos-2]='\n';
+	pos--;
 
 	pos += sprintf(buffer + pos, R"(],
 "links":%s
 }
-]}
+],
+"rectangles":[
 )", pjson.c_str());
+
+	for (const auto& [left, right, top, bottom] : rects)
+	{
+		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
+	}
+	
+	buffer[pos-2]='\n';
+	pos--;
+
+	pos += sprintf(buffer + pos, "]}\n");
 
 	return buffer;
 }
