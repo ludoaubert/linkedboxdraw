@@ -746,8 +746,8 @@ function refreshJsonFromEditData()
 	for (let option of linkCombo.options)
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		const [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality] = option.text.split(/ -> |\./);
-		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName});
+		const [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality, Category] = option.text.split(/ -> |\./);
+		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName, Category});
 		const fromBoxIndex = boxes.findIndex( box => box.title == fromBoxTitle );
 		if (fromBoxIndex == -1)
 			alert(`link ${i}: No Box named ${fromBoxTitle}!`);
@@ -767,7 +767,8 @@ function refreshJsonFromEditData()
 			"fromCardinality":fromCardinality,
 			"to":toBoxIndex,
 			"toField":toFieldIndex,
-			"toCardinality":toCardinality
+			"toCardinality":toCardinality,
+			"Category":Category
 			}
 		);
 		i++;
@@ -872,9 +873,9 @@ function refreshEditDataFromJson(Json)
 	
 	console.log(myBoxes);
 	
-	for (const {from,fromField,fromCardinality,to,toField,toCardinality} of links)
+	for (const {from,fromField,fromCardinality,to,toField,toCardinality,Category} of links)
 	{
-		console.log({from,fromField,fromCardinality,to,toField,toCardinality});
+		console.log({from,fromField,fromCardinality,to,toField,toCardinality,Category});
 		console.assert(from < boxes.length);
 		console.assert(fromField < boxes[from].fields.length);
 		console.assert(to < boxes.length);
@@ -890,7 +891,9 @@ function refreshEditDataFromJson(Json)
 					"." +
 					(toField != -1 ? boxes[to].fields[toField].name : '') +
 					"." +
-					toCardinality;
+					toCardinality +
+					"." +
+					Category;
 					
 		linkCombo.add(new Option(text, text));
     }
