@@ -21,7 +21,7 @@ function compute_key_distrib(fields)
 
 function drawComponent(mydata, id) {
 
-	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors} = mydata;
 	
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -98,7 +98,7 @@ function drawComponent(mydata, id) {
 		let open_link = "";
 		let close_link = "";
 		
-		const link = links_.find( link => link.from == id && link.fromField == i );
+		const link = links.find( link => link.from == id && link.fromField == i );
 		if (link !== undefined)
 		{
 			const {to} = link;
@@ -133,11 +133,11 @@ function drawComponent(mydata, id) {
 
 function expressCutLinks(mydata, repartition){
 	
-	const {documentTitle, boxes, values, boxComments, fieldComments, links:links_, fieldColors} = mydata;
+	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors} = mydata;
 	
 	document.title = documentTitle;
 	
-	const cut_links = links_.filter(link => repartition[link.from] != repartition[link.to])
+	const cut_links = links.filter(link => link.Category=="TR2" || repartition[link.from] != repartition[link.to])
 									.filter(link => link.fromField!=-1 && link.toField!=-1);
 	console.log(cut_links);
 	
