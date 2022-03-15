@@ -44,15 +44,7 @@ WITH cte_fk AS (
 		FOR JSON PATH
 	) AS fields 
 	FROM cte_table_list tl
-),  cte_diagdata AS (
-	SELECT 'Eptane' AS documentTitle,
-	(
-		SELECT *
-		FROM cte_fields
-		ORDER BY title
-		FOR JSON PATH
-	) AS boxes,
-	(
+),  cte_links AS (
 		SELECT tcl_from.rn_table - 1 AS [from],	-- zero based
 			tcl_from.rn_column - 1 AS fromField, -- zero based
 			NULL AS fromCardinality,
@@ -62,6 +54,26 @@ WITH cte_fk AS (
 		FROM cte_fk fk
 		JOIN cte_table_column_list tcl_from ON fk.[table]=tcl_from.TABLE_NAME AND fk.[column]=tcl_from.COLUMN_NAME
 		JOIN cte_table_column_list tcl_to ON fk.referenced_table=tcl_to.TABLE_NAME AND fk.referenced_column=tcl_to.COLUMN_NAME
+),	cte_tr2 AS (
+		SELECT l1.[from], l2.[to]
+		FROM cte_links l1
+		JOIN cte_links l2 ON l1.[to] = l2.[from]
+),  cte_diagdata AS (
+	SELECT 'Eptane' AS documentTitle,
+	(
+		SELECT *
+		FROM cte_fields
+		ORDER BY title
+		FOR JSON PATH
+	) AS boxes,
+	(
+		SELECT l.*,
+			CASE
+				WHEN EXISTS(SELECT * FROM cte_tr2 WHERE cte_tr2.[from]=l.[from] AND cte_tr2.[to]=l.[to])
+					THEN 'TR2'
+				ELSE ''
+			END AS Category
+		FROM cte_links l
 		FOR JSON PATH
 	) AS links,
 	json_query('[]') AS [values],
