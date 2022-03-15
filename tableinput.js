@@ -103,6 +103,7 @@ function download2(filename) {
 	console.log(rectdim);
 						
 	const slinks = links.filter(lk => lk.from != lk.to)
+						.filter(lk => lk.Category != "TR2")
 						.map(lk => [lk.from, lk.to])
 						.map(lk => JSON.stringify(lk))
 						.filter(function(lk, pos, self){
