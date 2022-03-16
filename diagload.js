@@ -287,7 +287,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		innerHTML += `</svg>`;
 	}
 	
-	innerHTML += `<h1>Geometry File Input</h1>
+	innerHTML += `<button type="button" class="collapsible">Input Output</button>
+<div class="content">
+<h1>Geometry File Input</h1>
 
 <ul>
 <li>Load Geometry File</li>
@@ -308,7 +310,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 <ul>
 <li>Load Data File</li>
 <li><input type="file" accept=".json" id="myDataFile" value="Load"></li>
-</ul>`;
+</ul>
+</div>`;
 	
 
 	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
@@ -335,15 +338,17 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	
 	var coll = document.getElementsByClassName("collapsible");
 
-	coll[0].addEventListener("click", function() {
-		this.classList.toggle("active");
-		var content = this.nextElementSibling;
-		if (content.style.display === "block") {
-		  content.style.display = "none";
-		} else {
-		  content.style.display = "block";
-		}
-	});
+	for (i = 0; i < coll.length; i++) {
+		coll[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var content = this.nextElementSibling;
+			if (content.style.display === "block") {
+			  content.style.display = "none";
+			} else {
+			  content.style.display = "block";
+			}
+		});
+	}
 	
 	var input = document.getElementById("myFile");
 	
