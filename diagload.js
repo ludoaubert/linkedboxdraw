@@ -171,8 +171,7 @@ function drawDiag() {
 
 	const {rectangles} = mycontexts;
 	
-	var innerHTML = `<div><h1>Repartition</h1>
-	<button type="button" class="collapsible">Open Collapsible</button>
+	var innerHTML = `<button type="button" class="collapsible">Repartition</button>
 <div class="content">
       <table id="repartition">`;
 	  
@@ -209,7 +208,6 @@ function drawDiag() {
 		
     innerHTML += `</table> 
 	  <button id="apply repartition" type="button" onclick="ApplyRepartition()">Apply Repartition</button>
-	  </div>
 	  </div>
 `;
 	
@@ -336,10 +334,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	expressCutLinks(mydata, repartition);
 	
 	var coll = document.getElementsByClassName("collapsible");
-	var i;
 
-	for (i = 0; i < coll.length; i++) {
-	  coll[i].addEventListener("click", function() {
+	coll[0].addEventListener("click", function() {
 		this.classList.toggle("active");
 		var content = this.nextElementSibling;
 		if (content.style.display === "block") {
@@ -347,8 +343,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		} else {
 		  content.style.display = "block";
 		}
-	  });
-	}
+	});
 	
 	var input = document.getElementById("myFile");
 	
