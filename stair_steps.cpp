@@ -466,14 +466,14 @@ void write_json(const vector<MyRect>& rectangles, const vector<Context>& context
 	}
 
 	pos += sprintf(buffer + pos, "],\n");
-	
+
 	pos += sprintf(buffer + pos, "\"rectangles\":[\n");
 	for (const MyRect& r : rectangles)
 	{
 		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu}%c\n", 0, width(r), 0, height(r), &r == &rectangles.back() ? ' ' : ',');
-	}	
-	pos += sprintf(buffer + pos, "]\n");	
-	
+	}
+	pos += sprintf(buffer + pos, "]\n");
+
 	pos += sprintf(buffer + pos, "}\n");
 	buffer[pos]=0;
 	assert(pos < 100000);
