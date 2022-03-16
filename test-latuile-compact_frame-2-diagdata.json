@@ -15,7 +15,7 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined"}
+	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined","Category":""}
 ],
 "fieldColors":[]
 }
