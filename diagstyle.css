@@ -24,6 +24,18 @@
   background-color: #f1f1f1;
 }
 
+.collapsible:after {
+  content: '\02795'; /* Unicode character for "plus" sign (+) */
+  font-size: 13px;
+  color: white;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2796"; /* Unicode character for "minus" sign (-) */
+}
+
 #repartition {
 	border: 3px solid black;
 	border-collapse : collapse;
