@@ -1,5 +1,17 @@
 
 
+function download(filename) {
+  var element = document.createElement('a');
+  const Json = prettyContexts(JSON.stringify(mycontexts));
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+
 /*TODO: this function is present also in tableinput.html */
 function compute_key_distrib(fields)
 {
@@ -131,9 +143,72 @@ function drawComponent(mydata, id) {
 	return innerHTML;
 }
 
-function expressCutLinks(mydata, repartition){
+function drawRepartition(mydata, mycontexts){
+	
+	var innerHTML = `<button type="button" class="collapsible">Repartition</button>
+<div class="content">
+      <table id="repartition">`;
+	  
+	var repartitionEntries = [];
+	
+	for (const [id, box] of mydata.boxes.entries())
+	{
+		repartitionEntries[id] = {boxName:box.title, id, selectedContextIndex:-1};
+	}
+	  
+	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
+	{
+		for (const {id, translation} of context.translatedBoxes)
+		{
+			repartitionEntries[id].selectedContextIndex = selectedContextIndex;
+		}
+	}
+
+	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
+		function (a, b) {
+			return a.boxName.localeCompare(b.boxName);
+		}
+		)
+	)
+	{
+		innerHTML += `
+			<tr>
+			  <td>${id}</td>
+              <td>${boxName}</td>
+			  <td contenteditable="true">${selectedContextIndex}</td>
+            </tr>
+			`
+	}
+		
+    innerHTML += `</table> 
+	  <button id="apply repartition" type="button" onclick="ApplyRepartition()">Apply Repartition</button>
+	  </div>
+`;
+
+	return innerHTML;
+}
+
+function expressCutLinks(mydata, mycontexts){
 	
 	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors} = mydata;
+	
+// listing unexpressed links - beginning
+
+	let repartition=[];
+	
+	for (let id=0; id < mycontexts.rectangles.length; id++)
+	{
+		repartition[id] = -1;
+	}
+	
+	for (const [i, context] of mycontexts.contexts.entries())
+	{
+		for (const {id,translation} of context.translatedBoxes)
+		{
+			repartition[id]=i;
+		}
+	}
+	console.log(repartition);
 	
 	document.title = documentTitle;
 	
