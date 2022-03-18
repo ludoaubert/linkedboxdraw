@@ -338,7 +338,6 @@ function ApplyRepartition()
 	
 	console.log(JSON.stringify(new_contexts));
 	mycontexts = new_contexts;
-	drawDiag();
 }
 
 
