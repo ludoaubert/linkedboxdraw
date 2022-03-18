@@ -2,7 +2,7 @@
 
 function drawiocomponent(){
 	
-	const innerHTML += `<button type="button" class="collapsible">Input Output</button>
+	const innerHTML = `<button type="button" class="collapsible">Input Output</button>
 <div class="content">
 <h1>Geometry File Input</h1>
 
