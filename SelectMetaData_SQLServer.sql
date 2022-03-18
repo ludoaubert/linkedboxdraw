@@ -59,7 +59,7 @@ WITH cte_fk AS (
 		FROM cte_links l1
 		JOIN cte_links l2 ON l1.[to] = l2.[from]
 ),  cte_diagdata AS (
-	SELECT 'Eptane' AS documentTitle,
+	SELECT DB_NAME() AS documentTitle,
 	(
 		SELECT *
 		FROM cte_fields
