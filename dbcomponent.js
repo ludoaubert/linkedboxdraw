@@ -181,7 +181,7 @@ function drawRepartition(mydata, mycontexts){
 	}
 		
     innerHTML += `</table> 
-	  <button id="apply repartition" type="button" onclick="ApplyRepartition()">Apply Repartition</button>
+	  <button id="apply repartition" type="button" onclick="ApplyRepartition(); drawDiag();">Apply Repartition</button>
 	  </div>
 `;
 
