@@ -5,9 +5,6 @@ var currentX = 0;
 var currentY = 0;
 var g = 0;
 
-// FRAME_MARGIN is duplicated in table_input.js
-const FRAME_MARGIN = 20;
-
 
 function selectElement(elmnt,clr) 
 {
@@ -272,96 +269,9 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 }
 
 
-function ApplyRepartition()
+function getMyContexts()
 {
-	alert("ApplyRepartition");
-
-	const repartitionTable = document.getElementById("repartition");
-
-	var repartition = [];
-	
-	for (let row of repartitionTable.rows) 
-	{
-	//iterate through rows
-	//rows would be accessed using the "row" variable assigned in the for loop
-		const id = parseInt(row.cells[0].innerText);
-		const n = parseInt(row.cells[2].innerText);
-		repartition[id]=n;
-	}
-	console.log(JSON.stringify(repartition));
-	
-	const nb = 1 + Math.max(...repartition);
-	var new_contexts = {contexts:[]};
-	for (let i=0; i < nb; i++)
-	{
-		new_contexts.contexts.push({
-			"title":"",
-			"frame":{"left":0,"right":1921,"top":0,"bottom":1488},
-			"translatedBoxes":[],
-			"links":[]
-			});
-	}
-	console.log(JSON.stringify(new_contexts));
-
-// recopier les frame, les links et redispatcher les translatedBoxes.
-	for (const [i, context] of mycontexts.contexts.entries())
-	{
-		new_contexts.contexts[i].frame = mycontexts.contexts[i].frame;
-		new_contexts.contexts[i].links = mycontexts.contexts[i].links;
-		for (const {id,translation} of context.translatedBoxes)
-		{
-			if (repartition[id] != -1)
-				new_contexts.contexts[ repartition[id] ].translatedBoxes.push({id, translation});
-		}
-	}
-	console.log(JSON.stringify(new_contexts));
-	
-// case when a new box was created. It has not been assigned to a context by the previous algorithm.
-// Below is the code that will detect it and assign it to its context.
-
-	const ids = Array.from(new_contexts.contexts, context => context.translatedBoxes).flat().map(tB => tB.id);
-	console.log(ids);
-	
-	[...repartition.entries()]
-		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
-		.forEach( ([id,i]) => new_contexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
-
-	console.log(JSON.stringify(new_contexts));
-	
-// if a context has become empty, remove it.
-	new_contexts.contexts = new_contexts.contexts.filter(context => context.translatedBoxes.length != 0);
-	
-	for (let context of new_contexts.contexts)
-	{
-		enforce_bounding_rectangle(context);
-	}
-	
-	console.log(JSON.stringify(new_contexts));
-	mycontexts = new_contexts;
+	return mycontexts;
 }
 
 
-function enforce_bounding_rectangle(context)
-{
-	const bounding_rectangle = {
-		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].left + tB.translation.x)),
-		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].right + tB.translation.x)),
-		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
-	}
-
-	console.log(JSON.stringify(bounding_rectangle));
-
-	for (let {id,translation} of context.translatedBoxes)
-	{
-		translation.x -= bounding_rectangle.left;
-		translation.y -= bounding_rectangle.top;
-	}
-	
-	context.frame = {
-			left:0, 
-			right: bounding_rectangle.right - bounding_rectangle.left,
-			top:0,
-			bottom: bounding_rectangle.bottom - bounding_rectangle.top
-	};
-}
