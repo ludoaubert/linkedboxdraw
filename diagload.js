@@ -55,34 +55,34 @@ function moveElement(evt) {
 	currentY = evt.clientY;
 }
 
-        
-function deselectElement() 
-{	
-	console.assert(g.parentElement.tagName=='svg');
-	const id = parseInt(g.id.substring('g_'.length));
-	console.log("id=" + id);
-	const selectedContextIndex = g.parentElement.id;
-	console.log("selectedContextIndex=" + selectedContextIndex);
-	
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
-	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
-	console.log("tB=" + JSON.stringify(tB));
-	
-	const xForms = g.transform.baseVal;// an SVGTransformList
-	const firstXForm = xForms.getItem(0); //an SVGTransform
-	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-	const translateX = firstXForm.matrix.e;
-	const translateY = firstXForm.matrix.f;
-		
-	tB.translation = {"x": translateX, "y": translateY};
-	
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
-	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);	
-	
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
+function enforce_bounding_rectangle(context)
+{
+	const bounding_rectangle = {
+		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].left + tB.translation.x)),
+		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].right + tB.translation.x)),
+		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].top + tB.translation.y)),
+		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
+	}
 
+	console.log(JSON.stringify(bounding_rectangle));
+
+	for (let {id,translation} of context.translatedBoxes)
+	{
+		translation.x -= bounding_rectangle.left;
+		translation.y -= bounding_rectangle.top;
+	}
+	
+	context.frame = {
+			left:0, 
+			right: bounding_rectangle.right - bounding_rectangle.left,
+			top:0,
+			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+	};
+}
+
+
+function compute_links(selectedContextIndex)
+{
 	const frame = mycontexts.contexts[selectedContextIndex].frame;
 	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, (tB, index) => ({
 			id: index,
@@ -133,7 +133,39 @@ function deselectElement()
 	console.log({rectangles, frame});
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
-	mycontexts.contexts[selectedContextIndex].links = JSON.parse(jsonResponse);			
+	const links = JSON.parse(jsonResponse);
+	return links;	
+}
+
+        
+function deselectElement() 
+{	
+	console.assert(g.parentElement.tagName=='svg');
+	const id = parseInt(g.id.substring('g_'.length));
+	console.log("id=" + id);
+	const selectedContextIndex = g.parentElement.id;
+	console.log("selectedContextIndex=" + selectedContextIndex);
+	
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
+	
+	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
+	console.log("tB=" + JSON.stringify(tB));
+	
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+		
+	tB.translation = {"x": translateX, "y": translateY};
+	
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
+	
+	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);	
+	
+	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
+	
+	mycontexts.contexts[selectedContextIndex].links = compute_links(selectedContextIndex);		
 	drawDiag();
 }
 
@@ -274,4 +306,7 @@ function getMyContexts()
 	return mycontexts;
 }
 
-
+function getMyData()
+{
+	return mydata;
+}
