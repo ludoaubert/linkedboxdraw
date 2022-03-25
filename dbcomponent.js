@@ -168,12 +168,17 @@ function ApplyRepartition(mycontexts, mydata)
 
 	const nb = 1 + Math.max(...repartition);
 	
-	mycontexts.contexts = Array(nb).fill({
+	mycontexts.contexts = [];
+	
+	for (let i=0; i <nb; i++)
+	{
+		mycontexts.contexts[i] = new Object({
 			"title":"",
 			"frame":null,
 			"translatedBoxes":[],
 			"links":[]
 			});
+	}
 	
 	for (const context_ of mycontexts_.contexts)
 	{
