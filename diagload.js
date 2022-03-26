@@ -116,6 +116,7 @@ function compute_links(selectedContextIndex)
 				
 	const slinks = mydata.links
 							.filter(lk => lk.from != lk.to)
+							.filter(lk => lk.Category != "TR2")
 							.map(lk => ({from:lk.from, to:lk.to}))
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
