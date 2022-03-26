@@ -33,7 +33,7 @@ function compute_key_distrib(fields)
 }
 
 
-function drawComponent(mydata, id) {
+function drawComponent(id) {
 
 	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors} = mydata;
 	
@@ -145,7 +145,7 @@ function drawComponent(mydata, id) {
 	return innerHTML;
 }
 
-function ApplyRepartition(mycontexts, mydata)
+function ApplyRepartition()
 {
 	alert("ApplyRepartition");
 
@@ -259,7 +259,7 @@ function drawRepartition(mydata, mycontexts){
 	}
 		
     innerHTML += `</table> 
-	  <button id="apply repartition" type="button" onclick="ApplyRepartition(getMyContexts(), getMyData()); drawDiag();">Apply Repartition</button>
+	  <button id="apply repartition" type="button" onclick="ApplyRepartition(); drawDiag();">Apply Repartition</button>
 	  </div>
 `;
 

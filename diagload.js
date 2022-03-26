@@ -268,7 +268,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 			
-			innerHTML += drawComponent(mydata, id);
+			innerHTML += drawComponent(id);
 			
 			innerHTML += `</foreignObject>
 			</g>`;
@@ -298,15 +298,4 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	}
 	
 	setiohandlers();
-}
-
-
-function getMyContexts()
-{
-	return mycontexts;
-}
-
-function getMyData()
-{
-	return mydata;
 }
