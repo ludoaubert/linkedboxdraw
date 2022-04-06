@@ -53,7 +53,7 @@ function drawComponent(id) {
 
 	const titleAttribute = box.title in box2comment ? `title="${box2comment[box.title]}"` : '';
 
-	innerHTML = `<table id="${id}" ${titleAttribute} onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
+	let innerHTML = `<table id="${id}" ${titleAttribute} onmousedown="selectElement(this,'red')" onmouseup="selectElement(this,'green')" onmousemove="moveElement(event)">`;
 	innerHTML += `<thead>
 					<tr>
 						<th>${box.title}</th>
