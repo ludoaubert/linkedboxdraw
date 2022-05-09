@@ -2769,7 +2769,8 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		compute_target_candidates(source_nodes, target_nodes, distance, predecessor, target_candidates_[to]);
 	}
 
-	//Selection of the best candidate
+	printf("Selection of the best candidate\n");
+	
 	for (const Link& lk : adj_links)
 	{
 		vector<uint64_t> &candidates = target_candidates_[lk.to];
@@ -2783,7 +2784,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		best_target_candidate[lk.to] = { u };
 	}
 
-	//enlarge the faiceau - BEGIN
+	printf("enlarge the faiceau - BEGIN\n");
 
 	unordered_map<Maille, Range> enlarged;
 
@@ -2798,7 +2799,9 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			{
 				result.push_back(parse(u));
 			}
-			//remove first (resp. last) node because it is inside the source (resp. target) rectangle.
+			
+			printf("remove first (resp. last) node because it is inside the source (resp. target) rectangle.\n");
+			
 			result.pop_back();
 			ranges::reverse(result);
 			result.pop_back();
@@ -2847,7 +2850,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		enlarged = enlarged_update;
 	}
 
-	// enlarge the faiceau - END
+	printf("enlarge the faiceau - END\n");
 
 	printf("exit compute_faiceau() from=%d \n", from);
 
