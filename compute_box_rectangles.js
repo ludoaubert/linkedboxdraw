@@ -26,7 +26,6 @@ function compute_box_rectangles(boxes)
 	var rectangles = []
 	for (const {title,id,fields} of boxes)
 	{
-		let fields = box2fields[title];
 		var key_distrib = compute_key_distrib(fields) ;
 
 		var nr_col = 0 ;
