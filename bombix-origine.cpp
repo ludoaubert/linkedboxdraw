@@ -2667,6 +2667,59 @@ const TestContext contexts[] = {
 				.data={{360,220},{60,220}}
 			}
 		}
+},
+
+{
+        .testid=10,
+        .rects={
+            {.left=10,.right=108,.top=10,.bottom=82 },
+            {.left=10,.right=171,.top=10,.bottom=114 },
+            {.left=10,.right=164,.top=10,.bottom=114 },
+            {.left=10,.right=193,.top=10,.bottom=114 },
+            {.left=10,.right=137,.top=10,.bottom=82 }			
+        },
+        .frame={.left=0,.right=203,.top=0,.bottom=124},
+        .links={{.from=1,.to=2},{.from=3,.to=0},{.from=4,.to=0},{.from=4,.to=2},{.from=2,.to=0}},
+		.faisceau_output={
+			{
+				.targets={
+					{
+						.from=3,
+						.to=0,
+						.expected_path={
+							{VERTICAL,DECREASE,2,3},
+							{HORIZONTAL,DECREASE,2,3},
+							{HORIZONTAL,DECREASE,2,2},
+							{HORIZONTAL,DECREASE,2,1},
+							{VERTICAL,DECREASE,2,1}
+						}
+					},
+					{
+						.from=3,
+						.to=1,
+						.expected_path={
+							{HORIZONTAL,DECREASE,4,2}
+						}
+					}
+				},
+				.enlarged={
+						{{HORIZONTAL,DECREASE,4,2},{HORIZONTAL,DECREASE,2,3,4}},
+						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}
+				}
+			}
+		},
+		.polylines={
+			{
+				.from=3,
+				.to=0,
+				.data={{380,200},{380,130},{40,130},{40,60}}
+			},
+			{
+				.from=3,
+				.to=1,
+				.data={{360,220},{60,220}}
+			}
+		}
 }
 };
 
