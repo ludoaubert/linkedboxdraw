@@ -376,6 +376,8 @@ function ApplyRepartition()
 // if a context has become empty, remove it.
 	mycontexts.contexts = mycontexts.contexts.filter(context => context.translatedBoxes.length != 0);
 	
+	mycontexts.rectangles = compute_box_rectangles(mydata.boxes);	
+
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(context);
