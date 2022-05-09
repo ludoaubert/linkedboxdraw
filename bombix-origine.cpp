@@ -1102,6 +1102,8 @@ vector<span<Range const> > chunk_by(const vector<Range>& path, const Pr& InSameC
 
 vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, const Rect& rfrom, const Rect& rto)
 {
+	printf("enter enlarge()\n");
+
 	vector<Range> path = input_path;
 
 	vector<span<Range> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
@@ -1138,12 +1140,16 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 		r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 	}
 
+	printf("exit enlarge()\n");
+
 	return path;
 }
 
 
 vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 {
+	printf("enter compute_inner_ranges\n");
+
 	const auto& [ranges/*path*/, definition_matrix, coords] = graph;
 
 	unordered_map<uint64_t, int> source_node_distance;
@@ -1182,11 +1188,15 @@ vector<Range> compute_inner_ranges(const InnerRangeGraph &graph)
 		u = edge.u;
 	}
 	ranges::reverse(inner_ranges);
+
+	printf("exit compute_inner_ranges\n");
 	return inner_ranges;
 }
 
 bool connect_outer_ranges(const OuterRangeGraph& graph)
 {
+	printf("enter connect_outer_ranges\n");
+
 	const vector<Range> &path = graph.path;
 	const Range &r = path.front();
 	InnerRange ir = {r.min, r.max, 0};
@@ -1206,30 +1216,41 @@ bool connect_outer_ranges(const OuterRangeGraph& graph)
 		if (ir.range_index + 1 == path.size())
 			target_nodes.push_back(u);
 	}
+
+	printf("exit connect_outer_ranges\n");
+
 	return !target_nodes.empty();
 }
 
 vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range>& path)
 {
+	printf("enter compute_polyline\n");
+
 	vector<Point> polyline;
-	Point p;
 
-	const Range &r = path.front();
-	p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
-
-	vector<span<Range const> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
-	for (span<Range const> &chunk : chunks)
+	if (!path.empty())
 	{
-		const Range& r = chunk[0];
-		Direction other_direction = other(r.direction);
-		auto& tab = coords[other_direction];
-		p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+		Point p;
+
+		const Range &r = path.front();
+		p[r.direction] = coords[r.direction][r.way == DECREASE ? r.value + 1 : r.value];
+
+		vector<span<Range const> > chunks = chunk_by(path, [](const Range& ri, const Range& rj){return ri.direction==rj.direction;});
+		for (span<Range const> &chunk : chunks)
+		{
+			const Range& r = chunk[0];
+			Direction other_direction = other(r.direction);
+			auto& tab = coords[other_direction];
+			p[other_direction] = (tab[r.min] + tab[r.max + 1]) / 2;
+			polyline.push_back(p);
+		}
+
+		const Range & rr = path.back();
+		p[rr.direction] = coords[rr.direction][rr.way == DECREASE ? rr.value : rr.value + 1];
 		polyline.push_back(p);
 	}
 
-	const Range & rr = path.back();
-	p[rr.direction] = coords[rr.direction][rr.way == DECREASE ? rr.value : rr.value + 1];
-	polyline.push_back(p);
+	printf("exit compute_polyline\n");
 
 	return polyline;
 }
@@ -2676,49 +2697,78 @@ const TestContext contexts[] = {
             {.left=10,.right=171,.top=10,.bottom=114 },
             {.left=10,.right=164,.top=10,.bottom=114 },
             {.left=10,.right=193,.top=10,.bottom=114 },
-            {.left=10,.right=137,.top=10,.bottom=82 }			
+            {.left=10,.right=137,.top=10,.bottom=82 }
         },
         .frame={.left=0,.right=203,.top=0,.bottom=124},
         .links={{.from=1,.to=2},{.from=3,.to=0},{.from=4,.to=0},{.from=4,.to=2},{.from=2,.to=0}},
-		.faisceau_output={
+	.faisceau_output={
+                        {
+                                .targets={
+                                        {
+                                                .from=0,
+                                                .to=3,
+                                                .expected_path={}
+                                        },
+                                        {
+                                                .from=0,
+                                                .to=4,
+                                                .expected_path={}
+                                        },
+                                        {
+                                                .from=0,
+                                                .to=2,
+                                                .expected_path={}
+                                        }
+                                },
+                                .enlarged={}
+                        },
+                        {
+                                .targets={
+                                        {
+                                                .from=2,
+                                                .to=1,
+                                                .expected_path={}
+                                        },
+                                        {
+                                                .from=2,
+                                                .to=4,
+                                                .expected_path={}
+                                        },
+                                        {
+                                                .from=2,
+                                                .to=0,
+                                                .expected_path={}
+                                        }
+                                },
+                                .enlarged={}
+                        }
+        },
+	.polylines={
 			{
-				.targets={
-					{
-						.from=3,
-						.to=0,
-						.expected_path={
-							{VERTICAL,DECREASE,2,3},
-							{HORIZONTAL,DECREASE,2,3},
-							{HORIZONTAL,DECREASE,2,2},
-							{HORIZONTAL,DECREASE,2,1},
-							{VERTICAL,DECREASE,2,1}
-						}
-					},
-					{
-						.from=3,
-						.to=1,
-						.expected_path={
-							{HORIZONTAL,DECREASE,4,2}
-						}
-					}
-				},
-				.enlarged={
-						{{HORIZONTAL,DECREASE,4,2},{HORIZONTAL,DECREASE,2,3,4}},
-						{{VERTICAL,DECREASE,2,3},{VERTICAL,DECREASE,2,3,4}}
-				}
-			}
-		},
-		.polylines={
-			{
-				.from=3,
-				.to=0,
-				.data={{380,200},{380,130},{40,130},{40,60}}
+				.from=1,
+				.to=2,
+				.data={}
 			},
 			{
 				.from=3,
-				.to=1,
-				.data={{360,220},{60,220}}
-			}
+				.to=0,
+				.data={}
+			},
+                        {
+                                .from=4,
+                                .to=0,
+                                .data={}
+                        },
+                        {
+                                .from=4,
+                                .to=2,
+                                .data={}
+                        },
+                        {
+                                .from=2,
+                                .to=0,
+                                .data={}
+                        }
 		}
 }
 };
@@ -2799,12 +2849,15 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			{
 				result.push_back(parse(u));
 			}
-			
+
 			printf("remove first (resp. last) node because it is inside the source (resp. target) rectangle.\n");
-			
-			result.pop_back();
-			ranges::reverse(result);
-			result.pop_back();
+
+			if (result.size() >= 2)
+			{
+				result.pop_back();
+				ranges::reverse(result);
+				result.pop_back();
+			}
 
 			Target target = { from, to, result };
 
@@ -2833,7 +2886,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			}
 			ranges = enlarge(ranges, definition_matrix, index(coords, rects[from]), index(coords, rects[to]));
 
-			if (!connect_outer_ranges(OuterRangeGraph{ ranges, definition_matrix_, coords }))
+			if (!ranges.empty() && !connect_outer_ranges(OuterRangeGraph{ ranges, definition_matrix_, coords }))
 				ranges = compute_inner_ranges(InnerRangeGraph{ ranges, definition_matrix_, coords });
 
 			for (Maille& m : result)
