@@ -360,15 +360,7 @@ function ApplyRepartition()
 			mycontexts.contexts[i].translatedBoxes.push({id,translation});
 		}
 	}
-	
-	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
-	{
-		enforce_bounding_rectangle(context);	
-		context.links = compute_links(selectedContextIndex);
-	}
-	
-	console.log(JSON.stringify(mycontexts));
-	
+
 // case when a new box was created. It has not been assigned to a context by the previous algorithm.
 // Below is the code that will detect it and assign it to its context.
 
@@ -384,9 +376,10 @@ function ApplyRepartition()
 // if a context has become empty, remove it.
 	mycontexts.contexts = mycontexts.contexts.filter(context => context.translatedBoxes.length != 0);
 	
-	for (let context of mycontexts.contexts)
+	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(context);
+		context.links = compute_links(selectedContextIndex);
 	}
 	
 	console.log(JSON.stringify(mycontexts));
