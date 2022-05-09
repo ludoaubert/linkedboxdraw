@@ -67,7 +67,9 @@ function download(filename) {
 function download2(filename) {
 	var element = document.createElement('a');
 	const Json = refreshJsonFromEditData();
-	const {links, rectangles} = Json;
+	const {boxes, links} = Json;
+	
+	const rectangles = compute_box_rectangles(boxes);
 	
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
 	
@@ -742,10 +744,9 @@ function refreshJsonFromEditData()
 		i++;
     }
 	
-	const rectangles = compute_box_rectangles(boxes);
 	const documentTitle = editTitle.value;
 
-	const json = {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors, rectangles};
+	const json = {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors};
 	return json;
 }
 
