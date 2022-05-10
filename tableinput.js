@@ -79,7 +79,7 @@ function download2(filename) {
 	console.log(rectdim);
 						
 	const slinks = links.filter(lk => lk.from != lk.to)
-						.filter(lk => lk.Category != "TR2")
+						.filter(lk => lk.category != "TR2")
 						.map(lk => [lk.from, lk.to])
 						.map(lk => JSON.stringify(lk))
 						.filter(function(lk, pos, self){
@@ -127,7 +127,7 @@ function download2(filename) {
 			console.log(links);
 			const links_ = links
 							.filter(lk => lk.from != lk.to)
-							.filter(lk => lk.Category != "TR2")
+							.filter(lk => lk.category != "TR2")
 							.map(lk => ({from:lk.from, to:lk.to}))
 							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
 							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])

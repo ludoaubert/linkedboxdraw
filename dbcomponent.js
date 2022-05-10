@@ -158,7 +158,7 @@ function expressCutLinks(mydata, mycontexts){
 	
 	document.title = documentTitle;
 	
-	const cut_links = links.filter(link => link.Category=="TR2" || repartition[link.from] != repartition[link.to])
+	const cut_links = links.filter(link => link.category=="TR2" || repartition[link.from] != repartition[link.to])
 									.filter(link => link.fromField!=-1 && link.toField!=-1);
 	console.log(cut_links);
 	

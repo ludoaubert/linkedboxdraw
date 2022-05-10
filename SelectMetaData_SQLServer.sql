@@ -83,7 +83,7 @@ WITH cte_fk AS (
 				WHEN EXISTS(SELECT * FROM cte_tr2 WHERE cte_tr2.[from]=l.[from] AND cte_tr2.[to]=l.[to])
 					THEN 'TR2'
 				ELSE ''
-			END AS Category
+			END AS category
 		FROM cte_links l
 		FOR JSON PATH
 	) AS links,
