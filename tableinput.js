@@ -27,6 +27,7 @@ var fromCardinalityCombo = document.getElementById("from cardinality");
 var toBoxCombo = document.getElementById("to boxes");
 var toFieldCombo = document.getElementById("to fields");
 var toCardinalityCombo = document.getElementById("to cardinality");
+var category = document.getElementById("category");
 var newValueEditField = document.getElementById("new value");
 var colorBoxCombo = document.getElementById("color boxes");
 var colorFieldCombo = document.getElementById("color fields");
@@ -575,7 +576,7 @@ function dropValueFromField()
 
 function selectLink()
 {
-	const myRegexp = /([^\.]+)\.([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\.]+)\.([^\s]+)/g;
+	const myRegexp = /([^\.]+)\.([^\.]+)\.([^\s]+) \-\> ([^\.]+)\.([^\.]+)\.([^\s]+).([^\s]+)/g;
 	const match = myRegexp.exec(linkCombo.value);
 	fromBoxCombo.value = match[1];
 	selectBox(fromBoxCombo, fromFieldCombo);
@@ -585,17 +586,18 @@ function selectLink()
 	selectBox(toBoxCombo, toFieldCombo);
 	toFieldCombo.value = match[5];
 	toCardinalityCombo.value = match[6];
+	category.value = match[7];
 }
 
 function updateLink()
 {
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}.${category.value}`;
 	linkCombo.options[linkCombo.selectedIndex].innerHTML = text;
 }
 
 function addNewLink()
 {
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;					
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}.${category.value}`;					
 	linkCombo.add(new Option(text, text));
 	sortSelect(linkCombo);
 	linkCombo.value = text;
@@ -716,8 +718,8 @@ function refreshJsonFromEditData()
 	for (let option of linkCombo.options)
 	{
 	//Split a string with multiple parameters: Pass in a regexp as the parameter.
-		const [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality, Category] = option.text.split(/ -> |\./);
-		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName, Category});
+		const [fromBoxTitle, fromFieldName, fromCardinality, toBoxTitle, toFieldName, toCardinality, category] = option.text.split(/ -> |\./);
+		console.log({fromBoxTitle, fromFieldName, toBoxTitle, toFieldName, category});
 		const fromBoxIndex = boxes.findIndex( box => box.title == fromBoxTitle );
 		if (fromBoxIndex == -1)
 			alert(`link ${i}: No Box named ${fromBoxTitle}!`);
@@ -738,7 +740,7 @@ function refreshJsonFromEditData()
 			"to":toBoxIndex,
 			"toField":toFieldIndex,
 			"toCardinality":toCardinality,
-			"Category":Category
+			"Category":category
 			}
 		);
 		i++;
@@ -748,74 +750,6 @@ function refreshJsonFromEditData()
 
 	const json = {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors};
 	return json;
-}
-
-
-
-function compute_key_distrib(fields)
-{
-	var key_distrib = {"PK":0,"FK":0,"PKFK":0};
-	
-	for (let {name,isPrimaryKey,isForeignKey} of fields)
-	{
-		if (isPrimaryKey && isForeignKey)
-			key_distrib["PKFK"]++;
-		else if (isPrimaryKey)
-			key_distrib["PK"]++;
-		else if (isForeignKey)
-			key_distrib["FK"]++;
-	}
-
-	return key_distrib;
-}
-
-const MONOSPACE_FONT_PIXEL_WIDTH=7;
-const CHAR_RECT_HEIGHT=16;	// in reality 14,8 + 1 + 1 (top and bottom padding) = 16,8
-const RECTANGLE_BOTTOM_CAP=200;
-
-function compute_box_rectangles(boxes)
-{
-	var rectangles = []
-	for (const {title,id,fields} of boxes)
-	{
-		let fields = box2fields[title];
-		var key_distrib = compute_key_distrib(fields) ;
-
-		var nr_col = 0 ;
-		var width = 2*4 + title.length * MONOSPACE_FONT_PIXEL_WIDTH ;
-		var max_width = width;
-		
-		for (const field of fields)
-		{
-			nr_col++ ;
-			const column_name = field.name;
-
-			var column_width=0;
-
-			if (key_distrib["PKFK"])
-			{
-		//at least one 'PK FK' is present
-				column_width = ("PK FK " + column_name).length ;
-			}
-			else if (key_distrib["PK"] || key_distrib["FK"])
-			{
-		//no 'PK FK' is present, but at least one PK|FK is present.
-				column_width = ("PK " + column_name).length ;
-			}
-			else
-			{
-		//no 'PK FK' is present. no PK|FK either.
-				column_width = column_name.length ;
-			}
-
-			max_width = Math.max(column_width * MONOSPACE_FONT_PIXEL_WIDTH, max_width);
-		}
-		
-		const bottom = 8 + CHAR_RECT_HEIGHT * (nr_col+1) ;
-
-		rectangles.push({"left":0, "right":max_width, "top":0, "bottom":Math.min(bottom, RECTANGLE_BOTTOM_CAP)}) ;
-	}
-	return rectangles;
 }
 
 
@@ -842,9 +776,9 @@ function refreshEditDataFromJson(Json)
 	
 	console.log(myBoxes);
 	
-	for (const {from,fromField,fromCardinality,to,toField,toCardinality,Category} of links)
+	for (const {from,fromField,fromCardinality,to,toField,toCardinality,category} of links)
 	{
-		console.log({from,fromField,fromCardinality,to,toField,toCardinality,Category});
+		console.log({from,fromField,fromCardinality,to,toField,toCardinality,category});
 		console.assert(from < boxes.length);
 		console.assert(fromField < boxes[from].fields.length);
 		console.assert(to < boxes.length);
@@ -862,7 +796,7 @@ function refreshEditDataFromJson(Json)
 					"." +
 					toCardinality +
 					"." +
-					Category;
+					category;
 					
 		linkCombo.add(new Option(text, text));
     }
