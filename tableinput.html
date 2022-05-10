@@ -16,7 +16,7 @@
 	<script type="text/javascript" src="tableinput.js"></script>
 	<link rel="stylesheet" type="text/css" href="diagstyle.css">
 	<link rel="stylesheet" type="text/css" href="tableinput.css">
-
+	<link rel="stylesheet" type="text/css" href="collapsible.css">
 </head>
 
 <body>
@@ -41,6 +41,8 @@
       </li>
     </ul>
 
+<button type="button" class="collapsible">Input Output</button>
+<div class="content">
 <fieldset>
 	<legend>Data File Input</legend>
 	<input type="file" accept=".json" id="myFile" value="Load">
@@ -61,6 +63,7 @@
 	  <input type="submit" value="Save As" onclick="download2(this['name'].value)">
 	</form>
 </fieldset>
+</div>
 
 <fieldset>
 	<legend>Diagram Title</legend>
