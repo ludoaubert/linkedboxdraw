@@ -381,7 +381,8 @@ function ApplyRepartition()
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(context);
-		context.links = compute_links(selectedContextIndex);
+//TODO: remove comment when updated bombix-origine.wasm is online
+//		context.links = compute_links(selectedContextIndex);
 	}
 	
 	console.log(JSON.stringify(mycontexts));
