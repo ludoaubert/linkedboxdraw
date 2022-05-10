@@ -1,9 +1,9 @@
 /**
-* \copyright Copyright (c) 2015-2021 Ludovic Aubert
+* \copyright Copyright (c) 2015-2022 Ludovic Aubert
 *            All Rights Reserved
 *            DO NOT ALTER OR REMOVE THIS COPYRIGHT NOTICE
 *
-* \file bombix.cpp
+* \file bombix-origine.cpp
 *
 * - 11/23/2016 by Ludovic Aubert : creation
 */
@@ -3504,7 +3504,7 @@ const char* bombix(const char *rectdim,
 }
 }
 /*
-/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix.cpp -o bombix.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
+/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix-origine.cpp -o bombix-origine.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
 puis dans https://dev.diskloud.fr/ludo/bombix.html
 
 bombix=Module.cwrap("bombix","string",["string","string","string","string"])
