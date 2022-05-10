@@ -9,47 +9,30 @@ var field2comment = {};
 var field2color = {};
 
 
-var input = document.getElementById("myFile");
-var editTitle = document.getElementById("title");
-var boxCombo = document.getElementById("boxes");
-var fieldCombo = document.getElementById("fields");
-var valueCombo = document.getElementById("values");
-var boxCommentTextArea = document.getElementById("box comment");	
-var fieldCommentTextArea = document.getElementById("field comment");
-var isPrimaryKeyCheckBox = document.getElementById("PK");
-var isForeignKeyCheckBox = document.getElementById("FK");
-var linkCombo = document.getElementById("links");
-var newBoxEditField = document.getElementById("new box");
-var newFieldEditField = document.getElementById("new field");
-var fromBoxCombo = document.getElementById("from boxes");
-var fromFieldCombo = document.getElementById("from fields");
-var fromCardinalityCombo = document.getElementById("from cardinality");
-var toBoxCombo = document.getElementById("to boxes");
-var toFieldCombo = document.getElementById("to fields");
-var toCardinalityCombo = document.getElementById("to cardinality");
-var category = document.getElementById("category");
-var newValueEditField = document.getElementById("new value");
-var colorBoxCombo = document.getElementById("color boxes");
-var colorFieldCombo = document.getElementById("color fields");
-var colorCombo = document.getElementById("color");
-var colorsCombo = document.getElementById("colors");
-
-const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
-
-colors.forEach(color => colorCombo.add(new Option(color, color)));
-
-input.addEventListener("change", function () {
-  if (this.files && this.files[0]) {
-    var myFile = this.files[0];
-    var reader = new FileReader();
-    
-    reader.addEventListener('load', function (e) {
-	  refreshEditDataFromJson(e.target.result);
-    });
-    
-    reader.readAsBinaryString(myFile);
-  }   
-});
+var input ;
+var editTitle ;
+var boxCombo ;
+var fieldCombo ;
+var valueCombo ;
+var boxCommentTextArea ;	
+var fieldCommentTextArea ;
+var isPrimaryKeyCheckBox ;
+var isForeignKeyCheckBox ;
+var linkCombo ;
+var newBoxEditField ;
+var newFieldEditField ;
+var fromBoxCombo ;
+var fromFieldCombo ;
+var fromCardinalityCombo ;
+var toBoxCombo ;
+var toFieldCombo ;
+var toCardinalityCombo ;
+var category ;
+var newValueEditField ;
+var colorBoxCombo ;
+var colorFieldCombo ;
+var colorCombo ;
+var colorsCombo ;
 
 
 function download(filename) {
@@ -161,11 +144,54 @@ function download2(filename) {
 
 
 function init(e) {
+	
+	input = document.getElementById("myFile");
+	editTitle = document.getElementById("title");
+	boxCombo = document.getElementById("boxes");
+	fieldCombo = document.getElementById("fields");
+	valueCombo = document.getElementById("values");
+	boxCommentTextArea = document.getElementById("box comment");	
+	fieldCommentTextArea = document.getElementById("field comment");
+	isPrimaryKeyCheckBox = document.getElementById("PK");
+	isForeignKeyCheckBox = document.getElementById("FK");
+	linkCombo = document.getElementById("links");
+	newBoxEditField = document.getElementById("new box");
+	newFieldEditField = document.getElementById("new field");
+	fromBoxCombo = document.getElementById("from boxes");
+	fromFieldCombo = document.getElementById("from fields");
+	fromCardinalityCombo = document.getElementById("from cardinality");
+	toBoxCombo = document.getElementById("to boxes");
+	toFieldCombo = document.getElementById("to fields");
+	toCardinalityCombo = document.getElementById("to cardinality");
+	category = document.getElementById("category");
+	newValueEditField = document.getElementById("new value");
+	colorBoxCombo = document.getElementById("color boxes");
+	colorFieldCombo = document.getElementById("color fields");
+	colorCombo = document.getElementById("color");
+	colorsCombo = document.getElementById("colors");
+
 	for (let cardinality of ["NULL","0","1","N","0,1","0,N","1,N"])
 	{
 		fromCardinalityCombo.add(new Option(cardinality,cardinality));
 		toCardinalityCombo.add(new Option(cardinality,cardinality));
 	}
+
+	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
+
+	colors.forEach(color => colorCombo.add(new Option(color, color)));
+
+	input.addEventListener("change", function () {
+	  if (this.files && this.files[0]) {
+		var myFile = this.files[0];
+		var reader = new FileReader();
+		
+		reader.addEventListener('load', function (e) {
+		  refreshEditDataFromJson(e.target.result);
+		});
+		
+		reader.readAsBinaryString(myFile);
+	  }   
+	});
 	
 	setCollapsibleHandler();
 }
