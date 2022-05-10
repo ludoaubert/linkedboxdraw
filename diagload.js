@@ -345,7 +345,6 @@ function ApplyRepartition()
 	for (let i=0; i <nb; i++)
 	{
 		mycontexts.contexts[i] = new Object({
-			"title":"",
 			"frame":null,
 			"translatedBoxes":[],
 			"links":[]
