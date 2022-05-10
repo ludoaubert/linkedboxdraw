@@ -166,6 +166,8 @@ function init(e) {
 		fromCardinalityCombo.add(new Option(cardinality,cardinality));
 		toCardinalityCombo.add(new Option(cardinality,cardinality));
 	}
+	
+	setCollapsibleHandler();
 }
 
 document.addEventListener('DOMContentLoaded', init, false);
