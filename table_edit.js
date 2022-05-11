@@ -250,6 +250,9 @@ function selectCascadeBox()
 function displayCurrent()
 {
 //	removeOptions(boxCombo);
+
+	if (boxCombo.value != "")
+		currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	
 	const innerHTML = mydata.boxes
 							.sort((a, b) => a.title < b.title)
