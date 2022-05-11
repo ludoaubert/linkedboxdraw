@@ -262,6 +262,12 @@ function displayCurrent()
 	if (boxCombo.innerHTML != innerHTML)
 		boxCombo.innerHTML = innerHTML;
 	
+	if (fromBoxCombo.innerHTML != innerHTML)
+		fromBoxCombo.innerHTML = innerHTML;	
+	
+	if (toBoxCombo.innerHTML != innerHTML)
+		toBoxCombo.innerHTML = innerHTML;
+	
 	console.log(currentBoxIndex);
 	if (currentBoxIndex != -1)
 	{
