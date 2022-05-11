@@ -268,6 +268,9 @@ function displayCurrent()
 	if (toBoxCombo.innerHTML != innerHTML)
 		toBoxCombo.innerHTML = innerHTML;
 	
+	if (colorBoxCombo.innerHTML != innerHTML)
+		colorBoxCombo.innerHTML = innerHTML;
+	
 	console.log(currentBoxIndex);
 	if (currentBoxIndex != -1)
 	{
@@ -288,7 +291,7 @@ function displayCurrent()
 		boxCombo.value = "";
 	}
 	
-	if (currentBoxIndex != -1 && currentFieldIndex = -1 && fieldCombo.value != "")
+	if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
 	{
 		currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
 		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
