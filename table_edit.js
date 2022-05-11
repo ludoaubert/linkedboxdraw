@@ -237,7 +237,7 @@ function displayCurrent()
 			currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 		
 		const innerHTML = mydata.boxes
-								.sort((a, b) => a.title < b.title)
+								.sort((a, b) => a.title.localeCompare(b.title))
 								.map(box => "<option>" + box.title + "</option>")
 								.join('');
 		
@@ -254,7 +254,7 @@ function displayCurrent()
 			
 			const innerHTML = mydata.boxes[currentBoxIndex]
 									.fields
-									.sort((a, b) => a.name < b.name)
+									.sort((a, b) => a.name.localeCompare(b.name))
 									.map(field => "<option>" + field.name + "</option>")
 									.join('');
 									
