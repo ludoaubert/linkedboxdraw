@@ -521,7 +521,7 @@ function colorsComboOnClick()
 {
 	console.log("colorsComboOnClick");
 	const innerHTML = mydata.fieldColors
-							.map({index, box, field, color} => `<option>${box}.${field}.${color}</option>`)
+							.map(({index, box, field, color}) => `<option>${box}.${field}.${color}</option>`)
 							.join('');
 	
 	console.log(innerHTML);
