@@ -545,11 +545,21 @@ function addNewColor()
 		field: field.name,
 		color: colorCombo.value
 	})
+	
+	console.log(mydata.fieldColors);
+	colorsComboOnClick();
 }
 
 function updateColor()
-{
 
+	const fieldColorIndex = mydata.fieldColors.findIndex({box, field, color} => box == boxCombo.value && field == fieldCombo.value);
+	mydata.fieldColors[ fieldColorIndex ] = {
+		box: boxCombo.value,
+		field: fieldCombo.value,
+		color: colorCombo.value
+	};
+	console.log(mydata.fieldColors);
+	colorsComboOnClick();
 }
 
 function dropColor()
@@ -559,7 +569,3 @@ function dropColor()
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
 }
-
-
-
-
