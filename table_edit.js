@@ -3,6 +3,7 @@ const FRAME_MARGIN = 20;
 
 var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[]};
 var currentBoxIndex = -1;
+var currentFieldIndex = -1;
 
 
 var input ;
@@ -194,15 +195,131 @@ function init(e) {
 
 document.addEventListener('DOMContentLoaded', init, false);
 
+//sorting a combo
+function sortSelect(selElem) 
+{
+    let tmpAry = [];
+    for (let {text, value} of selElem.options) 
+	{
+        tmpAry.push([text, value]);
+    }
+    tmpAry.sort();
+	removeOptions(selElem);
+   
+    for (let [text, value] of tmpAry) 
+	{
+        selElem.add(new Option(text, value));
+    }
+}
+
+//empty a combo
+function removeOptions(selElem) 
+{
+    while (selElem.options.length) 
+	{
+        selElem.remove(0);
+    }
+}
+
+//copy combo content into another combo
+function copyOptions(sourceElem, targetElem)
+{
+	removeOptions(targetElem);
+	for (let {text, value} of sourceElem.options)
+	{
+		targetElem.add(new Option(text, value));
+    }
+	sortSelect(targetElem);
+}
+
+function selectCascadeBox()
+{
+	copyOptions(boxCombo, fromBoxCombo);
+	selectBox(fromBoxCombo, fromFieldCombo);
+	copyOptions(boxCombo, toBoxCombo);
+	selectBox(toBoxCombo, toFieldCombo);
+	selectBox(boxCombo, fieldCombo);
+	updateFieldAttributes();
+	copyOptions(boxCombo, colorBoxCombo);
+	selectBox(colorBoxCombo, colorFieldCombo);
+	selectField();	
+}
+
+
+
+function displayCurrent()
+{
+	removeOptions(boxCombo);
+	
+	const innerHTML = mydata.boxes
+							.sort((a, b) => a.title < b.title)
+							.map(box => "<option>" + box.title + "</option>")
+							.join('');
+	
+	console.log(innerHTML);
+							
+	if (boxCombo.innerHTML != innerHTML)
+		boxCombo.innerHTML = innerHTML;
+	
+	console.log(currentBoxIndex);
+	if (currentBoxIndex != -1)
+	{
+		const {title, id, fields} = mydata.boxes[currentBoxIndex];
+		boxCombo.value = title;
+		//document.getElementById("picture").value = (id_picture != -1) ? mypictures[id_picture].Path : "";
+	}
+	else
+	{
+		boxCombo.value = "";
+		//document.getElementById("picture").value = "";
+	}
+	document.getElementById("new box").value='';
+}
+
 
 function addNewBox()
 {
+	currentBoxIndex = mydata.boxes.length;
+	currentFieldIndex = -1;
+	
+	mydata.boxes.push({title:newBoxEditField.value, id:currentBoxIndex, fields:[]});
+	console.log(mydata.boxes);
+	
+	document.getElementById("boxes").add(new Option(newBoxEditField.value,newBoxEditField.value));
+	displayCurrent();
+}
 
+function selectBox(name)
+{
+	console.log(name);
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title==name);
+	displayCurrent();
 }
 
 function dropBox()
 {
-
+	console.log('dropBox');
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == document.getElementById("boxes").value);
+	console.log(currentBoxIndex);
+	
+	mydata.boxes = mydata.boxes.filter(box => box.title != document.getElementById("boxes").value);
+	mydata.links = mydata.links.filter(lk => lk.from != currentBoxIndex && lk.to != currentBoxIndex);
+	
+	for (let box of mydata.boxes)
+	{
+		box.id = box.id > currentBoxIndex ? box.id - 1 : box.id;
+	}
+	
+	for (let lk of mydata.links)
+	{
+		lk.from = lk.from > currentBoxIndex ? lk.from - 1 : lk.from;
+		lk.to = lk.to > currentBoxIndex ? lk.to - 1 : lk.to;
+	}
+	
+	console.log(mydata);
+	if (currentBoxIndex == mydata.boxes.length)
+		currentBoxIndex = -1;
+	displayCurrent();
 }
 
 
@@ -269,19 +386,48 @@ function selectLink()
 
 }
 
+function linkComboOnClick()
+{
+	console.log("linkComboOnClick");
+	const innerHTML = mydata.links
+							.map(lk => "<option>" + mydata.boxes[lk.from].title + " => " + mydata.boxes[lk.to].title + "</option>")
+							.join('');
+	
+	console.log(innerHTML);
+							
+	if (document.getElementById("links").innerHTML != innerHTML)
+		document.getElementById("links").innerHTML = innerHTML;
+}
+
 function updateLink()
 {
-
+	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;
+	linkCombo.options[linkCombo.selectedIndex].innerHTML = text;
 }
 
 function addNewLink()
 {
-
+	const lk = {
+		"from":mydata.boxes.find(box => box.title == document.getElementById("from boxes").value).id,
+		"fromField":-1,
+		"fromCardinality":"undefined",
+		"to":mydata.boxes.find(box => box.title == document.getElementById("to boxes").value).id,
+		"toField":-1,
+		"toCardinality":"undefined",
+		"category":""
+	};
+	
+	console.log(lk);
+	
+	mydata.links.push(lk);
 }
 
 function dropLink()
 {
-
+	console.log(mydata.links);
+	mydata.links = mydata.links.filter(lk => mydata.boxes[lk.from].title + " => " + mydata.boxes[lk.to].title != linkCombo.value);
+	console.log(mydata.links);
+	linkComboOnClick();
 }
 
 
