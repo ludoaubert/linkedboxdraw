@@ -5,7 +5,7 @@ select { width:200px;}	/*This will set a minimum width on all selects to 200px, 
 .bigtextfield { width: 400px; }
 .cardinality_select { width: 50px;}
 
-#category { width: 40px;}
+#category { width: 50px;}
 
 ul
 {
