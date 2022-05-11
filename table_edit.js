@@ -359,8 +359,17 @@ function addNewFieldToBox()
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	currentFieldIndex = mydata.boxes[currentBoxIndex].fields.length;
 	
-	mydata.boxes[currentBoxIndex].fields.push({name:newFieldEditField.value, isPrimaryKey:false, isForeignKey:false});
+	mydata.boxes[currentBoxIndex].fields.push({
+			name: newFieldEditField.value,
+			isPrimaryKey: isPrimaryKeyCheckBox.checked, 
+			isForeignKey: isForeignKeyCheckBox.checked
+		}
+	);
 	console.log(mydata.boxes[currentBoxIndex].fields);
+	
+	newFieldEditField.value = "";
+	isPrimaryKeyCheckBox.checked = false;
+	isForeignKeyCheckBox.checked = false;
 	
 	displayCurrent();
 }
