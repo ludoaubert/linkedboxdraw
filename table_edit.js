@@ -281,6 +281,21 @@ function displayCurrent()
 		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
 		isForeignKeyCheckBox.checked = isForeignKey;
 	}
+	
+	if (currentBoxIndex != -1 && currentFieldIndex != -1)
+	{
+		const boxTitle = mydata.boxes[currentBoxIndex].title;
+		const fieldName = mydata.boxes[currentBoxIndex].fields[currentFieldIndex].name;
+		
+		const innerHTML = mydata.values.filter({box, field, value} => box == boxTitle && field == fieldName)
+										.map({box, field, value} => value)
+										.sort()
+										.map(value => '<option>' + value + '</option>')
+										.join('');
+										
+		if (valueCombo.innerHTML != innerHTML)
+			valueCombo.innerHTML = innerHTML;
+	}
 
 }
 
@@ -405,7 +420,15 @@ function editValueFromField()
 
 function addNewValueToField()
 {
-
+	mydata.values.push({
+		box: boxCombo.value,
+		field: fieldCombo.value,
+		value: newValueEditField.value
+	});
+	
+	newValueEditField.value = "";
+	
+	displayCurrent();
 }
 
 function updateValue()
