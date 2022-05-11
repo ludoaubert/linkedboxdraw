@@ -551,7 +551,7 @@ function addNewColor()
 }
 
 function updateColor()
-
+{
 	const fieldColorIndex = mydata.fieldColors.findIndex(({box, field, color}) => box == boxCombo.value && field == fieldCombo.value);
 	mydata.fieldColors[ fieldColorIndex ] = {
 		box: boxCombo.value,
