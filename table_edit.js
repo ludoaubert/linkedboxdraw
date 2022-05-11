@@ -454,7 +454,7 @@ function addNewLink()
 		to: currentToBoxIndex,
 		toField: currentToFieldIndex,
 		toCardinality: "undefined",
-		category:categoryCombo.value;
+		category:categoryCombo.value
 	};
 	
 	console.log(lk);
