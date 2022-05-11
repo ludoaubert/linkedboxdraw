@@ -287,7 +287,15 @@ function displayCurrent()
 	{
 		boxCombo.value = "";
 	}
-//	document.getElementById("new box").value='';
+	
+	if (currentBoxIndex != -1 && currentFieldIndex = -1 && fieldCombo.value != "")
+	{
+		currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
+		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
+		newFieldEditField.value = name;
+		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
+		isForeignKeyCheckBox.checked = isForeignKey;
+	}
 }
 
 
