@@ -249,9 +249,7 @@ function selectCascadeBox()
 
 function displayCurrent()
 {
-//	removeOptions(boxCombo);
-
-	if (boxCombo.value != "")
+	if (currentBoxIndex == -1 && boxCombo.value != "")
 		currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	
 	const innerHTML = mydata.boxes
@@ -278,15 +276,12 @@ function displayCurrent()
 								
 		if (fieldCombo.innerHTML != innerHTML)
 			fieldCombo.innerHTML = innerHTML;
-		
-		//document.getElementById("picture").value = (id_picture != -1) ? mypictures[id_picture].Path : "";
 	}
 	else
 	{
 		boxCombo.value = "";
-		//document.getElementById("picture").value = "";
 	}
-	document.getElementById("new box").value='';
+//	document.getElementById("new box").value='';
 }
 
 
