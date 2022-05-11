@@ -270,15 +270,16 @@ function displayCurrent()
 		{
 			currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
 		}
-		
-		if (currentBoxIndex != -1 && currentFieldIndex != -1)
-		{
-			const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
-			newFieldEditField.value = name;
-			isPrimaryKeyCheckBox.checked = isPrimaryKey; 
-			isForeignKeyCheckBox.checked = isForeignKey;
-		}
 	}
+		
+	if (currentBoxIndex != -1 && currentFieldIndex != -1)
+	{
+		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
+		newFieldEditField.value = name;
+		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
+		isForeignKeyCheckBox.checked = isForeignKey;
+	}
+
 }
 
 
