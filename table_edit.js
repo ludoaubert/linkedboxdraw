@@ -465,7 +465,7 @@ function addNewLink()
 function dropLink()
 {
 	console.log(mydata.links);
-	mydata.links = mydata.links.filter(lk => mydata.boxes[lk.from].title + " => " + mydata.boxes[lk.to].title != linkCombo.value);
+	delete mydata.links[ linkCombo.selectedIndex ];
 	console.log(mydata.links);
 	linkComboOnClick();
 }
