@@ -249,7 +249,7 @@ function selectCascadeBox()
 
 function displayCurrent()
 {
-	removeOptions(boxCombo);
+//	removeOptions(boxCombo);
 	
 	const innerHTML = mydata.boxes
 							.sort((a, b) => a.title < b.title)
@@ -285,7 +285,6 @@ function addNewBox()
 	mydata.boxes.push({title:newBoxEditField.value, id:currentBoxIndex, fields:[]});
 	console.log(mydata.boxes);
 	
-	document.getElementById("boxes").add(new Option(newBoxEditField.value,newBoxEditField.value));
 	displayCurrent();
 }
 
