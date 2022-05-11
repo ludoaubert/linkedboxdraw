@@ -33,7 +33,7 @@ var fromCardinalityCombo ;
 var toBoxCombo ;
 var toFieldCombo ;
 var toCardinalityCombo ;
-var category ;
+var categoryCombo ;
 var newValueEditField ;
 var colorBoxCombo ;
 var colorFieldCombo ;
@@ -169,7 +169,7 @@ function init(e) {
 	toBoxCombo = document.getElementById("to boxes");
 	toFieldCombo = document.getElementById("to fields");
 	toCardinalityCombo = document.getElementById("to cardinality");
-	category = document.getElementById("category");
+	categoryCombo = document.getElementById("category");
 	newValueEditField = document.getElementById("new value");
 	colorBoxCombo = document.getElementById("color boxes");
 	colorFieldCombo = document.getElementById("color fields");
@@ -306,10 +306,10 @@ function selectBox(name)
 function dropBox()
 {
 	console.log('dropBox');
-	currentBoxIndex = mydata.boxes.findIndex(box => box.title == document.getElementById("boxes").value);
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	console.log(currentBoxIndex);
 	
-	mydata.boxes = mydata.boxes.filter(box => box.title != document.getElementById("boxes").value);
+	mydata.boxes = mydata.boxes.filter(box => box.title != boxCombo.value);
 	mydata.links = mydata.links.filter(lk => lk.from != currentBoxIndex && lk.to != currentBoxIndex);
 	
 	for (let box of mydata.boxes)
@@ -374,13 +374,26 @@ function addNewFieldToBox()
 
 function updateField()
 {
-
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
+	mydata.boxes[currentBoxIndex].fields[currentFieldIndex] = {
+		name: newFieldEditField.value,
+		isPrimaryKey: isPrimaryKeyCheckBox.checked, 
+		isForeignKey: isForeignKeyCheckBox.checked
+	} ;
+	
+	displayCurrent();
 }
 
 
 function dropFieldFromBox()
 {
-
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	var fields = mydata.boxes[currentBoxIndex].fields ;
+	fields = fields.filter(field => field.name != fieldCombo.value);
+	currentFieldIndex = -1;
+	
+	displayCurrent();
 }
 
 function editValueFromField()
@@ -429,14 +442,19 @@ function updateLink()
 
 function addNewLink()
 {
+	currentFromBoxIndex = mydata.boxes.findIndex(box => box.title == fromBoxCombo.value);
+	currentFromFieldIndex = mydata.boxes[currentFromBoxIndex].fields.findIndex(field => field.name == fromFieldCombo.value);
+	currentToBoxIndex = mydata.boxes.findIndex(box => box.title == toBoxCombo.value);	
+	currentToFieldIndex = mydata.boxes[currentToBoxIndex].fields.findIndex(field => field.name == toFieldCombo.value);
+	
 	const lk = {
-		"from":mydata.boxes.find(box => box.title == document.getElementById("from boxes").value).id,
-		"fromField":-1,
-		"fromCardinality":"undefined",
-		"to":mydata.boxes.find(box => box.title == document.getElementById("to boxes").value).id,
-		"toField":-1,
-		"toCardinality":"undefined",
-		"category":""
+		from: currentFromBoxIndex,
+		fromField: currentFromFieldIndex,
+		fromCardinality: "undefined",
+		to: currentToBoxIndex,
+		toField: currentToFieldIndex,
+		toCardinality: "undefined",
+		category:categoryCombo.value;
 	};
 	
 	console.log(lk);
