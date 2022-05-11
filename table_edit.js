@@ -5,6 +5,15 @@ var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;
 
+var currentFromBoxIndex = -1;
+var currentFromFieldIndex = -1;
+
+var currentToBoxIndex = -1;
+var currentToFieldIndex = -1;
+
+var currentColorBoxIndex = -1;
+var currentColorFieldIndex = -1;
+
 
 var input ;
 var editTitle ;
@@ -195,42 +204,7 @@ function init(e) {
 
 document.addEventListener('DOMContentLoaded', init, false);
 
-//sorting a combo
-function sortSelect(selElem) 
-{
-    let tmpAry = [];
-    for (let {text, value} of selElem.options) 
-	{
-        tmpAry.push([text, value]);
-    }
-    tmpAry.sort();
-	removeOptions(selElem);
-   
-    for (let [text, value] of tmpAry) 
-	{
-        selElem.add(new Option(text, value));
-    }
-}
 
-//empty a combo
-function removeOptions(selElem) 
-{
-    while (selElem.options.length) 
-	{
-        selElem.remove(0);
-    }
-}
-
-//copy combo content into another combo
-function copyOptions(sourceElem, targetElem)
-{
-	removeOptions(targetElem);
-	for (let {text, value} of sourceElem.options)
-	{
-		targetElem.add(new Option(text, value));
-    }
-	sortSelect(targetElem);
-}
 
 function selectCascadeBox()
 {
@@ -249,55 +223,57 @@ function selectCascadeBox()
 
 function displayCurrent()
 {
-	if (currentBoxIndex == -1 && boxCombo.value != "")
-		currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	let contexts = [
+		{boxCombo:boxCombo, fieldCombo:fieldCombo, currentBoxIndex:currentBoxIndex, currentFieldIndex:currentFieldIndex},
+		{boxCombo:fromBoxCombo, fieldCombo:fromFieldCombo, currentBoxIndex:currentFromBoxIndex, currentFieldIndex:currentFromFieldIndex},
+		{boxCombo:toBoxCombo, fieldCombo:toFieldCombo, currentBoxIndex:currentToBoxIndex, currentFieldIndex:currentToFieldIndex},
+		{boxCombo:colorBoxCombo, fieldCombo:colorFieldCombo, currentBoxIndex:currentColorBoxIndex, currentFieldIndex:currentColorFieldIndex},		
+	];
 	
-	const innerHTML = mydata.boxes
-							.sort((a, b) => a.title < b.title)
-							.map(box => "<option>" + box.title + "</option>")
-							.join('');
-	
-	console.log(innerHTML);
-							
-	if (boxCombo.innerHTML != innerHTML)
-		boxCombo.innerHTML = innerHTML;
-	
-	if (fromBoxCombo.innerHTML != innerHTML)
-		fromBoxCombo.innerHTML = innerHTML;	
-	
-	if (toBoxCombo.innerHTML != innerHTML)
-		toBoxCombo.innerHTML = innerHTML;
-	
-	if (colorBoxCombo.innerHTML != innerHTML)
-		colorBoxCombo.innerHTML = innerHTML;
-	
-	console.log(currentBoxIndex);
-	if (currentBoxIndex != -1)
+	for (let {boxCombo, fieldCombo, currentBoxIndex, currentFieldIndex} of contexts)
 	{
-		const {title, id, fields} = mydata.boxes[currentBoxIndex];
-		boxCombo.value = title;
+	
+		if (currentBoxIndex == -1 && boxCombo.value != "")
+			currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 		
-		const innerHTML = mydata.boxes[currentBoxIndex]
-								.fields
-								.sort((a, b) => a.name < b.name)
-								.map(field => "<option>" + field.name + "</option>")
+		const innerHTML = mydata.boxes
+								.sort((a, b) => a.title < b.title)
+								.map(box => "<option>" + box.title + "</option>")
 								.join('');
+		
+		console.log(innerHTML);
 								
-		if (fieldCombo.innerHTML != innerHTML)
-			fieldCombo.innerHTML = innerHTML;
-	}
-	else
-	{
-		boxCombo.value = "";
-	}
-	
-	if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
-	{
-		currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
-		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
-		newFieldEditField.value = name;
-		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
-		isForeignKeyCheckBox.checked = isForeignKey;
+		if (boxCombo.innerHTML != innerHTML)
+			boxCombo.innerHTML = innerHTML;
+		
+		console.log(currentBoxIndex);
+		if (currentBoxIndex != -1)
+		{
+			const {title, id, fields} = mydata.boxes[currentBoxIndex];
+			boxCombo.value = title;
+			
+			const innerHTML = mydata.boxes[currentBoxIndex]
+									.fields
+									.sort((a, b) => a.name < b.name)
+									.map(field => "<option>" + field.name + "</option>")
+									.join('');
+									
+			if (fieldCombo.innerHTML != innerHTML)
+				fieldCombo.innerHTML = innerHTML;
+		}
+		else
+		{
+			boxCombo.value = "";
+		}
+		
+		if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
+		{
+			currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
+			const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
+			newFieldEditField.value = name;
+			isPrimaryKeyCheckBox.checked = isPrimaryKey; 
+			isForeignKeyCheckBox.checked = isForeignKey;
+		}
 	}
 }
 
