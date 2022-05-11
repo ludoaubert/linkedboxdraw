@@ -1,0 +1,156 @@
+<html>
+<meta charset="UTF-8">
+<head>
+	<title>Connected Boxes Input Interface</title>
+	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+	<link rel="icon" type="image/x-icon" href="favicon.ico" />
+   <script>    
+	var Module = {
+	  'print': function(text) { console.log('stdout: ' + text) },
+	  'printErr': function(text) { console.log('stderr: ' + text) }
+	};
+    </script>
+    <script type="text/javascript" src="latuile-origine.js"></script>
+	<script type="text/javascript" src="pretty.js"></script>
+	<script type="text/javascript" src="compute_box_rectangles.js"></script>
+	<script type="text/javascript" src="table_edit.js"></script>
+	<link rel="stylesheet" type="text/css" href="diagstyle.css">
+	<link rel="stylesheet" type="text/css" href="table_edit.css">
+	<link rel="stylesheet" type="text/css" href="collapsible.css">
+    <script type="text/javascript" src="collapsible.js"></script>
+</head>
+
+<body>
+
+	<ul>
+      <li>
+        <svg width="80" height="70">
+
+          <a xlink:href="http://www.scmlite.com" title="StructureXpress" />
+          <polygon points="10,30 50,30 50,60 10,60" />
+          <line x1="50" y1="45" x2="60" y2="45" />
+          <polygon points="60,50 70,45 60,40" />
+          <line x1="30" y1="30" x2="30" y2="20" />
+          <polygon points="25,20 35,20 30,10" />
+          </a>
+
+        </svg>
+      </li>
+
+      <li>
+        <a href = "centered_rectangles.html">connected rectangles</a>
+      </li>
+    </ul>
+
+<button type="button" class="collapsible">Input Output</button>
+<div class="content">
+<fieldset>
+	<legend>Data File Input</legend>
+	<input type="file" accept=".json" id="myFile" value="Load">
+</fieldset>
+
+<fieldset>
+	<legend>Data File Output</legend>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="diagdata.json">
+	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+	</form>
+</fieldset>
+
+<fieldset>
+	<legend>Geometry File Output</legend>
+	<form onsubmit="return false">
+	  <input type="text" name="name" value="contexts.json">
+	  <input type="submit" value="Save As" onclick="download2(this['name'].value)">
+	</form>
+</fieldset>
+</div>
+
+<fieldset>
+	<legend>Diagram Title</legend>
+	<input type="text" id="title" class="bigtextfield">
+</fieldset>
+
+<fieldset>
+	<legend>Boxes</legend>
+	Boxes: <select id="boxes" onchange="selectBox(boxCombo, fieldCombo);updateFieldAttributes();"></select>
+
+	<input type="text" id="new box">
+
+	<button type="button" id="add box" onclick="addNewBox()">Add New Box</button>
+	<button type="button" id="drop box" onclick="dropBox()">Drop Box</button>
+	<button type="button" id="update box" title="update box name" onclick="updateBox()">Update Box</button>
+
+	<p>Box Comments</p>
+	<textarea id="box comment" cols="80" rows="5"></textarea>
+	<br>
+	<button type="button" id="update box comment" onclick="updateBoxComment()">Update Box Comment</button>
+	<button type="button" id="drop box comment" onclick="dropBoxComment()">Drop Box Comment</button>
+</fieldset>
+
+<fieldset>
+	<legend>Box Fields</legend>
+	Fields: <select id="fields" onchange="updateFieldAttributes()"></select>
+
+	<input type="text" id="new field">
+	<input type="checkbox" id="PK">Primary Key</input>
+	<input type="checkbox" id="FK">Foreign Key</input>
+	<button type="button" id="add field" onclick="addNewFieldToBox()">Add New Field To Box</button>
+	<button type="button" id="drop field" onclick="dropFieldFromBox()">Drop Field From Box</button>
+	<button type="button" id="update field" title="update field name" onclick="updateField()">Update Field</button>
+	
+	<p>Field Comment</p>
+	<textarea id="field comment" cols="80" rows="5"></textarea>
+	<br>
+	<button type="button" id="update field comment" onclick="updateFieldComment()">Update Field Comment</button>
+	<button type="button" id="drop field comment" onclick="dropFieldComment()">Drop Field Comment</button>
+</fieldset>
+	
+<fieldset>
+	<legend>Field Values</legend>
+
+	Values: <select id="values" onchange="updateValueAttributes()"></select>
+
+	<input type="text" id="new value">
+	<button type="button" id="edit value" title="load combo value into edit field" onclick="editValueFromField()">Edit Value From Field</button>
+	<button type="button" id="add value" onclick="addNewValueToField()">Add New Value To Field</button>
+	<button type="button" id="drop value" onclick="dropValueFromField()">Drop Value From Field</button>
+	<button type="button" id="update value" onclick="updateValue()">Update Value</button>
+</fieldset>
+
+
+<fieldset>
+	<legend>Box Links</legend>
+	Links: <select id="links" onchange="selectLink()" class="bigselect"></select>
+	<button type="button" id="drop link" onclick="dropLink()">Drop Link</button>
+	<br>
+	From Box: <select id="from boxes" onchange="selectBox(fromBoxCombo, fromFieldCombo)"></select>
+	From Field: <select id="from fields"></select>
+	From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
+	<br>
+	To Box: <select id="to boxes"  onchange="selectBox(toBoxCombo, toFieldCombo)"></select>
+	To Field: <select id="to fields"></select>
+	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
+	<br>
+	Category: <select id="category"><option value=""></option><option value="TR2">TR2</option></select>
+	<br>
+	<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
+	<button id="update link" type="button" onclick="updateLink()">Update Link</button>
+</fieldset>
+
+<fieldset>
+	<legend>Field Colors</legend>
+	Colors: <select id="colors" onchange="selectColor()" class="bigselect"></select>
+	<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
+	<br>
+	Box: <select id="color boxes" onchange="selectBox(colorBoxCombo, colorFieldCombo)"></select>
+	Field: <select id="color fields"></select>
+	Color: <select id="color"></select>
+
+	<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
+	<button id="update color" type="button" onclick="updateColor()">Update Color</button>	
+</fieldset>
+	
+</body>
+</html>
+

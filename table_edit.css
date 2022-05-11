@@ -1,0 +1,31 @@
+
+select { width:200px;}	/*This will set a minimum width on all selects to 200px, and will grow if you need it.*/
+
+.bigselect { width: 600px;}
+.bigtextfield { width: 400px; }
+.cardinality_select { width: 50px;}
+
+#category { width: 40px;}
+
+ul
+{
+    list-style-type: none;  /*unordered list without any bullets*/
+}
+
+fieldset {
+	font: 1em Verdana, Geneva, sans-serif;
+	text-transform: none;
+	color: #00F;
+	background: #CCF;
+	border: thin solid #333;
+}
+legend {
+	font-size: 1.4em;
+	text-transform: uppercase;
+	color: #000;
+}
+
+form * {
+  display: block;
+  margin: 10px;
+}
