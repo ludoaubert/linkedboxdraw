@@ -266,6 +266,16 @@ function displayCurrent()
 	{
 		const {title, id, fields} = mydata.boxes[currentBoxIndex];
 		boxCombo.value = title;
+		
+		const innerHTML = mydata.boxes[currentBoxIndex]
+								.fields
+								.sort((a, b) => a.name < b.name)
+								.map(field => "<option>" + field.name + "</option>")
+								.join('');
+								
+		if (fieldCombo.innerHTML != innerHTML)
+			fieldCombo.innerHTML = innerHTML;
+		
 		//document.getElementById("picture").value = (id_picture != -1) ? mypictures[id_picture].Path : "";
 	}
 	else
@@ -346,7 +356,13 @@ function selectField()
 
 function addNewFieldToBox()
 {
-
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	currentFieldIndex = mydata.boxes[currentBoxIndex].fields.length;
+	
+	mydata.boxes[currentBoxIndex].fields.push({name:newFieldEditField.value, isPrimaryKey:false, isForeignKey:false});
+	console.log(mydata.boxes[currentBoxIndex].fields);
+	
+	displayCurrent();
 }
 
 function updateField()
