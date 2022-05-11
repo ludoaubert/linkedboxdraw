@@ -258,6 +258,8 @@ function displayCurrent()
 									.map(field => "<option>" + field.name + "</option>")
 									.join('');
 									
+			console.log(innerHTML);
+									
 			if (fieldCombo.innerHTML != innerHTML)
 				fieldCombo.innerHTML = innerHTML;
 		}
