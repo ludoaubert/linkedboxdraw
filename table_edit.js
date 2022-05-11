@@ -287,8 +287,8 @@ function displayCurrent()
 		const boxTitle = mydata.boxes[currentBoxIndex].title;
 		const fieldName = mydata.boxes[currentBoxIndex].fields[currentFieldIndex].name;
 		
-		const innerHTML = mydata.values.filter({box, field, value} => box == boxTitle && field == fieldName)
-										.map({box, field, value} => value)
+		const innerHTML = mydata.values.filter(({box, field, value}) => box == boxTitle && field == fieldName)
+										.map(({box, field, value}) => value)
 										.sort()
 										.map(value => '<option>' + value + '</option>')
 										.join('');
@@ -552,7 +552,7 @@ function addNewColor()
 
 function updateColor()
 
-	const fieldColorIndex = mydata.fieldColors.findIndex({box, field, color} => box == boxCombo.value && field == fieldCombo.value);
+	const fieldColorIndex = mydata.fieldColors.findIndex(({box, field, color}) => box == boxCombo.value && field == fieldCombo.value);
 	mydata.fieldColors[ fieldColorIndex ] = {
 		box: boxCombo.value,
 		field: fieldCombo.value,
