@@ -293,6 +293,8 @@ function addNewBox()
 	mydata.boxes.push({title:newBoxEditField.value, id:currentBoxIndex, fields:[]});
 	console.log(mydata.boxes);
 	
+	newBoxEditField.value = "";
+	
 	displayCurrent();
 }
 
