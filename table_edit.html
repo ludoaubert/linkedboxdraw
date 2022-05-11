@@ -125,11 +125,11 @@
 	<button type="button" id="drop link" onclick="dropLink()">Drop Link</button>
 	<br>
 	From Box: <select id="from boxes" onchange="currentFromBoxIndex = -1; displayCurrent();"></select>
-	From Field: <select id="from fields"></select>
+	From Field: <select id="from fields" onchange="currentFromFieldIndex = -1; displayCurrent();"></select>
 	From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
 	<br>
 	To Box: <select id="to boxes"  onchange="currentToBoxIndex = -1; displayCurrent();"></select>
-	To Field: <select id="to fields"></select>
+	To Field: <select id="to fields" onchange="currentToFieldIndex = -1; displayCurrent();"></select>
 	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
 	<br>
 	Category: <select id="category"><option value=""></option><option value="TR2">TR2</option></select>
@@ -144,7 +144,7 @@
 	<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
 	<br>
 	Box: <select id="color boxes" onchange="currentColorBoxIndex = -1; displayCurrent();"></select>
-	Field: <select id="color fields"></select>
+	Field: <select id="color fields" onchange="currentColorFieldIndex = -1; displayCurrent();"></select>
 	Color: <select id="color"></select>
 
 	<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
