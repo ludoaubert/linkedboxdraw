@@ -90,7 +90,7 @@
 
 <fieldset>
 	<legend>Box Fields</legend>
-	Fields: <select id="fields" onchange="updateFieldAttributes()"></select>
+	Fields: <select id="fields" onchange="currentFieldIndex = -1; displayCurrent()"></select>
 
 	<input type="text" id="new field">
 	<input type="checkbox" id="PK">Primary Key</input>
@@ -124,11 +124,11 @@
 	Links: <select id="links" onchange="selectLink()" class="bigselect"></select>
 	<button type="button" id="drop link" onclick="dropLink()">Drop Link</button>
 	<br>
-	From Box: <select id="from boxes" onchange="selectBox(fromBoxCombo, fromFieldCombo)"></select>
+	From Box: <select id="from boxes" onchange="currentFromBoxIndex = -1; displayCurrent();"></select>
 	From Field: <select id="from fields"></select>
 	From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
 	<br>
-	To Box: <select id="to boxes"  onchange="selectBox(toBoxCombo, toFieldCombo)"></select>
+	To Box: <select id="to boxes"  onchange="currentToBoxIndex = -1; displayCurrent();"></select>
 	To Field: <select id="to fields"></select>
 	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
 	<br>
@@ -143,7 +143,7 @@
 	Colors: <select id="colors" onchange="selectColor()" class="bigselect"></select>
 	<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
 	<br>
-	Box: <select id="color boxes" onchange="selectBox(colorBoxCombo, colorFieldCombo)"></select>
+	Box: <select id="color boxes" onchange="currentColorBoxIndex = -1; displayCurrent();"></select>
 	Field: <select id="color fields"></select>
 	Color: <select id="color"></select>
 
