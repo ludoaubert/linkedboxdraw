@@ -1,7 +1,7 @@
 // FRAME_MARGIN is duplicated in diagload.js
 const FRAME_MARGIN = 20;
 
-var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[]};
+var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;
 
@@ -494,9 +494,34 @@ function updateFieldComment()
 
 }
 
+function colorsComboOnClick()
+{
+	console.log("colorsComboOnClick");
+	const innerHTML = mydata.fieldColors
+							.map({index, box, field, color} => `<option>${box}.${field}.${color}</option>`)
+							.join('');
+	
+	console.log(innerHTML);
+							
+	if (colorsCombo.innerHTML != innerHTML)
+		colorsCombo.innerHTML = innerHTML;
+}
+
+
 function addNewColor()
 {
-
+	currentColorBoxIndex = mydata.boxes.findIndex(box => box.title == colorBoxCombo.value);
+	const box = mydata.boxes[currentColorBoxIndex];
+	
+	currentColorFieldIndex = box.fields.findIndex(field => field.name == colorFieldCombo.value);
+	const field = box.fields[currentColorFieldIndex];
+	
+	mydata.fieldColors.push({
+		index: currentColorBoxIndex,
+		box: box.title,
+		field: field.name,
+		color: colorCombo.value
+	})
 }
 
 function updateColor()
@@ -506,7 +531,10 @@ function updateColor()
 
 function dropColor()
 {
-
+	console.log(mydata.fieldColors);
+	delete mydata.fieldColors[ colorsCombo.selectedIndex ];
+	console.log(mydata.fieldColors);
+	colorsComboOnClick();
 }
 
 
