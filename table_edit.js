@@ -247,7 +247,7 @@ function displayCurrent()
 		if (boxCombo.innerHTML != innerHTML)
 			boxCombo.innerHTML = innerHTML;
 		
-		console.log(currentBoxIndex);
+		console.log({currentBoxIndex});
 		if (currentBoxIndex != -1)
 		{
 			const {title, id, fields} = mydata.boxes[currentBoxIndex];
@@ -271,6 +271,7 @@ function displayCurrent()
 		if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
 		{
 			currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
+			console.log({currentFieldIndex});
 		}
 	}
 	
