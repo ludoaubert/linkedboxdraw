@@ -224,17 +224,17 @@ function selectCascadeBox()
 function displayCurrent()
 {
 	let contexts = [
-		{boxCombo:boxCombo, fieldCombo:fieldCombo, currentBoxIndex:currentBoxIndex, currentFieldIndex:currentFieldIndex},
-		{boxCombo:fromBoxCombo, fieldCombo:fromFieldCombo, currentBoxIndex:currentFromBoxIndex, currentFieldIndex:currentFromFieldIndex},
-		{boxCombo:toBoxCombo, fieldCombo:toFieldCombo, currentBoxIndex:currentToBoxIndex, currentFieldIndex:currentToFieldIndex},
-		{boxCombo:colorBoxCombo, fieldCombo:colorFieldCombo, currentBoxIndex:currentColorBoxIndex, currentFieldIndex:currentColorFieldIndex},		
+		{boxCombo_:boxCombo, fieldCombo_:fieldCombo, currentBoxIndex_:currentBoxIndex, currentFieldIndex_:currentFieldIndex},
+		{boxCombo_:fromBoxCombo, fieldCombo_:fromFieldCombo, currentBoxIndex_:currentFromBoxIndex, currentFieldIndex_:currentFromFieldIndex},
+		{boxCombo_:toBoxCombo, fieldCombo_:toFieldCombo, currentBoxIndex_:currentToBoxIndex, currentFieldIndex_:currentToFieldIndex},
+		{boxCombo_:colorBoxCombo, fieldCombo_:colorFieldCombo, currentBoxIndex_:currentColorBoxIndex, currentFieldIndex_:currentColorFieldIndex},		
 	];
 	
-	for (let ctx of contexts)
+	for (let {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_} of contexts)
 	{
 	
-		if (ctx.currentBoxIndex == -1 && ctx.boxCombo.value != "")
-			ctx.currentBoxIndex = mydata.boxes.findIndex(box => box.title == ctx.boxCombo.value);
+		if (currentBoxIndex_ == -1 && boxCombo_.value != "")
+			currentBoxIndex_ = mydata.boxes.findIndex(box => box.title == boxCombo_.value);
 		
 		const innerHTML = mydata.boxes
 								.concat()	//shallow copy
@@ -247,13 +247,13 @@ function displayCurrent()
 		if (ctx.boxCombo.innerHTML != innerHTML)
 			ctx.boxCombo.innerHTML = innerHTML;
 		
-		console.log({currentBoxIndex: ctx.currentBoxIndex});
-		if (ctx.currentBoxIndex != -1)
+		console.log({currentBoxIndex_});
+		if (currentBoxIndex_ != -1)
 		{
-			const {title, id, fields} = mydata.boxes[ctx.currentBoxIndex];
-			ctx.boxCombo.value = title;
+			const {title, id, fields} = mydata.boxes[currentBoxIndex_];
+			boxCombo_.value = title;
 			
-			const innerHTML = mydata.boxes[ctx.currentBoxIndex]
+			const innerHTML = mydata.boxes[currentBoxIndex_]
 									.fields
 									.concat() //shallow copy
 									.sort((a, b) => a.name.localeCompare(b.name))
@@ -262,27 +262,27 @@ function displayCurrent()
 									
 			console.log(innerHTML);
 									
-			if (ctx.fieldCombo.innerHTML != innerHTML)
-				ctx.fieldCombo.innerHTML = innerHTML;
+			if (fieldCombo_.innerHTML != innerHTML)
+				fieldCombo_.innerHTML = innerHTML;
 		}
 
-		console.log({currentBoxIndex:ctx.currentBoxIndex, currentFieldIndex:ctx.currentFieldIndex, boxComboValue: ctx.boxCombo.value, fieldComboValue: ctx.fieldCombo.value});
+		console.log({currentBoxIndex_, currentFieldIndex_, boxComboValue: boxCombo_.value, fieldComboValue: fieldCombo_.value});
 		
-		if (ctx.currentBoxIndex != -1 && ctx.currentFieldIndex == -1 && ctx.fieldCombo.value != "")
+		if (currentBoxIndex_ != -1 && currentFieldIndex_ == -1 && fieldCombo_.value != "")
 		{
-			ctx.currentFieldIndex = mydata.boxes[ctx.currentBoxIndex].fields.findIndex(field => field.name == ctx.fieldCombo.value);
-			console.log({ctx.currentFieldIndex});
+			currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.findIndex(field => field.name == fieldCombo_.value);
+			console.log({currentFieldIndex_});
 		}
 	}
 	
-	currentBoxIndex = contexts[0].currentBoxIndex;
-	currentFieldIndex = contexts[0].currentFieldIndex;
-	currentFromBoxIndex = contexts[1].currentBoxIndex;
-	currentFromFieldIndex = contexts[1].currentFieldIndex;
-	currentToBoxIndex = contexts[2].currentBoxIndex;
-	currentToFieldIndex = contexts[2].currentFieldIndex;
-	currentColorBoxIndex = contexts[3].currentBoxIndex;
-	currentColorFieldIndex = contexts[3].currentFieldIndex;
+	currentBoxIndex = contexts[0].currentBoxIndex_;
+	currentFieldIndex = contexts[0].currentFieldIndex_;
+	currentFromBoxIndex = contexts[1].currentBoxIndex_;
+	currentFromFieldIndex = contexts[1].currentFieldIndex_;
+	currentToBoxIndex = contexts[2].currentBoxIndex_;
+	currentToFieldIndex = contexts[2].currentFieldIndex_;
+	currentColorBoxIndex = contexts[3].currentBoxIndex_;
+	currentColorFieldIndex = contexts[3].currentFieldIndex_;
 	
 	
 	console.log(contexts);
