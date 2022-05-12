@@ -41,8 +41,7 @@ var colorsCombo ;
 
 function download(filename) {
   var element = document.createElement('a');
-  const Json = refreshJsonFromEditData();
-  const jsons = prettyData(JSON.stringify(Json));
+  const jsons = prettyData(JSON.stringify(mydata));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsons);
   element.setAttribute('download', filename);
   element.style.display = 'none';
