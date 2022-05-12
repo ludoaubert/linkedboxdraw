@@ -244,8 +244,8 @@ function displayCurrent()
 		
 		console.log(innerHTML);
 								
-		if (ctx.boxCombo.innerHTML != innerHTML)
-			ctx.boxCombo.innerHTML = innerHTML;
+		if (boxCombo_.innerHTML != innerHTML)
+			boxCombo_.innerHTML = innerHTML;
 		
 		console.log({currentBoxIndex_});
 		if (currentBoxIndex_ != -1)
