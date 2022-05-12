@@ -54,8 +54,8 @@ function download(filename) {
 
 function download2(filename) {
 	var element = document.createElement('a');
-	const Json = refreshJsonFromEditData();
-	const {boxes, links} = Json;
+
+	const {boxes, links} = mydata;
 	
 	const rectangles = compute_box_rectangles(boxes);
 	
