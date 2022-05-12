@@ -275,6 +275,8 @@ function displayCurrent()
 			currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
 		}
 	}
+	
+	console.log({currentBoxIndex, currentFieldIndex});
 		
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
 	{
