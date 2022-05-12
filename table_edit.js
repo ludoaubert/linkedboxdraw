@@ -224,17 +224,17 @@ function selectCascadeBox()
 function displayCurrent()
 {
 	let contexts = [
-		{boxCombo:boxCombo, fieldCombo:fieldCombo, currentBoxIndex:currentBoxIndex, currentFieldIndex:currentFieldIndex},
-		{boxCombo:fromBoxCombo, fieldCombo:fromFieldCombo, currentBoxIndex:currentFromBoxIndex, currentFieldIndex:currentFromFieldIndex},
-		{boxCombo:toBoxCombo, fieldCombo:toFieldCombo, currentBoxIndex:currentToBoxIndex, currentFieldIndex:currentToFieldIndex},
-		{boxCombo:colorBoxCombo, fieldCombo:colorFieldCombo, currentBoxIndex:currentColorBoxIndex, currentFieldIndex:currentColorFieldIndex},		
+		{boxCombo_:boxCombo, fieldCombo_:fieldCombo, currentBoxIndex_:currentBoxIndex, currentFieldIndex_:currentFieldIndex},
+		{boxCombo_:fromBoxCombo, fieldCombo_:fromFieldCombo, currentBoxIndex_:currentFromBoxIndex, currentFieldIndex_:currentFromFieldIndex},
+		{boxCombo_:toBoxCombo, fieldCombo_:toFieldCombo, currentBoxIndex_:currentToBoxIndex, currentFieldIndex_:currentToFieldIndex},
+		{boxCombo_:colorBoxCombo, fieldCombo_:colorFieldCombo, currentBoxIndex_:currentColorBoxIndex, currentFieldIndex_:currentColorFieldIndex},		
 	];
 	
-	for (let {boxCombo, fieldCombo, currentBoxIndex, currentFieldIndex} of contexts)
+	for (let {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_} of contexts)
 	{
 	
-		if (currentBoxIndex == -1 && boxCombo.value != "")
-			currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+		if (currentBoxIndex_ == -1 && boxCombo_.value != "")
+			currentBoxIndex_ = mydata.boxes.findIndex(box => box.title == boxCombo_.value);
 		
 		const innerHTML = mydata.boxes
 								.concat()	//shallow copy
@@ -244,16 +244,16 @@ function displayCurrent()
 		
 		console.log(innerHTML);
 								
-		if (boxCombo.innerHTML != innerHTML)
-			boxCombo.innerHTML = innerHTML;
+		if (boxCombo_.innerHTML != innerHTML)
+			boxCombo_.innerHTML = innerHTML;
 		
-		console.log({currentBoxIndex});
-		if (currentBoxIndex != -1)
+		console.log({currentBoxIndex_});
+		if (currentBoxIndex_ != -1)
 		{
-			const {title, id, fields} = mydata.boxes[currentBoxIndex];
-			boxCombo.value = title;
+			const {title, id, fields} = mydata.boxes[currentBoxIndex_];
+			boxCombo_.value = title;
 			
-			const innerHTML = mydata.boxes[currentBoxIndex]
+			const innerHTML = mydata.boxes[currentBoxIndex_]
 									.fields
 									.concat() //shallow copy
 									.sort((a, b) => a.name.localeCompare(b.name))
@@ -262,16 +262,16 @@ function displayCurrent()
 									
 			console.log(innerHTML);
 									
-			if (fieldCombo.innerHTML != innerHTML)
-				fieldCombo.innerHTML = innerHTML;
+			if (fieldCombo_.innerHTML != innerHTML)
+				fieldCombo_.innerHTML = innerHTML;
 		}
 
-		console.log({currentBoxIndex, currentFieldIndex, boxComboValue: boxCombo.value, fieldComboValue: fieldCombo.value});
+		console.log({currentBoxIndex_, currentFieldIndex_, boxComboValue: boxCombo_.value, fieldComboValue: fieldCombo_.value});
 		
-		if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
+		if (currentBoxIndex_ != -1 && currentFieldIndex_ == -1 && fieldCombo_.value != "")
 		{
-			currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
-			console.log({currentFieldIndex});
+			currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.findIndex(field => field.name == fieldCombo_.value);
+			console.log({currentFieldIndex_});
 		}
 	}
 	
