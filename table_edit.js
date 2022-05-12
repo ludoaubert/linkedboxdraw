@@ -203,22 +203,6 @@ function init(e) {
 document.addEventListener('DOMContentLoaded', init, false);
 
 
-
-function selectCascadeBox()
-{
-	copyOptions(boxCombo, fromBoxCombo);
-	selectBox(fromBoxCombo, fromFieldCombo);
-	copyOptions(boxCombo, toBoxCombo);
-	selectBox(toBoxCombo, toFieldCombo);
-	selectBox(boxCombo, fieldCombo);
-	updateFieldAttributes();
-	copyOptions(boxCombo, colorBoxCombo);
-	selectBox(colorBoxCombo, colorFieldCombo);
-	selectField();	
-}
-
-
-
 function displayCurrent()
 {
 	let contexts = [
