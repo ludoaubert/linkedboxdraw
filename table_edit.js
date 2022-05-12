@@ -273,6 +273,7 @@ function displayCurrent()
 		}
 	}
 	
+	console.log(contexts);
 	console.log({currentBoxIndex, currentFieldIndex});
 		
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
