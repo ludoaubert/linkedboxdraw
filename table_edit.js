@@ -492,14 +492,13 @@ function linkComboOnClick()
 	
 	console.log(innerHTML);
 							
-	if (document.getElementById("links").innerHTML != innerHTML)
-		document.getElementById("links").innerHTML = innerHTML;
+	if (linkCombo.innerHTML != innerHTML)
+		linkCombo.innerHTML = innerHTML;
 }
 
 function updateLink()
 {
-	const text = `${fromBoxCombo.value}.${fromFieldCombo.value}.${fromCardinalityCombo.value} \-> ${toBoxCombo.value}.${toFieldCombo.value}.${toCardinalityCombo.value}`;
-	linkCombo.options[linkCombo.selectedIndex].innerHTML = text;
+
 }
 
 function addNewLink()
