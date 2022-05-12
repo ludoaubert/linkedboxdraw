@@ -230,6 +230,7 @@ function displayCurrent()
 		{boxCombo_:colorBoxCombo, fieldCombo_:colorFieldCombo, currentBoxIndex_:currentColorBoxIndex, currentFieldIndex_:currentColorFieldIndex},		
 	];
 	
+	let index = 0;
 	for (let {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_} of contexts)
 	{
 	
@@ -273,6 +274,9 @@ function displayCurrent()
 			currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.findIndex(field => field.name == fieldCombo_.value);
 			console.log({currentFieldIndex_});
 		}
+		
+		contexts[index] = {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_};
+		index = index + 1;
 	}
 	
 	currentBoxIndex = contexts[0].currentBoxIndex_;
