@@ -277,7 +277,6 @@ function displayCurrent()
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
 	{
 		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
-		newFieldEditField.value = name;
 		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
 		isForeignKeyCheckBox.checked = isForeignKey;
 	}
@@ -383,8 +382,6 @@ function addNewFieldToBox()
 	console.log(mydata.boxes[currentBoxIndex].fields);
 	
 	newFieldEditField.value = "";
-	isPrimaryKeyCheckBox.checked = false;
-	isForeignKeyCheckBox.checked = false;
 	
 	displayCurrent();
 }
