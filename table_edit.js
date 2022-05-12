@@ -1,5 +1,3 @@
-// FRAME_MARGIN is duplicated in diagload.js
-const FRAME_MARGIN = 20;
 
 var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
 var currentBoxIndex = -1;
