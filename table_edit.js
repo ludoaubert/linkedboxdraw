@@ -464,7 +464,7 @@ function addNewValueToField()
 function updateValue()
 {
 	const currentValueIndex = mydata.values.findIndex(({box, field, value}) => box ==  boxCombo.value && field == fieldCombo.value);
-	mydata.values[ currentValueIndex ] = {box, field, newValueEditField.value};
+	mydata.values[ currentValueIndex ] = {box, field, value: newValueEditField.value};
 	
 	displayCurrent();
 }
