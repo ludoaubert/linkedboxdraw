@@ -266,7 +266,7 @@ function displayCurrent()
 				fieldCombo.innerHTML = innerHTML;
 		}
 
-		console.log({currentBoxIndex, currentFieldIndex, fieldComboValue: fieldCombo.value});
+		console.log({currentBoxIndex, currentFieldIndex, boxComboValue: boxCombo.value, fieldComboValue: fieldCombo.value});
 		
 		if (currentBoxIndex != -1 && currentFieldIndex == -1 && fieldCombo.value != "")
 		{
