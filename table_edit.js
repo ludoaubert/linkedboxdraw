@@ -279,6 +279,7 @@ function displayCurrent()
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
 	{
 		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
+		console.log({name, isPrimaryKey, isForeignKey});
 		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
 		isForeignKeyCheckBox.checked = isForeignKey;
 	}
@@ -293,6 +294,8 @@ function displayCurrent()
 										.sort()
 										.map(value => '<option>' + value + '</option>')
 										.join('');
+										
+		console.log(innerHTML);
 										
 		if (valueCombo.innerHTML != innerHTML)
 			valueCombo.innerHTML = innerHTML;
