@@ -276,7 +276,7 @@ function displayCurrent()
 		}
 		
 		contexts[index] = {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_};
-		index = index + 1;
+		index++;
 	}
 	
 	currentBoxIndex = contexts[0].currentBoxIndex_;
