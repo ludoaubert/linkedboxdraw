@@ -411,8 +411,9 @@ function updateField()
 {
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	currentFieldIndex = mydata.boxes[currentBoxIndex].fields.findIndex(field => field.name == fieldCombo.value);
+
 	mydata.boxes[currentBoxIndex].fields[currentFieldIndex] = {
-		name: newFieldEditField.value,
+		name: fieldCombo.value,
 		isPrimaryKey: isPrimaryKeyCheckBox.checked, 
 		isForeignKey: isForeignKeyCheckBox.checked
 	} ;
