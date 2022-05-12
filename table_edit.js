@@ -383,17 +383,14 @@ function dropBox()
 
 function updateBox()
 {
-
+	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	mydata.boxes[currentBoxIndex].title = newBoxEditField.value;
+	displayCurrent();
 }
 
 
 function updateFieldAttributes()
 {	
-
-}
-
-function selectBox(boxCombo, fieldCombo)
-{
 
 }
 
