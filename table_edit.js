@@ -298,6 +298,38 @@ function displayCurrent()
 		if (valueCombo.innerHTML != innerHTML)
 			valueCombo.innerHTML = innerHTML;
 	}
+	
+	if (currentBoxIndex != -1)
+	{
+		const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
+		
+		if (currentBoxCommentIndex != -1)
+		{
+			{box, comment} = mydata.boxComments[currentBoxCommentIndex] ;
+			if (comment != boxCommentTextArea.value)
+			{
+				boxCommentTextArea.value = comment ;
+			}
+		}
+		else
+			boxCommentTextArea.value = "";
+	}
+	
+	if (currentBoxIndex != -1 && currentFieldIndex != -1)
+	{
+		const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
+
+		if (currentFieldCommentIndex != -1)
+		{
+			{box, field, comment} = mydata.fieldComments[currentFieldCommentIndex] ;
+			if (comment != fieldCommentTextArea.value)
+			{
+				fieldCommentTextArea.value = comment ;
+			}
+		}
+		else
+			fieldCommentTextArea.value = "";
+	}
 
 }
 
@@ -434,12 +466,19 @@ function addNewValueToField()
 
 function updateValue()
 {
-
+	const currentValueIndex = mydata.values.findIndex(({box, field, value}) => box ==  boxCombo.value && field == fieldCombo.value);
+	mydata.values[ currentValueIndex ] = {box, field, newValueEditField.value};
+	
+	displayCurrent();
 }
 
 function dropValueFromField()
 {
-
+	const currentValueIndex = mydata.values.findIndex(({box, field, value}) => box ==  boxCombo.value && field == fieldCombo.value && value == valueCombo.value);
+	
+	delete mydata.values[currentValueIndex];
+	
+	displayCurrent();
 }
 
 function selectLink()
@@ -500,22 +539,44 @@ function dropLink()
 
 function dropBoxComment()
 {
-
+	const currentCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
+	delete mydata.boxComments[ currentCommentIndex ];
+	displayCurrent();
 }
 
 function updateBoxComment()
 {
-
+	const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
+	
+	const boxComment = {box: boxCombo.value, comment: boxCommentTextArea.value} ;
+	
+	if (currentBoxCommentIndex != -1)
+		mydata.boxComments[ currentBoxCommentIndex ] = boxComment;
+	else
+		mydata.boxComments.push(boxComment);
+	
+	displayCurrent();
 }
 
 function dropFieldComment()
 {
-
+	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
+	delete mydata.fieldComments[ currentFieldCommentIndex ];
+	displayCurrent();
 }
 
 function updateFieldComment()
 {
-
+	const currentFieldCommentIndex = mydata.boxComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
+	
+	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: boxCommentTextArea.value};
+	
+	if (currentFieldCommentIndex != -1)
+		mydata.boxComments[ currentBoxCommentIndex ] = fieldComment;
+	else
+		mydata.boxComments.push(fieldComment);
+	
+	displayCurrent();
 }
 
 function colorsComboOnClick()
