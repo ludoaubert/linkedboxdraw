@@ -174,15 +174,15 @@ function init(e) {
 	colorCombo = document.getElementById("color");
 	colorsCombo = document.getElementById("colors");
 
-	for (let cardinality of ["NULL","0","1","N","0,1","0,N","1,N"])
-	{
-		fromCardinalityCombo.add(new Option(cardinality,cardinality));
-		toCardinalityCombo.add(new Option(cardinality,cardinality));
-	}
+	const innerHTML = ["NULL","0","1","N","0,1","0,N","1,N"].map(c => '<option>' + c + '</option>')
+															.join('');
+	fromCardinalityCombo.innerHTML = innerHTML;
+	toCardinalityCombo.innerHTML = innerHTML;
+
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
-
-	colors.forEach(color => colorCombo.add(new Option(color, color)));
+	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
+								.join('');
 
 	input.addEventListener("change", function () {
 	  if (this.files && this.files[0]) {
@@ -190,7 +190,8 @@ function init(e) {
 		var reader = new FileReader();
 		
 		reader.addEventListener('load', function (e) {
-		  refreshEditDataFromJson(e.target.result);
+		  mydata = JSON.parse(e.target.result);
+		  displayCurrent();
 		});
 		
 		reader.readAsBinaryString(myFile);
