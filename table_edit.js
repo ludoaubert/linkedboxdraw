@@ -305,7 +305,7 @@ function displayCurrent()
 		
 		if (currentBoxCommentIndex != -1)
 		{
-			{box, comment} = mydata.boxComments[currentBoxCommentIndex] ;
+			const {box, comment} = mydata.boxComments[currentBoxCommentIndex] ;
 			if (comment != boxCommentTextArea.value)
 			{
 				boxCommentTextArea.value = comment ;
@@ -321,7 +321,7 @@ function displayCurrent()
 
 		if (currentFieldCommentIndex != -1)
 		{
-			{box, field, comment} = mydata.fieldComments[currentFieldCommentIndex] ;
+			const {box, field, comment} = mydata.fieldComments[currentFieldCommentIndex] ;
 			if (comment != fieldCommentTextArea.value)
 			{
 				fieldCommentTextArea.value = comment ;
