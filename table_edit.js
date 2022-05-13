@@ -362,6 +362,10 @@ function dropBox()
 	
 	mydata.boxes = mydata.boxes.filter(box => box.title != boxCombo.value);
 	mydata.links = mydata.links.filter(lk => lk.from != currentBoxIndex && lk.to != currentBoxIndex);
+	mydata.values = mydata.values.filter(({box, field, value}) => box != boxCombo.value);
+	mydata.boxComments = mydata.boxComments.filter(({box, comment}) => box != boxCombo.value);
+	mydata.fieldComments = mydata.fieldComments.filter(({box, field, comment}) => box != boxCombo.value);
+	mydata.fieldColors = mydata.fieldColors.filter(({box, field, color}) => box != boxCombo.value);
 	
 	for (let box of mydata.boxes)
 	{
@@ -439,6 +443,10 @@ function dropFieldFromBox()
 	var fields = mydata.boxes[currentBoxIndex].fields ;
 	fields = fields.filter(field => field.name != fieldCombo.value);
 	currentFieldIndex = -1;
+	
+	mydata.values = mydata.values.filter(({box, field, value}) => !(box == boxCombo.value && field == fieldCombo.value));
+	mydata.fieldComments = mydata.fieldComments.filter(({box, field, comment}) => !(box == boxCombo.value && field == fieldCombo.value));
+	mydata.fieldColors = mydata.fieldColors.filter(({box, field, color}) => !(box == boxCombo.value && field == fieldCombo.value));
 	
 	displayCurrent();
 }
