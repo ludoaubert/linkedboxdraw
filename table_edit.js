@@ -511,10 +511,10 @@ function addNewLink()
 	const lk = {
 		from: currentFromBoxIndex,
 		fromField: currentFromFieldIndex,
-		fromCardinality: "undefined",
+		fromCardinality: fromCardinalityCombo.value,
 		to: currentToBoxIndex,
 		toField: currentToFieldIndex,
-		toCardinality: "undefined",
+		toCardinality: toCardinalityCombo.value,
 		category:categoryCombo.value
 	};
 	
@@ -525,9 +525,9 @@ function addNewLink()
 
 function dropLink()
 {
-	console.log(mydata.links);
+	const lk = mydata.links[ linkCombo.selectedIndex ];
+	console.log({lk});
 	delete mydata.links[ linkCombo.selectedIndex ];
-	console.log(mydata.links);
 	linkComboOnClick();
 }
 
