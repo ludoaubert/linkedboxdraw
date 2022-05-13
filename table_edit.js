@@ -228,7 +228,10 @@ function displayCurrent()
 		console.log(innerHTML);
 								
 		if (boxCombo_.innerHTML != innerHTML)
+		{
 			boxCombo_.innerHTML = innerHTML;
+			currentBoxIndex_ = mydata.boxes.length > 0 ? 0 : -1;
+		}
 		
 		console.log({currentBoxIndex_});
 		if (currentBoxIndex_ != -1)
@@ -246,7 +249,10 @@ function displayCurrent()
 			console.log(innerHTML);
 									
 			if (fieldCombo_.innerHTML != innerHTML)
+			{
 				fieldCombo_.innerHTML = innerHTML;
+				currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.length > 0 : 0 : -1; 
+			}
 		}
 
 		console.log({currentBoxIndex_, currentFieldIndex_, boxComboValue: boxCombo_.value, fieldComboValue: fieldCombo_.value});
