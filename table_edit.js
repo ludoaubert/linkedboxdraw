@@ -440,13 +440,26 @@ function updateField()
 function dropFieldFromBox()
 {
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+	
 	var fields = mydata.boxes[currentBoxIndex].fields ;
-	fields = fields.filter(field => field.name != fieldCombo.value);
-	currentFieldIndex = -1;
+	currentFieldIndex = fields.findIndex(field => field.name == fieldCombo.value);
+	mydata.boxes[currentBoxIndex].fields = fields.filter(field => field.name != fieldCombo.value);
+	
+
 	
 	mydata.values = mydata.values.filter(({box, field, value}) => !(box == boxCombo.value && field == fieldCombo.value));
 	mydata.fieldComments = mydata.fieldComments.filter(({box, field, comment}) => !(box == boxCombo.value && field == fieldCombo.value));
 	mydata.fieldColors = mydata.fieldColors.filter(({box, field, color}) => !(box == boxCombo.value && field == fieldCombo.value));
+	
+	for (let lk of mydata.links)
+	{
+		if (lk.from == currentBoxIndex && lk.fromField > currentFieldIndex)
+			lk.fromField--;
+		if (lk.to == currentBoxIndex && lk.toField > currentFieldIndex)
+			lk.toField--;
+	}
+	
+	currentFieldIndex = -1;
 	
 	displayCurrent();
 }
