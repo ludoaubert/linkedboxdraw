@@ -563,14 +563,14 @@ function dropFieldComment()
 
 function updateFieldComment()
 {
-	const currentFieldCommentIndex = mydata.boxComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
+	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 	
 	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value};
 	
 	if (currentFieldCommentIndex != -1)
-		mydata.boxComments[ currentBoxCommentIndex ] = fieldComment;
+		mydata.fieldComments[ currentBoxCommentIndex ] = fieldComment;
 	else
-		mydata.boxComments.push(fieldComment);
+		mydata.fieldComments.push(fieldComment);
 	
 	displayCurrent();
 }
