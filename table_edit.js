@@ -388,8 +388,10 @@ function dropBox()
 	
 	for (let lk of mydata.links)
 	{
-		lk.from = lk.from > currentBoxIndex ? lk.from - 1 : lk.from;
-		lk.to = lk.to > currentBoxIndex ? lk.to - 1 : lk.to;
+		if (lk.from > currentBoxIndex)
+			lk.from--;
+		if (lk.to > currentBoxIndex)
+			lk.to--;
 	}
 	
 	for (let fc of mydata.fieldColors)
