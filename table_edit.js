@@ -320,7 +320,12 @@ function displayCurrent()
 		else
 			boxCommentTextArea.value = "";
 	}
+	else
+	{
+		boxCommentTextArea.value = "";
+	}
 	
+
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
 	{
 		const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
@@ -336,7 +341,10 @@ function displayCurrent()
 		else
 			fieldCommentTextArea.value = "";
 	}
-
+	else
+	{
+		fieldCommentTextArea.value = "";
+	}
 }
 
 
