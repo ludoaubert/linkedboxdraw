@@ -486,7 +486,7 @@ function selectLink()
 function linkComboOnClick()
 {
 	const innerHTML = mydata.links
-							.map({from, fromField, to, toField}) => {
+							.map(({from, fromField, to, toField}) => {
 								
 									const fromBox = mydata.boxes[from] ;
 									const fromField = fromBox.fields[fromField];
