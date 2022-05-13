@@ -392,6 +392,12 @@ function dropBox()
 		lk.to = lk.to > currentBoxIndex ? lk.to - 1 : lk.to;
 	}
 	
+	for (let fc of mydata.fieldColors)
+	{
+		if (fc.index > currentBoxIndex)
+			fc.index--;
+	}
+	
 	currentBoxIndex = -1;
 	
 	displayCurrent();
