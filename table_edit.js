@@ -378,9 +378,8 @@ function dropBox()
 		lk.to = lk.to > currentBoxIndex ? lk.to - 1 : lk.to;
 	}
 	
-	console.log(mydata);
-	if (currentBoxIndex == mydata.boxes.length)
-		currentBoxIndex = -1;
+	currentBoxIndex = -1;
+	
 	displayCurrent();
 }
 
