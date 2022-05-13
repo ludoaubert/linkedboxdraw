@@ -383,7 +383,8 @@ function dropBox()
 	
 	for (let box of mydata.boxes)
 	{
-		box.id = box.id > currentBoxIndex ? box.id - 1 : box.id;
+		if (box.id > currentBoxIndex)
+			box.id--;
 	}
 	
 	for (let lk of mydata.links)
