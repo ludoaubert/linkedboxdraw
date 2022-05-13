@@ -489,10 +489,10 @@ function linkComboOnClick()
 							.map(({from, fromField, to, toField}) => {
 								
 									const fromBox = mydata.boxes[from] ;
-									const fromFieldName = fromField != -1 ? fromBox.fields[fromField] : "";
+									const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
 									
 									const toBox = mydata.boxes[to] ;
-									const toFieldName = toField != -1 ? fromBox.fields[toField] : "";
+									const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
 									
 									return `<option>${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}</option>`;
 								}
