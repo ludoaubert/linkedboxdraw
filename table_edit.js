@@ -251,7 +251,7 @@ function displayCurrent()
 			if (fieldCombo_.innerHTML != innerHTML)
 			{
 				fieldCombo_.innerHTML = innerHTML;
-				currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.length > 0 : 0 : -1; 
+				currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.length > 0 ? 0 : -1; 
 			}
 		}
 
