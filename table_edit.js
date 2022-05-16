@@ -516,9 +516,7 @@ function updateValue()
 
 function dropValueFromField()
 {
-	const currentValueIndex = mydata.values.findIndex(({box, field, value}) => box ==  boxCombo.value && field == fieldCombo.value && value == valueCombo.value);
-	
-	delete mydata.values[currentValueIndex];
+	mydata.values = mydata.values.filter(({box, field, value}) => !(box ==  boxCombo.value && field == fieldCombo.value && value == valueCombo.value));
 	
 	displayCurrent();
 }
@@ -579,7 +577,7 @@ function dropLink()
 {
 	const lk = mydata.links[ linkCombo.selectedIndex ];
 	console.log({lk});
-	delete mydata.links[ linkCombo.selectedIndex ];
+	mydata.links = mydata.links.filter((_, index) => index != linkCombo.selectedIndex);
 	linkComboOnClick();
 }
 
@@ -588,7 +586,7 @@ function dropLink()
 function dropBoxComment()
 {
 	const currentCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
-	delete mydata.boxComments[ currentCommentIndex ];
+	mydata.boxComments = mydata.boxComments.filter((_, index) => index != currentCommentIndex );
 	displayCurrent();
 }
 
@@ -609,7 +607,7 @@ function updateBoxComment()
 function dropFieldComment()
 {
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-	delete mydata.fieldComments[ currentFieldCommentIndex ];
+	mydata.fieldComments = mydata.fieldComments.filter((_, index) => index != currentFieldCommentIndex );
 	displayCurrent();
 }
 
@@ -677,7 +675,7 @@ function updateColor()
 function dropColor()
 {
 	console.log(mydata.fieldColors);
-	delete mydata.fieldColors[ colorsCombo.selectedIndex ];
+	mydata.fieldColors = mydata.fieldCollors.filter((_, index) => index != colorsCombo.selectedIndex );
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
 }
