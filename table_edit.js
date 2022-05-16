@@ -281,14 +281,6 @@ function displayCurrent()
 	
 	console.log(contexts);
 	console.log({currentBoxIndex, currentFieldIndex});
-		
-	if (currentBoxIndex != -1 && currentFieldIndex != -1)
-	{
-		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
-		console.log({name, isPrimaryKey, isForeignKey});
-		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
-		isForeignKeyCheckBox.checked = isForeignKey;
-	}
 	
 	if (currentBoxIndex != -1 && currentFieldIndex != -1)
 	{
