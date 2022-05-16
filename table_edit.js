@@ -205,6 +205,8 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function displayCurrent()
 {
+	editTitle.value = mydata.documentTitle;
+	
 	let contexts = [
 		{boxCombo_:boxCombo, fieldCombo_:fieldCombo, currentBoxIndex_:currentBoxIndex, currentFieldIndex_:currentFieldIndex},
 		{boxCombo_:fromBoxCombo, fieldCombo_:fromFieldCombo, currentBoxIndex_:currentFromBoxIndex, currentFieldIndex_:currentFromFieldIndex},
@@ -347,6 +349,12 @@ function displayCurrent()
 	{
 		fieldCommentTextArea.value = "";
 	}
+}
+
+
+function updateTitle()
+{
+	mydata.documentTitle=editTitle.value;
 }
 
 
