@@ -675,7 +675,7 @@ function updateColor()
 function dropColor()
 {
 	console.log(mydata.fieldColors);
-	mydata.fieldColors = mydata.fieldCollors.filter((_, index) => index != colorsCombo.selectedIndex );
+	mydata.fieldColors = mydata.fieldColors.filter((_, index) => index != colorsCombo.selectedIndex );
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
 }
