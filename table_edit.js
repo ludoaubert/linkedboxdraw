@@ -442,6 +442,8 @@ function addNewFieldToBox()
 	console.log(mydata.boxes[currentBoxIndex].fields);
 	
 	newFieldEditField.value = "";
+	isPrimaryKeyCheckBox.checked = false;
+	isForeignKeyCheckBox.checked = false;
 	
 	displayCurrent();
 }
