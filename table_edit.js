@@ -205,7 +205,8 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 function displayCurrent()
 {
-	editTitle.value = mydata.documentTitle;
+	if (editTitle.value != mydata.documentTitle)
+		editTitle.value = mydata.documentTitle;
 	
 	let contexts = [
 		{boxCombo_:boxCombo, fieldCombo_:fieldCombo, currentBoxIndex_:currentBoxIndex, currentFieldIndex_:currentFieldIndex},
