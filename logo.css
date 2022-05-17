@@ -1,0 +1,12 @@
+
+
+line{
+	stroke: black;
+	stroke-width:4;
+}
+
+polygon{
+	stroke: black;
+	stroke-width:4;
+	fill: lightgray;
+}
