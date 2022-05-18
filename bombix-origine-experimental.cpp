@@ -3176,22 +3176,34 @@ struct SharedValuePoint
 			return y;
 		}
 	}
+
+	operator Point()
+	{
+		return {x,y};
+	}
+
 	int &x, &y;
+};
+
+struct SharedValuePolyline
+{
+	int from, to;
+	vector<SharedValuePoint> polyline;
 };
 
 
 vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 {
 	vector<SharedValuePoint> result;
-	
+
 	for (int i=0; i < polyline.size(); i++)
 	{
 		Point& p = polyline[i] ;
-		
+
 		if (i==0)
 		{
-			int & x = shared_value[index_available++];
-			int & y = shared_value[index_available++] ;
+			int & x = shared_values[index_available++];
+			int & y = shared_values[index_available++] ;
 			result.push_back({x, y});
 		}
 		else
@@ -3199,17 +3211,17 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 			SharedValuePoint& previous = result[i-1];
 			if (previous.x == p.x)
 			{
-				int & y = shared_value[index_available++] ;
+				int & y = shared_values[index_available++] ;
 				result.push_back({previous.x, y});
 			}
 			else
 			{
-				int & x = shared_value[index_available++] ;
-				result.push_back({x, previous.y});				
+				int & x = shared_values[index_available++] ;
+				result.push_back({x, previous.y});
 			}
 		}
 	}
-	
+
 	return result;
 }
 
@@ -3312,10 +3324,13 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		}
 	}
 
-	auto svpolylines = polylines | std::views::transform(
-		[](auto &[from, to, data]){
-			return {from, to, shared_value(data)};
-	) ;
+	vector<SharedValuePolyline> svpolylines;
+	for (Polyline &polyline : polylines)
+	{
+		auto &[from, to, data] = polyline;
+		SharedValuePolyline svpolyline = {from, to, shared_value(data)};
+		svpolylines.push_back(svpolyline);
+	}
 
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
