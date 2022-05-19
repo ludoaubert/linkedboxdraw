@@ -2773,6 +2773,40 @@ const TestContext contexts[] = {
 }
 };
 
+
+struct PostProcessingTestContext
+{
+	int testid;
+	vector<Rect> rects;
+	Rect frame;
+	vector<Polyline> polylines, expected_polylines;
+};
+
+const PostProcessingTestContext pp_contexts[] = {
+{
+        .testid=6,
+        .rects={
+            {.left=176,.right=176+154,.top=74,.bottom=74+200},
+            {.left=397,.right=397+154,.top=375,.bottom=375+200},
+            {.left=176,.right=176+154,.top=314,.bottom=314+200}
+        },
+        .frame={.left=0,.right=1106,.top=0,.bottom=588},
+        .polylines={
+			{
+				.from=1,
+				.to=0,
+				.data={{397,475},{359,475},{359,242},{330,242}}
+			},
+			{
+				.from=1,
+				.to=2,
+				.data={{397,444},{330,444}}
+			}
+		},
+	.expected_polylines={}
+}
+};
+
 /*
 1/ Pour chaque rectangle, creer plusieurs entrees dans coords, suivant le nombre de liens connectes a ce rectangle.
 Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par rectangle)
@@ -3189,6 +3223,17 @@ struct SharedValuePolyline
 {
 	int from, to;
 	vector<SharedValuePoint> polyline;
+
+	operator Polyline()
+	{
+		vector<Point> data ;
+		for (SharedValuePoint& svp : polyline)
+		{
+			Point p = svp;
+			data.push_back(p);
+		}
+		return Polyline{from, to, data};
+	}
 };
 
 
@@ -3331,7 +3376,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		SharedValuePolyline svpolyline = {from, to, shared_value(data)};
 		svpolylines.push_back(svpolyline);
 	}
-
+//	vector<Polyline> polylines_ = svpolylines;
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
 
@@ -3397,7 +3442,6 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 	}
 }
-
 
 
 void parse_command(const char* rectdim,
