@@ -3489,6 +3489,20 @@ int main(int argc, char* argv[])
 	{
 		printf("testing bombix ...\n");
 
+		int nbOK=0;
+
+	//TODO: use destructuring
+		for (const PostProcessingTestContext &ctx : pp_contexts)
+		{
+			const auto& [testid, rects, frame, polylines, expected_polylines] = ctx;
+			vector<Polyline> polylines_ = polylines ;
+			printf("pp testid=%d\n", testid);
+			post_process_polylines(rects, polylines_);
+			bool OK = polylines_ == expected_polylines;
+			if (OK)
+				nbOK++;
+		}
+
 		for (const TestContext &ctx : contexts)
 		{
 			string json = diagdata(ctx);
@@ -3499,7 +3513,6 @@ int main(int argc, char* argv[])
 			fclose(f);
 		}
 
-		int nbOK=0;
 
 	//TODO: use destructuring
 		for (const TestContext &ctx : contexts)
@@ -3551,7 +3564,7 @@ int main(int argc, char* argv[])
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
-		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext));
+		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext)+sizeof(pp_contexts)/sizeof(PostProcessingTestContext));
 
 		return 0;
 	}
