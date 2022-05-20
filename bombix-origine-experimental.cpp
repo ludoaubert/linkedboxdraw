@@ -3217,6 +3217,8 @@ struct SharedValuePoint
 	}
 
 	int &x, &y;
+	int position;
+	int reverse_position;
 };
 
 struct SharedValuePolyline
@@ -3241,6 +3243,8 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 {
 	vector<SharedValuePoint> result;
 
+	int n = polyline.size();
+
 	for (int i=0; i < polyline.size(); i++)
 	{
 		Point& p = polyline[i] ;
@@ -3249,7 +3253,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 		{
 			int & x = shared_values[index_available++];
 			int & y = shared_values[index_available++] ;
-			result.push_back({x, y});
+			result.push_back({.x=x, .y=y, .position=i, .reverse_position=n-1-i});
 		}
 		else
 		{
@@ -3257,12 +3261,12 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 			if (previous.x == p.x)
 			{
 				int & y = shared_values[index_available++] ;
-				result.push_back({previous.x, y});
+				result.push_back({.x=previous.x, .y=y, .position=i, .reverse_position=n-1-i});
 			}
 			else
 			{
 				int & x = shared_values[index_available++] ;
-				result.push_back({x, previous.y});
+				result.push_back({.x=x, .y=previous.y, .position=i, .reverse_position=n-1-i});
 			}
 		}
 	}
@@ -3274,8 +3278,8 @@ struct PolylineSegment
 {
 	Polyline* polyline;
 	vector<Point>* data;
-	Point* p1;
-	Point* p2;
+	SharedValuePoint p1;
+	SharedValuePoint p2;
 	int min, max, value;
 	Direction direction;
 };
@@ -3293,18 +3297,46 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 	for (Polyline& polyline : polylines)
 	{
 		auto& [from, to, data] = polyline;
+		int n = data.size();
 		for (int i=0; i+1 < data.size(); i++)
 		{
-			Point *p1=&data[i], *p2=&data[i+1];
-			if (p1->x == p2->x)
+			auto &[x1, y1] = data[i];
+			auto &[x2, y2] = data[i+1];
+			if (x1 == x2)
 			{
-				int ymin = min(p1->y, p2->y), ymax = max(p1->y, p2->y), x = p1->x ;
-				vertical_polyline_segments.push_back({&polyline, &data, p1, p2, ymin, ymax, x, VERTICAL});
+				int &ymin = y1 < y2 ? y1 : y2,
+				    &ymax = y1 < y2 ? y2 : y1,
+				    &x = x1 ;
+				vertical_polyline_segments.push_back(
+					{
+						&polyline,
+						&data,
+						{.x=x1, .y=y1, .position=i, .reverse_position=n-1-i},
+						{.x=x2, .y=y2, .position=i+1, .reverse_position=n-i},
+						ymin,
+						ymax,
+						x,
+						VERTICAL
+					}
+				);
 			}
-			if (p1->y == p2->y)
+			if (y1 == y2)
 			{
-				int xmin = min(p1->x, p2->x), xmax = max(p1->x, p2->x), y = p1->y ;
-				horizontal_polyline_segments.push_back({&polyline, &data, p1, p2, xmin, xmax, y, HORIZONTAL});
+				int &xmin = x1 < x2 ? x1 : x2,
+				    &xmax = x1 < x2 ? x2 : x1,
+				    &y = y1 ;
+				horizontal_polyline_segments.push_back(
+					{
+						&polyline,
+						&data,
+						{.x=x1, .y=y1, .position=i, .reverse_position=n-1-i},
+						{.x=x2, .y=y2, .position=i+1, .reverse_position=n-i},
+						xmin,
+						xmax,
+						y,
+						HORIZONTAL
+					}
+				);
 			}
 		}
 	}
@@ -3333,8 +3365,8 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
 		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
-					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1->x, ver_seg.p1->y, ver_seg.p2->x, ver_seg.p2->y,
-					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1->x, hor_seg.p1->y, hor_seg.p2->x, hor_seg.p2->y);		
+					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1.x, ver_seg.p1.y, ver_seg.p2.x, ver_seg.p2.y,
+					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1.x, hor_seg.p1.y, hor_seg.p2.x, hor_seg.p2.y);		
 	}
 
 	return intersections;
@@ -3387,15 +3419,15 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		PolylineSegment seg2[2] = {ver_seg, hor_seg};
 		for (int i=0; i < 2; i++)
 		{
-			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*Point* */ p1, /*Point* */ p2, ymin, ymax, x, direction] = seg2[i];
+			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*SharedValuePoint* */ p1, /*SharedValuePoint* */ p2, ymin, ymax, x, direction] = seg2[i];
 
-			if (int ipred = distance(&(*data)[0], p1) - 1, d = seg2[1-i].value - (*p1)[direction]; ipred >= 0 && abs(d) < 10)
+			if (int ipred = p1.position - 1, d = seg2[1-i].value - p1[direction]; ipred >= 0 && abs(d) < 10)
 			{
 				vector<Point> copy_of_data = * data ;
 				const Rect& rfrom = rects[polyline->from] ;
 				Span sfrom = rfrom[direction];
 				bool start_docking_ko=false;
-				(*p1)[direction] += 2 * d;
+				p1[direction] += 2 * d;
 				Point *p0 = & (*data)[ipred] ;
 				(*p0)[direction] += 2 * d;
 				start_docking_ko = ipred==0 && ((*p0)[direction] <= sfrom.min || (*p0)[direction] >= sfrom.max);
@@ -3414,13 +3446,13 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				}
 			}
 
-			if (int inext = distance(&(*data)[0], p2) + 1, d = seg2[1-i].value - (*p2)[direction]; inext < (*data).size() && abs(d) < 10)
+			if (int inext = p2.position + 1, d = seg2[1-i].value - p2[direction]; inext < (*data).size() && abs(d) < 10)
 			{
 				vector<Point> copy_of_data = * data ;
 				const Rect& rto = rects[polyline->to] ;
 				Span sto = rto[direction];
 				bool end_docking_ko=false;
-				(*p2)[direction] += 2 * d;
+				p2[direction] += 2 * d;
 				Point *p3 = & (*data)[inext] ;
 				(*p3)[direction] += 2 * d;
 				end_docking_ko = inext+1==(*data).size() && ((*p3)[direction] <= sto.min || (*p3)[direction] >= sto.max);
