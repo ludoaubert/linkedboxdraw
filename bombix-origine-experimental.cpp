@@ -3276,11 +3276,11 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 
 struct PolylineSegment
 {
-	Polyline* polyline;
-	vector<Point>* data;
+	SharedValuePolyline* polyline;
+	vector<SharedValuePoint>* data;
 	SharedValuePoint p1;
 	SharedValuePoint p2;
-	int min, max, value;
+	int &min, &max, &value;
 	Direction direction;
 };
 
@@ -3290,18 +3290,18 @@ struct SegmentIntersection
 };
 
 
-vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polylines)
+vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline> &polylines)
 {
 	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
 
-	for (Polyline& polyline : polylines)
+	for (SharedValuePolyline& polyline : polylines)
 	{
 		auto& [from, to, data] = polyline;
 		int n = data.size();
 		for (int i=0; i+1 < data.size(); i++)
 		{
-			auto &[x1, y1] = data[i];
-			auto &[x2, y2] = data[i+1];
+			auto &[x1, y1, pos1, rev_pos1] = data[i];
+			auto &[x2, y2, pos2, rev_pos2] = data[i+1];
 			if (x1 == x2)
 			{
 				int &ymin = y1 < y2 ? y1 : y2,
@@ -3345,11 +3345,11 @@ vector<SegmentIntersection> intersection_of_polylines(vector<Polyline> &polyline
 
 	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
 	{
-		int xmin = hor_seg.min, xmax = hor_seg.max, y = hor_seg.value ;
+		int &xmin = hor_seg.min, &xmax = hor_seg.max, &y = hor_seg.value ;
 
 		for (PolylineSegment& ver_seg : vertical_polyline_segments)
 		{
-			int ymin = ver_seg.min, ymax = ver_seg.max, x = ver_seg.value ;
+			int &ymin = ver_seg.min, &ymax = ver_seg.max, &x = ver_seg.value ;
 
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
@@ -3410,7 +3410,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	}
 //	vector<Polyline> polylines_ = svpolylines;
 
-	vector<SegmentIntersection> intersections = intersection_of_polylines(polylines);
+	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
 
 	for (auto [ver_seg, hor_seg] : intersections)
 	{
@@ -3423,19 +3423,21 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 			if (int ipred = p1.position - 1, d = seg2[1-i].value - p1[direction]; ipred >= 0 && abs(d) < 10)
 			{
-				vector<Point> copy_of_data = * data ;
 				const Rect& rfrom = rects[polyline->from] ;
 				Span sfrom = rfrom[direction];
 				bool start_docking_ko=false;
+				int p1_direction = p1[direction];
 				p1[direction] += 2 * d;
-				Point *p0 = & (*data)[ipred] ;
-				(*p0)[direction] += 2 * d;
-				start_docking_ko = ipred==0 && ((*p0)[direction] <= sfrom.min || (*p0)[direction] >= sfrom.max);
+				SharedValuePoint p0 = (*data)[ipred] ;
+				int p0_direction = p0[direction];
+				p0[direction] += 2 * d;
+				start_docking_ko = ipred==0 && (p0[direction] <= sfrom.min || p0[direction] >= sfrom.max);
 
-				intersections_update = intersection_of_polylines(polylines);
+				intersections_update = intersection_of_polylines(svpolylines);
 				if (intersections_update.size() >= intersections.size() || start_docking_ko)
 				{
-					ranges::copy(copy_of_data, begin(*data));
+					p1[direction] = p1_direction;
+					p0[direction] = p0_direction;
 				}
 				else
 				{
@@ -3448,19 +3450,21 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 			if (int inext = p2.position + 1, d = seg2[1-i].value - p2[direction]; inext < (*data).size() && abs(d) < 10)
 			{
-				vector<Point> copy_of_data = * data ;
 				const Rect& rto = rects[polyline->to] ;
 				Span sto = rto[direction];
 				bool end_docking_ko=false;
+				int p2_direction = p2[direction];
 				p2[direction] += 2 * d;
-				Point *p3 = & (*data)[inext] ;
-				(*p3)[direction] += 2 * d;
-				end_docking_ko = inext+1==(*data).size() && ((*p3)[direction] <= sto.min || (*p3)[direction] >= sto.max);
+				SharedValuePoint p3 = (*data)[inext] ;
+				int p3_direction = p3[direction];
+				p3[direction] += 2 * d;
+				end_docking_ko = inext+1==(*data).size() && (p3[direction] <= sto.min || p3[direction] >= sto.max);
 
-				intersections_update = intersection_of_polylines(polylines);
+				intersections_update = intersection_of_polylines(svpolylines);
 				if (intersections_update.size() >= intersections.size() || end_docking_ko)
 				{
-					copy(begin(copy_of_data), end(copy_of_data), begin(*data));
+					p2[direction] = p2_direction;
+                                        p3[direction] = p3_direction;
 				}
 				else
 				{
