@@ -3363,9 +3363,9 @@ vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline
 
 	for (auto [ver_seg, hor_seg, p] : intersections)
 	{
-		auto& [p1, p2] = ver_seg;
-		auto& [p3, p4] = hor_seg;
-		printf("vertical segment [p1=(%d, %d) p2=(%d, %d)] intersects horizontal segment from [p3=(%d, %d) p4=(%d, %d)]\n",
+		auto& [p1, p2] = hor_seg;
+		auto& [p3, p4] = ver_seg;
+		printf("horizontal segment [p1=(%d, %d) p2=(%d, %d)] intersects vertical segment from [p3=(%d, %d) p4=(%d, %d)]\n",
 					p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
 	}
 
@@ -3374,6 +3374,9 @@ vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline
 
 void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylines)
 {
+	index_available=0;
+	dock_range.clear();
+
 	vector<PointCollision> collisions = intersection_of_polyline_extremities(rects, polylines);
 
 	for (auto [cp1, cp2] : collisions)
@@ -3412,6 +3415,11 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	for (auto& [from, to, polyline] : svpolylines)
 	{
 		printf("shared points polyline size : %ld\n", polyline.size());
+	}
+	for (auto& [pvalue, s] : dock_range)
+	{
+		auto [m, M] = s;
+		printf("dock range for %d = [%d, %d]\n", *pvalue, m, M);
 	}
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
