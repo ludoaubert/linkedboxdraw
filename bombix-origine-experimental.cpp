@@ -3281,10 +3281,8 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 				Span  s1 = rfrom[pvalue_direction], s2 = rto[pvalue_direction] ;
 				auto [m1, M1]=s1;
 				auto [m2, M2]=s2;
-				if (!(m1 > M2) && !(m2 > M1))
-				{
-                                	dock_range[ pvalue ] = {std::max(m1,m2), std::min(M1,M2)};
-				}
+				assert(!(m1 > M2) && !(m2 > M1))
+                                dock_range[ pvalue ] = {std::max(m1,m2), std::min(M1,M2)};
                         }
                         else if (i==1)
                         {
