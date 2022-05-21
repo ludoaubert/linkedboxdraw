@@ -3323,16 +3323,10 @@ vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline
 			auto &[x2, y2] = data[i+1];
 			if (x1 == x2)
 			{
-				int &ymin = y1 < y2 ? y1 : y2,
-				    &ymax = y1 < y2 ? y2 : y1,
-				    &x = x1 ;
-				vertical_segments.push_back( {{x1, y1}, {x2, y2} } );
+				vertical_segments.push_back( { {x1, y1}, {x2, y2} } );
 			}
 			if (y1 == y2)
 			{
-				int &xmin = x1 < x2 ? x1 : x2,
-				    &xmax = x1 < x2 ? x2 : x1,
-				    &y = y1 ;
 				horizontal_segments.push_back( { {x1, y1}, {x2, y2} } );
 			}
 		}
