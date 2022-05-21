@@ -3196,6 +3196,7 @@ y=value
 
 vector<int> shared_values(1000);
 int index_available=0;
+unordered_map<int*, Span> dock_range;
 
 
 struct SharedValuePoint
@@ -3239,7 +3240,7 @@ struct SharedValuePolyline
 };
 
 
-vector<SharedValuePoint> shared_value(vector<Point>& polyline)
+vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom, const Rect& rto)
 {
 	vector<SharedValuePoint> result;
 
@@ -3262,11 +3263,37 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline)
 			{
 				int & y = shared_values[index_available++] ;
 				result.push_back({.x=previous.x, .y=y, .position=i, .reverse_position=n-1-i});
+
+				if (i==1 && i+1==polyline.size())
+				{
+					dock_range[ &previous.x ] = rfrom[HORIZONTAL] && rto[HORIZONTAL];
+				}
+                                else if (i==1)
+                                {
+                                        dock_range[ &previous.x ] = rfrom[HORIZONTAL];
+                                }
+                                else if (i+1==polyline.size())
+                                {
+                                        dock_range[ &previous.x ] = rto[HORIZONTAL];
+                                }
 			}
 			else
 			{
 				int & x = shared_values[index_available++] ;
 				result.push_back({.x=x, .y=previous.y, .position=i, .reverse_position=n-1-i});
+
+				if (i==1 && i+1==polyline.size())
+                                {
+                                        dock_range[ &previous.y ] = rfrom[VERTICAL] && rto[VERTICAL];
+                                }
+                                else if (i==1)
+                                {
+                                        dock_range[ &previous.y ] = rfrom[VERTICAL];
+                                }
+                                else if (i+1==polyline.size())
+                                {
+                                        dock_range[ &previous.y ] = rto[VERTICAL];
+                                }
 			}
 		}
 	}
@@ -3405,7 +3432,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	for (Polyline &polyline : polylines)
 	{
 		auto &[from, to, data] = polyline;
-		SharedValuePolyline svpolyline = {from, to, shared_value(data)};
+		SharedValuePolyline svpolyline = {from, to, shared_value(data, rects[from], rects[to])};
 		svpolylines.push_back(svpolyline);
 	}
 //	vector<Polyline> polylines_ = svpolylines;
