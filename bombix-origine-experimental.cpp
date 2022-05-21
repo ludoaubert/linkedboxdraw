@@ -3258,7 +3258,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 		}
 		else
 		{
-			SharedValuePoint& previous = result[i-1];
+			SharedValuePoint previous = result[i-1];
 			if (previous.x == p.x)
 			{
 				int & y = shared_values[index_available++] ;
