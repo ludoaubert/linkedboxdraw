@@ -3218,8 +3218,6 @@ struct SharedValuePoint
 	}
 
 	int &x, &y;
-	int position;
-	int reverse_position;
 };
 
 struct SharedValuePolyline
@@ -3256,7 +3254,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 		{
 			int & x = shared_values[index_available++];
 			int & y = shared_values[index_available++] ;
-			result.push_back({.x=x, .y=y, .position=i, .reverse_position=n-1-i});
+			result.push_back({x, y});
 		}
 		else
 		{
@@ -3264,14 +3262,14 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 			if (previous.x == p.x)
 			{
 				int & y = shared_values[index_available++] ;
-				result.push_back({.x=previous.x, .y=y, .position=i, .reverse_position=n-1-i});
+				result.push_back({previous.x, y});
 				pvalue = & previous.x ;
 				pvalue_direction = HORIZONTAL;
 			}
 			else
 			{
 				int & x = shared_values[index_available++] ;
-				result.push_back({.x=x, .y=previous.y, .position=i, .reverse_position=n-1-i});
+				result.push_back({x, previous.y});
 				pvalue = & previous.y ;
 				pvalue_direction = VERTICAL;
 			}
@@ -3281,7 +3279,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 				Span  s1 = rfrom[pvalue_direction], s2 = rto[pvalue_direction] ;
 				auto [m1, M1]=s1;
 				auto [m2, M2]=s2;
-				assert(!(m1 > M2) && !(m2 > M1))
+				assert(!(m1 > M2) && !(m2 > M1));
                                 dock_range[ pvalue ] = {std::max(m1,m2), std::min(M1,M2)};
                         }
                         else if (i==1)
@@ -3300,97 +3298,79 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 
 struct PolylineSegment
 {
-	SharedValuePolyline* polyline;
-	vector<SharedValuePoint>* data;
 	SharedValuePoint p1;
 	SharedValuePoint p2;
-	int &min, &max, &value;
-	Direction direction;
 };
 
 struct SegmentIntersection
 {
-	PolylineSegment vertical_polyline_segment, horizontal_polyline_segment;
+	PolylineSegment vertical_segment, horizontal_segment;
+	SharedValuePoint p;
 };
 
 
 vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline> &polylines)
 {
-	vector<PolylineSegment> horizontal_polyline_segments, vertical_polyline_segments;
+	vector<PolylineSegment> horizontal_segments, vertical_segments;
 
 	for (SharedValuePolyline& polyline : polylines)
 	{
 		auto& [from, to, data] = polyline;
-		int n = data.size();
+
 		for (int i=0; i+1 < data.size(); i++)
 		{
-			auto &[x1, y1, pos1, rev_pos1] = data[i];
-			auto &[x2, y2, pos2, rev_pos2] = data[i+1];
+			auto &[x1, y1] = data[i];
+			auto &[x2, y2] = data[i+1];
 			if (x1 == x2)
 			{
 				int &ymin = y1 < y2 ? y1 : y2,
 				    &ymax = y1 < y2 ? y2 : y1,
 				    &x = x1 ;
-				vertical_polyline_segments.push_back(
-					{
-						&polyline,
-						&data,
-						{.x=x1, .y=y1, .position=i, .reverse_position=n-1-i},
-						{.x=x2, .y=y2, .position=i+1, .reverse_position=n-i},
-						ymin,
-						ymax,
-						x,
-						VERTICAL
-					}
-				);
+				vertical_segments.push_back( {{x1, y1}, {x2, y2} } );
 			}
 			if (y1 == y2)
 			{
 				int &xmin = x1 < x2 ? x1 : x2,
 				    &xmax = x1 < x2 ? x2 : x1,
 				    &y = y1 ;
-				horizontal_polyline_segments.push_back(
-					{
-						&polyline,
-						&data,
-						{.x=x1, .y=y1, .position=i, .reverse_position=n-1-i},
-						{.x=x2, .y=y2, .position=i+1, .reverse_position=n-i},
-						xmin,
-						xmax,
-						y,
-						HORIZONTAL
-					}
-				);
+				horizontal_segments.push_back( { {x1, y1}, {x2, y2} } );
 			}
 		}
 	}
 
 	vector<SegmentIntersection> intersections;
 
-	for (PolylineSegment& hor_seg : horizontal_polyline_segments)
+	for (auto& [p1, p2] : horizontal_segments)
 	{
-		int &xmin = hor_seg.min, &xmax = hor_seg.max, &y = hor_seg.value ;
+		auto& [x1, y1]=p1;
+		auto& [x2, y2]=p2;
+		int xmin = min(x1, x2), xmax = max(x1, x2);
+		int &y = y1 ;
 
-		for (PolylineSegment& ver_seg : vertical_polyline_segments)
+		for (auto& [p3, p4] : vertical_segments)
 		{
-			int &ymin = ver_seg.min, &ymax = ver_seg.max, &x = ver_seg.value ;
+			auto& [x3, y3] = p3;
+			auto& [x4, y4] = p4;
+			int ymin = min(y3, y4), ymax = max(y3, y4);
+			int& x = x3;
 
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
-				intersections.push_back({ver_seg, hor_seg});
+				intersections.push_back({{p3, p4}, {p1, p2}, {x,y}});
 			}
 		}
 	}
 
-	printf("%lu horizontal polyline segments\n", horizontal_polyline_segments.size());
-	printf("%lu vertical polyline segments\n", vertical_polyline_segments.size());
+	printf("%lu horizontal polyline segments\n", horizontal_segments.size());
+	printf("%lu vertical polyline segments\n", vertical_segments.size());
 	printf("intersection count: %lu\n", intersections.size());
 
-	for (auto [ver_seg, hor_seg] : intersections)
+	for (auto [ver_seg, hor_seg, p] : intersections)
 	{
-		printf("vertical segment (from %d, to %d, p1=(%d, %d) p2=(%d, %d)) intersects horizontal segment from (from %d, to %d, p1=(%d, %d) p2=(%d, %d))\n",
-					ver_seg.polyline->from, ver_seg.polyline->to, ver_seg.p1.x, ver_seg.p1.y, ver_seg.p2.x, ver_seg.p2.y,
-					hor_seg.polyline->from, hor_seg.polyline->to, hor_seg.p1.x, hor_seg.p1.y, hor_seg.p2.x, hor_seg.p2.y);		
+		auto& [p1, p2] = ver_seg;
+		auto& [p3, p4] = hor_seg;
+		printf("vertical segment [p1=(%d, %d) p2=(%d, %d)] intersects horizontal segment from [p3=(%d, %d) p4=(%d, %d)]\n",
+					p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
 	}
 
 	return intersections;
@@ -3436,66 +3416,60 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
 
-	for (auto [ver_seg, hor_seg] : intersections)
+	for (auto& [ver_seg, hor_seg, p] : intersections)
 	{
 		vector<SegmentIntersection> intersections_update ;
 
-		PolylineSegment seg2[2] = {ver_seg, hor_seg};
-		for (int i=0; i < 2; i++)
+		auto& [p1, p2] = hor_seg;
+                auto& [p3, p4] = ver_seg;
+
+		auto& [x1, y1] = p1;
+		auto& [x2, y2] = p2;
+		auto& [x3, y3] = p3;
+		auto& [x4, y4] = p4;
+		auto& [x , y] = p;
+
+		assert(x3 == x4);
+		assert(x3 == x);
+		assert(y1 == y2);
+		assert(y1 == y);
+
+		int* mat[6][2]= {{ &x1, &x}, {&x1,&x2}, {&x,&x2}, { &y3, &y}, {&y3, &y4}, {&y4, &y}};
+
+		auto inside_range = [](const Span& s, int value){
+			auto [m, M] = s;
+			return m < value && value < M;
+		};
+
+		for (int i=0; i<6; i++)
 		{
-			auto& [/*Polyline* */polyline, /*vector<Point>* */ data, /*SharedValuePoint* */ p1, /*SharedValuePoint* */ p2, ymin, ymax, x, direction] = seg2[i];
+			int *pvalue1 = mat[i][0];
+			int *pvalue2 = mat[i][1];
 
-			if (int ipred = p1.position - 1, d = seg2[1-i].value - p1[direction]; ipred >= 0 && abs(d) < 10)
+			if (dock_range.contains(pvalue1) && dock_range.contains(pvalue2) && inside_range(dock_range[pvalue1], *pvalue2) && inside_range(dock_range[pvalue2], *pvalue1))
 			{
-				const Rect& rfrom = rects[polyline->from] ;
-				Span sfrom = rfrom[direction];
-				bool start_docking_ko=false;
-				int p1_direction = p1[direction];
-				p1[direction] += 2 * d;
-				SharedValuePoint p0 = (*data)[ipred] ;
-				int p0_direction = p0[direction];
-				p0[direction] += 2 * d;
-				start_docking_ko = ipred==0 && (p0[direction] <= sfrom.min || p0[direction] >= sfrom.max);
+				int value1 = *pvalue1;
+				int value2 = *pvalue2;
+				*pvalue1 = value2;
+				*pvalue2 = value1;
+		//d = x - x4
+		//x4 += 2 * d;
 
 				intersections_update = intersection_of_polylines(svpolylines);
-				if (intersections_update.size() >= intersections.size() || start_docking_ko)
+				if (intersections_update.size() >= intersections.size())
 				{
-					p1[direction] = p1_direction;
-					p0[direction] = p0_direction;
+					*pvalue1 = value1;
+					*pvalue2 = value2;
 				}
 				else
 				{
+/*
 					Point translation;
 					translation[direction] = 2 * d;
 					auto& [tx, ty] = translation;
 					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
-				}
-			}
-
-			if (int inext = p2.position + 1, d = seg2[1-i].value - p2[direction]; inext < (*data).size() && abs(d) < 10)
-			{
-				const Rect& rto = rects[polyline->to] ;
-				Span sto = rto[direction];
-				bool end_docking_ko=false;
-				int p2_direction = p2[direction];
-				p2[direction] += 2 * d;
-				SharedValuePoint p3 = (*data)[inext] ;
-				int p3_direction = p3[direction];
-				p3[direction] += 2 * d;
-				end_docking_ko = inext+1==(*data).size() && (p3[direction] <= sto.min || p3[direction] >= sto.max);
-
-				intersections_update = intersection_of_polylines(svpolylines);
-				if (intersections_update.size() >= intersections.size() || end_docking_ko)
-				{
-					p2[direction] = p2_direction;
-                                        p3[direction] = p3_direction;
-				}
-				else
-				{
-					Point translation;
-					translation[direction] = 2 * d;
-					auto& [tx, ty] = translation;
-					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
+*/					char c = i < 3 ? 'x' : 'y' ;
+					printf("value swap (%c=%d, %c=%d) applied\n", c, value1, c, value2);
 				}
 			}
 		}
