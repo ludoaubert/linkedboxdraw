@@ -2784,7 +2784,7 @@ struct PostProcessingTestContext
 
 const PostProcessingTestContext pp_contexts[] = {
 {
-        .testid=6,
+        .testid=0,
         .rects={
             {.left=176,.right=176+154,.top=74,.bottom=74+200},
             {.left=397,.right=397+154,.top=375,.bottom=375+200},
@@ -2803,7 +2803,18 @@ const PostProcessingTestContext pp_contexts[] = {
 				.data={{397,444},{330,444}}
 			}
 		},
-	.expected_polylines={}
+	.expected_polylines={
+                        {
+                                .from=1,
+                                .to=0,
+                                .data={{397,444},{359,444},{359,242},{330,242}}
+                        },
+                        {
+                                .from=1,
+                                .to=2,
+                                .data={{397,475},{330,475}}
+                        }
+		}
 }
 };
 
@@ -3365,7 +3376,7 @@ vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline
 	{
 		auto& [p1, p2] = hor_seg;
 		auto& [p3, p4] = ver_seg;
-		printf("horizontal segment [p1=(%d, %d) p2=(%d, %d)] intersects vertical segment from [p3=(%d, %d) p4=(%d, %d)]\n",
+		printf("horizontal segment [p1=(%d, %d) p2=(%d, %d)] intersects vertical segment [p3=(%d, %d) p4=(%d, %d)]\n",
 					p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
 	}
 
@@ -3424,6 +3435,8 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
 
+	int ni = intersections.size();
+
 	for (auto& [ver_seg, hor_seg, p] : intersections)
 	{
 		vector<SegmentIntersection> intersections_update ;
@@ -3460,28 +3473,47 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				int value2 = *pvalue2;
 				*pvalue1 = value2;
 				*pvalue2 = value1;
-		//d = x - x4
-		//x4 += 2 * d;
 
 				intersections_update = intersection_of_polylines(svpolylines);
-				if (intersections_update.size() >= intersections.size())
+				if (intersections_update.size() >= ni)
 				{
 					*pvalue1 = value1;
 					*pvalue2 = value2;
 				}
 				else
 				{
-/*
-					Point translation;
-					translation[direction] = 2 * d;
-					auto& [tx, ty] = translation;
-					printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", tx, ty, polyline->from, polyline->to);
-*/					char c = i < 3 ? 'x' : 'y' ;
+					ni = intersections_update.size();
+					char c = i < 3 ? 'x' : 'y' ;
 					printf("value swap (%c=%d, %c=%d) applied\n", c, value1, c, value2);
 				}
 			}
 		}
 
+		int* mat2[4][2] = {{ &x1, &x}, {&x2,&x}, { &y3, &y}, {&y4, &y}};
+
+		for (int i=0; i<4; i++)
+		{
+			int *pvalue1 = mat2[i][0];
+			int value2 = * mat2[i][1];
+			int tr = value2 - *pvalue1;
+
+			if (dock_range.contains(pvalue1) && inside_range(dock_range[pvalue1], *pvalue1 + 2*tr))
+			{
+                       		int value1 = *pvalue1;
+                        	*pvalue1 += 2 * tr;
+                                intersections_update = intersection_of_polylines(svpolylines);
+                                if (intersections_update.size() >= ni)
+                                {
+                                        *pvalue1 = value1;
+                                }
+                                else
+                                {
+                                        ni = intersections_update.size();
+                                        char c = i < 2 ? 'x' : 'y' ;
+                                        printf("translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
+                                }
+			}
+		}
 	}
 }
 
