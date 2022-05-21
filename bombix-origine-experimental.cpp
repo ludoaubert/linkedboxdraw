@@ -3252,6 +3252,8 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 		{
 			int & x = shared_values[index_available++];
 			int & y = shared_values[index_available++] ;
+			x = p.x;
+			y = p.y;
 			result.push_back({x, y});
 		}
 		else
@@ -3260,6 +3262,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 			if (previous.x == p.x)
 			{
 				int & y = shared_values[index_available++] ;
+				y = p.y;
 				result.push_back({previous.x, y});
 				pvalue = & previous.x ;
 				pvalue_direction = HORIZONTAL;
@@ -3267,6 +3270,7 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 			else
 			{
 				int & x = shared_values[index_available++] ;
+				x = p.x;
 				result.push_back({x, previous.y});
 				pvalue = & previous.y ;
 				pvalue_direction = VERTICAL;
