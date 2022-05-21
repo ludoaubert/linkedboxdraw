@@ -3249,6 +3249,8 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 	for (int i=0; i < polyline.size(); i++)
 	{
 		Point& p = polyline[i] ;
+		int *pvalue=0;
+		Direction pvalue_direction;
 
 		if (i==0)
 		{
@@ -3263,38 +3265,29 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 			{
 				int & y = shared_values[index_available++] ;
 				result.push_back({.x=previous.x, .y=y, .position=i, .reverse_position=n-1-i});
-
-				if (i==1 && i+1==polyline.size())
-				{
-					dock_range[ &previous.x ] = rfrom[HORIZONTAL] && rto[HORIZONTAL];
-				}
-                                else if (i==1)
-                                {
-                                        dock_range[ &previous.x ] = rfrom[HORIZONTAL];
-                                }
-                                else if (i+1==polyline.size())
-                                {
-                                        dock_range[ &previous.x ] = rto[HORIZONTAL];
-                                }
+				pvalue = & previous.x ;
+				pvalue_direction = HORIZONTAL;
 			}
 			else
 			{
 				int & x = shared_values[index_available++] ;
 				result.push_back({.x=x, .y=previous.y, .position=i, .reverse_position=n-1-i});
-
-				if (i==1 && i+1==polyline.size())
-                                {
-                                        dock_range[ &previous.y ] = rfrom[VERTICAL] && rto[VERTICAL];
-                                }
-                                else if (i==1)
-                                {
-                                        dock_range[ &previous.y ] = rfrom[VERTICAL];
-                                }
-                                else if (i+1==polyline.size())
-                                {
-                                        dock_range[ &previous.y ] = rto[VERTICAL];
-                                }
+				pvalue = & previous.y ;
+				pvalue_direction = VERTICAL;
 			}
+
+                        if (i==1 && i+1==polyline.size())
+                        {
+                                dock_range[ pvalue ] = rfrom[pvalue_direction] && rto[pvalue_direction];
+                        }
+                        else if (i==1)
+                        {
+                                dock_range[ pvalue ] = rfrom[pvalue_direction];
+                        }
+                        else if (i+1==polyline.size())
+                        {
+                                dock_range[ pvalue ] = rto[pvalue_direction];
+                        }
 		}
 	}
 
