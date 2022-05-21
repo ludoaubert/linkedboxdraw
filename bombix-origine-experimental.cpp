@@ -3242,8 +3242,6 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 {
 	vector<SharedValuePoint> result;
 
-	int n = polyline.size();
-
 	for (int i=0; i < polyline.size(); i++)
 	{
 		Point& p = polyline[i] ;
@@ -3406,7 +3404,11 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		SharedValuePolyline svpolyline = {from, to, shared_value(data, rects[from], rects[to])};
 		svpolylines.push_back(svpolyline);
 	}
-//	vector<Polyline> polylines_ = svpolylines;
+
+	for (auto& [from, to, polyline] : svpolylines)
+	{
+		printf("shared points polyline size : %ld\n", polyline.size());
+	}
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
 
