@@ -3321,6 +3321,36 @@ struct SegmentIntersection
 	SharedValuePoint p;
 };
 
+int intersection_polylines_rectangles(const vector<SharedValuePolyline> &polylines, const vector<Rect> &rects)
+{
+	int n = 0;
+
+        for (const SharedValuePolyline& polyline : polylines)
+        {
+                const auto& [from, to, data] = polyline;
+
+                for (int i=0; i+1 < data.size(); i++)
+                {
+                        const auto &[x1, y1] = data[i];
+                        const auto &[x2, y2] = data[i+1];
+			int mx = min(x1, x2);
+			int Mx = max(x1, x2);
+			int my = min(y1, y2);
+			int My = max(y1, y2);
+
+			for (const auto &[left, right, top, bottom] : rects)
+			{
+				if (!(mx >= right || Mx <= left || my >= bottom || My <= top))
+					n++;
+			}
+		}
+	}
+
+	printf("polyline rectangle intersection count : %d\n", n);
+
+	return n;
+}
+
 
 vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline> &polylines)
 {
@@ -3474,16 +3504,21 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				*pvalue1 = value2;
 				*pvalue2 = value1;
 
+ 				char c = i < 3 ? 'x' : 'y' ;
+                                printf("evaluation of value swap (%c=%d, %c=%d)\n", c, value1, c, value2);
+
 				intersections_update = intersection_of_polylines(svpolylines);
-				if (intersections_update.size() >= ni)
+				int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
+
+				if (intersections_update.size() + ni_pr >= ni)
 				{
 					*pvalue1 = value1;
 					*pvalue2 = value2;
+					printf("rolling back swap\n");
 				}
 				else
 				{
 					ni = intersections_update.size();
-					char c = i < 3 ? 'x' : 'y' ;
 					printf("value swap (%c=%d, %c=%d) applied\n", c, value1, c, value2);
 				}
 			}
@@ -3501,20 +3536,31 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 			{
                        		int value1 = *pvalue1;
                         	*pvalue1 += 2 * tr;
+
+                                char c = i < 2 ? 'x' : 'y' ;
+                                printf("evaluation of translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
+
                                 intersections_update = intersection_of_polylines(svpolylines);
-                                if (intersections_update.size() >= ni)
+                                int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
+
+                                if (intersections_update.size() + ni_pr >= ni)
                                 {
                                         *pvalue1 = value1;
+					printf("rolling back translation\n");
                                 }
                                 else
                                 {
                                         ni = intersections_update.size();
-                                        char c = i < 2 ? 'x' : 'y' ;
                                         printf("translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
                                 }
 			}
 		}
 	}
+
+	for (int i=0; i < svpolylines.size(); i++)
+	{
+        	polylines[i] = svpolylines[i];
+        }
 }
 
 
@@ -3566,12 +3612,12 @@ int main(int argc, char* argv[])
 		int nbOK=0;
 
 	//TODO: use destructuring
-		for (const PostProcessingTestContext &ctx : pp_contexts)
+		for (const auto& [testid, rects, frame, polylines, expected_polylines] : pp_contexts)
 		{
-			const auto& [testid, rects, frame, polylines, expected_polylines] = ctx;
 			vector<Polyline> polylines_ = polylines ;
 			printf("pp testid=%d\n", testid);
 			post_process_polylines(rects, polylines_);
+			printf("test %s.\n", polylines_ == expected_polylines ? "OK":"KO");
 			bool OK = polylines_ == expected_polylines;
 			if (OK)
 				nbOK++;
