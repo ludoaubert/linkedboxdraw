@@ -3267,7 +3267,7 @@ struct SharedValuePoint
 		}
 	}
 
-	operator Point()
+	operator Point() const
 	{
 		return {x,y};
 	}
@@ -3275,22 +3275,16 @@ struct SharedValuePoint
 	int &x, &y;
 };
 
-struct SharedValuePolyline
+vector<Point> owned_value(const vector<SharedValuePoint>& svpolyline)
 {
-	int from, to;
-	vector<SharedValuePoint> polyline;
-
-	operator Polyline()
+	vector<Point> polyline ;
+	for (const SharedValuePoint& svp : svpolyline)
 	{
-		vector<Point> data ;
-		for (SharedValuePoint& svp : polyline)
-		{
-			Point p = svp;
-			data.push_back(p);
-		}
-		return Polyline{from, to, data};
+		Point p = svp;
+		polyline.push_back(p);
 	}
-};
+	return polyline;
+}
 
 
 vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom, const Rect& rto)
@@ -3365,18 +3359,16 @@ struct SegmentIntersection
 	SharedValuePoint p;
 };
 
-int intersection_polylines_rectangles(const vector<SharedValuePolyline> &polylines, const vector<Rect> &rects)
+int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &polylines, const vector<Rect> &rects)
 {
 	int n = 0;
 
-        for (const SharedValuePolyline& polyline : polylines)
+        for (const vector<SharedValuePoint>& polyline : polylines)
         {
-                const auto& [from, to, data] = polyline;
-
-                for (int i=0; i+1 < data.size(); i++)
+                for (int i=0; i+1 < polyline.size(); i++)
                 {
-                        const auto &[x1, y1] = data[i];
-                        const auto &[x2, y2] = data[i+1];
+                        const auto &[x1, y1] = polyline[i];
+                        const auto &[x2, y2] = polyline[i+1];
 			int mx = min(x1, x2);
 			int Mx = max(x1, x2);
 			int my = min(y1, y2);
@@ -3396,18 +3388,16 @@ int intersection_polylines_rectangles(const vector<SharedValuePolyline> &polylin
 }
 
 
-vector<SegmentIntersection> intersection_of_polylines(vector<SharedValuePolyline> &polylines)
+vector<SegmentIntersection> intersection_of_polylines(vector<vector<SharedValuePoint> > &polylines)
 {
 	vector<PolylineSegment> horizontal_segments, vertical_segments;
 
-	for (SharedValuePolyline& polyline : polylines)
+	for (vector<SharedValuePoint>& polyline : polylines)
 	{
-		auto& [from, to, data] = polyline;
-
-		for (int i=0; i+1 < data.size(); i++)
+		for (int i=0; i+1 < polyline.size(); i++)
 		{
-			auto &[x1, y1] = data[i];
-			auto &[x2, y2] = data[i+1];
+			auto &[x1, y1] = polyline[i];
+			auto &[x2, y2] = polyline[i+1];
 			if (x1 == x2)
 			{
 				vertical_segments.push_back( { {x1, y1}, {x2, y2} } );
@@ -3489,22 +3479,24 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		}
 	}
 
-	vector<SharedValuePolyline> svpolylines;
+	vector<vector<SharedValuePoint> > svpolylines;
 	for (Polyline &polyline : polylines)
 	{
 		auto &[from, to, data] = polyline;
-		SharedValuePolyline svpolyline = {from, to, shared_value(data, rects[from], rects[to])};
+		vector<SharedValuePoint> svpolyline = shared_value(data, rects[from], rects[to]);
 		svpolylines.push_back(svpolyline);
 	}
 
-	for (auto& [from, to, polyline] : svpolylines)
+	for (auto& polyline : svpolylines)
 	{
 		printf("shared points polyline size : %ld\n", polyline.size());
 	}
 	for (auto& [pvalue, s] : dock_range)
 	{
+                bool b = ranges::any_of(svpolylines | views::join, [=](SharedValuePoint& p){return &p.x == pvalue;});
+		char c = b ? 'x' : 'y' ;
 		auto [m, M] = s;
-		printf("dock range for %d = [%d, %d]\n", *pvalue, m, M);
+		printf("dock range for %c=%d : [%d, %d]\n", c, *pvalue, m, M);
 	}
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
@@ -3603,7 +3595,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 	for (int i=0; i < svpolylines.size(); i++)
 	{
-        	polylines[i] = svpolylines[i];
+        	polylines[i].data = owned_value(svpolylines[i]);
         }
 }
 
