@@ -2803,17 +2803,61 @@ const PostProcessingTestContext pp_contexts[] = {
 				.data={{397,444},{330,444}}
 			}
 		},
-	.expected_polylines={
-                        {
-                                .from=1,
-                                .to=0,
-                                .data={{397,444},{359,444},{359,242},{330,242}}
-                        },
-                        {
-                                .from=1,
-                                .to=2,
-                                .data={{397,475},{330,475}}
-                        }
+		.expected_polylines={
+			{
+					.from=1,
+					.to=0,
+					.data={{397,444},{359,444},{359,242},{330,242}}
+			},
+			{
+					.from=1,
+					.to=2,
+					.data={{397,475},{330,475}}
+			}
+		}
+},
+{
+		.testid=1,
+		.rects={
+			{.left=10,.right=10+77,.top=82,.bottom=82+72},
+			{.left=248,.right=248+56,.top=10,.bottom=10+72},
+			{.left=135,.right=135+42,.top=11,.bottom=11+72},
+			{.left=191,.right=192+43,.top=26,.bottom=26+56}			
+		},
+		.frame={.left=0,.right=314,.top=0,.bottom=164},
+		.polylines={
+			{
+				.from=0,
+				.to=1,
+				.data={{87,114},{276,114},{276,82}}
+			},
+			{
+				.from=0,
+				.to=2,
+				.data={{87,122},{156,122},{156,83}}
+			},
+			{
+				.from=0,
+				.to=3,
+				.data={{87,118},{212,118},{212,82}}
+			}
+		},
+		.expected_polylines={
+			{
+				.from=0,
+				.to=1,
+				.data={{87,122},{276,122},{276,82}}
+			},
+			{
+				.from=0,
+				.to=2,
+				.data={{87,114},{156,114},{156,83}}
+			},
+			{
+				.from=0,
+				.to=3,
+				.data={{87,118},{212,118},{212,82}}
+			}
 		}
 }
 };
