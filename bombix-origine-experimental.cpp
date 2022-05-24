@@ -2859,6 +2859,40 @@ const PostProcessingTestContext pp_contexts[] = {
 				.data={{87,118},{212,118},{212,82}}
 			}
 		}
+},
+{
+		.testid=2,
+		.rects={
+			{.left=10,.right=10+77,.top=43,.bottom=43+72},
+			{.left=127,.right=127+56,.top=10,.bottom=10+72},
+			{.left=287,.right=287+42,.top=63,.bottom=63+72},
+			{.left=213,.right=213+43,.top=21,.bottom=21+56}			
+		},
+		.frame={.left=0,.right=339,.top=0,.bottom=145},
+		.polylines={
+			{
+				.from=0,
+				.to=2,
+				.data={{87,103},{287,103}}
+			},
+			{
+				.from=0,
+				.to=3,
+				.data={{87,103},{234,103},{234,77}}
+			}
+		},
+		.expected_polylines={
+			{
+				.from=0,
+				.to=2,
+				.data={{87,103},{287,103}}
+			},
+			{
+				.from=0,
+				.to=3,
+				.data={{87,103},{234,103},{234,77}}
+			}
+		}		
 }
 };
 
