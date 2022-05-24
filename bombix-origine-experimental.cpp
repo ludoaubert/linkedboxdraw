@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <vector>
 #include <queue>
+#include <set>
 #include <unordered_set>
 #include <unordered_map>
 #include <assert.h>
@@ -2866,7 +2867,7 @@ const PostProcessingTestContext pp_contexts[] = {
 			{.left=10,.right=10+77,.top=43,.bottom=43+72},
 			{.left=127,.right=127+56,.top=10,.bottom=10+72},
 			{.left=287,.right=287+42,.top=63,.bottom=63+72},
-			{.left=213,.right=213+43,.top=21,.bottom=21+56}			
+			{.left=213,.right=213+43,.top=21,.bottom=21+56}
 		},
 		.frame={.left=0,.right=339,.top=0,.bottom=145},
 		.polylines={
@@ -2885,14 +2886,14 @@ const PostProcessingTestContext pp_contexts[] = {
 			{
 				.from=0,
 				.to=2,
-				.data={{87,103},{287,103}}
+				.data={{87,103+4},{287,103+4}}
 			},
 			{
 				.from=0,
 				.to=3,
-				.data={{87,103},{234,103},{234,77}}
+				.data={{87,103-4},{234,103-4},{234,77}}
 			}
-		}		
+		}
 }
 };
 
@@ -2943,7 +2944,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	printf("Selection of the best candidate\n");
-	
+
 	for (const Link& lk : adj_links)
 	{
 		vector<uint64_t> &candidates = target_candidates_[lk.to];
@@ -3208,47 +3209,44 @@ void compute_polylines(const vector<Rect>& rects,
 	}
 }
 
-struct PolylinePoint
+vector<int> shared_values(1000);
+int index_available=0;
+unordered_map<int*, Span> dock_range;
+
+struct SharedValuePoint
 {
-	Polyline* polyline;
-	Point* p;
-	int next;
+        int &x, &y;
 };
+
 
 struct PointCollision
 {
-	PolylinePoint p1, p2;
+	SharedValuePoint p1, p2;
 };
 
 const int TRANSLATION_ON_COLLISION = 4;
 
-int query_distance_to_rectangle_vertices(const Rect& rec, const Point& p)
+
+vector<PointCollision> intersection_of_polyline_extremities(vector<vector<SharedValuePoint> > &polylines)
 {
-	const auto& [left, right, top, bottom] = rec ;
-	const auto& [x, y] = p;
-
-	assert(x == left || x == right || y == top || y == bottom);
-
-	if (x == left || x == right)
-		return std::min(bottom-y, y-top);
-
-	if (y == top || y == bottom)
-		return std::min(x-left, right-x);
-}
-
-vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& rects, vector<Polyline> &polylines)
-{
-	vector<PolylinePoint> points;
-	for (Polyline& polyline : polylines)
+	vector<SharedValuePoint> points;
+	for (vector<SharedValuePoint>& polyline : polylines)
 	{
-		auto& [from, to, data] = polyline;
-		if (data.size() <= 2)
+		if (polyline.size() < 2)
 			continue;
-		if (int distance = query_distance_to_rectangle_vertices(rects[from], data[0]); distance > TRANSLATION_ON_COLLISION)
-			points.push_back({&polyline, &data[0], 1});
-		if (int distance = query_distance_to_rectangle_vertices(rects[to], data.back()); distance > TRANSLATION_ON_COLLISION)
-			points.push_back({&polyline, &data.back(), -1});
-	}
+		for (auto& p : {polyline[0], polyline.back()})
+		{
+        		for (auto& pvalue : { &p.x, &p.y })
+        		{
+                		if (dock_range.contains(pvalue))
+                		{
+                        		auto [m,M] = dock_range[pvalue];
+                        		if (std::min(M-*pvalue,*pvalue-m) > TRANSLATION_ON_COLLISION)
+						points.push_back(p);
+				}
+			}
+                }
+        }
 
 	vector<PointCollision> collisions;
 
@@ -3256,14 +3254,14 @@ vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& 
 
 	for (int i=0; i < points.size(); i++)
 	{
-		PolylinePoint& pi = points[i];
+		SharedValuePoint& pi = points[i];
 		for (int j=i+2; j < points.size() && collisions.size()<2; j++)
 		{
-			PolylinePoint& pj = points[j];
-			if (*pi.p == *pj.p && locations.count(*pi.p)==0)
+			SharedValuePoint& pj = points[j];
+			if (pi.x == pj.x && pi.y == pj.y && locations.count({pi.x,pi.y})==0)
 			{
 				collisions.push_back({pi,pj});
-				locations.insert(*pi.p);
+				locations.insert({pi.x,pi.y});
 			}
 		}
 	}
@@ -3271,51 +3269,13 @@ vector<PointCollision> intersection_of_polyline_extremities(const vector<Rect>& 
 	return collisions;
 }
 
-/*
-direction = HORIZONTAL:
-xmin=min
-xmax=max
-x=value
-
-direction = VERTICAL:
-ymin=min
-ymax=max
-y=value
-*/
-
-vector<int> shared_values(1000);
-int index_available=0;
-unordered_map<int*, Span> dock_range;
-
-
-struct SharedValuePoint
-{
-	int& operator[](Direction direction)
-	{
-		switch (direction)
-		{
-		case HORIZONTAL:
-			return x;
-		case VERTICAL:
-			return y;
-		}
-	}
-
-	operator Point() const
-	{
-		return {x,y};
-	}
-
-	int &x, &y;
-};
 
 vector<Point> owned_value(const vector<SharedValuePoint>& svpolyline)
 {
 	vector<Point> polyline ;
-	for (const SharedValuePoint& svp : svpolyline)
+	for (const auto& [x, y] : svpolyline)
 	{
-		Point p = svp;
-		polyline.push_back(p);
+		polyline.push_back({x, y});
 	}
 	return polyline;
 }
@@ -3486,51 +3446,50 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	index_available=0;
 	dock_range.clear();
 
-	vector<PointCollision> collisions = intersection_of_polyline_extremities(rects, polylines);
+        vector<vector<SharedValuePoint> > svpolylines;
+        for (auto &[from, to, data] : polylines)
+        {
+                svpolylines.push_back(shared_value(data, rects[from], rects[to]));
+        }
 
-	for (auto [cp1, cp2] : collisions)
-	{
-		auto& [polyline1, p1, next1] = cp1;
-		auto& [polyline2, p2, next2] = cp2;
-
-		for (Direction dir : {HORIZONTAL, VERTICAL})
-		{
-			if ( (*p1)[dir] == (*(p1+next1))[dir] && (*p2)[dir] == (*(p2+next2))[dir])
-			{
-				for (Point *p : {p1, p1+next1})
-					(*p)[dir] += TRANSLATION_ON_COLLISION;
-
-				Point t = {0,0};
-				t[dir] = TRANSLATION_ON_COLLISION;
-				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline1->from, polyline1->to);
-
-				for (Point *p : {p2, p2+next2})
-					(*p)[dir] -= TRANSLATION_ON_COLLISION;
-
-				t[dir] = -TRANSLATION_ON_COLLISION;
-				printf("translation (%d, %d) applied to polyline (from=%d, to=%d)\n", t.x, t.y, polyline2->from, polyline2->to);
-			}
-		}
-	}
-
-	vector<vector<SharedValuePoint> > svpolylines;
-	for (Polyline &polyline : polylines)
-	{
-		auto &[from, to, data] = polyline;
-		vector<SharedValuePoint> svpolyline = shared_value(data, rects[from], rects[to]);
-		svpolylines.push_back(svpolyline);
-	}
-
-	for (auto& polyline : svpolylines)
-	{
-		printf("shared points polyline size : %ld\n", polyline.size());
-	}
-	for (auto& [pvalue, s] : dock_range)
-	{
+        for (auto& polyline : svpolylines)
+        {
+                printf("shared points polyline size : %ld\n", polyline.size());
+        }
+        for (auto& [pvalue, s] : dock_range)
+        {
                 bool b = ranges::any_of(svpolylines | views::join, [=](SharedValuePoint& p){return &p.x == pvalue;});
-		char c = b ? 'x' : 'y' ;
-		auto [m, M] = s;
-		printf("dock range for %c=%d : [%d, %d]\n", c, *pvalue, m, M);
+                char c = b ? 'x' : 'y' ;
+                auto [m, M] = s;
+                printf("dock range for %c=%d : [%d, %d]\n", c, *pvalue, m, M);
+        }
+
+	vector<PointCollision> collisions = intersection_of_polyline_extremities(svpolylines);
+
+	for (auto& [p1, p2] : collisions)
+	{
+		printf("collision detected at (%d, %d)\n", p1.x, p1.y);
+	}
+
+	for (auto &[p1, p2] : collisions)
+	{
+		int sign = +1;
+		for (auto &p :{p1, p2})
+		{
+        		auto& [x, y] = p;
+
+        		for (auto pvalue : {&x, &y})
+        		{
+                		if (dock_range.contains(pvalue))
+                		{
+					int tr = TRANSLATION_ON_COLLISION * sign ;
+					char c = pvalue == &x ? 'x' : 'y';
+                               		printf("translation (%c = %d) applied to value (%c = %d)\n", c, tr, c, *pvalue);
+                        		*pvalue += tr;
+                		}
+        		}
+			sign *= -1;
+		}
 	}
 
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
@@ -3681,7 +3640,6 @@ int main(int argc, char* argv[])
 
 		int nbOK=0;
 
-	//TODO: use destructuring
 		for (const auto& [testid, rects, frame, polylines, expected_polylines] : pp_contexts)
 		{
 			vector<Polyline> polylines_ = polylines ;
