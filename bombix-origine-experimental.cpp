@@ -3410,7 +3410,7 @@ vector<PointCollision> intersection_of_polyline_extremities(vector<vector<Shared
 			points.push_back(p);
         }
 	}
-	
+
 	vector<PointCollision> collisions;
 
 	for (int i=0; i < points.size(); i++)
@@ -3445,21 +3445,21 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	vector<vector<SharedValuePoint> > svpolylines;
 	for (auto &[from, to, data] : polylines)
 	{
-			svpolylines.push_back(shared_value(data, rects[from], rects[to]));
+		svpolylines.push_back(shared_value(data, rects[from], rects[to]));
 	}
 
 	for (auto& polyline : svpolylines)
 	{
-			printf("shared points polyline size : %ld\n", polyline.size());
+		printf("shared points polyline size : %ld\n", polyline.size());
 	}
 	for (auto& [pvalue, s] : dock_range)
 	{
-			bool b = ranges::any_of(svpolylines | views::join, [=](SharedValuePoint& p){return &p.x == pvalue;});
-			char c = b ? 'x' : 'y' ;
-			auto [m, M] = s;
-			printf("dock range for %c=%d : [%d, %d]\n", c, *pvalue, m, M);
+		bool b = ranges::any_of(svpolylines | views::join, [=](SharedValuePoint& p){return &p.x == pvalue;});
+		char c = b ? 'x' : 'y' ;
+		auto [m, M] = s;
+		printf("dock range for %c=%d : [%d, %d]\n", c, *pvalue, m, M);
 	}
-		
+
 	vector<SegmentIntersection> intersections = intersection_of_polylines(svpolylines);
 
 	int ni = intersections.size();
@@ -3473,10 +3473,10 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 	for (auto &[p1, p2] : collisions)
 	{
-		struct Coll{int* pvalue1, int tr1, int* pvalue2, int tr2};
+		struct Coll{int* pvalue1; int tr1; int* pvalue2; int tr2;};
 		Coll tab[4]={
 			{&p1.x, +TRANSLATION_ON_COLLISION, &p2.x, -TRANSLATION_ON_COLLISION},
-			{&p1.x, -TRANSLATION_ON_COLLISION, &p2.x, +TRANSLATION_ON_COLLISION},			
+			{&p1.x, -TRANSLATION_ON_COLLISION, &p2.x, +TRANSLATION_ON_COLLISION},
 			{&p1.y, +TRANSLATION_ON_COLLISION, &p2.y, -TRANSLATION_ON_COLLISION},
 			{&p1.y, -TRANSLATION_ON_COLLISION, &p2.y, +TRANSLATION_ON_COLLISION},
 		};
@@ -3484,21 +3484,22 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 		for (int i=0; i<4; i++)
 		{
 			auto& [pvalue1, tr1, pvalue2, tr2] = tab[i];
-			
+
 			if (dock_range.contains(pvalue1) && dock_range.contains(pvalue2) && inside_range(dock_range[pvalue1],*pvalue1+tr1) && inside_range(dock_range[pvalue2],*pvalue2+tr2))
-            {
+			{
 				int value1 = *pvalue1;
 				int value2 = *pvalue2;
+				assert(value1 == value2);
 				*pvalue1 += tr1;
 				*pvalue2 += tr2;
 
  				char c = i < 2 ? 'x' : 'y' ;
-                printf("evaluation of collision spread (%c=%d, %c=%d)\n", c, *pvalue1, c, *pvalue2);
+                		printf("evaluation of collision spread (%c=%d) => (%c=%d, %c=%d)\n", c, value1, c, *pvalue1, c, *pvalue2);
 
-				intersections_update = intersection_of_polylines(svpolylines);
+				vector<SegmentIntersection> intersections_update = intersection_of_polylines(svpolylines);
 				int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
 
-				if (intersections_update.size() + ni_pr >= ni)
+				if (intersections_update.size() + ni_pr > ni)
 				{
 					*pvalue1 = value1;
 					*pvalue2 = value2;
@@ -3506,21 +3507,20 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				}
 				else
 				{
-					intersections = intersections_update;
-					ni = intersections_update.size();
-					printf("collision spread (%c=%d, %c=%d) applied\n", c, *pvalue1, c, *pvalue2);
+					intersections = std::move(intersections_update);
+					ni = intersections.size();
+					printf("collision spread (%c=%d) => (%c=%d, %c=%d) applied\n", c, value1, c, *pvalue1, c, *pvalue2);
+					break;
 				}
-        	}
+        		}
 		}
 	}
 
 
 	for (auto& [ver_seg, hor_seg, p] : intersections)
 	{
-		vector<SegmentIntersection> intersections_update ;
-
 		auto& [p1, p2] = hor_seg;
-        auto& [p3, p4] = ver_seg;
+        	auto& [p3, p4] = ver_seg;
 
 		auto& [x1, y1] = p1;
 		auto& [x2, y2] = p2;
@@ -3548,9 +3548,9 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 				*pvalue2 = value1;
 
  				char c = i < 3 ? 'x' : 'y' ;
-                printf("evaluation of value swap (%c=%d, %c=%d)\n", c, value1, c, value2);
+                                printf("evaluation of value swap (%c=%d, %c=%d)\n", c, value1, c, value2);
 
-				intersections_update = intersection_of_polylines(svpolylines);
+				vector<SegmentIntersection> intersections_update = intersection_of_polylines(svpolylines);
 				int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
 
 				if (intersections_update.size() + ni_pr >= ni)
@@ -3583,7 +3583,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
                                 char c = i < 2 ? 'x' : 'y' ;
                                 printf("evaluation of translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
 
-                                intersections_update = intersection_of_polylines(svpolylines);
+                                vector<SegmentIntersection> intersections_update = intersection_of_polylines(svpolylines);
                                 int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
 
                                 if (intersections_update.size() + ni_pr >= ni)
