@@ -1,0 +1,20 @@
+{"documentTitle":"reg-test-10",
+"boxes":[
+	{"title":"rec-0", "fields":[]},
+	{"title":"rec-1", "fields":[]},
+	{"title":"rec-2", "fields":[]},
+	{"title":"rec-3", "fields":[]},
+	{"title":"rec-4", "fields":[]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+{"from":1,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
+{"from":3,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""},
+{"from":4,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""},
+{"from":4,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
+{"from":2,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""}
+],
+"fieldColors":[]
+}

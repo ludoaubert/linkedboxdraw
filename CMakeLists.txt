@@ -6,6 +6,7 @@ SET(CMAKE_CXX_COMPILER "g++-11" )
 SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
 
 add_executable(bombix bombix-origine.cpp)
+add_executable(bombix-experimental bombix-origine-experimental.cpp)
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
