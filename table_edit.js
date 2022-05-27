@@ -173,7 +173,7 @@ function init(e) {
 	colorCombo = document.getElementById("color");
 	colorsCombo = document.getElementById("colors");
 
-	const innerHTML = ["","0","1","N","0,1","0,N","1,N"].map(c => '<option>' + c + '</option>')
+	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 															.join('');
 	fromCardinalityCombo.innerHTML = innerHTML;
 	toCardinalityCombo.innerHTML = innerHTML;
