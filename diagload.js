@@ -240,8 +240,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 	  
 		for (const {from, to, polyline} of links)
 		{
-			const {id:id_from, translation} = translatedBoxes[from];
-			const {id:id_to, translation} = translatedBoxes[to];
+			const {id:id_from} = translatedBoxes[from];
+			const {id:id_to} = translatedBoxes[to];
 			const linkIndex = mydata.links.findIndex(lk => lk.from==id_from && lk.to==id_to);
 			const {fromCardinality, toCardinality} = mydata.links[linkIndex];
 			
