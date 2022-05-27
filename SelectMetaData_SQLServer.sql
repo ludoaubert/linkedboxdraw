@@ -58,10 +58,10 @@ WITH cte_fk AS (
 ),  cte_links AS (
 		SELECT tcl_from.rn_table - 1 AS [from],	-- zero based
 			tcl_from.rn_column - 1 AS fromField, -- zero based
-			NULL AS fromCardinality,
+			'' AS fromCardinality,
 			tcl_to.rn_table - 1 AS [to],	-- zero based
 			tcl_to.rn_column - 1 AS toField,-- zero based
-			NULL AS toCardinality
+			'' AS toCardinality
 		FROM cte_fk fk
 		JOIN cte_table_column_list tcl_from ON fk.[table]=tcl_from.TABLE_NAME AND fk.[column]=tcl_from.COLUMN_NAME
 		JOIN cte_table_column_list tcl_to ON fk.referenced_table=tcl_to.TABLE_NAME AND fk.referenced_column=tcl_to.COLUMN_NAME
