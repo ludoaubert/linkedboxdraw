@@ -372,12 +372,6 @@ function addNewBox()
 	displayCurrent();
 }
 
-function selectBox(name)
-{
-	console.log(name);
-	currentBoxIndex = mydata.boxes.findIndex(box => box.title==name);
-	displayCurrent();
-}
 
 function dropBox()
 {
@@ -559,7 +553,24 @@ function linkComboOnClick()
 
 function updateLink()
 {
+	currentFromBoxIndex = mydata.boxes.findIndex(box => box.title == fromBoxCombo.value);
+	currentFromFieldIndex = mydata.boxes[currentFromBoxIndex].fields.findIndex(field => field.name == fromFieldCombo.value);
+	currentToBoxIndex = mydata.boxes.findIndex(box => box.title == toBoxCombo.value);	
+	currentToFieldIndex = mydata.boxes[currentToBoxIndex].fields.findIndex(field => field.name == toFieldCombo.value);
 
+	const lk = {
+		from: currentFromBoxIndex,
+		fromField: currentFromFieldIndex,
+		fromCardinality: fromCardinalityCombo.value,
+		to: currentToBoxIndex,
+		toField: currentToFieldIndex,
+		toCardinality: toCardinalityCombo.value,
+		category:categoryCombo.value
+	};
+	
+	console.log(lk);
+	
+	mydata.links[linkCombo.selectedIndex] = lk;
 }
 
 function addNewLink()
