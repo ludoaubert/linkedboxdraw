@@ -359,7 +359,6 @@ function ApplyRepartition()
 									.flat()
 									.map(tB =>tB.id);
 
-	const ids = Array.from(mycontexts.contexts, context => context.translatedBoxes).flat().map(tB => tB.id);
 	console.log(ids);
 	
 	[...repartition.entries()]
@@ -376,8 +375,7 @@ function ApplyRepartition()
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(context);
-//TODO: remove comment when updated bombix-origine.wasm is online
-//		context.links = compute_links(selectedContextIndex);
+		context.links = compute_links(selectedContextIndex);
 	}
 	
 	console.log(JSON.stringify(mycontexts));
