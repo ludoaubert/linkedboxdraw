@@ -2919,7 +2919,7 @@ const PostProcessingTestContext pp_contexts[] = {
 			{.from=0,.to=5,.data={{459,161},{425,161},{425,310},{382,310}}},
 			{.from=4,.to=5,.data={{319,404},{319,370}}}
 		},
-		.polylines={
+		.expected_polylines={
 			{.from=0,.to=1,.data={{522,210},{522,246}}},
 			{.from=6,.to=2,.data={{76,251},{76,213}}},
 			{.from=0,.to=3,.data={{459,65},{405,65}}},
