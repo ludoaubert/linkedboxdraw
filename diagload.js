@@ -149,7 +149,8 @@ function compute_links(selectedContextIndex)
 	console.log({rectangles, frame});
 	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
-	const links = JSON.parse(jsonResponse);
+	const links = JSON.parse(jsonResponse)
+						.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
 	return links;	
 }
 
