@@ -44,112 +44,120 @@
 
 <button type="button" class="collapsible">Input Output</button>
 <div class="content">
-<fieldset>
-	<legend>Data File Input</legend>
-	<input type="file" accept=".json" id="myFile" value="Load">
-</fieldset>
+	<fieldset>
+		<legend>Data File Input</legend>
+		<input type="file" accept=".json" id="myFile" value="Load">
+	</fieldset>
 
-<fieldset>
-	<legend>Data File Output</legend>
-	<form onsubmit="return false">
-	  <input type="text" name="name" value="diagdata.json">
-	  <input type="submit" value="Save As" onclick="download(this['name'].value)">
-	</form>
-</fieldset>
+	<fieldset>
+		<legend>Data File Output</legend>
+		<form onsubmit="return false">
+		  <input type="text" name="name" value="diagdata.json">
+		  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+		</form>
+	</fieldset>
 
-<fieldset>
-	<legend>Geometry File Output</legend>
-	<form onsubmit="return false">
-	  <input type="text" name="name" value="contexts.json">
-	  <input type="submit" value="Save As" onclick="download2(this['name'].value)">
-	</form>
-</fieldset>
+	<fieldset>
+		<legend>Geometry File Output</legend>
+		<form onsubmit="return false">
+		  <input type="text" name="name" value="contexts.json">
+		  <input type="submit" value="Save As" onclick="download2(this['name'].value)">
+		</form>
+	</fieldset>
 </div>
 
-<fieldset>
-	<legend>Diagram Title</legend>
-	<input type="text" id="title" class="bigtextfield" onchange="updateTitle()">
-</fieldset>
+<button type="button" class="collapsible">Table Edit</button>
+<div class="content">
+	<fieldset>
+		<legend>Diagram Title</legend>
+		<input type="text" id="title" class="bigtextfield" onchange="updateTitle()">
+	</fieldset>
 
-<fieldset>
-	<legend>Boxes</legend>
-	Boxes: <select id="boxes" onchange="currentBoxIndex = -1; displayCurrent();"></select>
+	<fieldset>
+		<legend>Boxes</legend>
+		Boxes: <select id="boxes" onchange="currentBoxIndex = -1; displayCurrent();"></select>
 
-	<input type="text" id="new box">
+		<input type="text" id="new box">
 
-	<button type="button" id="add box" onclick="addNewBox()">Add New Box</button>
-	<button type="button" id="drop box" onclick="dropBox()">Drop Box</button>
-	<button type="button" id="update box" title="update box name" onclick="updateBox()">Update Box</button>
+		<button type="button" id="add box" onclick="addNewBox()">Add New Box</button>
+		<button type="button" id="drop box" onclick="dropBox()">Drop Box</button>
+		<button type="button" id="update box" title="update box name" onclick="updateBox()">Update Box</button>
 
-	<p>Box Comments</p>
-	<textarea id="box comment" cols="80" rows="5"></textarea>
-	<br>
-	<button type="button" id="update box comment" onclick="updateBoxComment()">Update Box Comment</button>
-	<button type="button" id="drop box comment" onclick="dropBoxComment()">Drop Box Comment</button>
-</fieldset>
+		<p>Box Comments</p>
+		<textarea id="box comment" cols="80" rows="5"></textarea>
+		<br>
+		<button type="button" id="update box comment" onclick="updateBoxComment()">Update Box Comment</button>
+		<button type="button" id="drop box comment" onclick="dropBoxComment()">Drop Box Comment</button>
+	</fieldset>
 
-<fieldset>
-	<legend>Box Fields</legend>
-	Fields: <select id="fields" onchange="currentFieldIndex = -1; displayCurrent()"></select>
+	<fieldset>
+		<legend>Box Fields</legend>
+		Fields: <select id="fields" onchange="currentFieldIndex = -1; displayCurrent()"></select>
 
-	<input type="text" id="new field">
-	<input type="checkbox" id="PK">Primary Key</input>
-	<input type="checkbox" id="FK">Foreign Key</input>
-	<button type="button" id="add field" onclick="addNewFieldToBox()">Add New Field To Box</button>
-	<button type="button" id="drop field" onclick="dropFieldFromBox()">Drop Field From Box</button>
-	<button type="button" id="update field" title="update field name" onclick="updateField()">Update Field</button>
-	
-	<p>Field Comment</p>
-	<textarea id="field comment" cols="80" rows="5"></textarea>
-	<br>
-	<button type="button" id="update field comment" onclick="updateFieldComment()">Update Field Comment</button>
-	<button type="button" id="drop field comment" onclick="dropFieldComment()">Drop Field Comment</button>
-</fieldset>
-	
-<fieldset>
-	<legend>Field Values</legend>
+		<input type="text" id="new field">
+		<input type="checkbox" id="PK">Primary Key</input>
+		<input type="checkbox" id="FK">Foreign Key</input>
+		<button type="button" id="add field" onclick="addNewFieldToBox()">Add New Field To Box</button>
+		<button type="button" id="drop field" onclick="dropFieldFromBox()">Drop Field From Box</button>
+		<button type="button" id="update field" title="update field name" onclick="updateField()">Update Field</button>
+		
+		<p>Field Comment</p>
+		<textarea id="field comment" cols="80" rows="5"></textarea>
+		<br>
+		<button type="button" id="update field comment" onclick="updateFieldComment()">Update Field Comment</button>
+		<button type="button" id="drop field comment" onclick="dropFieldComment()">Drop Field Comment</button>
+	</fieldset>
+		
+	<fieldset>
+		<legend>Field Values</legend>
 
-	Values: <select id="values" onchange="updateValueAttributes()"></select>
+		Values: <select id="values" onchange="updateValueAttributes()"></select>
 
-	<input type="text" id="new value">
-	<button type="button" id="edit value" title="load combo value into edit field" onclick="editValueFromField()">Edit Value From Field</button>
-	<button type="button" id="add value" onclick="addNewValueToField()">Add New Value To Field</button>
-	<button type="button" id="drop value" onclick="dropValueFromField()">Drop Value From Field</button>
-	<button type="button" id="update value" onclick="updateValue()">Update Value</button>
-</fieldset>
+		<input type="text" id="new value">
+		<button type="button" id="edit value" title="load combo value into edit field" onclick="editValueFromField()">Edit Value From Field</button>
+		<button type="button" id="add value" onclick="addNewValueToField()">Add New Value To Field</button>
+		<button type="button" id="drop value" onclick="dropValueFromField()">Drop Value From Field</button>
+		<button type="button" id="update value" onclick="updateValue()">Update Value</button>
+	</fieldset>
 
 
-<fieldset>
-	<legend>Box Links</legend>
-	Links: <select id="links" onclick="linkComboOnClick()" class="bigselect"></select>
-	<button type="button" id="drop link" onclick="linkComboOnClick(); dropLink();">Drop Link</button>
-	<br>
-	From Box: <select id="from boxes" onchange="currentFromBoxIndex = -1; displayCurrent();"></select>
-	From Field: <select id="from fields" onchange="currentFromFieldIndex = -1; displayCurrent();"></select>
-	From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
-	<br>
-	To Box: <select id="to boxes"  onchange="currentToBoxIndex = -1; displayCurrent();"></select>
-	To Field: <select id="to fields" onchange="currentToFieldIndex = -1; displayCurrent();"></select>
-	To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
-	<br>
-	Category: <select id="category"><option value=""></option><option value="TR2">TR2</option></select>
-	<br>
-	<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
-	<button id="update link" type="button" onclick="updateLink()">Update Link</button>
-</fieldset>
+	<fieldset>
+		<legend>Box Links</legend>
+		Links: <select id="links" onclick="linkComboOnClick()" class="bigselect"></select>
+		<button type="button" id="drop link" onclick="linkComboOnClick(); dropLink();">Drop Link</button>
+		<br>
+		From Box: <select id="from boxes" onchange="currentFromBoxIndex = -1; displayCurrent();"></select>
+		From Field: <select id="from fields" onchange="currentFromFieldIndex = -1; displayCurrent();"></select>
+		From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
+		<br>
+		To Box: <select id="to boxes"  onchange="currentToBoxIndex = -1; displayCurrent();"></select>
+		To Field: <select id="to fields" onchange="currentToFieldIndex = -1; displayCurrent();"></select>
+		To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
+		<br>
+		Category: <select id="category"><option value=""></option><option value="TR2">TR2</option></select>
+		<br>
+		<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
+		<button id="update link" type="button" onclick="updateLink()">Update Link</button>
+	</fieldset>
 
-<fieldset>
-	<legend>Field Colors</legend>
-	Colors: <select id="colors" onclick="colorsComboOnClick()" class="bigselect"></select>
-	<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
-	<br>
-	Box: <select id="color boxes" onchange="currentColorBoxIndex = -1; displayCurrent();"></select>
-	Field: <select id="color fields" onchange="currentColorFieldIndex = -1; displayCurrent();"></select>
-	Color: <select id="color"></select>
+	<fieldset>
+		<legend>Field Colors</legend>
+		Colors: <select id="colors" onclick="colorsComboOnClick()" class="bigselect"></select>
+		<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
+		<br>
+		Box: <select id="color boxes" onchange="currentColorBoxIndex = -1; displayCurrent();"></select>
+		Field: <select id="color fields" onchange="currentColorFieldIndex = -1; displayCurrent();"></select>
+		Color: <select id="color"></select>
 
-	<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
-	<button id="update color" type="button" onclick="updateColor()">Update Color</button>	
-</fieldset>
+		<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
+		<button id="update color" type="button" onclick="updateColor()">Update Color</button>	
+	</fieldset>
+</div>
+
+<button type="button" class="collapsible">Diagram</button>
+<div class="content">
+
+</div>
 	
 </body>
 </html>
