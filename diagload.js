@@ -302,8 +302,6 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 
 function drawDiag() {
-
-	const {rectangles} = mycontexts;
 	
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);	
 	document.getElementById("diagram").innerHTML = drawDiagram();
