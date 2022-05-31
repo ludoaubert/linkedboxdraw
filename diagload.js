@@ -217,7 +217,9 @@ function drawDiag() {
 
 	const {rectangles} = mycontexts;
 	
-	var innerHTML = drawRepartition(mydata, mycontexts);	
+	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
+	
+	var innerHTML = "";	
 	
 	for (const [selectedContextIndex, {title, frame, translatedBoxes, links}] of mycontexts.contexts.entries())
 	{
@@ -297,9 +299,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		innerHTML += `</svg>`;
 	}
 	
-	innerHTML += drawiocomponent();
-
-	document.getElementsByTagName("body")[0].innerHTML = innerHTML;
+	document.getElementById("diagram").innerHTML = innerHTML;
+	document.getElementById("input_output").innerHTML = drawiocomponent();
 	
 	expressCutLinks(mydata, mycontexts);
 	
@@ -383,9 +384,7 @@ function ApplyRepartition()
 
 function drawRepartition(mydata, mycontexts){
 	
-	var innerHTML = `<button type="button" class="collapsible">Repartition</button>
-<div class="content">
-      <table id="repartition">`;
+	var innerHTML = `<table id="repartition">`;
 	  
 	var repartitionEntries = [];
 	
@@ -420,7 +419,6 @@ function drawRepartition(mydata, mycontexts){
 		
     innerHTML += `</table> 
 	  <button id="apply repartition" type="button" onclick="ApplyRepartition(); drawDiag();">Apply Repartition</button>
-	  </div>
 `;
 
 	return innerHTML;

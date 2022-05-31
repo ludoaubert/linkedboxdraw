@@ -2,9 +2,7 @@
 
 function drawiocomponent(){
 	
-	const innerHTML = `<button type="button" class="collapsible">Input Output</button>
-<div class="content">
-<h1>Geometry File Input</h1>
+	const innerHTML = `<h1>Geometry File Input</h1>
 
 <ul>
 <li>Load Geometry File</li>
@@ -25,8 +23,7 @@ function drawiocomponent(){
 <ul>
 <li>Load Data File</li>
 <li><input type="file" accept=".json" id="myDataFile" value="Load"></li>
-</ul>
-</div>`;
+</ul>`;
 
 	return innerHTML;
 }
