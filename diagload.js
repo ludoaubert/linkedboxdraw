@@ -213,11 +213,9 @@ function loadDiag(data, contexts) {
 }
 
 
-function drawDiag() {
-
-	const {rectangles} = mycontexts;
+function drawDiagram() {
 	
-	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
+	const {rectangles} = mycontexts;
 	
 	var innerHTML = "";	
 	
@@ -299,7 +297,16 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		innerHTML += `</svg>`;
 	}
 	
-	document.getElementById("diagram").innerHTML = innerHTML;
+	return innerHTML;
+}
+
+
+function drawDiag() {
+
+	const {rectangles} = mycontexts;
+	
+	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);	
+	document.getElementById("diagram").innerHTML = drawDiagram();
 	document.getElementById("input_output").innerHTML = drawiocomponent();
 	
 	expressCutLinks(mydata, mycontexts);
