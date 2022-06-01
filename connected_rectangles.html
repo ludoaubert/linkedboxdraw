@@ -29,6 +29,7 @@
 				data = this.responseText;
 				if (contexts != null)
 					loadDiag(data, contexts);
+					setCollapsibleHandler();
 			}
 		};
 		xmlhttp1.open("GET", data_url, true);
