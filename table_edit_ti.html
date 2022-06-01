@@ -4,23 +4,59 @@
 	<title>Connected Boxes Input Interface</title>
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 	<link rel="icon" type="image/x-icon" href="favicon.ico" />
-   <script>    
-	var Module = {
-	  'print': function(text) { console.log('stdout: ' + text) },
-	  'printErr': function(text) { console.log('stderr: ' + text) }
-	};
+   <script> 
+
+	function onLoad() {
+		var Module = {
+		  'print': function(text) { console.log('stdout: ' + text) },
+		  'printErr': function(text) { console.log('stderr: ' + text) }
+		};
+		
+		var data = null;
+		var contexts = null;
+		
+		var xmlhttp1 = new XMLHttpRequest();
+		var data_url = "diagdata.json";
+
+		xmlhttp1.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				data = this.responseText;
+				if (contexts != null)
+					loadDiag(data, contexts);
+			}
+		};
+		xmlhttp1.open("GET", data_url, true);
+		xmlhttp1.send();
+		
+
+		var xmlhttp2 = new XMLHttpRequest();
+		var contexts_url = "contexts.json";
+
+		xmlhttp2.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				contexts = this.responseText;
+				if (data != null)
+					loadDiag(data, contexts);
+			}
+		};
+		xmlhttp2.open("GET", contexts_url, true);
+		xmlhttp2.send();
+	}
     </script>
     <script type="text/javascript" src="latuile-origine.js"></script>
 	<script type="text/javascript" src="pretty.js"></script>
 	<script type="text/javascript" src="compute_box_rectangles.js"></script>
+	<script type="text/javascript" src="dbcomponent.js"></script>
+	<script type="text/javascript" src="diagload.js"></script>
 	<script type="text/javascript" src="table_edit.js"></script>
+    <script type="text/javascript" src="collapsible.js"></script>
+	<link rel="stylesheet" type="text/css" href="dbcomponent.css">
 	<link rel="stylesheet" type="text/css" href="diagstyle.css">
 	<link rel="stylesheet" type="text/css" href="table_edit.css">
 	<link rel="stylesheet" type="text/css" href="collapsible.css">
-    <script type="text/javascript" src="collapsible.js"></script>
 </head>
 
-<body>
+<body onload="onLoad()">
 
 	<ul>
       <li>
