@@ -38,6 +38,7 @@ var colorCombo ;
 var colorsCombo ;
 
 function newDiagram() {
+	
 	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
 	mycontexts={contexts:[], rectangles:[]};
 	
