@@ -21,10 +21,10 @@ function download(filename) {
 }
 
 
-function selectElement(elmnt,clr) 
+function selectElement(elmnt,clr)
 {
 	elmnt.style.color = clr;
-  
+
 	switch (clr)
 	{
 	case 'red':{
@@ -42,19 +42,19 @@ function selectElement(elmnt,clr)
 
 }
 
-        
+
 function moveElement(evt) {
-	
+
 	if (g == 0)
 		return;
-	
+
 	console.log('moveElement');
 	if (currentX==0 && currentY==0)
 	{
 		currentX = evt.clientX;
 		currentY = evt.clientY;
-	}		
-	
+	}
+
 	const dx = evt.clientX - currentX;
 	const dy = evt.clientY - currentY;
 
@@ -63,7 +63,7 @@ function moveElement(evt) {
 	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
 	const translateX = firstXForm.matrix.e;
 	const translateY = firstXForm.matrix.f;
-  
+
 	g.transform.baseVal.getItem(0).setTranslate(translateX+dx, translateY+dy);
 
 	currentX = evt.clientX;
@@ -86,9 +86,9 @@ function enforce_bounding_rectangle(context)
 		translation.x -= bounding_rectangle.left;
 		translation.y -= bounding_rectangle.top;
 	}
-	
+
 	context.frame = {
-			left:0, 
+			left:0,
 			right: bounding_rectangle.right - bounding_rectangle.left,
 			top:0,
 			bottom: bounding_rectangle.bottom - bounding_rectangle.top
@@ -110,12 +110,12 @@ function compute_links(selectedContextIndex)
 	);
 
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
-	
+
 	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
 				.flat()
 				.map(i => hex(i,3))
 				.join('');
-	
+
 	const translations = rectangles.map(r => [r.left, r.top])
 					.flat()
 					.map(i => hex(i,3))
@@ -125,10 +125,10 @@ function compute_links(selectedContextIndex)
 				.map(i => hex(i,4))
 				.join('');
 	console.log(sframe);
-	
+
 	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
 				.map(tB => tB.id);
-				
+
 	const slinks = mydata.links
 							.filter(lk => lk.from != lk.to)
 							.filter(lk => lk.category != "TR2")
@@ -139,11 +139,11 @@ function compute_links(selectedContextIndex)
 							.filter(function(lk, pos, self){
 										return self.indexOf(lk) == pos;}
 							) //removing duplicates
-							.map(lk => JSON.parse(lk))							
+							.map(lk => JSON.parse(lk))
 							.flat()
 							.map(i => hex(i,2))
 							.join('');
-	console.log(slinks);				
+	console.log(slinks);
 
 //logging call input to produce test data for further investigations...
 	console.log({rectangles, frame});
@@ -151,43 +151,43 @@ function compute_links(selectedContextIndex)
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
 	const links = JSON.parse(jsonResponse)
 						.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
-	return links;	
+	return links;
 }
 
-        
-function deselectElement() 
-{	
+
+function deselectElement()
+{
 	console.assert(g.parentElement.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
 	console.log("id=" + id);
 	const selectedContextIndex = g.parentElement.id;
 	console.log("selectedContextIndex=" + selectedContextIndex);
-	
+
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
+
 	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
 	console.log("tB=" + JSON.stringify(tB));
-	
+
 	const xForms = g.transform.baseVal;// an SVGTransformList
 	const firstXForm = xForms.getItem(0); //an SVGTransform
 	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
 	const translateX = firstXForm.matrix.e;
 	const translateY = firstXForm.matrix.f;
-		
+
 	tB.translation = {"x": translateX, "y": translateY};
-	
+
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
-	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);	
-	
+
+	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);
+
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
-	mycontexts.contexts[selectedContextIndex].links = compute_links(selectedContextIndex);		
+
+	mycontexts.contexts[selectedContextIndex].links = compute_links(selectedContextIndex);
 	drawDiag();
 }
 
 
-function zeroPad(num, places) 
+function zeroPad(num, places)
 {
   const zero = places - num.toString().length + 1;
   return Array(+(zero > 0 && zero)).join("0") + num;
@@ -214,18 +214,18 @@ function loadDiag(data, contexts) {
 
 
 function drawDiagram() {
-	
+
 	const {rectangles} = mycontexts;
-	
-	var innerHTML = "";	
-	
+
+	var innerHTML = "";
+
 	for (const [selectedContextIndex, {title, frame, translatedBoxes, links}] of mycontexts.contexts.entries())
 	{
-		
+
 		innerHTML += `<svg id="${selectedContextIndex}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${width(frame)}" height="${height(frame)}" viewBox="0 0 ${width(frame)} ${height(frame)}" title="" >
       <defs>
 		<marker id="markerArrow"
-	viewBox="0 0 10 10" refX="${9+RECT_STROKE_WIDTH/2}" refY="3" 
+	viewBox="0 0 10 10" refX="${9+RECT_STROKE_WIDTH/2}" refY="3"
           markerUnits="strokeWidth"
           markerWidth="10" markerHeight="10"
           orient="auto">
@@ -238,12 +238,11 @@ Elements in an SVG document fragment have an implicit drawing order, with the fi
 Subsequent elements are painted on top of previously painted elements.
 Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted over a small part of the link (after the marker actually).
 */
-	  
 		for (const {from, to, polyline} of links)
 		{
 			const linkIndex = mydata.links.findIndex(lk => lk.from==from && lk.to==to);
 			const {fromCardinality, toCardinality} = mydata.links[linkIndex];
-			
+
 			let points = [];
 			for (var k=0; k < polyline.length; k++)
 			{
@@ -255,7 +254,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 				points[k] += `${point.x},${point.y}`;
 			}
 			innerHTML += `<path id="${zeroPad(from,ZERO_PADDING_SIZE)}${zeroPad(to,ZERO_PADDING_SIZE)}" d="${points.join(" ")}" fill="none" stroke="black" stroke-width="100"  marker-end="url(#markerArrow)" />`;
-			
+
 			const p1 = polyline[0];
 			const p2 = polyline[1];
 			const p3 = polyline[polyline.length - 2];
@@ -279,36 +278,36 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			else if (p4.x==p3.x && p4.y < p3.y) // up
 				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}" text-anchor="start">${toCardinality}</text>`;
 		}
-		
+
 		for (const {id, translation} of translatedBoxes)
 		{
 			const rectangle = rectangles[id];
-			
+
 			innerHTML += `<g id="g_${id}" class="draggable" transform="translate(${translation.x},${translation.y})">
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
-			
+
 			innerHTML += drawComponent(id);
-			
+
 			innerHTML += `</foreignObject>
 			</g>`;
 		}
-		
+
 		innerHTML += `</svg>`;
 	}
-	
+
 	return innerHTML;
 }
 
 
 function drawDiag() {
-	
-	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);	
+
+	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram();
 	document.getElementById("input_output").innerHTML = drawiocomponent();
-	
+
 	expressCutLinks(mydata, mycontexts);
-	
+
 	setCollapsibleHandler();
 	setiohandlers();
 }
@@ -321,8 +320,8 @@ function ApplyRepartition()
 	const repartitionTable = document.getElementById("repartition");
 
 	var repartition = [];
-	
-	for (let row of repartitionTable.rows) 
+
+	for (let row of repartitionTable.rows)
 	{
 	//iterate through rows
 	//rows would be accessed using the "row" variable assigned in the for loop
@@ -331,14 +330,14 @@ function ApplyRepartition()
 		repartition[id]=n;
 	}
 	console.log(JSON.stringify(repartition));
-	
+
 	//make a deep copy of mycontexts
 	const mycontexts_ = JSON.parse(JSON.stringify(mycontexts));
 
 	const nb = 1 + Math.max(...repartition);
-	
+
 	mycontexts.contexts = [];
-	
+
 	for (let i=0; i <nb; i++)
 	{
 		mycontexts.contexts[i] = new Object({
@@ -347,7 +346,7 @@ function ApplyRepartition()
 			"links":[]
 			});
 	}
-	
+
 	for (const context_ of mycontexts_.contexts)
 	{
 		for (const {id,translation} of context_.translatedBoxes)
@@ -365,39 +364,39 @@ function ApplyRepartition()
 									.map(tB =>tB.id);
 
 	console.log(ids);
-	
+
 	[...repartition.entries()]
 		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
 		.forEach( ([id,i]) => mycontexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
 	console.log(JSON.stringify(mycontexts));
-	
+
 // if a context has become empty, remove it.
 	mycontexts.contexts = mycontexts.contexts.filter(context => context.translatedBoxes.length != 0);
-	
-	mycontexts.rectangles = compute_box_rectangles(mydata.boxes);	
+
+	mycontexts.rectangles = compute_box_rectangles(mydata.boxes);
 
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(context);
 		context.links = compute_links(selectedContextIndex);
 	}
-	
+
 	console.log(JSON.stringify(mycontexts));
 }
 
 
 function drawRepartition(mydata, mycontexts){
-	
+
 	var innerHTML = `<table id="repartition">`;
-	  
+
 	var repartitionEntries = [];
-	
+
 	for (const [id, box] of mydata.boxes.entries())
 	{
 		repartitionEntries[id] = {boxName:box.title, id, selectedContextIndex:-1};
 	}
-	  
+
 	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		for (const {id, translation} of context.translatedBoxes)
@@ -421,8 +420,8 @@ function drawRepartition(mydata, mycontexts){
             </tr>
 			`
 	}
-		
-    innerHTML += `</table> 
+
+    innerHTML += `</table>
 	  <button id="apply repartition" type="button" onclick="ApplyRepartition(); drawDiag();">Apply Repartition</button>
 `;
 
