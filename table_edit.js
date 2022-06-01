@@ -1,5 +1,4 @@
 
-var mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;
 
@@ -37,6 +36,23 @@ var colorBoxCombo ;
 var colorFieldCombo ;
 var colorCombo ;
 var colorsCombo ;
+
+function newDiagram() {
+	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
+	mycontexts={contexts:[], rectangles:[]};
+	
+	currentBoxIndex = -1;
+	currentFieldIndex = -1;
+
+	currentFromBoxIndex = -1;
+	currentFromFieldIndex = -1;
+
+	currentToBoxIndex = -1;
+	currentToFieldIndex = -1;
+
+	currentColorBoxIndex = -1;
+	currentColorFieldIndex = -1;
+}
 
 
 function download(filename) {
