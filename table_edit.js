@@ -163,7 +163,7 @@ function download2(filename) {
 }
 
 
-function init(e) {
+function init() {
 	
 	input = document.getElementById("myFile");
 	editTitle = document.getElementById("title");
@@ -213,11 +213,7 @@ function init(e) {
 		reader.readAsBinaryString(myFile);
 	  }   
 	});
-	
-	setCollapsibleHandler();
 }
-
-document.addEventListener('DOMContentLoaded', init, false);
 
 
 function displayCurrent()

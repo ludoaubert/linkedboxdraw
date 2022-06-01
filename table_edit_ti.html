@@ -36,7 +36,11 @@
 			if (this.readyState == 4 && this.status == 200) {
 				contexts = this.responseText;
 				if (data != null)
+				{
 					loadDiag(data, contexts);
+					init(); 
+					setCollapsibleHandler();
+				}
 			}
 		};
 		xmlhttp2.open("GET", contexts_url, true);

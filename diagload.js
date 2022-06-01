@@ -308,7 +308,6 @@ function drawDiag() {
 
 	expressCutLinks(mydata, mycontexts);
 
-	setCollapsibleHandler();
 	setiohandlers();
 }
 
