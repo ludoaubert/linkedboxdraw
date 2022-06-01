@@ -213,7 +213,7 @@ function loadDiag(data, contexts) {
 }
 
 
-function drawDiagram() {
+function drawDiagram(drawBoxComponent) {
 
 	const {rectangles} = mycontexts;
 
@@ -287,7 +287,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 
-			innerHTML += drawComponent(id);
+			innerHTML += drawBoxComponent(id);
 
 			innerHTML += `</foreignObject>
 			</g>`;
@@ -303,7 +303,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 function drawDiag() {
 
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
-	document.getElementById("diagram").innerHTML = drawDiagram();
+	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
 	document.getElementById("input_output").innerHTML = drawiocomponent();
 
 	expressCutLinks(mydata, mycontexts);
