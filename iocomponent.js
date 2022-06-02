@@ -6,7 +6,7 @@ function drawiocomponent(){
 
 <ul>
 <li>Load Geometry File</li>
-<li><input type="file" accept=".json" id="myFile" value="Load"></li>
+<li><input type="file" accept=".json" id="myFile_" value="Load"></li>
 </ul>
 
 <h1>Geometry File Output</h1>
@@ -31,7 +31,7 @@ function drawiocomponent(){
 
 function setiohandlers(){
 	
-	var input = document.getElementById("myFile");
+	var input = document.getElementById("myFile_");
 	
 	var data = null;
 	var contexts = null;
