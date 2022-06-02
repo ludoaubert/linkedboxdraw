@@ -1,6 +1,6 @@
 
 
-function switchCollapsible() {
+function switchCollapsible(this) {
 	
 	this.classList.toggle("active");
 	var content = this.nextElementSibling;
