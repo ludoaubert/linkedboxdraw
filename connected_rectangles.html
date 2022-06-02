@@ -29,7 +29,6 @@
 				data = this.responseText;
 				if (contexts != null)
 					loadDiag(data, contexts);
-					setCollapsibleHandler();
 			}
 		};
 		xmlhttp1.open("GET", data_url, true);
@@ -66,14 +65,14 @@
   
 <body onload="onLoad()">
 
-<button type="button" class="collapsible">Repartition</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Repartition</button>
 <div id="repartitionc" class="content">
 </div>
 
 <div id="diagram">
 </div>
 
-<button type="button" class="collapsible">Input Output</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Input Output</button>
 <div id="input_output" class="content">
 </div>
 

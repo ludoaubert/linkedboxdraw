@@ -40,7 +40,6 @@
 					loadDiag(data, contexts);
 					init(); 
 					displayCurrent();
-					setCollapsibleHandler();
 				}
 			}
 		};
@@ -85,7 +84,7 @@
       </li>
     </ul>
 
-<button type="button" class="collapsible">Input Output</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Input Output</button>
 <div class="content">
 	<fieldset>
 		<legend>Data File Input</legend>
@@ -109,7 +108,7 @@
 	</fieldset>
 </div>
 
-<button type="button" class="collapsible">Table Edit</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Table Edit</button>
 <div class="content">
 	<fieldset>
 		<legend>Diagram Title</legend>
@@ -198,15 +197,15 @@
 	</fieldset>
 </div>
 
-<button type="button" class="collapsible">Repartition</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Repartition</button>
 <div id="repartitionc" class="content">
 </div>
 
-<button type="button" class="collapsible">Diagram</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Diagram</button>
 <div id="diagram" class="content">
 </div>
 
-<button type="button" class="collapsible">Input Output Diagram</button>
+<button type="button" class="collapsible" onclick="switchCollapsible()">Input Output Diagram</button>
 <div id="input_output" class="content">
 </div>
 	
