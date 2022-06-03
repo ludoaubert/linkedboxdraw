@@ -20,7 +20,7 @@ function handleReceiveMyDataEvent2(e) {
 }
 
 
-function loadFile(element, handleEvent) {
+function loadFile(element, handleReceiveEvent) {
 	
 	if (element.files && element.files[0]) {
 
