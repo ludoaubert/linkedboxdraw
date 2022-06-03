@@ -20,6 +20,9 @@
 				mydata = JSON.parse(this.responseText);
 				if (mycontexts != null)
 					drawDiag();
+				init();
+				currentBoxIndex = -1;
+				displayCurrent();
 			}
 		};
 		xmlhttp1.open("GET", data_url, true);
@@ -35,7 +38,8 @@
 				if (mydata != null)
 				{
 					drawDiag();
-					init(); 
+					init();
+					currentBoxIndex = -1;
 					displayCurrent();
 				}
 			}

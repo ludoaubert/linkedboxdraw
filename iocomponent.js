@@ -3,6 +3,7 @@
 function handleReceiveMyDataEvent(e) {
 	
 	mydata = JSON.parse(e.target.result);
+	currentBoxIndex = -1;
 	displayCurrent();
 }
 
@@ -23,7 +24,8 @@ function handleReceiveMyDataEvent2(e) {
 function handleReceiveMyDataEventTi(e) {
 	mydata = JSON.parse(e.target.result);
 	if (mydata != null && mycontexts != null)
-		drawDiag();	
+		drawDiag();
+	currentBoxIndex = -1;	
 	displayCurrent();
 }
 
