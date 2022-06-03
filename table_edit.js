@@ -199,20 +199,6 @@ function init() {
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
 								.join('');
-
-	input.addEventListener("change", function () {
-	  if (this.files && this.files[0]) {
-		var myFile = this.files[0];
-		var reader = new FileReader();
-		
-		reader.addEventListener('load', function (e) {
-		  mydata = JSON.parse(e.target.result);
-		  displayCurrent();
-		});
-		
-		reader.readAsBinaryString(myFile);
-	  }   
-	});
 }
 
 

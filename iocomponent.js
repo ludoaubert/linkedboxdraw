@@ -29,6 +29,24 @@ function drawiocomponent(){
 }
 
 
+function handleReceiveMyDataEvent(e) {
+	mydata = JSON.parse(e.target.result);
+	displayCurrent();
+}
+
+
+function loadFile(element, handleEvent) {
+	  if (element.files && element.files[0]) {
+
+		var reader = new FileReader();
+		
+		reader.addEventListener('load', handleReceiveEvent);
+		
+		reader.readAsBinaryString(element.files[0]);
+	  }   
+	}
+
+
 function setiohandlers(){
 	
 	var input = document.getElementById("myFile_");
@@ -68,3 +86,5 @@ function setiohandlers(){
 	  }   
 	});	
 }
+
+
