@@ -304,7 +304,6 @@ function drawDiag() {
 
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
-	document.getElementById("input_output").innerHTML = drawiocomponent();
 
 	expressCutLinks(mydata, mycontexts);
 }
