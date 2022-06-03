@@ -206,12 +206,6 @@ function height(rectangle)
 const ZERO_PADDING_SIZE = 4;
 const RECT_STROKE_WIDTH = 6;
 
-function loadDiag(data, contexts) {
-	mycontexts = JSON.parse(contexts);
-	mydata = JSON.parse(data);
-	drawDiag();
-}
-
 
 function drawDiagram(drawBoxComponent) {
 

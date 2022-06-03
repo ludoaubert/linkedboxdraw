@@ -12,17 +12,14 @@
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		};
 		
-		var data = null;
-		var contexts = null;
-		
 		var xmlhttp1 = new XMLHttpRequest();
 		var data_url = "diagdata.json";
 
 		xmlhttp1.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				data = this.responseText;
-				if (contexts != null)
-					loadDiag(data, contexts);
+				mydata = JSON.parse(this.responseText);
+				if (mycontexts != null)
+					drawDiag();
 			}
 		};
 		xmlhttp1.open("GET", data_url, true);
@@ -34,10 +31,10 @@
 
 		xmlhttp2.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				contexts = this.responseText;
-				if (data != null)
+				mycontexts = JSON.parse(this.responseText);
+				if (mydata != null)
 				{
-					loadDiag(data, contexts);
+					drawDiag();
 					init(); 
 					displayCurrent();
 				}
