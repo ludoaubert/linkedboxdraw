@@ -20,6 +20,14 @@ function handleReceiveMyDataEvent2(e) {
 }
 
 
+function handleReceiveMyDataEventTi(e) {
+	mydata = JSON.parse(e.target.result);
+	if (mydata != null && mycontexts != null)
+		drawDiag();	
+	displayCurrent();
+}
+
+
 function loadFile(element, handleReceiveEvent) {
 	
 	if (element.files && element.files[0]) {
