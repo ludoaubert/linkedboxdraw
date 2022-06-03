@@ -307,8 +307,6 @@ function drawDiag() {
 	document.getElementById("input_output").innerHTML = drawiocomponent();
 
 	expressCutLinks(mydata, mycontexts);
-
-	setiohandlers();
 }
 
 

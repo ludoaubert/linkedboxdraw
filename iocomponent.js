@@ -6,7 +6,7 @@ function drawiocomponent(){
 
 <ul>
 <li>Load Geometry File</li>
-<li><input type="file" accept=".json" id="myFile_" value="Load"></li>
+<li><input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyContextsEvent2)"></li>
 </ul>
 
 <h1>Geometry File Output</h1>
@@ -22,7 +22,7 @@ function drawiocomponent(){
 <h1>Data File Input</h1>
 <ul>
 <li>Load Data File</li>
-<li><input type="file" accept=".json" id="myDataFile" value="Load"></li>
+<li><input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyDataEvent2)"></li>
 </ul>`;
 
 	return innerHTML;
@@ -30,61 +30,35 @@ function drawiocomponent(){
 
 
 function handleReceiveMyDataEvent(e) {
+	
 	mydata = JSON.parse(e.target.result);
 	displayCurrent();
 }
 
+function handleReceiveMyContextsEvent2(e) {
+	
+	contexts = e.target.result;
+	if (data != null && contexts != null)
+		loadDiag(data, contexts);
+}
+
+function handleReceiveMyDataEvent2(e) {
+	data = e.target.result;
+	if (data != null && contexts != null)
+		loadDiag(data, contexts);	
+}
+
 
 function loadFile(element, handleEvent) {
-	  if (element.files && element.files[0]) {
+	
+	if (element.files && element.files[0]) {
 
 		var reader = new FileReader();
 		
 		reader.addEventListener('load', handleReceiveEvent);
 		
 		reader.readAsBinaryString(element.files[0]);
-	  }   
-	}
-
-
-function setiohandlers(){
-	
-	var input = document.getElementById("myFile_");
-	
-	var data = null;
-	var contexts = null;
-
-	input.addEventListener("change", function () {
-	  if (this.files && this.files[0]) {
-		var myFile = this.files[0];
-		var reader = new FileReader();
-		
-		reader.addEventListener('load', function (e) {
-		  contexts = e.target.result;
-		  if (data != null && contexts != null)
-			loadDiag(data, contexts);
-		});
-		
-		reader.readAsBinaryString(myFile);
-	  }   
-	});
-	
-	var dataInput = document.getElementById("myDataFile");
-
-	dataInput.addEventListener("change", function () {
-	  if (this.files && this.files[0]) {
-		var myDataFile = this.files[0];
-		var reader = new FileReader();
-		
-		reader.addEventListener('load', function (e) {
-		  data = e.target.result;
-		  if (data != null && contexts != null)
-			loadDiag(data, contexts);
-		});
-		
-		reader.readAsBinaryString(myDataFile);
-	  }   
-	});	
+	}   
 }
 
 
