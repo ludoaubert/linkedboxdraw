@@ -1,5 +1,4 @@
-var data = null;
-var contexts = null;
+
 
 function handleReceiveMyDataEvent(e) {
 	
