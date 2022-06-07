@@ -9,9 +9,9 @@ var g = 0;
 const FRAME_MARGIN = 20;
 
 
-function download_(filename) {
+function download_(filename, jsonData) {
   var element = document.createElement('a');
-  const Json = prettyContexts(JSON.stringify(mycontexts));
+  const Json = prettyContexts(JSON.stringify(jsonData));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
   element.setAttribute('download', filename);
   element.style.display = 'none';

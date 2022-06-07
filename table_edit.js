@@ -56,9 +56,9 @@ function newDiagram() {
 }
 
 
-function download(filename) {
+function download(filename, jsonData) {
   var element = document.createElement('a');
-  const jsons = prettyData(JSON.stringify(mydata));
+  const jsons = prettyData(JSON.stringify(jsonData));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsons);
   element.setAttribute('download', filename);
   element.style.display = 'none';

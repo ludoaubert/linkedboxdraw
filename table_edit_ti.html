@@ -96,7 +96,7 @@
 		<legend>Data File Output</legend>
 		<form onsubmit="return false">
 		  <input type="text" name="name" value="diagdata.json">
-		  <input type="submit" value="Save As" onclick="download(this['name'].value)">
+		  <input type="submit" value="Save As" onclick="download(this['name'].value, mydata)">
 		</form>
 	</fieldset>
 
@@ -117,7 +117,7 @@
 		<legend>Geometry File Output</legend>
 		<form onsubmit="return false">		
 		  <input type="text" name="name" value="contexts.json">
-		  <input type="submit" value="Save Geometry File As" onclick="download_(this['name'].value)">
+		  <input type="submit" value="Save Geometry File As" onclick="download_(this['name'].value, mycontexts)">
 		</form>
 	</fieldset>
 	
