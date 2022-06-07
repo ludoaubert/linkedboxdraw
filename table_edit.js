@@ -67,6 +67,7 @@ function download(filename) {
   document.body.removeChild(element);
 }
 
+//TODO: refactor with compute_links(selectedContextIndex)
 
 function download2(filename) {
 	var element = document.createElement('a');
@@ -152,6 +153,10 @@ function download2(filename) {
 			return {frame, translatedBoxes, links:polylines2};
 		}
 	);
+	
+	mycontexts = data;
+	drawDiag();
+	
 	
 	const jsonCompletedResponse = prettyContexts(JSON.stringify(data));
 	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsonCompletedResponse);
