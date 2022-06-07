@@ -91,11 +91,11 @@ function download2(filename) {
 	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
 	
-	data = JSON.parse(jsonResponse);
+	mycontexts = JSON.parse(jsonResponse);
 	
-	data.rectangles = rectangles;
+	mycontexts.rectangles = rectangles;
 	
-	data.contexts = data.contexts.map(
+	mycontexts.contexts = mycontexts.contexts.map(
 		({frame, translatedBoxes}) => {
 			const {left,right,top,bottom} = frame;
 			const sframe = [left, right, top, bottom]
@@ -143,17 +143,7 @@ function download2(filename) {
 		}
 	);
 	
-	mycontexts = data;
-	drawDiag();
-	
-	
-	const jsonCompletedResponse = prettyContexts(JSON.stringify(data));
-	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsonCompletedResponse);
-	element.setAttribute('download', filename);
-	element.style.display = 'none';
-	document.body.appendChild(element);
-	element.click();
-	document.body.removeChild(element);
+	download(filename, mycontexts);
 }
 
 
