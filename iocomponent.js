@@ -57,3 +57,14 @@ function loadFile(element, handleReceiveEvent) {
 }
 
 
+function download(filename, jsonData) {
+  var element = document.createElement('a');
+  const jsons = prettyData(JSON.stringify(jsonData));
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + jsons);
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
