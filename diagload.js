@@ -9,7 +9,7 @@ var g = 0;
 const FRAME_MARGIN = 20;
 
 
-function download(filename) {
+function download_(filename) {
   var element = document.createElement('a');
   const Json = prettyContexts(JSON.stringify(mycontexts));
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
