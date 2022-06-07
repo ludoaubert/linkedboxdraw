@@ -9,18 +9,6 @@ var g = 0;
 const FRAME_MARGIN = 20;
 
 
-function download_(filename, jsonData) {
-  var element = document.createElement('a');
-  const Json = prettyContexts(JSON.stringify(jsonData));
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + Json);
-  element.setAttribute('download', filename);
-  element.style.display = 'none';
-  document.body.appendChild(element);
-  element.click();
-  document.body.removeChild(element);
-}
-
-
 function selectElement(elmnt,clr)
 {
 	elmnt.style.color = clr;
