@@ -38,6 +38,7 @@ ul li a:hover{
 svg{
 	display: inline-block;
 	vertical-align: middle;
+	user-select: none;
 }
 
 /*Cf RECT_STROKE_WIDTH = 6 in Javascript code. */
