@@ -1,5 +1,5 @@
 /* Style the button that is used to open and close the collapsible content */
-.collapsible {
+.collapsible, .active {
   background-color: #eee;
   color: #444;
   cursor: pointer;
