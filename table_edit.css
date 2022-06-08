@@ -29,3 +29,8 @@ form * {
   display: block;
   margin: 10px;
 }
+
+
+#diagram {
+	display: block;
+}
