@@ -25,11 +25,8 @@
 }
 
 #diagram {
+  min-height: 20px;
   display : none;
-}
-
-div:empty {
-  display: none;
 }
 
 .collapsible::after {
