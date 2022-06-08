@@ -31,6 +31,6 @@ form * {
 }
 
 
-#diagram {
+#diagram.content {
 	display: block;
 }
