@@ -24,6 +24,10 @@
   background-color: #ffffff; /* White */
 }
 
+#diagram {
+  display : none;
+}
+
 .collapsible::after {
   content: '\02795'; /* Unicode character for "plus" sign (+) */
   font-size: 13px;
