@@ -33,5 +33,4 @@ form * {
 
 div#diagram.content {
 	display: block;
-	height: 10px;	/*giving the div a height, otherwise it doesn't have a display*/
 }
