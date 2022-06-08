@@ -29,8 +29,3 @@ form * {
   display: block;
   margin: 10px;
 }
-
-
-#diagram {
-  display: block;	/* overrides .content{display: none} in collapsible.css */
-}
