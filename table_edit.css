@@ -33,4 +33,5 @@ form * {
 
 div#diagram.content {
 	display: block;
+	height: 10px;
 }
