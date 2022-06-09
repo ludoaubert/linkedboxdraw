@@ -148,8 +148,7 @@ function download2(filename) {
 
 
 function init() {
-	
-	input = document.getElementById("myFile");
+
 	editTitle = document.getElementById("title");
 	boxCombo = document.getElementById("boxes");
 	fieldCombo = document.getElementById("fields");

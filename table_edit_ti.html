@@ -87,7 +87,7 @@
 <div class="content">
 	<fieldset>
 		<legend>Data File Input</legend>
-		<input type="file" accept=".json" id="myFile" value="Load" onchange="loadFile(this, handleReceiveMyDataEventTi)">
+		<input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyDataEventTi)">
 	</fieldset>
 
 	<fieldset>
@@ -102,7 +102,7 @@
 		<legend>Compute Geometry File From Data File</legend>
 		<form onsubmit="return false">
 		  <input type="text" name="name" value="contexts.json">
-		  <input type="submit" value="Save As" onclick="download2(this.previousElementSibling.value); drawDiag();">
+		  <input type="submit" value="Compute Save and Load" onclick="download2(this.previousElementSibling.value); drawDiag();">
 		</form>
 	</fieldset>
 	
