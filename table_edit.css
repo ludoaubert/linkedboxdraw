@@ -26,6 +26,6 @@ legend {
 }
 
 form * {
-  display: block;
+  display: inline;
   margin: 10px;
 }
