@@ -29,3 +29,7 @@ form * {
   display: inline;
   margin: 5px;
 }
+
+form {
+	margin: 0;
+}
