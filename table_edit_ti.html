@@ -93,7 +93,7 @@
 	<fieldset>
 		<legend>Data File Output</legend>
 		<form onsubmit="return false">
-		  <input type="text" name="name" value="diagdata.json">
+		  <input type="text" value="diagdata.json">
 		  <input type="submit" value="Save As" onclick="download(this.previousElementSibling.value, mydata)">
 		</form>
 	</fieldset>
@@ -101,7 +101,7 @@
 	<fieldset>
 		<legend>Compute Geometry File From Data File</legend>
 		<form onsubmit="return false">
-		  <input type="text" name="name" value="contexts.json">
+		  <input type="text" value="contexts.json">
 		  <input type="submit" value="Compute Save and Load" onclick="download2(this.previousElementSibling.value); drawDiag();">
 		</form>
 	</fieldset>
