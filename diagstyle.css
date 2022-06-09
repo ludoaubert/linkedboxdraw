@@ -20,7 +20,7 @@ ul{
  display:inline;
 }
 
-ul li a{
+ul li span{
  background-color:#6495ED;
  color:black;
  text-decoration:none;
