@@ -18,6 +18,8 @@ fieldset {
 	color: #00F;
 	background: #CCF;
 	border: thin solid #333;
+	padding: 4px 6px 5px;/* top | horizontal | bottom */
+	margin: 0px 2px;/* vertical | horizontal */
 }
 legend {
 	font-size: 1.4em;
