@@ -87,7 +87,8 @@
 <div class="content">
 	<fieldset>
 		<legend>Data File Input</legend>
-		<input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyDataEventTi)">
+		<label for="datafileinput">Select a file:</label>
+		<input type="file" id="datafileinput" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyDataEventTi)">
 	</fieldset>
 
 	<fieldset>
@@ -108,7 +109,8 @@
 	
 	<fieldset>
 		<legend>Geometry File Input</legend>
-		<input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyContextsEvent2)"></li>
+		<label for="geometryfileinput">Select a file:</label>
+		<input type="file" id="geometryfileinput" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyContextsEvent2)"></li>
 	</fieldset>
 
 	<fieldset>
