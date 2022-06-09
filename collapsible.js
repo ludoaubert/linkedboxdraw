@@ -6,7 +6,9 @@ function switchCollapsible(element) {
 	var content = element.nextElementSibling;
 	
 	const cssObj = window.getComputedStyle(content);
-	let display = cssObj.getPropertyValue("display");
+	const display = cssObj.getPropertyValue("display");
+	
+	content.style.display = display;
 	
 	if (content.style.display === "block") {
 		content.style.display = "none";
