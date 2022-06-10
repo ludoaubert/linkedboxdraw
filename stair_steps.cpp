@@ -1751,21 +1751,21 @@ void test_stair_steps_layout()
                 {
                     .testid=12, .title="LOLA",
                     .rectangles={
-			{.left=0,.right=162,.top=0,.bottom=104},//8-0
-			{.left=0,.right=182,.top=0,.bottom=72},//9-1
-			{.left=0,.right=105,.top=0,.bottom=72},//10-2
-			{.left=0,.right=126,.top=0,.bottom=152},//21-3
-			{.left=0,.right=126,.top=0,.bottom=88},//24-4
-			{.left=0,.right=147,.top=0,.bottom=120},//25-5
-			{.left=0,.right=140,.top=0,.bottom=120},//26-6
-			{.left=0,.right=168,.top=0,.bottom=136},//27-7
-			{.left=0,.right=168,.top=0,.bottom=120},//28-8
-			{.left=0,.right=147,.top=0,.bottom=104},//30-9
-			{.left=0,.right=133,.top=0,.bottom=120},//32-10
-			{.left=0,.right=147,.top=0,.bottom=168},//44-11
-			{.left=0,.right=140,.top=0,.bottom=88},//48-12
-			{.left=0,.right=155,.top=0,.bottom=120},//52-13
-			{.left=0,.right=175,.top=0,.bottom=136}//53-14
+			{.m_left=0,.m_right=162,.m_top=0,.m_bottom=104},//8-0
+			{.m_left=0,.m_right=182,.m_top=0,.m_bottom=72},//9-1
+			{.m_left=0,.m_right=105,.m_top=0,.m_bottom=72},//10-2
+			{.m_left=0,.m_right=126,.m_top=0,.m_bottom=152},//21-3
+			{.m_left=0,.m_right=126,.m_top=0,.m_bottom=88},//24-4
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=120},//25-5
+			{.m_left=0,.m_right=140,.m_top=0,.m_bottom=120},//26-6
+			{.m_left=0,.m_right=168,.m_top=0,.m_bottom=136},//27-7
+			{.m_left=0,.m_right=168,.m_top=0,.m_bottom=120},//28-8
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=104},//30-9
+			{.m_left=0,.m_right=133,.m_top=0,.m_bottom=120},//32-10
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=168},//44-11
+			{.m_left=0,.m_right=140,.m_top=0,.m_bottom=88},//48-12
+			{.m_left=0,.m_right=155,.m_top=0,.m_bottom=120},//52-13
+			{.m_left=0,.m_right=175,.m_top=0,.m_bottom=136}//53-14
 		    },
                     .edges={
 			{.from=13,.to=12},
@@ -1781,7 +1781,7 @@ void test_stair_steps_layout()
 			{.from=2,.to=7},
 			{.from=8,.to=7},
 			{.from=0,.to=3},
-			{.from=12,.to=6}						
+			{.from=12,.to=6}
 		    },
                     .expected_translations={
 			{.id=0,.translation={.x=396,.y=10}},
@@ -1798,9 +1798,9 @@ void test_stair_steps_layout()
 			{.id=11,.translation={.x=743,.y=506}},
 			{.id=12,.translation={.x=93,.y=153}},
 			{.id=13,.translation={.x=10,.y=281}},
-			{.id=14,.translation={.x=11,.y=441}}			
+			{.id=14,.translation={.x=11,.y=441}}
                     },
-                    .frame={.left=0,.right=884,.top=0,.bottom=552}
+                    .frame={.m_left=0,.m_right=884,.m_top=0,.m_bottom=552}
                 }
         } ;
 

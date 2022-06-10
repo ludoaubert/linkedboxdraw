@@ -148,7 +148,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 void test_compact_frame()
 {
 	TestFunctionTimer ft("test_compact_frame");
-	
+
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
 	const TestContext test_contexts[3]={
@@ -156,16 +156,16 @@ void test_compact_frame()
 	{
 		.testid=1,
 		.input_rectangles = {
-			{.left=209, .right=411, .top=352, .bottom=672},//datamart_metric
-			{.left=495, .right=641, .top=0, .bottom=160},//preference
-			{.left=0, .right=188, .top=224, .bottom=352},//datamart_report_prop
-			{.left=641, .right=843, .top=464, .bottom=672},//destinationblacklist
-			{.left=641, .right=829, .top=144, .bottom=272},//user_session
-			{.left=-14, .right=209, .top=608, .bottom=720},//datamart_metric_parameter
-			{.left=21, .right=209, .top=352, .bottom=480},//datamart_metric_prop
-			{.left=188, .right=390, .top=96, .bottom=352},//datamart_report
-			{.left=641, .right=836, .top=272, .bottom=464},//folder_preference
-			{.left=411, .right=641, .top=160, .bottom=672} //sfuser
+			{.m_left=209, .m_right=411, .m_top=352, .m_bottom=672},//datamart_metric
+			{.m_left=495, .m_right=641, .m_top=0, .m_bottom=160},//preference
+			{.m_left=0, .m_right=188, .m_top=224, .m_bottom=352},//datamart_report_prop
+			{.m_left=641, .m_right=843, .m_top=464, .m_bottom=672},//destinationblacklist
+			{.m_left=641, .m_right=829, .m_top=144, .m_bottom=272},//user_session
+			{.m_left=-14, .m_right=209, .m_top=608, .m_bottom=720},//datamart_metric_parameter
+			{.m_left=21, .m_right=209, .m_top=352, .m_bottom=480},//datamart_metric_prop
+			{.m_left=188, .m_right=390, .m_top=96, .m_bottom=352},//datamart_report
+			{.m_left=641, .m_right=836, .m_top=272, .m_bottom=464},//folder_preference
+			{.m_left=411, .m_right=641, .m_top=160, .m_bottom=672} //sfuser
 		},
 
 		.edges = {
@@ -183,23 +183,23 @@ void test_compact_frame()
 		},
 
 		.expected_rectangles = {
-			{.left=209, .right=411, .top=352, .bottom=672},
-			{.left=495, .right=641, .top=0, .bottom=160},
-			{.left=0, .right=188, .top=224, .bottom=352},
-			{.left=641, .right=843, .top=464, .bottom=672},
-			{.left=641, .right=829, .top=144, .bottom=272},
-			{.left=-14, .right=209, .top=608, .bottom=720},
-			{.left=21, .right=209, .top=352, .bottom=480},
-			{.left=188, .right=390, .top=96, .bottom=352},
-			{.left=641, .right=836, .top=272, .bottom=464},
-			{.left=411, .right=641, .top=160, .bottom=672}
+			{.m_left=209, .m_right=411, .m_top=352, .m_bottom=672},
+			{.m_left=495, .m_right=641, .m_top=0, .m_bottom=160},
+			{.m_left=0, .m_right=188, .m_top=224, .m_bottom=352},
+			{.m_left=641, .m_right=843, .m_top=464, .m_bottom=672},
+			{.m_left=641, .m_right=829, .m_top=144, .m_bottom=272},
+			{.m_left=-14, .m_right=209, .m_top=608, .m_bottom=720},
+			{.m_left=21, .m_right=209, .m_top=352, .m_bottom=480},
+			{.m_left=188, .m_right=390, .m_top=96, .m_bottom=352},
+			{.m_left=641, .m_right=836, .m_top=272, .m_bottom=464},
+			{.m_left=411, .m_right=641, .m_top=160, .m_bottom=672}
 		}
 	},
 	{
 		.testid=2,
 		.input_rectangles = {
-			{.left=0, .right=10, .top=0, .bottom=10},
-			{.left=0, .right=10, .top=20, .bottom=30}
+			{.m_left=0, .m_right=10, .m_top=0, .m_bottom=10},
+			{.m_left=0, .m_right=10, .m_top=20, .m_bottom=30}
 		},
 
 		.edges = {
@@ -207,30 +207,30 @@ void test_compact_frame()
 		},
 
 		.expected_rectangles = {
-			{.left=0, .right=10, .top=10, .bottom=20},
-			{.left=0, .right=10, .top=20, .bottom=30}
+			{.m_left=0, .m_right=10, .m_top=10, .m_bottom=20},
+			{.m_left=0, .m_right=10, .m_top=20, .m_bottom=30}
 		}
 	},
 	{
 		.testid=3,
 		.input_rectangles = {
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
 		},
-		
+
 		.edges = {
 			{.from=13,.to=12},
 			{.from=13,.to=14},
@@ -245,34 +245,34 @@ void test_compact_frame()
 			{.from=2,.to=7},
 			{.from=8,.to=7},
 			{.from=0,.to=3},
-			{.from=12,.to=6}		
+			{.from=12,.to=6}
 		},
-		
+
 		.expected_rectangles = {
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
 		}
 	}
 	};
-	
+
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
-		
+
 		int dm1 = dim_max(compute_frame(rectangles));
 
 		for (int i=0; i < rectangles.size(); i++)
@@ -283,21 +283,21 @@ void test_compact_frame()
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
-		
+
 		int dm2 = dim_max(compute_frame(rectangles));
 
 		latuile_test_json_output(input_rectangles,
-								rectangles,
-								edges,
-								expected_rectangles,
-								"compact_frame",
-								testid);
+					rectangles,
+					edges,
+					expected_rectangles,
+					"compact_frame",
+					testid);
 
 		for (MyRect& r : rectangles)
 			r.i=-1;
 
 		bool bOK = rectangles == expected_rectangles;
-        printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
+        	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 		(bOK ? nbOK : nbKO)++;
 	}

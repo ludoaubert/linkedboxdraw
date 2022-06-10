@@ -11,7 +11,7 @@ using namespace std ;
 struct DecisionTreeNode_
 {
 	int parent_node_index ;
-	int16_t left, top ; 	//all we need to know about the moved rectangle
+	int16_t m_left, m_top ; 	//all we need to know about the moved rectangle
 	int8_t i ;		//all we need to know about the moved rectangle
 	int16_t diameter ;
 	int16_t distance ;
@@ -200,10 +200,10 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 				DecisionTreeNode_ &p = decision_tree[i] ;
 				translated_ancestors[p.i] = true ;
 				MyRect& r = rectangles_[p.i];
-				r.m_right = int16_t(p.left + width(r));
-				r.m_bottom = int16_t(p.top + height(r));
-                                r.m_left = p.left ;
-                                r.m_top = p.top;
+				r.m_right = int16_t(p.m_left + width(r));
+				r.m_bottom = int16_t(p.m_top + height(r));
+                                r.m_left = p.m_left ;
+                                r.m_top = p.m_top;
 			}
 
 			if (depth == MAX_TREE_DEPTH)
@@ -254,10 +254,10 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 		{
 			DecisionTreeNode_ &p= decision_tree[i];
 			MyRect& r = rectangles_[p.i];
-			r.m_right = int16_t(p.left + width(r));
-			r.m_bottom = int16_t(p.top + height(r));
-                        r.m_left = p.left;
-                        r.m_top = p.top;
+			r.m_right = int16_t(p.m_left + width(r));
+			r.m_bottom = int16_t(p.m_top + height(r));
+                        r.m_left = p.m_left;
+                        r.m_top = p.m_top;
 		}
 
 		measure(rectangles, edges, diameter_, distance_, intersection_penalty_) ;
@@ -278,28 +278,28 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 void test_optimize_rectangle_positions()
 {
 	TestFunctionTimer ft("test_optimize_rectangle_positions");
-	
+
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles;};
-	
-	const TestContext text_contexts[]= {
-		
+
+	const vector<TestContext> test_contexts = {
+
 	{
 		.testid=1,
 		.input_rectangles = {
-			{.left=369, .right=529, .top=272, .bottom=384},
-			{.left=599, .right=780, .top=400, .bottom=544},
-			{.left=780, .right=1003, .top=416, .bottom=544},
-			{.left=146, .right=369, .top=240, .bottom=544},
-			{.left=42, .right=146, .top=240, .bottom=320},
-			{.left=42, .right=195, .top=160, .bottom=240},
-			{.left=0, .right=146, .top=416, .bottom=544},
-			{.left=369, .right=494, .top=160, .bottom=272},
-			{.left=369, .right=536, .top=0, .bottom=160},
-			{.left=599, .right=759, .top=288, .bottom=400},
-			{.left=759, .right=919, .top=224, .bottom=400},
-			{.left=369, .right=599, .top=384, .bottom=544},
-			{.left=536, .right=710, .top=64, .bottom=160},
-			{.left=195, .right=369, .top=112, .bottom=240}
+			{.m_left=369, .m_right=529, .m_top=272, .m_bottom=384},
+			{.m_left=599, .m_right=780, .m_top=400, .m_bottom=544},
+			{.m_left=780, .m_right=1003, .m_top=416, .m_bottom=544},
+			{.m_left=146, .m_right=369, .m_top=240, .m_bottom=544},
+			{.m_left=42, .m_right=146, .m_top=240, .m_bottom=320},
+			{.m_left=42, .m_right=195, .m_top=160, .m_bottom=240},
+			{.m_left=0, .m_right=146, .m_top=416, .m_bottom=544},
+			{.m_left=369, .m_right=494, .m_top=160, .m_bottom=272},
+			{.m_left=369, .m_right=536, .m_top=0, .m_bottom=160},
+			{.m_left=599, .m_right=759, .m_top=288, .m_bottom=400},
+			{.m_left=759, .m_right=919, .m_top=224, .m_bottom=400},
+			{.m_left=369, .m_right=599, .m_top=384, .m_bottom=544},
+			{.m_left=536, .m_right=710, .m_top=64, .m_bottom=160},
+			{.m_left=195, .m_right=369, .m_top=112, .m_bottom=240}
 		},
 		.edges={
 			{.from=2, .to=1},
@@ -319,44 +319,44 @@ void test_optimize_rectangle_positions()
 			{.from=11, .to=1}
 		},
 
-        .expected_rectangles={
-			{.left=35, .right=195, .top=128, .bottom=240},
-			{.left=599, .right=780, .top=400, .bottom=544},
-			{.left=376, .right=599, .top=272, .bottom=400},
-			{.left=146, .right=369, .top=240, .bottom=544},
-			{.left=42, .right=146, .top=240, .bottom=320},
-			{.left=-7, .right=146, .top=320, .bottom=400},
-			{.left=0, .right=146, .top=416, .bottom=544},
-			{.left=369, .right=494, .top=160, .bottom=272},
-			{.left=369, .right=536, .top=0, .bottom=160},
-			{.left=599, .right=759, .top=288, .bottom=400},
-			{.left=599, .right=759, .top=112, .bottom=288},
-			{.left=369, .right=599, .top=400, .bottom=560},
-			{.left=536, .right=710, .top=0, .bottom=96},
-			{.left=195, .right=369, .top=112, .bottom=240}
-        }
+        	.expected_rectangles={
+			{.m_left=35, .m_right=195, .m_top=128, .m_bottom=240},
+			{.m_left=599, .m_right=780, .m_top=400, .m_bottom=544},
+			{.m_left=376, .m_right=599, .m_top=272, .m_bottom=400},
+			{.m_left=146, .m_right=369, .m_top=240, .m_bottom=544},
+			{.m_left=42, .m_right=146, .m_top=240, .m_bottom=320},
+			{.m_left=-7, .m_right=146, .m_top=320, .m_bottom=400},
+			{.m_left=0, .m_right=146, .m_top=416, .m_bottom=544},
+			{.m_left=369, .m_right=494, .m_top=160, .m_bottom=272},
+			{.m_left=369, .m_right=536, .m_top=0, .m_bottom=160},
+			{.m_left=599, .m_right=759, .m_top=288, .m_bottom=400},
+			{.m_left=599, .m_right=759, .m_top=112, .m_bottom=288},
+			{.m_left=369, .m_right=599, .m_top=400, .m_bottom=560},
+			{.m_left=536, .m_right=710, .m_top=0, .m_bottom=96},
+			{.m_left=195, .m_right=369, .m_top=112, .m_bottom=240}
+        	}
 	},
-	
+
 	{
 		.testid=2,
 		.input_rectangles = {
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
 		},
-		
+
 		.edges = {
 			{.from=13,.to=12},
 			{.from=13,.to=14},
@@ -371,35 +371,35 @@ void test_optimize_rectangle_positions()
 			{.from=2,.to=7},
 			{.from=8,.to=7},
 			{.from=0,.to=3},
-			{.from=12,.to=6}		
+			{.from=12,.to=6}
 		},
-		
+
 		.expected_rectangles = {
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
 		}
 	}
-	
+
 	};
 
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
-		
+
 		int dm1 = dim_max(compute_frame(rectangles));
 
 		for (int i=0; i < rectangles.size(); i++)
@@ -411,7 +411,7 @@ void test_optimize_rectangle_positions()
 		}
 
 		optimize_rectangle_positions(rectangles, adjacency_list) ;
-		
+
 		int dm2 = dim_max(compute_frame(rectangles));
 
 		latuile_test_json_output(input_rectangles,

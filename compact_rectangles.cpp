@@ -89,29 +89,29 @@ bool compact_rectangles(vector<MyRect> &rectangles, const vector<vector<MPD_Arc>
 void test_compact_rectangles()
 {
 	TestFunctionTimer ft("test_compact_rectangles");
-	
+
 	struct TestContext{int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles;};
-	
-	const TestContext test_contexts = {
+
+	const vector<TestContext> test_contexts = {
 
 	{
-		testid=1,
+		.testid=1,
 		.input_rectangles = {
-			{.left=202, .right=404, .top=240, .bottom=544}, //role
-			{.left=42, .right=195, .top=544, .bottom=656}, //role_auto_grant
-			{.left=195, .right=397, .top=896, .bottom=1024},//ancestor_project
-			{.left=404, .right=599, .top=320, .bottom=512},//role_operation
-			{.left=244, .right=404, .top=96, .bottom=240}, //role_path
-			{.left=63, .right=202, .top=416, .bottom=544}, //role_user
-			{.left=21, .right=195, .top=672, .bottom=880}, //task_alert_pref
-			{.left=84, .right=244, .top=128, .bottom=240}, //transition_role
-			{.left=28, .right=195, .top=880, .bottom=992}, //project_membership
-			{.left=195, .right=404, .top=544, .bottom=896}, //project
-			{.left=397, .right=592, .top=896, .bottom=1024},//project_activity
-			{.left=404, .right=634, .top=640, .bottom=896},//project_membership_request
-			{.left=404, .right=571, .top=176, .bottom=320},//operation_cluster
-			{.left=84, .right=244, .top=0, .bottom=128},  //transition
-			{.left=404, .right=620, .top=512, .bottom=640}//role_default_user
+			{.m_left=202, .m_right=404, .m_top=240, .m_bottom=544}, //role
+			{.m_left=42, .m_right=195, .m_top=544, .m_bottom=656}, //role_auto_grant
+			{.m_left=195, .m_right=397, .m_top=896, .m_bottom=1024},//ancestor_project
+			{.m_left=404, .m_right=599, .m_top=320, .m_bottom=512},//role_operation
+			{.m_left=244, .m_right=404, .m_top=96, .m_bottom=240}, //role_path
+			{.m_left=63, .m_right=202, .m_top=416, .m_bottom=544}, //role_user
+			{.m_left=21, .m_right=195, .m_top=672, .m_bottom=880}, //task_alert_pref
+			{.m_left=84, .m_right=244, .m_top=128, .m_bottom=240}, //transition_role
+			{.m_left=28, .m_right=195, .m_top=880, .m_bottom=992}, //project_membership
+			{.m_left=195, .m_right=404, .m_top=544, .m_bottom=896}, //project
+			{.m_left=397, .m_right=592, .m_top=896, .m_bottom=1024},//project_activity
+			{.m_left=404, .m_right=634, .m_top=640, .m_bottom=896},//project_membership_request
+			{.m_left=404, .m_right=571, .m_top=176, .m_bottom=320},//operation_cluster
+			{.m_left=84, .m_right=244, .m_top=0, .m_bottom=128},  //transition
+			{.m_left=404, .m_right=620, .m_top=512, .m_bottom=640}//role_default_user
 		},
 
 		.edges = {
@@ -138,45 +138,45 @@ void test_compact_rectangles()
 		},
 
         .expected_rectangles={
-			{.left=202, .right=404, .top=240, .bottom=544},
-			{.left=42, .right=195, .top=544, .bottom=656},
-			{.left=195, .right=397, .top=896, .bottom=1024},
-			{.left=404, .right=599, .top=320, .bottom=512},
-			{.left=244, .right=404, .top=96, .bottom=240},
-			{.left=63, .right=202, .top=416, .bottom=544},
-			{.left=21, .right=195, .top=672, .bottom=880},
-			{.left=84, .right=244, .top=128, .bottom=240},
-			{.left=28, .right=195, .top=880, .bottom=992},
-			{.left=195, .right=404, .top=544, .bottom=896},
-			{.left=397, .right=592, .top=896, .bottom=1024},
-			{.left=404, .right=634, .top=640, .bottom=896},
-			{.left=404, .right=571, .top=176, .bottom=320},
-			{.left=42, .right=202, .top=240, .bottom=368},
-			{.left=404, .right=620, .top=512, .bottom=640}
+			{.m_left=202, .m_right=404, .m_top=240, .m_bottom=544},
+			{.m_left=42, .m_right=195, .m_top=544, .m_bottom=656},
+			{.m_left=195, .m_right=397, .m_top=896, .m_bottom=1024},
+			{.m_left=404, .m_right=599, .m_top=320, .m_bottom=512},
+			{.m_left=244, .m_right=404, .m_top=96, .m_bottom=240},
+			{.m_left=63, .m_right=202, .m_top=416, .m_bottom=544},
+			{.m_left=21, .m_right=195, .m_top=672, .m_bottom=880},
+			{.m_left=84, .m_right=244, .m_top=128, .m_bottom=240},
+			{.m_left=28, .m_right=195, .m_top=880, .m_bottom=992},
+			{.m_left=195, .m_right=404, .m_top=544, .m_bottom=896},
+			{.m_left=397, .m_right=592, .m_top=896, .m_bottom=1024},
+			{.m_left=404, .m_right=634, .m_top=640, .m_bottom=896},
+			{.m_left=404, .m_right=571, .m_top=176, .m_bottom=320},
+			{.m_left=42, .m_right=202, .m_top=240, .m_bottom=368},
+			{.m_left=404, .m_right=620, .m_top=512, .m_bottom=640}
         }
 	},
-	
+
 	{
 		.testid=2,
-		
+
 		.input_rectangles = {
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53			
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
 		},
-		
+
 		.edges = {
 			{.from=13,.to=12},
 			{.from=13,.to=14},
@@ -195,22 +195,22 @@ void test_compact_rectangles()
 		},
 
         .expected_rectangles={
-			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
-			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
-			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
-			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
-			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
-			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
-			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
-			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
-			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
-			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
-			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
-			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
-			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
-			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
-			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
-		}			
+			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
+			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
+			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
+			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
+			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
+			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
+			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
+			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
+			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
+			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
+			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
+			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
+			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
+			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
+			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
+		}
 	}
 	};
 
@@ -218,7 +218,7 @@ void test_compact_rectangles()
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
-		
+
 		int dm1 = dim_max(compute_frame(rectangles));
 
 		for (int i=0; i < rectangles.size(); i++)
@@ -229,7 +229,7 @@ void test_compact_rectangles()
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_rectangles(rectangles, adjacency_list) ;
-		
+
 		int dm2 = dim_max(compute_frame(rectangles));
 
 		latuile_test_json_output(input_rectangles,
