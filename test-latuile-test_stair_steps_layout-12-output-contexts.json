@@ -1,0 +1,38 @@
+{"contexts":[{
+"frame":{"left":0,"right":930,"top":0,"bottom":664},
+"translatedBoxes":[
+{"id":0,"translation":{"x":339,"y":0}},
+{"id":1,"translation":{"x":395,"y":320}},
+{"id":2,"translation":{"x":339,"y":208}},
+{"id":3,"translation":{"x":173,"y":0}},
+{"id":4,"translation":{"x":173,"y":192}},
+{"id":5,"translation":{"x":194,"y":496}},
+{"id":6,"translation":{"x":527,"y":144}},
+{"id":7,"translation":{"x":187,"y":320}},
+{"id":8,"translation":{"x":381,"y":496}},
+{"id":9,"translation":{"x":0,"y":352}},
+{"id":10,"translation":{"x":0,"y":192}},
+{"id":11,"translation":{"x":7,"y":496}},
+{"id":12,"translation":{"x":707,"y":143}},
+{"id":13,"translation":{"x":775,"y":271}},
+{"id":14,"translation":{"x":755,"y":431}}
+],
+"links":[]
+}],
+"rectangles":[
+	{"left":0,"right":162,"top":0,"bottom":104},
+	{"left":0,"right":182,"top":0,"bottom":72},
+	{"left":0,"right":105,"top":0,"bottom":72},
+	{"left":0,"right":126,"top":0,"bottom":152},
+	{"left":0,"right":126,"top":0,"bottom":88},
+	{"left":0,"right":147,"top":0,"bottom":120},
+	{"left":0,"right":140,"top":0,"bottom":120},
+	{"left":0,"right":168,"top":0,"bottom":136},
+	{"left":0,"right":168,"top":0,"bottom":120},
+	{"left":0,"right":147,"top":0,"bottom":104},
+	{"left":0,"right":133,"top":0,"bottom":120},
+	{"left":0,"right":147,"top":0,"bottom":168},
+	{"left":0,"right":140,"top":0,"bottom":88},
+	{"left":0,"right":155,"top":0,"bottom":120},
+	{"left":0,"right":175,"top":0,"bottom":136}
+]}

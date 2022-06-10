@@ -1,0 +1,112 @@
+{"documentTitle":"reg-test-0",
+"boxes":[
+	{"title":"rec-0",
+	"id":0,
+	"fields":[
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-1",
+	"id":1,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-2",
+	"id":2,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-3",
+	"id":3,
+	"fields":[
+		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-4",
+	"id":4,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-3","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-5",
+	"id":5,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-6",
+	"id":6,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-12","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-7",
+	"id":7,
+	"fields":[
+		{"name":"rec-4","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-5","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-11","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-10","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-9","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-2","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-8","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-8",
+	"id":8,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-9",
+	"id":9,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-10",
+	"id":10,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-11",
+	"id":11,
+	"fields":[
+		{"name":"rec-7","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-12",
+	"id":12,
+	"fields":[
+		{"name":"rec-13","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-6","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-13",
+	"id":13,
+	"fields":[
+		{"name":"rec-12","isPrimaryKey":false,"isForeignKey":false},
+		{"name":"rec-14","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-14",
+	"id":14,
+	"fields":[
+		{"name":"rec-13","isPrimaryKey":false,"isForeignKey":false}
+	]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+	{"from":13,"fromField":-1,"fromCardinality":"undefined","to":12,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":13,"fromField":-1,"fromCardinality":"undefined","to":14,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":4,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":3,"fromField":-1,"fromCardinality":"undefined","to":4,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":5,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":7,"fromField":-1,"fromCardinality":"undefined","to":11,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":6,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":10,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":9,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":2,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":8,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined","Category":""},
+	{"from":12,"fromField":-1,"fromCardinality":"undefined","to":6,"toField":-1,"toCardinality":"undefined","Category":""}
+],
+"fieldColors":[]
+}
