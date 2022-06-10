@@ -483,7 +483,8 @@ void test_stair_steps(int rect_border)
 {
         TestFunctionTimer ft("test_stair_steps");
 
-        struct DataContext{int testid; string title; vector<MyRect> rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
+        struct DataContext{int testid; string title; vector<MyRect> input_rectangles; vector<Edge> edges; vector<TranslatedBox> expected_translations; MyRect frame;};
+
         const vector<DataContext> vdctx = {
                 {
 		    1,"My first SVG",
@@ -803,77 +804,67 @@ void test_stair_steps(int rect_border)
 	};
 
         vector<Context> contexts;
-        for (const DataContext &dctx : vdctx)
+        for (const auto& [testid, title, input_rectangles, edges, expected_translations, frame] : vdctx)
         {
-            Context ctx ;
-            ctx.title = dctx.title;
-            ctx.rectangles = dctx.rectangles;
-            int n = ctx.rectangles.size();
-            ctx.adjacency_list.resize(n) ;
+            	vector<MyRect> rectangles = input_rectangles;
+            	int n = rectangles.size();
+            	vector<vector<MPD_Arc> > adjacency_list(n) ;
 
-            for (const Edge& e : dctx.edges)
-            {
-                ctx.adjacency_list[e.from].push_back({e.from, e.to}) ;
-            }
+            	for (const Edge& e : edges)
+            	{
+                	adjacency_list[e.from].push_back({e.from, e.to}) ;
+            	}
 
-            contexts.push_back(ctx);
-        }
-
-        int c=0;
-	for (Context &ctx : contexts)
-	{
                 high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
                 int i=0;
-		for (MyRect& r : ctx.rectangles)
+		for (MyRect& r : rectangles)
                 {
                     r.i = r.no_sequence = i++;
 	        }
 
-		const vector<MyRect> input_rectangles = ctx.rectangles;
-
-		for (MyRect &r : ctx.rectangles)
+		for (MyRect &r : rectangles)
 		{
 			r.m_right += 2*rect_border ;
 			r.m_bottom += 2*rect_border ;
 		}
-		stair_steps(ctx.rectangles, ctx.adjacency_list) ;
-		for (MyRect &r : ctx.rectangles)
+		stair_steps(rectangles, adjacency_list) ;
+		for (MyRect &r : rectangles)
 		{
 			expand_by(r, - rect_border) ;
 		}
 
-		MyRect frame = compute_frame(ctx.rectangles) ;
-		for (MyRect &r : ctx.rectangles)
+		MyRect frame_ = compute_frame(rectangles) ;
+		for (MyRect &r : rectangles)
 		{
-			translate(r, {- frame.m_left,- frame.m_top}) ;
+			translate(r, {- frame_.m_left,- frame_.m_top}) ;
 		}
-		ctx.frame = compute_frame(ctx.rectangles) ;
+		frame_ = compute_frame(rectangles) ;
 
-                ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
+                ranges::sort(rectangles, {}, &MyRect::no_sequence);
                 vector<TranslatedBox> translations;
-                for (MyRect &r : ctx.rectangles)
+                for (MyRect &r : rectangles)
                     translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
-                const DataContext& dctx = vdctx[c++];
+
                 duration<double> time_span = high_resolution_clock::now() - t1;
-		bool bOK = dctx.expected_translations == translations;
+		bool bOK = expected_translations == translations;
                 printf("%s [%d] %20s %f seconds elapsed\n", bOK ? "OK": "KO", 
-					dctx.testid, dctx.title.c_str(), time_span.count());
+					testid, title.c_str(), time_span.count());
 		(bOK ? nbOK : nbKO)++;
 
                 vector<MyRect> expected_rectangles = input_rectangles;
-                int n = input_rectangles.size();
+
                 for (int i=0; i<n; i++)
                 {
-                        expected_rectangles[i] = translate(input_rectangles[i], dctx.expected_translations[i].translation);
+                        expected_rectangles[i] = translate(input_rectangles[i], expected_translations[i].translation);
                 }
 
                 latuile_test_json_output(input_rectangles,
-                                        ctx.rectangles,
-                                        dctx.edges,
+                                        rectangles,
+                                        edges,
                                         expected_rectangles,
                                         "stair_steps",
-                                        dctx.testid);
+                                        testid);
 	}
 }
 
