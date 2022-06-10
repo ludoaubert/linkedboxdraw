@@ -220,7 +220,7 @@ Elements in an SVG document fragment have an implicit drawing order, with the fi
 Subsequent elements are painted on top of previously painted elements.
 Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted over a small part of the link (after the marker actually).
 */
-		for (const {from, to, polyline} of links.filter(({from, to}) => from != to))
+		for (const {from, to, polyline} of links)
 		{
 			const linkIndex = mydata.links.findIndex(lk => lk.from==from && lk.to==to);
 			const {fromCardinality, toCardinality} = mydata.links[linkIndex];
