@@ -47,6 +47,7 @@ nom du fichier source : swap_rectangles.cpp
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
 #include <vector>
+#include <string>
 #include <tuple>
 #include <algorithm>
 using namespace std ;
@@ -248,10 +249,15 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 
 void test_swap_rectangles()
 {
-        TestFunctionTimer ft("test_swap_rectangles");
+    TestFunctionTimer ft("test_swap_rectangles");
+	
+	struct TestContext{int testid; vector<string> titles; vector<MyRect> rectangles; vector<MPD_Arc> edges; vector<MyRect> expected_rectangles;};
+
+	const TestContext test_contexts[2] = {
 
 	{
-		const char* titles[14]={
+		.testid=1,
+		.titles={
 			"discussion_topic",
 			"external_system",
 			"external_system_parameter",
@@ -266,25 +272,25 @@ void test_swap_rectangles()
 			"scm_repository",
 			"taskmgr_app_folder",
 			"taskmgr_task_group"
-		} ;
+		},
 
-		vector<MyRect> rectangles = {
-			{369,529,160,272}, //0 discussion_topic
-			{599,780,416,560}, //1 external_system
-			{780,1003,432,560},//2 external_system_parameter
-			{146,369,256,560}, //3 folder
-			{42,146,256,336},  //4 category
-			{216,369,176,256}, //5 document_folder
-			{0,146,432,560},   //6 object_type
-			{91,216,144,256},  //7 page
-			{369,536,0,160},   //8 sfcomment
-			{599,759,304,416}, //9 scm_file
-			{759,919,240,416}, //10 scm_file_version
-			{369,599,400,560}, //11 scm_repository
-			{536,710,64,160},  //12 taskmgr_app_folder
-			{369,543,272,400}  //13 taskmgr_task_group
-		};
-		vector<MPD_Arc> edges={
+		.rectangles = {
+			{.left=369, .right=529, .top=160, .bottom=272}, //0 discussion_topic
+			{.left=599, .right=780, .top=416, .bottom=560}, //1 external_system
+			{.left=780, .right=1003, .top=432, .bottom=560},//2 external_system_parameter
+			{.left=146, .right=369, .top=256, .bottom=560}, //3 folder
+			{.left=42, .right=146, .top=256, .bottom=336},  //4 category
+			{.left=216, .right=369, .top=176, .bottom=256}, //5 document_folder
+			{.left=0,.right=146, .top=432, .bottom=560},   //6 object_type
+			{.left=91, .right=216, .top=144, .bottom=256},  //7 page
+			{.left=369, .right=536, .top=0, .bottom=160},   //8 sfcomment
+			{.left=599, .right=759, .top=304, .bottom=416}, //9 scm_file
+			{.left=759, .right=919, .top=240, .bottom=416}, //10 scm_file_version
+			{.left=369, .right=599, .top=400, .bottom=560}, //11 scm_repository
+			{.left=536, .right=710, .top=64, .bottom=160},  //12 taskmgr_app_folder
+			{.left=369, .right=543, .top=272, .bottom=400}  //13 taskmgr_task_group
+		},
+		.edges={
 			{2,1},
 			{3,0},
 			{3,3},
@@ -300,37 +306,27 @@ void test_swap_rectangles()
 			{9,11},
 			{10,9},
 			{11,1}
-		};
-		vector<vector<MPD_Arc> > adjacency_list(14) ;
-		for (MPD_Arc &edge : edges)
-		{
-			adjacency_list[edge._i].push_back(edge) ;
+		},
+		.expected_rectangles = {
+			{.left=369, .right=529, .top=160, .bottom=272}, //0 discussion_topic
+			{.left=599, .right=780, .top=416, .bottom=560}, //1 external_system
+			{.left=780, .right=1003, .top=432, .bottom=560},//2 external_system_parameter
+			{.left=146, .right=369, .top=256, .bottom=560}, //3 folder
+			{.left=42, .right=146, .top=256, .bottom=336},  //4 category
+			{.left=216, .right=369, .top=176, .bottom=256}, //5 document_folder
+			{.left=0, .right=146, .top=432, .bottom=560},   //6 object_type
+			{.left=91, .right=216, .top=144, .bottom=256},  //7 page
+			{.left=369, .right=536, .top=0, .bottom=160},   //8 sfcomment
+			{.left=599, .right=759, .top=304, .bottom=416}, //9 scm_file
+			{.left=759, .right=919, .top=240, .bottom=416}, //10 scm_file_version
+			{.left=369, .right=599, .top=400, .bottom=560}, //11 scm_repository
+			{.left=536, .right=710, .top=64, .bottom=160},  //12 taskmgr_app_folder
+			{.left=369, .right=543, .top=272, .bottom=400}  //13 taskmgr_task_group
 		}
-		const vector<vector<MPD_Arc> > adjacency_list_ = adjacency_list ;
-
-		for (int i=0; i < rectangles.size(); i++)
-			rectangles[i].i = i ;
-		vector<tuple<int, RectCorner, int, RectCorner> > swaps ;
-
-                for (tuple<int,RectCorner,int,RectCorner>& t : swaps)
-                {
-                    printf("{%d,%d,%d,%d},\n", get<0>(t),get<1>(t),get<2>(t),get<3>(t));
-                }
-
-		swap_rectangles(rectangles, list_edges(adjacency_list_), swaps) ;
-		int i, j ;
-		RectCorner rci, rcj ;
-		for (int k=0; k < swaps.size(); k++)
-		{
-			tie(i, rci, j, rcj) = swaps[k] ;
-			const char* swap_names[2] ;
-			swap_names[0] = titles[i] ;
-			swap_names[1] = titles[j] ;
-		}
-	}
-
+	},
 	{
-		const char* titles[13]={
+		.testid=2,
+		.titles={
 			"frs_package",
 			"mntr_template_link",
 			"audit_change",
@@ -344,25 +340,25 @@ void test_swap_rectangles()
 			"sfgroup",
 			"groupmembership",
 			"transaction"
-		} ;
+		},
 
-		vector<MyRect> rectangles = {
-			{49,202,448,576},//frs_package
-			{571,773,400,624},//mntr_template_link
-			{202,369,448,624},//audit_change
-			{369,571,0,256},//mess_template
-			{201,368,128,304},//audit_entry
-			{571,738,144,272},//pending_change
-			{369,571,256,464},//request
-			{571,752,272,400},//request_namedvalues
-			{-1,201,208,448},//change_trx
-			{201,340,0,128}, //role_group
-			{-1,201,0,208},  //sfgroup
-			{571,724,32,144},//groupmembership
-			{201,326,304,384},//transaction
-		};
+		.rectangles = {
+			{.left=49, .right=202, .top=448, .bottom=576},//frs_package
+			{.left=571, .right=773, .top=400, .bottom=624},//mntr_template_link
+			{.left=202, .right=369, .top=448, .bottom=624},//audit_change
+			{.left=369, .right=571, .top=0, .bottom=256},//mess_template
+			{.left=201, .right=368, .top=128, .bottom=304},//audit_entry
+			{.left=571, .right=738, .top=144, .bottom=272},//pending_change
+			{.left=369, .right=571, .top=256, .bottom=464},//request
+			{.left=571, .right=752, .top=272, .bottom=400},//request_namedvalues
+			{.left=-1, .right=201, .top=208, .bottom=448},//change_trx
+			{.left=201, .right=340, .top=0, .bottom=128}, //role_group
+			{.left=-1, .right=201, .top=0, .bottom=208},  //sfgroup
+			{.left=571, .right=724, .top=32, .bottom=144},//groupmembership
+			{.left=201, .right=326, .top=304, .bottom=384},//transaction
+		},
 
-		vector<MPD_Arc> edges={
+		.edges={
 			{1,3},
 			{2,4},
 			{4,0},
@@ -375,17 +371,42 @@ void test_swap_rectangles()
 			{8,12},
 			{9,10},
 			{11,10}
-		};
-
-		vector<vector<MPD_Arc> > adjacency_list(13) ;
+		},
+		.expected_rectangles = {
+			{.left=49, .right=202, .top=448, .bottom=576},//frs_package
+			{.left=571, .right=773, .top=400, .bottom=624},//mntr_template_link
+			{.left=202, .right=369, .top=448, .bottom=624},//audit_change
+			{.left=369, .right=571, .top=0, .bottom=256},//mess_template
+			{.left=201, .right=368, .top=128, .bottom=304},//audit_entry
+			{.left=571, .right=738, .top=144, .bottom=272},//pending_change
+			{.left=369, .right=571, .top=256, .bottom=464},//request
+			{.left=571, .right=752, .top=272, .bottom=400},//request_namedvalues
+			{.left=-1, .right=201, .top=208, .bottom=448},//change_trx
+			{.left=201, .right=340, .top=0, .bottom=128}, //role_group
+			{.left=-1, .right=201, .top=0, .bottom=208},  //sfgroup
+			{.left=571, .right=724, .top=32, .bottom=144},//groupmembership
+			{.left=201, .right=326, .top=304, .bottom=384},//transaction
+		}
+	}
+	};
+	
+	for (const auto& [testid, titles, rectangles, edges, expected_rectangles] : test_contexts)
+	{
+		int n = rectangles.size();
+		
+		int dm1 = dim_max(compute_frame(rectangles));
+		
+		vector<vector<MPD_Arc> > adjacency_list(n) ;
 		for (MPD_Arc &edge : edges)
 		{
 			adjacency_list[edge._i].push_back(edge) ;
 		}
 		const vector<vector<MPD_Arc> > adjacency_list_ = adjacency_list ;
+
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
 		vector<tuple<int, RectCorner, int, RectCorner> > swaps ;
+
 		swap_rectangles(rectangles, list_edges(adjacency_list_), swaps) ;
 		int i, j ;
 		RectCorner rci, rcj ;
@@ -396,5 +417,12 @@ void test_swap_rectangles()
 			swap_names[0] = titles[i] ;
 			swap_names[1] = titles[j] ;
 		}
+		
+		int dm2 = dim_max(compute_frame(rectangles));
+		
+		bool bOK = rectangles == expected_rectangles;
+		printf("swap_rectangles testid=%d %s\n", testid, bOK ? "OK" : "KO");
+		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
+		(bOK ? nbOK : nbKO)++;
 	}
 }
