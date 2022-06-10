@@ -278,82 +278,150 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 void test_optimize_rectangle_positions()
 {
 	TestFunctionTimer ft("test_optimize_rectangle_positions");
-
-	const vector<MyRect> input_rectangles = {
-		{369,529,272,384},
-		{599,780,400,544},
-		{780,1003,416,544},
-		{146,369,240,544},
-		{42,146,240,320},
-		{42,195,160,240},
-		{0,146,416,544},
-		{369,494,160,272},
-		{369,536,0,160},
-		{599,759,288,400},
-		{759,919,224,400},
-		{369,599,384,544},
-		{536,710,64,160},
-		{195,369,112,240}
-	};
-
-	const vector<Edge> edges={
-		{2,1},
-		{3,0},
-		{3,3},
-		{3,4},
-		{3,5},
-		{3,6},
-		{3,7},
-		{3,11},
-		{3,13},
-		{8,7},
-		{8,12},
-		{8,13},
-		{9,11},
-		{10,9},
-		{11,1}
-	};
-
-        const vector<MyRect> expected_rectangles={
-		{35,195,128,240},
-		{599,780,400,544},
-		{376,599,272,400},
-		{146,369,240,544},
-		{42,146,240,320},
-		{-7,146,320,400},
-		{0,146,416,544},
-		{369,494,160,272},
-		{369,536,0,160},
-		{599,759,288,400},
-		{599,759,112,288},
-		{369,599,400,560},
-		{536,710,0,96},
-		{195,369,112,240}
-        };
-
-	vector<MyRect> rectangles = input_rectangles;
-
-	for (int i=0; i < rectangles.size(); i++)
-		rectangles[i].i = i ;
-	vector<vector<MPD_Arc> > adjacency_list(14) ;
-	for (const Edge e : edges)
+	
+	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles;};
+	
+	const TestContext text_contexts[]= {
+		
 	{
-		adjacency_list[e.from].push_back({e.from, e.to}) ;
+		.testid=1,
+		.input_rectangles = {
+			{.left=369, .right=529, .top=272, .bottom=384},
+			{.left=599, .right=780, .top=400, .bottom=544},
+			{.left=780, .right=1003, .top=416, .bottom=544},
+			{.left=146, .right=369, .top=240, .bottom=544},
+			{.left=42, .right=146, .top=240, .bottom=320},
+			{.left=42, .right=195, .top=160, .bottom=240},
+			{.left=0, .right=146, .top=416, .bottom=544},
+			{.left=369, .right=494, .top=160, .bottom=272},
+			{.left=369, .right=536, .top=0, .bottom=160},
+			{.left=599, .right=759, .top=288, .bottom=400},
+			{.left=759, .right=919, .top=224, .bottom=400},
+			{.left=369, .right=599, .top=384, .bottom=544},
+			{.left=536, .right=710, .top=64, .bottom=160},
+			{.left=195, .right=369, .top=112, .bottom=240}
+		},
+		.edges={
+			{.from=2, .to=1},
+			{.from=3, .to=0},
+			{.from=3, .to=3},
+			{.from=3, .to=4},
+			{.from=3, .to=5},
+			{.from=3, .to=6},
+			{.from=3, .to=7},
+			{.from=3, .to=11},
+			{.from=3, .to=13},
+			{.from=8, .to=7},
+			{.from=8, .to=12},
+			{.from=8, .to=13},
+			{.from=9, .to=11},
+			{.from=10, .to=9},
+			{.from=11, .to=1}
+		},
+
+        .expected_rectangles={
+			{.left=35, .right=195, .top=128, .bottom=240},
+			{.left=599, .right=780, .top=400, .bottom=544},
+			{.left=376, .right=599, .top=272, .bottom=400},
+			{.left=146, .right=369, .top=240, .bottom=544},
+			{.left=42, .right=146, .top=240, .bottom=320},
+			{.left=-7, .right=146, .top=320, .bottom=400},
+			{.left=0, .right=146, .top=416, .bottom=544},
+			{.left=369, .right=494, .top=160, .bottom=272},
+			{.left=369, .right=536, .top=0, .bottom=160},
+			{.left=599, .right=759, .top=288, .bottom=400},
+			{.left=599, .right=759, .top=112, .bottom=288},
+			{.left=369, .right=599, .top=400, .bottom=560},
+			{.left=536, .right=710, .top=0, .bottom=96},
+			{.left=195, .right=369, .top=112, .bottom=240}
+        }
+	},
+	
+	{
+		.testid=2,
+		.input_rectangles = {
+			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
+			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
+			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
+			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
+			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
+			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
+			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
+			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
+			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
+			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
+			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
+			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
+			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
+			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
+			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+		},
+		
+		.edges = {
+			{.from=13,.to=12},
+			{.from=13,.to=14},
+			{.from=4,.to=7},
+			{.from=3,.to=4},
+			{.from=1,.to=7},
+			{.from=5,.to=7},
+			{.from=7,.to=11},
+			{.from=6,.to=7},
+			{.from=10,.to=7},
+			{.from=9,.to=7},
+			{.from=2,.to=7},
+			{.from=8,.to=7},
+			{.from=0,.to=3},
+			{.from=12,.to=6}		
+		},
+		
+		.expected_rectangles = {
+			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
+			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
+			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
+			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
+			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
+			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
+			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
+			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
+			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
+			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
+			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
+			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
+			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
+			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
+			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+		}
 	}
+	
+	};
 
-	optimize_rectangle_positions(rectangles, adjacency_list) ;
+	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
+	{
+		vector<MyRect> rectangles = input_rectangles;
+		int n = rectangles.size();
 
-	latuile_test_json_output(input_rectangles,
-				rectangles,
-				edges,
-				expected_rectangles,
-				"optimize_rectangle_positions",
-				1);
+		for (int i=0; i < rectangles.size(); i++)
+			rectangles[i].i = i ;
+		vector<vector<MPD_Arc> > adjacency_list(n) ;
+		for (const Edge e : edges)
+		{
+			adjacency_list[e.from].push_back({e.from, e.to}) ;
+		}
 
-	for (MyRect &r : rectangles)
-		r.i = -1 ;
+		optimize_rectangle_positions(rectangles, adjacency_list) ;
 
-	bool bOK = rectangles == expected_rectangles;
-        printf("%s\n", bOK ? "OK" : "KO");
-	(bOK ? nbOK : nbKO)++;
+		latuile_test_json_output(input_rectangles,
+					rectangles,
+					edges,
+					expected_rectangles,
+					"optimize_rectangle_positions",
+					testid);
+
+		for (MyRect &r : rectangles)
+			r.i = -1 ;
+
+		bool bOK = rectangles == expected_rectangles;
+			printf("optimize_rectangle_positions testid=%d %s\n", testid, bOK ? "OK" : "KO");
+		(bOK ? nbOK : nbKO)++;
+	}
 }
