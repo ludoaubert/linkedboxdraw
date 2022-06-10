@@ -46,6 +46,7 @@ nom du fichier source : swap_rectangles.cpp
 #include "MyRect.h"
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
+#include "latuile_test_json_output.h"
 #include <vector>
 #include <string>
 #include <tuple>
@@ -243,17 +244,17 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 		translate(ri, translation_ri) ;
 		translate(rj, translation_rj) ;
 		swaps.push_back(make_tuple(node->i, node->rci, node->j, node->rcj)) ;
-	}	
+	}
 }
 
 
 void test_swap_rectangles()
 {
     TestFunctionTimer ft("test_swap_rectangles");
-	
-	struct TestContext{int testid; vector<string> titles; vector<MyRect> rectangles; vector<MPD_Arc> edges; vector<MyRect> expected_rectangles;};
 
-	const TestContext test_contexts[2] = {
+	struct TestContext{int testid; vector<string> titles; vector<MyRect> input_rectangles; vector<MPD_Arc> edges; vector<MyRect> expected_rectangles;};
+
+	const vector<TestContext> test_contexts = {
 
 	{
 		.testid=1,
@@ -274,21 +275,21 @@ void test_swap_rectangles()
 			"taskmgr_task_group"
 		},
 
-		.rectangles = {
-			{.left=369, .right=529, .top=160, .bottom=272}, //0 discussion_topic
-			{.left=599, .right=780, .top=416, .bottom=560}, //1 external_system
-			{.left=780, .right=1003, .top=432, .bottom=560},//2 external_system_parameter
-			{.left=146, .right=369, .top=256, .bottom=560}, //3 folder
-			{.left=42, .right=146, .top=256, .bottom=336},  //4 category
-			{.left=216, .right=369, .top=176, .bottom=256}, //5 document_folder
-			{.left=0,.right=146, .top=432, .bottom=560},   //6 object_type
-			{.left=91, .right=216, .top=144, .bottom=256},  //7 page
-			{.left=369, .right=536, .top=0, .bottom=160},   //8 sfcomment
-			{.left=599, .right=759, .top=304, .bottom=416}, //9 scm_file
-			{.left=759, .right=919, .top=240, .bottom=416}, //10 scm_file_version
-			{.left=369, .right=599, .top=400, .bottom=560}, //11 scm_repository
-			{.left=536, .right=710, .top=64, .bottom=160},  //12 taskmgr_app_folder
-			{.left=369, .right=543, .top=272, .bottom=400}  //13 taskmgr_task_group
+		.input_rectangles = {
+			{.m_left=369, .m_right=529, .m_top=160, .m_bottom=272}, //0 discussion_topic
+			{.m_left=599, .m_right=780, .m_top=416, .m_bottom=560}, //1 external_system
+			{.m_left=780, .m_right=1003, .m_top=432, .m_bottom=560},//2 external_system_parameter
+			{.m_left=146, .m_right=369, .m_top=256, .m_bottom=560}, //3 folder
+			{.m_left=42, .m_right=146, .m_top=256, .m_bottom=336},  //4 category
+			{.m_left=216, .m_right=369, .m_top=176, .m_bottom=256}, //5 document_folder
+			{.m_left=0,.m_right=146, .m_top=432, .m_bottom=560},   //6 object_type
+			{.m_left=91, .m_right=216, .m_top=144, .m_bottom=256},  //7 page
+			{.m_left=369, .m_right=536, .m_top=0, .m_bottom=160},   //8 sfcomment
+			{.m_left=599, .m_right=759, .m_top=304, .m_bottom=416}, //9 scm_file
+			{.m_left=759, .m_right=919, .m_top=240, .m_bottom=416}, //10 scm_file_version
+			{.m_left=369, .m_right=599, .m_top=400, .m_bottom=560}, //11 scm_repository
+			{.m_left=536, .m_right=710, .m_top=64, .m_bottom=160},  //12 taskmgr_app_folder
+			{.m_left=369, .m_right=543, .m_top=272, .m_bottom=400}  //13 taskmgr_task_group
 		},
 		.edges={
 			{2,1},
@@ -308,20 +309,20 @@ void test_swap_rectangles()
 			{11,1}
 		},
 		.expected_rectangles = {
-			{.left=369, .right=529, .top=160, .bottom=272}, //0 discussion_topic
-			{.left=599, .right=780, .top=416, .bottom=560}, //1 external_system
-			{.left=780, .right=1003, .top=432, .bottom=560},//2 external_system_parameter
-			{.left=146, .right=369, .top=256, .bottom=560}, //3 folder
-			{.left=42, .right=146, .top=256, .bottom=336},  //4 category
-			{.left=216, .right=369, .top=176, .bottom=256}, //5 document_folder
-			{.left=0, .right=146, .top=432, .bottom=560},   //6 object_type
-			{.left=91, .right=216, .top=144, .bottom=256},  //7 page
-			{.left=369, .right=536, .top=0, .bottom=160},   //8 sfcomment
-			{.left=599, .right=759, .top=304, .bottom=416}, //9 scm_file
-			{.left=759, .right=919, .top=240, .bottom=416}, //10 scm_file_version
-			{.left=369, .right=599, .top=400, .bottom=560}, //11 scm_repository
-			{.left=536, .right=710, .top=64, .bottom=160},  //12 taskmgr_app_folder
-			{.left=369, .right=543, .top=272, .bottom=400}  //13 taskmgr_task_group
+			{.m_left=369, .m_right=529, .m_top=160, .m_bottom=272}, //0 discussion_topic
+			{.m_left=599, .m_right=780, .m_top=416, .m_bottom=560}, //1 external_system
+			{.m_left=780, .m_right=1003, .m_top=432, .m_bottom=560},//2 external_system_parameter
+			{.m_left=146, .m_right=369, .m_top=256, .m_bottom=560}, //3 folder
+			{.m_left=42, .m_right=146, .m_top=256, .m_bottom=336},  //4 category
+			{.m_left=216, .m_right=369, .m_top=176, .m_bottom=256}, //5 document_folder
+			{.m_left=0, .m_right=146, .m_top=432, .m_bottom=560},   //6 object_type
+			{.m_left=91, .m_right=216, .m_top=144, .m_bottom=256},  //7 page
+			{.m_left=369, .m_right=536, .m_top=0, .m_bottom=160},   //8 sfcomment
+			{.m_left=599, .m_right=759, .m_top=304, .m_bottom=416}, //9 scm_file
+			{.m_left=759, .m_right=919, .m_top=240, .m_bottom=416}, //10 scm_file_version
+			{.m_left=369, .m_right=599, .m_top=400, .m_bottom=560}, //11 scm_repository
+			{.m_left=536, .m_right=710, .m_top=64, .m_bottom=160},  //12 taskmgr_app_folder
+			{.m_left=369, .m_right=543, .m_top=272, .m_bottom=400}  //13 taskmgr_task_group
 		}
 	},
 	{
@@ -342,20 +343,20 @@ void test_swap_rectangles()
 			"transaction"
 		},
 
-		.rectangles = {
-			{.left=49, .right=202, .top=448, .bottom=576},//frs_package
-			{.left=571, .right=773, .top=400, .bottom=624},//mntr_template_link
-			{.left=202, .right=369, .top=448, .bottom=624},//audit_change
-			{.left=369, .right=571, .top=0, .bottom=256},//mess_template
-			{.left=201, .right=368, .top=128, .bottom=304},//audit_entry
-			{.left=571, .right=738, .top=144, .bottom=272},//pending_change
-			{.left=369, .right=571, .top=256, .bottom=464},//request
-			{.left=571, .right=752, .top=272, .bottom=400},//request_namedvalues
-			{.left=-1, .right=201, .top=208, .bottom=448},//change_trx
-			{.left=201, .right=340, .top=0, .bottom=128}, //role_group
-			{.left=-1, .right=201, .top=0, .bottom=208},  //sfgroup
-			{.left=571, .right=724, .top=32, .bottom=144},//groupmembership
-			{.left=201, .right=326, .top=304, .bottom=384},//transaction
+		.input_rectangles = {
+			{.m_left=49, .m_right=202, .m_top=448, .m_bottom=576},//frs_package
+			{.m_left=571, .m_right=773, .m_top=400, .m_bottom=624},//mntr_template_link
+			{.m_left=202, .m_right=369, .m_top=448, .m_bottom=624},//audit_change
+			{.m_left=369, .m_right=571, .m_top=0, .m_bottom=256},//mess_template
+			{.m_left=201, .m_right=368, .m_top=128, .m_bottom=304},//audit_entry
+			{.m_left=571, .m_right=738, .m_top=144, .m_bottom=272},//pending_change
+			{.m_left=369, .m_right=571, .m_top=256, .m_bottom=464},//request
+			{.m_left=571, .m_right=752, .m_top=272, .m_bottom=400},//request_namedvalues
+			{.m_left=-1, .m_right=201, .m_top=208, .m_bottom=448},//change_trx
+			{.m_left=201, .m_right=340, .m_top=0, .m_bottom=128}, //role_group
+			{.m_left=-1, .m_right=201, .m_top=0, .m_bottom=208},  //sfgroup
+			{.m_left=571, .m_right=724, .m_top=32, .m_bottom=144},//groupmembership
+			{.m_left=201, .m_right=326, .m_top=304, .m_bottom=384},//transaction
 		},
 
 		.edges={
@@ -373,31 +374,32 @@ void test_swap_rectangles()
 			{11,10}
 		},
 		.expected_rectangles = {
-			{.left=49, .right=202, .top=448, .bottom=576},//frs_package
-			{.left=571, .right=773, .top=400, .bottom=624},//mntr_template_link
-			{.left=202, .right=369, .top=448, .bottom=624},//audit_change
-			{.left=369, .right=571, .top=0, .bottom=256},//mess_template
-			{.left=201, .right=368, .top=128, .bottom=304},//audit_entry
-			{.left=571, .right=738, .top=144, .bottom=272},//pending_change
-			{.left=369, .right=571, .top=256, .bottom=464},//request
-			{.left=571, .right=752, .top=272, .bottom=400},//request_namedvalues
-			{.left=-1, .right=201, .top=208, .bottom=448},//change_trx
-			{.left=201, .right=340, .top=0, .bottom=128}, //role_group
-			{.left=-1, .right=201, .top=0, .bottom=208},  //sfgroup
-			{.left=571, .right=724, .top=32, .bottom=144},//groupmembership
-			{.left=201, .right=326, .top=304, .bottom=384},//transaction
+			{.m_left=49, .m_right=202, .m_top=448, .m_bottom=576},//frs_package
+			{.m_left=571, .m_right=773, .m_top=400, .m_bottom=624},//mntr_template_link
+			{.m_left=202, .m_right=369, .m_top=448, .m_bottom=624},//audit_change
+			{.m_left=369, .m_right=571, .m_top=0, .m_bottom=256},//mess_template
+			{.m_left=201, .m_right=368, .m_top=128, .m_bottom=304},//audit_entry
+			{.m_left=571, .m_right=738, .m_top=144, .m_bottom=272},//pending_change
+			{.m_left=369, .m_right=571, .m_top=256, .m_bottom=464},//request
+			{.m_left=571, .m_right=752, .m_top=272, .m_bottom=400},//request_namedvalues
+			{.m_left=-1, .m_right=201, .m_top=208, .m_bottom=448},//change_trx
+			{.m_left=201, .m_right=340, .m_top=0, .m_bottom=128}, //role_group
+			{.m_left=-1, .m_right=201, .m_top=0, .m_bottom=208},  //sfgroup
+			{.m_left=571, .m_right=724, .m_top=32, .m_bottom=144},//groupmembership
+			{.m_left=201, .m_right=326, .m_top=304, .m_bottom=384},//transaction
 		}
 	}
 	};
-	
-	for (const auto& [testid, titles, rectangles, edges, expected_rectangles] : test_contexts)
+
+	for (const auto& [testid, titles, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
+		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
-		
+
 		int dm1 = dim_max(compute_frame(rectangles));
-		
+
 		vector<vector<MPD_Arc> > adjacency_list(n) ;
-		for (MPD_Arc &edge : edges)
+		for (const MPD_Arc &edge : edges)
 		{
 			adjacency_list[edge._i].push_back(edge) ;
 		}
@@ -413,13 +415,13 @@ void test_swap_rectangles()
 		for (int k=0; k < swaps.size(); k++)
 		{
 			tie(i, rci, j, rcj) = swaps[k] ;
-			const char* swap_names[2] ;
+			string swap_names[2] ;
 			swap_names[0] = titles[i] ;
 			swap_names[1] = titles[j] ;
 		}
-		
+
 		int dm2 = dim_max(compute_frame(rectangles));
-		
+
 		bool bOK = rectangles == expected_rectangles;
 		printf("swap_rectangles testid=%d %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
