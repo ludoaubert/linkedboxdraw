@@ -148,112 +148,152 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 void test_compact_frame()
 {
 	TestFunctionTimer ft("test_compact_frame");
+	
+	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
+
+	const TestContext test_contexts[3]={
 
 	{
-		const vector<MyRect> input_rectangles = {
-			{209,411,352,672},//datamart_metric
-			{495,641,0,160},//preference
-			{0,188,224,352},//datamart_report_prop
-			{641,843,464,672},//destinationblacklist
-			{641,829,144,272},//user_session
-			{-14,209,608,720},//datamart_metric_parameter
-			{21,209,352,480},//datamart_metric_prop
-			{188,390,96,352},//datamart_report
-			{641,836,272,464},//folder_preference
-			{411,641,160,672} //sfuser
-		};
+		.testid=1,
+		.input_rectangles = {
+			{.left=209, .right=411, .top=352, .bottom=672},//datamart_metric
+			{.left=495, .right=641, .top=0, .bottom=160},//preference
+			{.left=0, .right=188, .top=224, .bottom=352},//datamart_report_prop
+			{.left=641, .right=843, .top=464, .bottom=672},//destinationblacklist
+			{.left=641, .right=829, .top=144, .bottom=272},//user_session
+			{.left=-14, .right=209, .top=608, .bottom=720},//datamart_metric_parameter
+			{.left=21, .right=209, .top=352, .bottom=480},//datamart_metric_prop
+			{.left=188, .right=390, .top=96, .bottom=352},//datamart_report
+			{.left=641, .right=836, .top=272, .bottom=464},//folder_preference
+			{.left=411, .right=641, .top=160, .bottom=672} //sfuser
+		},
 
-		const vector<Edge> edges = {
-			{0,7},
-			{0,9},
-			{1,9},
-			{2,7},
-			{3,9},
-			{4,9},
-			{5,0},
-			{6,0},
-			{7,9},
-			{8,9},
-			{9,9}
-		};
+		.edges = {
+			{ .from=0, .to=7},
+			{ .from=0, .to=9},
+			{ .from=1, .to=9},
+			{ .from=2, .to=7},
+			{ .from=3, .to=9},
+			{ .from=4, .to=9},
+			{ .from=5, .to=0},
+			{ .from=6, .to=0},
+			{ .from=7, .to=9},
+			{ .from=8, .to=9},
+			{ .from=9, .to=9}
+		},
 
-		const vector<MyRect> expected_rectangles = {
-			{209,411,352,672},
-			{495,641,0,160},
-			{0,188,224,352},
-			{641,843,464,672},
-			{641,829,144,272},
-			{-14,209,608,720},
-			{21,209,352,480},
-			{188,390,96,352},
-			{641,836,272,464},
-			{411,641,160,672}
-		};
+		.expected_rectangles = {
+			{.left=209, .right=411, .top=352, .bottom=672},
+			{.left=495, .right=641, .top=0, .bottom=160},
+			{.left=0, .right=188, .top=224, .bottom=352},
+			{.left=641, .right=843, .top=464, .bottom=672},
+			{.left=641, .right=829, .top=144, .bottom=272},
+			{.left=-14, .right=209, .top=608, .bottom=720},
+			{.left=21, .right=209, .top=352, .bottom=480},
+			{.left=188, .right=390, .top=96, .bottom=352},
+			{.left=641, .right=836, .top=272, .bottom=464},
+			{.left=411, .right=641, .top=160, .bottom=672}
+		}
+	},
+	{
+		.testid=2,
+		.input_rectangles = {
+			{.left=0, .right=10, .top=0, .bottom=10},
+			{.left=0, .right=10, .top=20, .bottom=30}
+		},
 
+		.edges = {
+			{.from=0,.to=1}
+		},
+
+		.expected_rectangles = {
+			{.left=0, .right=10, .top=10, .bottom=20},
+			{.left=0, .right=10, .top=20, .bottom=30}
+		}
+	},
+	{
+		.testid=3,
+		.input_rectangles = {
+			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
+			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
+			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
+			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
+			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
+			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
+			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
+			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
+			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
+			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
+			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
+			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
+			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
+			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
+			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+		},
+		
+		.edges = {
+			{.from=13,.to=12},
+			{.from=13,.to=14},
+			{.from=4,.to=7},
+			{.from=3,.to=4},
+			{.from=1,.to=7},
+			{.from=5,.to=7},
+			{.from=7,.to=11},
+			{.from=6,.to=7},
+			{.from=10,.to=7},
+			{.from=9,.to=7},
+			{.from=2,.to=7},
+			{.from=8,.to=7},
+			{.from=0,.to=3},
+			{.from=12,.to=6}		
+		},
+		
+		.expected_rectangles = {
+			{.left=396,.right=396+162,.top=10,.bottom=10+104},//8
+			{.left=320,.right=320+182,.top=330,.bottom=330+72},//9
+			{.left=453,.right=453+105,.top=218,.bottom=218+72},//10
+			{.left=598,.right=598+126,.top=10,.bottom=10+152},//21
+			{.left=598,.right=598+126,.top=202,.bottom=202+88},//24
+			{.left=750,.right=750+147,.top=346,.bottom=346+120},//25
+			{.left=273,.right=273+140,.top=154,.bottom=154+120},//26
+			{.left=542,.right=542+168,.top=330,.bottom=330+136},//27
+			{.left=335,.right=335+168,.top=506,.bottom=506+120},//28
+			{.left=556,.right=556+147,.top=506,.bottom=506+104},//30
+			{.left=764,.right=764+133,.top=186,.bottom=186+120},//32
+			{.left=743,.right=743+147,.top=506,.bottom=506+168},//44
+			{.left=93,.right=93+140,.top=153,.bottom=153+88},//48
+			{.left=10,.right=10+155,.top=281,.bottom=281+120},//52
+			{.left=11,.right=11+175,.top=441,.bottom=441+136}//53
+		}
+	}
+	};
+	
+	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
+	{
 		vector<MyRect> rectangles = input_rectangles;
+		int n = rectangles.size();
 
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
-		vector<vector<MPD_Arc> > adjacency_list(10) ;
+		vector<vector<MPD_Arc> > adjacency_list(n) ;
 		for (const Edge& e : edges)
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
 
-                latuile_test_json_output(input_rectangles,
-					rectangles,
-                                        edges,
-                                        expected_rectangles,
-                                        "compact_frame",
-                                        1);
+		latuile_test_json_output(input_rectangles,
+								rectangles,
+								edges,
+								expected_rectangles,
+								"compact_frame",
+								testid);
 
 		for (MyRect& r : rectangles)
 			r.i=-1;
 
 		bool bOK = rectangles == expected_rectangles;
-        	printf("%s\n", bOK ? "OK" : "KO");
-		(bOK ? nbOK : nbKO)++;
-	}
-
-	{
-		const vector<MyRect> input_rectangles = {
-			{0, 10, 0, 10},
-			{0, 10, 20, 30}
-		} ;
-
-		const vector<Edge> edges = {
-			{0,1}
-		} ;
-
-		const vector<MyRect> expected_rectangles = {
-			{0,10,10,20},
-			{0,10,20,30}
-		};
-
-		vector<MyRect> rectangles = input_rectangles;
-
-		for (int i=0; i < rectangles.size(); i++)
-			rectangles[i].i = i ;
-		vector<vector<MPD_Arc> > adjacency_list(2) ;
-		for (const Edge &e : edges)
-		{
-			adjacency_list[e.from].push_back({e.from, e.to}) ;
-		}
-		compact_frame(rectangles, adjacency_list) ;
-
-                latuile_test_json_output(input_rectangles,
-					rectangles,
-                                        edges,
-                                        expected_rectangles,
-                                        "compact_frame",
-                                        2);
-
-		for (MyRect& r : rectangles)
-			r.i=-1;
-
-		bool bOK = rectangles == expected_rectangles;
-        	printf("%s\n", bOK ? "OK" : "KO");
+        	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		(bOK ? nbOK : nbKO)++;
 	}
 }
