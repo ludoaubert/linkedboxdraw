@@ -272,6 +272,8 @@ void test_compact_frame()
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
+		
+		int dm1 = dim_max(compute_frame(rectangles));
 
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
@@ -281,6 +283,8 @@ void test_compact_frame()
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
+		
+		int dm2 = dim_max(compute_frame(rectangles));
 
 		latuile_test_json_output(input_rectangles,
 								rectangles,
@@ -293,7 +297,8 @@ void test_compact_frame()
 			r.i=-1;
 
 		bool bOK = rectangles == expected_rectangles;
-        	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
+        printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
+		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 		(bOK ? nbOK : nbKO)++;
 	}
 }

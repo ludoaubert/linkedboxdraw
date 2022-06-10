@@ -399,6 +399,8 @@ void test_optimize_rectangle_positions()
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int n = rectangles.size();
+		
+		int dm1 = dim_max(compute_frame(rectangles));
 
 		for (int i=0; i < rectangles.size(); i++)
 			rectangles[i].i = i ;
@@ -409,6 +411,8 @@ void test_optimize_rectangle_positions()
 		}
 
 		optimize_rectangle_positions(rectangles, adjacency_list) ;
+		
+		int dm2 = dim_max(compute_frame(rectangles));
 
 		latuile_test_json_output(input_rectangles,
 					rectangles,
@@ -421,7 +425,8 @@ void test_optimize_rectangle_positions()
 			r.i = -1 ;
 
 		bool bOK = rectangles == expected_rectangles;
-			printf("optimize_rectangle_positions testid=%d %s\n", testid, bOK ? "OK" : "KO");
+		printf("optimize_rectangle_positions testid=%d %s\n", testid, bOK ? "OK" : "KO");
+		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 		(bOK ? nbOK : nbKO)++;
 	}
 }
