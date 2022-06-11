@@ -2574,7 +2574,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=18, .translation={.x=352,.y=730}},
 			{.id=17, .translation={.x=181,.y=602}},
 			{.id=16, .translation={.x=16,.y=522}},
-			{.id=52, .translation={.x=437,.y=506}} 
+			{.id=52, .translation={.x=437,.y=506}}
 			}
 		},
 		{
@@ -2591,7 +2591,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=109, .translation={.x=378,.y=58}},
 			{.id=99, .translation={.x=217,.y=362}},
 			{.id=87, .translation={.x=81,.y=10}},
-			{.id=45, .translation={.x=10,.y=329}} 
+			{.id=45, .translation={.x=10,.y=329}}
 			}
 		},
 		{
@@ -2610,7 +2610,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=100, .translation={.x=431,.y=410}},
 			{.id=20, .translation={.x=423,.y=42}},
 			{.id=93, .translation={.x=10,.y=378}},
-			{.id=92, .translation={.x=589,.y=410}} 
+			{.id=92, .translation={.x=589,.y=410}}
 			}
 		},
 		{
@@ -2627,7 +2627,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=34, .translation={.x=374,.y=442}},
 			{.id=35, .translation={.x=193,.y=586}},
 			{.id=9, .translation={.x=191,.y=442}},
-			{.id=2, .translation={.x=181,.y=42}} 
+			{.id=2, .translation={.x=181,.y=42}}
 			}
 		},
 		{
@@ -2642,7 +2642,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=102, .translation={.x=199,.y=10}},
 			{.id=66, .translation={.x=520,.y=266}},
 			{.id=0, .translation={.x=524,.y=138}},
-			{.id=63, .translation={.x=10,.y=394}} 
+			{.id=63, .translation={.x=10,.y=394}}
 			}
 		},
 		{
@@ -2661,7 +2661,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=46, .translation={.x=203,.y=138}},
 			{.id=39, .translation={.x=222,.y=10}},
 			{.id=36, .translation={.x=42,.y=426}},
-			{.id=26, .translation={.x=222,.y=394}} 
+			{.id=26, .translation={.x=222,.y=394}}
 			}
 		},
 		{
@@ -2674,7 +2674,7 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=31, .translation={.x=181,.y=202}},
 			{.id=82, .translation={.x=377,.y=202}},
 			{.id=30, .translation={.x=368,.y=346}},
-			{.id=23, .translation={.x=151,.y=10}} 
+			{.id=23, .translation={.x=151,.y=10}}
 			}
 		},
 		{
@@ -2690,14 +2690,14 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=104, .translation={.x=204,.y=570}},
 			{.id=77, .translation={.x=173,.y=154}},
 			{.id=81, .translation={.x=10,.y=10}},
-			{.id=105, .translation={.x=344,.y=586}} 
+			{.id=105, .translation={.x=344,.y=586}}
 			}
 		},
 		{
 			.frame={.m_left=0,.m_right=147,.m_top=0,.m_bottom=240},
 			.translatedBoxes={
 			{.id=71, .translation={.x=10,.y=10}},
-			{.id=70, .translation={.x=10,.y=138}} 
+			{.id=70, .translation={.x=10,.y=138}}
 			}
 		},
 		{
