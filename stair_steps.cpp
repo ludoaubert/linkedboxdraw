@@ -46,21 +46,6 @@ void connected_components(const vector<vector<MPD_Arc> >& adjacency_list,
                           vector<int>& connected_component) ;
 
 
-template <class Container>
-std::string implode(Container c, std::string e)
-{
-	std::ostringstream os;
-	typename Container::iterator it = c.begin();
-	if (it != c.end())
-		os << *it++;
-	for (; it != c.end(); it++) {
-		os << e << *it;
-	}
-	return os.str();
-}
-
-
-
 bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> > &adjacency_list)
 {
         FunctionTimer ft("stair_steps");
