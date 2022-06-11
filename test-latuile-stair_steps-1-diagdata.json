@@ -33,10 +33,10 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":4,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined","Category":""}
+	{"from":0,"fromField":-1,"fromCardinality":"","to":2,"toField":-1,"toCardinality":"","Category":""},
+	{"from":0,"fromField":-1,"fromCardinality":"","to":1,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":4,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":3,"toField":-1,"toCardinality":"","Category":""}
 ],
 "fieldColors":[]
 }

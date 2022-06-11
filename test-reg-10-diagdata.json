@@ -10,11 +10,11 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-{"from":1,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
-{"from":3,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""},
-{"from":4,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""},
-{"from":4,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
-{"from":2,"fromField":-1,"fromCardinality":"undefined","to":0,"toField":-1,"toCardinality":"undefined","Category":""}
+{"from":1,"fromField":-1,"fromCardinality":"","to":2,"toField":-1,"toCardinality":"","Category":""},
+{"from":3,"fromField":-1,"fromCardinality":"","to":0,"toField":-1,"toCardinality":"","Category":""},
+{"from":4,"fromField":-1,"fromCardinality":"","to":0,"toField":-1,"toCardinality":"","Category":""},
+{"from":4,"fromField":-1,"fromCardinality":"","to":2,"toField":-1,"toCardinality":"","Category":""},
+{"from":2,"fromField":-1,"fromCardinality":"","to":0,"toField":-1,"toCardinality":"","Category":""}
 ],
 "fieldColors":[]
 }

@@ -1339,7 +1339,7 @@ string diagdata(const TestContext& ctx)
 
 	for (const auto& [from, to] : links)
 	{
-		pos += sprintf(buffer + pos, "{\"from\":%d,\"fromField\":-1,\"fromCardinality\":\"undefined\",\"to\":%d,\"toField\":-1,\"toCardinality\":\"undefined\",\"Category\":\"\"},\n", from, to);
+		pos += sprintf(buffer + pos, "{\"from\":%d,\"fromField\":-1,\"fromCardinality\":\"\",\"to\":%d,\"toField\":-1,\"toCardinality\":\"\",\"Category\":\"\"},\n", from, to);
 	}
 
 	if (buffer[pos-2]==',')

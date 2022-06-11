@@ -63,15 +63,15 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-	{"from":0,"fromField":-1,"fromCardinality":"undefined","to":1,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":2,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":5,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":1,"fromField":-1,"fromCardinality":"undefined","to":9,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":4,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":6,"fromField":-1,"fromCardinality":"undefined","to":5,"toField":-1,"toCardinality":"undefined","Category":""},
-	{"from":8,"fromField":-1,"fromCardinality":"undefined","to":7,"toField":-1,"toCardinality":"undefined","Category":""}
+	{"from":0,"fromField":-1,"fromCardinality":"","to":1,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":2,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":3,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":5,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":7,"toField":-1,"toCardinality":"","Category":""},
+	{"from":1,"fromField":-1,"fromCardinality":"","to":9,"toField":-1,"toCardinality":"","Category":""},
+	{"from":4,"fromField":-1,"fromCardinality":"","to":3,"toField":-1,"toCardinality":"","Category":""},
+	{"from":6,"fromField":-1,"fromCardinality":"","to":5,"toField":-1,"toCardinality":"","Category":""},
+	{"from":8,"fromField":-1,"fromCardinality":"","to":7,"toField":-1,"toCardinality":"","Category":""}
 ],
 "fieldColors":[]
 }

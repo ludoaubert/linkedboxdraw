@@ -9,7 +9,7 @@
 "boxComments":[],
 "fieldComments":[],
 "links":[
-{"from":0,"fromField":-1,"fromCardinality":"undefined","to":3,"toField":-1,"toCardinality":"undefined","Category":""}
+{"from":0,"fromField":-1,"fromCardinality":"","to":3,"toField":-1,"toCardinality":"","Category":""}
 ],
 "fieldColors":[]
 }
