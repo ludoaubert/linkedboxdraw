@@ -2171,11 +2171,11 @@ void test_stair_steps_layout_from_111_boxes()
 {
 	TestFunctionTimer ft("test_stair_steps_layout_from_111_boxes");
 
-        struct Result{vector<TranslatedBox> expected_translations; MyRect frame;};
-        struct DataContext{string title; vector<MyRect> rectangles; vector<Edge> edges; vector<Result> contexts;};
-        DataContext dctx = {
-            "Coco",
-            {
+        struct Result{MyRect frame; vector<TranslatedBox> translatedBoxes; };
+        struct DataContext{string title; vector<MyRect> input_rectangles; vector<Edge> edges; vector<Result> expected_contexts;};
+        const DataContext dctx = {
+            .title="Coco",
+            .input_rectangles={
 		{0,134,0,88},
 		{0,106,0,248},
 		{0,110,0,136},
@@ -2288,7 +2288,7 @@ void test_stair_steps_layout_from_111_boxes()
 		{0,123,0,72},
 		{0,114,0,136}
             },
-	    {
+	    .edges={
 		{0,65},
 		{1,34},
 		{2,101},
@@ -2552,181 +2552,184 @@ void test_stair_steps_layout_from_111_boxes()
 		{110,95},
 		{110,108}
             },
-            /*contexts*/{
-                    {
-                        {
-                            {14,{131,280}},
-                            {15,{154,72}},
-                            {16,{125,88}},
-                            {17,{131,216}},
-                            {18,{124,88}},
-                            {19,{131,168}},
-                            {27,{142,232}},
-                            {29,{114,168}},
-                            {33,{106,72}},
-                            {49,{131,216}},
-                            {52,{131,184}},
-                            {75,{131,168}},
-                            {76,{128,88}},
-                            {89,{93,104}},
-                            {90,{125,120}},
-                            {94,{147,472}},
-                            {95,{75,120}},
-                            {107,{112,88}},
-                            {110,{114,136}},
-                        },
-                        /*frame*/{0,978,0,984}
-                    },
-                    {
-                        {
-                            {25,{127,120}},
-                            {44,{164,56}},
-                            {45,{167,104}},
-                            {56,{63,72}},
-                            {69,{89,104}},
-                            {72,{146,248}},
-                            {85,{110,56}},
-                            {86,{95,72}},
-                            {87,{100,136}},
-                            {99,{121,248}},
-                            {108,{117,56}},
-                            {109,{123,72}},
-                        },
-                        /*frame*/{0,630,0,632}
-                    },
-                    {
-                        {
-                            {6,{131,184}},
-                            {7,{101,136}},
-                            {8,{101,136}},
-                            {13,{131,200}},
-                            {20,{109,296}},
-                            {22,{128,72}},
-                            {43,{106,72}},
-                            {60,{101,88}},
-                            {80,{80,88}},
-                            {92,{101,120}},
-                            {93,{131,168}},
-                            {98,{115,56}},
-                            {100,{118,88}},
-                            {103,{69,40}},
-                        },
-                        /*frame*/{0,722,0,696}
-                    },
-                    {
-                        {
-                            {1,{106,248}},
-                            {2,{110,136}},
-                            {3,{149,392}},
-                            {4,{112,104}},
-                            {9,{135,104}},
-                            {34,{106,136}},
-                            {35,{141,72}},
-                            {37,{90,216}},
-                            {38,{122,152}},
-                            {41,{84,88}},
-                            {64,{83,120}},
-                            {101,{158,184}},
-                        },
-                        /*frame*/{0,654,0,744}
-                    },
-                    {
-                        {
-                            {0,{134,88}},
-                            {47,{106,120}},
-                            {61,{149,184}},
-                            {62,{106,120}},
-                            {63,{149,200}},
-                            {65,{135,312}},
-                            {66,{119,88}},
-                            {67,{168,216}},
-                            {68,{114,72}},
-                            {102,{131,216}},
-                        },
-                        /*frame*/{0,710,0,632}
-                    },
-                    {
-                        {
-                            {10,{56,40}},
-                            {11,{82,56}},
-                            {26,{101,40}},
-                            {36,{140,264}},
-                            {39,{83,88}},
-                            {40,{86,88}},
-                            {46,{140,216}},
-                            {48,{143,120}},
-                            {53,{67,56}},
-                            {54,{77,88}},
-                            {57,{109,88}},
-                            {58,{147,88}},
-                            {73,{80,72}},
-                            {74,{107,88}},
-                        },
-                        /*frame*/{0,533,0,712}
-                    },
-                    {
-                        {
-                            {21,{128,152}},
-                            {23,{97,152}},
-                            {24,{101,72}},
-                            {30,{112,104}},
-                            {31,{156,88}},
-                            {51,{131,232}},
-                            {82,{95,104}},
-                            {88,{147,120}},
-                        },
-                        /*frame*/{0,502,0,472}
-                    },
-                    {
-                        {
-                            {32,{131,376}},
-                            {55,{104,104}},
-                            {77,{131,264}},
-                            {78,{93,72}},
-                            {79,{135,88}},
-                            {81,{123,152}},
-                            {83,{80,88}},
-                            {97,{106,168}},
-                            {104,{100,88}},
-                            {105,{141,72}},
-                            {106,{91,72}},
-                        },
-                        /*frame*/{0,507,0,680}
-                    },
-                    {
-                        {
-                            {70,{75,72}},
-                            {71,{107,88}},
-                        },
-                        /*frame*/{0,139,0,232}
-                    },
-                    {
-                        {
-                            {5,{95,136}},
-                            {12,{116,104}},
-                            {28,{112,120}},
-                            {42,{84,120}},
-                            {50,{97,120}},
-                            {59,{103,72}},
-                            {84,{125,72}},
-                            {91,{96,56}},
-                            {96,{97,88}},
-                        },
-                        /*frame*/{0,336,0,432}
-                    }
-            }
+            .expected_contexts={
+		{
+			.frame={.left=0,.right=986,.top=0,.bottom=992},
+			.translatedBoxes={
+			{.id=94, .translation={.x=608,.y=218}},
+			{.id=90, .translation={.x=649,.y=842}},
+			{.id=33, .translation={.x=649,.y=730}},
+			{.id=29, .translation={.x=795,.y=521}},
+			{.id=49, .translation={.x=437,.y=250}},
+			{.id=107, .translation={.x=794,.y=57}},
+			{.id=75, .translation={.x=437,.y=42}},
+			{.id=110, .translation={.x=795,.y=185}},
+			{.id=76, .translation={.x=269,.y=123}},
+			{.id=14, .translation={.x=10,.y=650}},
+			{.id=27, .translation={.x=814,.y=729}},
+			{.id=15, .translation={.x=181,.y=858}},
+			{.id=89, .translation={.x=516,.y=730}},
+			{.id=95, .translation={.x=795,.y=361}},
+			{.id=19, .translation={.x=608,.y=10}},
+			{.id=18, .translation={.x=352,.y=730}},
+			{.id=17, .translation={.x=181,.y=602}},
+			{.id=16, .translation={.x=16,.y=522}},
+			{.id=52, .translation={.x=437,.y=506}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=638,.top=0,.bottom=640},
+			.translatedBoxes={
+			{.id=86, .translation={.x=221,.y=10}},
+			{.id=108, .translation={.x=221,.y=122}},
+			{.id=85, .translation={.x=99,.y=218}},
+			{.id=25, .translation={.x=481,.y=458}},
+			{.id=72, .translation={.x=378,.y=170}},
+			{.id=69, .translation={.x=249,.y=218}},
+			{.id=56, .translation={.x=378,.y=458}},
+			{.id=44, .translation={.x=10,.y=473}},
+			{.id=109, .translation={.x=378,.y=58}},
+			{.id=99, .translation={.x=217,.y=362}},
+			{.id=87, .translation={.x=81,.y=10}},
+			{.id=45, .translation={.x=10,.y=329}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=730,.top=0,.bottom=704},
+			.translatedBoxes={
+			{.id=60, .translation={.x=282,.y=10}},
+			{.id=13, .translation={.x=81,.y=138}},
+			{.id=80, .translation={.x=10,.y=586}},
+			{.id=22, .translation={.x=572,.y=202}},
+			{.id=98, .translation={.x=572,.y=314}},
+			{.id=8, .translation={.x=290,.y=378}},
+			{.id=7, .translation={.x=431,.y=538}},
+			{.id=6, .translation={.x=252,.y=154}},
+			{.id=103, .translation={.x=181,.y=378}},
+			{.id=43, .translation={.x=130,.y=586}},
+			{.id=100, .translation={.x=431,.y=410}},
+			{.id=20, .translation={.x=423,.y=42}},
+			{.id=93, .translation={.x=10,.y=378}},
+			{.id=92, .translation={.x=589,.y=410}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=662,.top=0,.bottom=752},
+			.translatedBoxes={
+			{.id=41, .translation={.x=520,.y=314}},
+			{.id=3, .translation={.x=331,.y=10}},
+			{.id=1, .translation={.x=526,.y=442}},
+			{.id=38, .translation={.x=10,.y=26}},
+			{.id=64, .translation={.x=10,.y=218}},
+			{.id=37, .translation={.x=11,.y=442}},
+			{.id=4, .translation={.x=374,.y=618}},
+			{.id=101, .translation={.x=133,.y=218}},
+			{.id=34, .translation={.x=374,.y=442}},
+			{.id=35, .translation={.x=193,.y=586}},
+			{.id=9, .translation={.x=191,.y=442}},
+			{.id=2, .translation={.x=181,.y=42}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=718,.top=0,.bottom=640},
+			.translatedBoxes={
+			{.id=65, .translation={.x=345,.y=266}},
+			{.id=67, .translation={.x=520,.y=394}},
+			{.id=68, .translation={.x=370,.y=154}},
+			{.id=47, .translation={.x=199,.y=266}},
+			{.id=62, .translation={.x=53,.y=234}},
+			{.id=61, .translation={.x=10,.y=10}},
+			{.id=102, .translation={.x=199,.y=10}},
+			{.id=66, .translation={.x=520,.y=266}},
+			{.id=0, .translation={.x=524,.y=138}},
+			{.id=63, .translation={.x=10,.y=394}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=536,.top=0,.bottom=720},
+			.translatedBoxes={
+			{.id=54, .translation={.x=222,.y=474}},
+			{.id=10, .translation={.x=107,.y=346}},
+			{.id=11, .translation={.x=81,.y=250}},
+			{.id=40, .translation={.x=222,.y=602}},
+			{.id=53, .translation={.x=383,.y=266}},
+			{.id=58, .translation={.x=345,.y=10}},
+			{.id=48, .translation={.x=363,.y=394}},
+			{.id=57, .translation={.x=383,.y=138}},
+			{.id=74, .translation={.x=10,.y=10}},
+			{.id=73, .translation={.x=83,.y=138}},
+			{.id=46, .translation={.x=203,.y=138}},
+			{.id=39, .translation={.x=222,.y=10}},
+			{.id=36, .translation={.x=42,.y=426}},
+			{.id=26, .translation={.x=222,.y=394}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=510,.top=0,.bottom=480},
+			.translatedBoxes={
+			{.id=51, .translation={.x=10,.y=202}},
+			{.id=24, .translation={.x=10,.y=90}},
+			{.id=21, .translation={.x=288,.y=10}},
+			{.id=88, .translation={.x=181,.y=330}},
+			{.id=31, .translation={.x=181,.y=202}},
+			{.id=82, .translation={.x=377,.y=202}},
+			{.id=30, .translation={.x=368,.y=346}},
+			{.id=23, .translation={.x=151,.y=10}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=515,.top=0,.bottom=688},
+			.translatedBoxes={
+			{.id=79, .translation={.x=344,.y=42}},
+			{.id=83, .translation={.x=53,.y=330}},
+			{.id=97, .translation={.x=27,.y=458}},
+			{.id=55, .translation={.x=173,.y=10}},
+			{.id=78, .translation={.x=40,.y=218}},
+			{.id=106, .translation={.x=213,.y=458}},
+			{.id=32, .translation={.x=344,.y=170}},
+			{.id=104, .translation={.x=204,.y=570}},
+			{.id=77, .translation={.x=173,.y=154}},
+			{.id=81, .translation={.x=10,.y=10}},
+			{.id=105, .translation={.x=344,.y=586}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=147,.top=0,.bottom=240},
+			.translatedBoxes={
+			{.id=71, .translation={.x=10,.y=10}},
+			{.id=70, .translation={.x=10,.y=138}} 
+			}
+		},
+		{
+			.frame={.left=0,.right=344,.top=0,.bottom=440},
+			.translatedBoxes={
+			{.id=5, .translation={.x=122,.y=10}},
+			{.id=12, .translation={.x=10,.y=146}},
+			{.id=28, .translation={.x=10,.y=10}},
+			{.id=42, .translation={.x=217,.y=130}},
+			{.id=50, .translation={.x=217,.y=10}},
+			{.id=59, .translation={.x=135,.y=250}},
+			{.id=84, .translation={.x=10,.y=250}},
+			{.id=91, .translation={.x=107,.y=322}},
+			{.id=96, .translation={.x=10,.y=322}} 
+			}
+		} 
+}
 	} ;
 
+		const auto& [title, input_rectangles, edges, expected_contexts] = dctx;
+		vector<MyRect> rectangles = input_rectangles;
+		
         int i=0;
-        for (MyRect& r : dctx.rectangles)
+        for (MyRect& r : rectangles)
         {
             r.i = r.no_sequence = i++;
         }
 
-        int n = dctx.rectangles.size();
+        int n = rectangles.size();
         vector<vector<MPD_Arc> > adjacency_list(n);
 
-        for (Edge& e : dctx.edges)
+        for (const Edge& e : edges)
         {
             adjacency_list[e.from].push_back({e.from, e.to}) ;
         }
@@ -2750,7 +2753,7 @@ void test_stair_steps_layout_from_111_boxes()
             vector<TranslatedBox> translations;
             for (MyRect &r : ctx.rectangles)
                 translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
-	    bool bOK = translations == dctx.contexts[c++].expected_translations;
+	    bool bOK = translations == expected_contexts[c++].expected_translations;
             printf("%s\n", bOK ? "OK" : "KO");
 	    (bOK ? nbOK : nbKO)++;
         }
