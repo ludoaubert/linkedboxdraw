@@ -2758,36 +2758,6 @@ void test_stair_steps_layout_from_111_boxes()
 
 
 
-void select_neighbours(const vector<MPD_Arc>& edges, vector<bool>& filter)
-{
-	int n = filter.size() ;
-
-	MatrixXi W = MatrixXi::Zero(n, n) ;
-	for (const MPD_Arc& edge : edges)
-	{
-		int i = edge._i, j = edge._j ;
-		W(i, j) = W(j, i) = 1 ;
-	}
-
-	VectorXi V = VectorXi::Zero(n) ;
-	for (int i=0; i < n; i++)
-	{
-		if (filter[i])
-			V(i) = 1 ;
-	}
-
-	V += W * V ;
-
-	for (int i=0; i < n; i++)
-	{
-		if (V(i))
-		{
-			filter[i] = true ;
-		}
-	}
-}
-
-
 vector<vector<MPD_Arc> > compute_adjacency_list_(const Matrix<int8_t,-1,-1>& OW)
 {
 	assert(OW.rows() == OW.cols()) ;
