@@ -858,7 +858,6 @@ void test_stair_steps(int rect_border)
                 }
 	};
 
-        vector<Context> contexts;
         for (const auto& [testid, title, input_rectangles, edges, expected_translations, frame] : vdctx)
         {
             	vector<MyRect> rectangles = input_rectangles;
@@ -903,7 +902,7 @@ void test_stair_steps(int rect_border)
 
                 duration<double> time_span = high_resolution_clock::now() - t1;
 		bool bOK = expected_translations == translations;
-                printf("%s [%d] %20s %f seconds elapsed\n", bOK ? "OK": "KO", 
+                printf("%s [%d] %20s %f seconds elapsed\n", bOK ? "OK": "KO",
 					testid, title.c_str(), time_span.count());
 		(bOK ? nbOK : nbKO)++;
 
