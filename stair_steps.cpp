@@ -800,6 +800,61 @@ void test_stair_steps(int rect_border)
                         {5,{283,272}}
                     },
                     /*frame*/{0,429,0,520}
+                },
+
+                {
+                    .testid=12, .title="LOLA",
+                    .input_rectangles={
+			{.m_left=0,.m_right=162,.m_top=0,.m_bottom=104},//8-0
+			{.m_left=0,.m_right=182,.m_top=0,.m_bottom=72},//9-1
+			{.m_left=0,.m_right=105,.m_top=0,.m_bottom=72},//10-2
+			{.m_left=0,.m_right=126,.m_top=0,.m_bottom=152},//21-3
+			{.m_left=0,.m_right=126,.m_top=0,.m_bottom=88},//24-4
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=120},//25-5
+			{.m_left=0,.m_right=140,.m_top=0,.m_bottom=120},//26-6
+			{.m_left=0,.m_right=168,.m_top=0,.m_bottom=136},//27-7
+			{.m_left=0,.m_right=168,.m_top=0,.m_bottom=120},//28-8
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=104},//30-9
+			{.m_left=0,.m_right=133,.m_top=0,.m_bottom=120},//32-10
+			{.m_left=0,.m_right=147,.m_top=0,.m_bottom=168},//44-11
+			{.m_left=0,.m_right=140,.m_top=0,.m_bottom=88},//48-12
+			{.m_left=0,.m_right=155,.m_top=0,.m_bottom=120},//52-13
+			{.m_left=0,.m_right=175,.m_top=0,.m_bottom=136}//53-14
+		    },
+                    .edges={
+			{.from=13,.to=12},
+			{.from=13,.to=14},
+			{.from=4,.to=7},
+			{.from=3,.to=4},
+			{.from=1,.to=7},
+			{.from=5,.to=7},
+			{.from=7,.to=11},
+			{.from=6,.to=7},
+			{.from=10,.to=7},
+			{.from=9,.to=7},
+			{.from=2,.to=7},
+			{.from=8,.to=7},
+			{.from=0,.to=3},
+			{.from=12,.to=6}
+		    },
+                    .expected_translations={
+			{.id=0,.translation={.x=396,.y=10}},
+			{.id=1,.translation={.x=320,.y=330}},
+			{.id=2,.translation={.x=453,.y=218}},
+			{.id=3,.translation={.x=598,.y=10}},
+			{.id=4,.translation={.x=598,.y=202}},
+			{.id=5,.translation={.x=750,.y=346}},
+			{.id=6,.translation={.x=273,.y=154}},
+			{.id=7,.translation={.x=542,.y=330}},
+			{.id=8,.translation={.x=335,.y=506}},
+			{.id=9,.translation={.x=556,.y=506}},
+			{.id=10,.translation={.x=764,.y=186}},
+			{.id=11,.translation={.x=743,.y=506}},
+			{.id=12,.translation={.x=93,.y=153}},
+			{.id=13,.translation={.x=10,.y=281}},
+			{.id=14,.translation={.x=11,.y=441}}
+                    },
+                    .frame={.m_left=0,.m_right=884,.m_top=0,.m_bottom=552}
                 }
 	};
 
