@@ -2749,7 +2749,7 @@ void test_stair_steps_layout_from_111_boxes()
             ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
             vector<TranslatedBox> translations;
             for (MyRect &r : ctx.rectangles)
-                translations.push_back({r.no_sequence,{width(r), height(r)}});
+                translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
 	    bool bOK = translations == dctx.contexts[c++].expected_translations;
             printf("%s\n", bOK ? "OK" : "KO");
 	    (bOK ? nbOK : nbKO)++;
