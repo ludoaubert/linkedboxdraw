@@ -2554,7 +2554,7 @@ void test_stair_steps_layout_from_111_boxes()
             },
             .expected_contexts={
 		{
-			.frame={.left=0,.right=986,.top=0,.bottom=992},
+			.frame={.m_left=0,.m_right=986,.m_top=0,.m_bottom=992},
 			.translatedBoxes={
 			{.id=94, .translation={.x=608,.y=218}},
 			{.id=90, .translation={.x=649,.y=842}},
@@ -2578,7 +2578,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=638,.top=0,.bottom=640},
+			.frame={.m_left=0,.m_right=638,.m_top=0,.m_bottom=640},
 			.translatedBoxes={
 			{.id=86, .translation={.x=221,.y=10}},
 			{.id=108, .translation={.x=221,.y=122}},
@@ -2595,7 +2595,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=730,.top=0,.bottom=704},
+			.frame={.m_left=0,.m_right=730,.m_top=0,.m_bottom=704},
 			.translatedBoxes={
 			{.id=60, .translation={.x=282,.y=10}},
 			{.id=13, .translation={.x=81,.y=138}},
@@ -2614,7 +2614,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=662,.top=0,.bottom=752},
+			.frame={.m_left=0,.m_right=662,.m_top=0,.m_bottom=752},
 			.translatedBoxes={
 			{.id=41, .translation={.x=520,.y=314}},
 			{.id=3, .translation={.x=331,.y=10}},
@@ -2631,7 +2631,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=718,.top=0,.bottom=640},
+			.frame={.m_left=0,.m_right=718,.m_top=0,.m_bottom=640},
 			.translatedBoxes={
 			{.id=65, .translation={.x=345,.y=266}},
 			{.id=67, .translation={.x=520,.y=394}},
@@ -2646,7 +2646,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=536,.top=0,.bottom=720},
+			.frame={.m_left=0,.m_right=536,.m_top=0,.m_bottom=720},
 			.translatedBoxes={
 			{.id=54, .translation={.x=222,.y=474}},
 			{.id=10, .translation={.x=107,.y=346}},
@@ -2665,7 +2665,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=510,.top=0,.bottom=480},
+			.frame={.m_left=0,.m_right=510,.m_top=0,.m_bottom=480},
 			.translatedBoxes={
 			{.id=51, .translation={.x=10,.y=202}},
 			{.id=24, .translation={.x=10,.y=90}},
@@ -2678,7 +2678,7 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=515,.top=0,.bottom=688},
+			.frame={.m_left=0,.m_right=515,.m_top=0,.m_bottom=688},
 			.translatedBoxes={
 			{.id=79, .translation={.x=344,.y=42}},
 			{.id=83, .translation={.x=53,.y=330}},
@@ -2694,14 +2694,14 @@ void test_stair_steps_layout_from_111_boxes()
 			}
 		},
 		{
-			.frame={.left=0,.right=147,.top=0,.bottom=240},
+			.frame={.m_left=0,.m_right=147,.m_top=0,.m_bottom=240},
 			.translatedBoxes={
 			{.id=71, .translation={.x=10,.y=10}},
 			{.id=70, .translation={.x=10,.y=138}} 
 			}
 		},
 		{
-			.frame={.left=0,.right=344,.top=0,.bottom=440},
+			.frame={.m_left=0,.m_right=344,.m_top=0,.m_bottom=440},
 			.translatedBoxes={
 			{.id=5, .translation={.x=122,.y=10}},
 			{.id=12, .translation={.x=10,.y=146}},
@@ -2711,15 +2711,15 @@ void test_stair_steps_layout_from_111_boxes()
 			{.id=59, .translation={.x=135,.y=250}},
 			{.id=84, .translation={.x=10,.y=250}},
 			{.id=91, .translation={.x=107,.y=322}},
-			{.id=96, .translation={.x=10,.y=322}} 
+			{.id=96, .translation={.x=10,.y=322}}
 			}
-		} 
+		}
 }
 	} ;
 
-		const auto& [title, input_rectangles, edges, expected_contexts] = dctx;
-		vector<MyRect> rectangles = input_rectangles;
-		
+	const auto& [title, input_rectangles, edges, expected_contexts] = dctx;
+	vector<MyRect> rectangles = input_rectangles;
+
         int i=0;
         for (MyRect& r : rectangles)
         {
@@ -2737,23 +2737,22 @@ void test_stair_steps_layout_from_111_boxes()
         int no_sequence_from_center = -1 ;
 
         vector<Context> contexts ;
-        compute_contexts(dctx.rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
 
 	char buffer[100000];
-	write_json(dctx.rectangles, contexts, buffer);
+	write_json(rectangles, contexts, buffer);
         FILE *f = fopen("test-latuile-101boxes-output-contexts.json", "w");
         fprintf(f, "%s", buffer);
         fclose(f);
-	json_diagdata_output(n, dctx.edges, "test-latuile-101boxes-diagdata.json");
+	json_diagdata_output(n, edges, "test-latuile-101boxes-diagdata.json");
 
         int c=0;
         for (Context &ctx : contexts)
         {
-            ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
-            vector<TranslatedBox> translations;
+            vector<TranslatedBox> translatedBoxes;
             for (MyRect &r : ctx.rectangles)
-                translations.push_back({r.no_sequence,{r.m_left, r.m_top}});
-	    bool bOK = translations == expected_contexts[c++].expected_translations;
+                translatedBoxes.push_back({r.no_sequence,{r.m_left, r.m_top}});
+	    bool bOK = translatedBoxes == expected_contexts[c++].translatedBoxes;
             printf("%s\n", bOK ? "OK" : "KO");
 	    (bOK ? nbOK : nbKO)++;
         }
