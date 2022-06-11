@@ -30,7 +30,6 @@ void select_neighbours(const std::vector<MPD_Arc>& edges, std::vector<bool>& fil
 void compute_contexts(std::vector<MyRect> &rectangles,
                       const std::vector<std::vector<MPD_Arc> > &adjacency_list,
                       int max_nb_boxes_per_diagram,
-                      int no_sequence_from_center,
                       std::vector<Context> &contexts);
 
 #endif

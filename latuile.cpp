@@ -180,10 +180,10 @@ void test()
     {
         adjacency_list[e.from].push_back({e.from, e.to}) ;
     }
-    int no_sequence_from_center = -1;
+
     vector<Context> contexts ;
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+    compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
 //on ne conserve que les rectangles
     for (int i=0; i < contexts.size(); i++)
     {
@@ -297,9 +297,9 @@ int main(int argc, char* argv[])
 		vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 		for (MPD_Arc &edge : edges)
 			adjacency_list[edge._i].push_back(edge);
-		int no_sequence_from_center = -1;
+
         vector<Context> contexts ;
-        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
 //on ne conserve que les rectangles
         for (Context &ctx : contexts)
         {
@@ -325,9 +325,9 @@ const char* latuile(const char *rectdim, const char *slinks)
 	vector<vector<MPD_Arc> > adjacency_list(rectangles.size());
 	for (MPD_Arc &edge : edges)
 		adjacency_list[edge._i].push_back(edge);
-	int no_sequence_from_center = -1;
+
 	vector<Context> contexts ;
-	compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+	compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
 //on ne conserve que les rectangles
 	for (Context &ctx : contexts)
 	{

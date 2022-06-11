@@ -1936,11 +1936,10 @@ void dichotomy(float &lower_bound, float &upper_bound, float spread, Pr& pr)
 }
 
 
-void compute_contexts(vector<MyRect> &rectangles, 
-					  const vector<vector<MPD_Arc> > &adjacency_list,
-					  int max_nb_boxes_per_diagram,
-					  int no_sequence_from_center,
-					  vector<Context> &contexts)
+void compute_contexts(vector<MyRect> &rectangles,
+			const vector<vector<MPD_Arc> > &adjacency_list,
+			int max_nb_boxes_per_diagram,
+			vector<Context> &contexts)
 {
         FunctionTimer ft("compute_contexts");
 	int n = rectangles.size() ;
@@ -2103,42 +2102,7 @@ perm * A : permute rows
 		}
 		else
 		{
-			Context ctx2 = ctx ;
 			stair_steps_layout(ctx.rectangles, ctx.adjacency_list, RECT_BORDER) ;
-
-			auto it = ranges::find_if(ctx2.rectangles, [&](MyRect& r){ return r.no_sequence==no_sequence_from_center;}) ;
-			if (it != ctx2.rectangles.end())
-			{
-				for (MyRect &r : ctx2.rectangles)
-				{
-					r.m_right += 2*RECT_BORDER ;
-					r.m_bottom += 2*RECT_BORDER ;
-				}
-				vector<MyRect> rects = ctx2.rectangles ;
-				MyRect& rr = *it ;
-
-				float lower_bound = 1.0, upper_bound, spread = 0.001 ;
-
-				auto tree_layout = [&](float factor){
-					ranges::copy(rects, ctx2.rectangles.begin()) ;
-					rr = expand(rr, factor) ;
-					return stair_steps(ctx2.rectangles, rr, ctx2.adjacency_list) ;
-				} ;
-
-				dichotomy(lower_bound, upper_bound, spread, tree_layout) ;
-				bool result = tree_layout(upper_bound) ;
-				assert(result) ;
-
-				rr = translate((const MyRect&)rects[rr.i], center(rr) - center(rects[rr.i])) ;
-
-				for (MyRect &r : ctx2.rectangles)
-				{
-					expand_by(r, - RECT_BORDER) ;
-				}
-
-				if (dim_max(compute_frame(ctx2.rectangles)) < dim_max(compute_frame(ctx.rectangles)))
-					ctx = ctx2 ;
-			}
 		}
 
 		int rect_border = RECT_BORDER/2 ;
@@ -2734,10 +2698,8 @@ void test_stair_steps_layout_from_111_boxes()
             adjacency_list[e.from].push_back({e.from, e.to}) ;
         }
 
-        int no_sequence_from_center = -1 ;
-
         vector<Context> contexts ;
-        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, no_sequence_from_center,contexts) ;
+        compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
 
 	char buffer[100000];
 	write_json(rectangles, contexts, buffer);
