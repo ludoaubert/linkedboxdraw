@@ -52,12 +52,12 @@ bool stair_steps(vector<MyRect> &rectangles, MyRect& rr, vector<vector<MPD_Arc> 
 	int n = rectangles.size() ;
 
 	vector<vector<MyRect*> > unordered_adjacency_list(n) ;
-	for (const MPD_Arc *edge : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		if (edge->_i == edge->_j)
+		if (i == j)
 			continue ;
-		unordered_adjacency_list[edge->_i].push_back(&rectangles[edge->_j]) ;
-		unordered_adjacency_list[edge->_j].push_back(&rectangles[edge->_i]) ;
+		unordered_adjacency_list[i].push_back(&rectangles[j]) ;
+		unordered_adjacency_list[j].push_back(&rectangles[i]) ;
 	}
 //ORDER each adjacency list BY rectangle width DESC. This is to make sure that lower steps of the stairway are larger.
 	for (vector<MyRect*>& adj : unordered_adjacency_list)
@@ -247,9 +247,8 @@ void composite_from_selected_rectangles(vector<WidgetContext> &rects, vector<vec
 	rects = my_rectangles ;
 //3) mise a jour de la liste d'adjacence
 	MatrixXd OW = MatrixXd::Zero(n,n) ;	//Oriented Weights
-	for (MPD_Arc* arc : list_edges(adjacency_list))
+	for (auto [i, j] : adjacency_list | std::views::join)
 	{
-		int i = arc->_i, j = arc->_j ;
 		OW(i, j) = 1 ;
 	}
 	OW = perm * OW * perm.transpose() ;
@@ -287,10 +286,8 @@ bool stair_steps_(vector<MyRect> &rectangles, vector<vector<MPD_Arc> > &adj_list
 			int n = rects.size() ;
 			MatrixXd W = MatrixXd::Zero(n,n) ;
 			PermutationMatrix<Dynamic> perm(n) ;
-			for (const MPD_Arc* arc : list_edges(adjacency_list))
+			for (const auto& [i, j] : adjacency_list | views::join)
 			{
-				int i = arc->_i ;
-				int j = arc->_j ;
 				W(i,j) = W(j,i) = 1 ;
 			}
                         vector<int> v(n);
@@ -378,14 +375,13 @@ autour de A, B et C vont bien se retrouver l'un a cote de l'autre.
 Detection des chaines : # liens == # rectangles - 1 (en retirant les liens self) et max(cardinality) == 2
 */
 	int n = rectangles.size() ;
-	vector<MPD_Arc*> edges = list_edges(adjacency_list) ;
 	vector<vector<int> > unoriented_adjacency_list(n) ;
-	for (MPD_Arc* edge : edges)
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		if (edge->_i == edge->_j)
+		if (i == j)
 			continue ;
-		unoriented_adjacency_list[edge->_i].push_back(edge->_j) ;
-		unoriented_adjacency_list[edge->_j].push_back(edge->_i) ;
+		unoriented_adjacency_list[i].push_back(j) ;
+		unoriented_adjacency_list[j].push_back(i) ;
 	}
 
 	int edge_count = 0 ;
@@ -940,16 +936,13 @@ vector<WidgetContext> composite_stair_steps_layout(vector<WidgetContext>& rectan
 	{
 		MatrixXd W = MatrixXd::Zero(n,n) ;
 		PermutationMatrix<Dynamic> perm(n) ;
-		for (const MPD_Arc* arc : list_edges(adjacency_list))
+		for (const auto [i, j] : adjacency_list | views::join)
 		{
-			int i = arc->_i ;
-			int j = arc->_j ;
 			W(i,j) = W(j,i) = 1 ;
 		}
 		Matrix<int8_t,-1,-1> OW = Matrix<int8_t,-1,-1>::Zero(n, n) ;	//Oriented Weights
-		for (const MPD_Arc* arc : list_edges(adjacency_list))
+		for (const auto [i, j] : adjacency_list | views::join)
 		{
-			int i = arc->_i, j = arc->_j ;
 			OW(i, j) = 1 ;
 		}
 		vector<int> component_distribution ;
@@ -1138,9 +1131,9 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 //on verifie que les rectangles n'ont pas été permutés.
 		assert(ranges::equal(vec, vect, {}, [](MyRect& r){return dimensions(r);})) ;
 		int total_distance = 0 ;
-		for (const MPD_Arc *edge : list_edges(adjacency_list))
+		for (const auto& [i, j] : adjacency_list | views::join)
 		{
-			total_distance += rectangle_distance(vec[edge->_i], vec[edge->_j]) ;
+			total_distance += rectangle_distance(vec[i], vec[j]) ;
 		}
 		if (total_distance < min_total_distance)
 		{
@@ -1946,9 +1939,8 @@ void compute_contexts(vector<MyRect> &rectangles,
 	if (n==0)
 		return ;
 	MatrixXd W = MatrixXd::Zero(n, n) ;
-	for (const MPD_Arc* arc : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		int i = arc->_i, j = arc->_j ;
 		W(i, j) = W(j, i) = 1.0f ;
 	}
 
@@ -1986,21 +1978,19 @@ n3|     |       |  cc3      |
 
 	Matrix<int8_t,-1,-1> OW = Matrix<int8_t,-1,-1>::Zero(n, n) ;	//Oriented Weights
 
-	for (const MPD_Arc* arc : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		int i = arc->_i, j = arc->_j ;
 		OW(i, j) = 1 ;
 	}
 
 	vector<int> fan_in(n, 0) ;
-	for (const MPD_Arc* arc : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		fan_in[arc->_j] ++ ;
+		fan_in[j] ++ ;
 	}
 	MatrixXd WW = MatrixXd::Zero(n, n) ;
-	for (const MPD_Arc* arc : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		int i = arc->_i, j = arc->_j ;
 		double value = 1.0f / fan_in[j] ;
 		WW(i, j) = WW(j, i) = value ;
 	}
@@ -2822,11 +2812,11 @@ non null eigenvalues => each corresponds to a cut.
 //might be connected.
 		vector<int> cc(n) ;
 		vector<vector<MPD_Arc> > adj(n), adj_ = compute_adjacency_list(W) ;
-		for (const MPD_Arc *arc : list_edges(adj_))
+		for (const auto& [i, j] : adj_ | views::join)
 		{
-			if (Z_OUT[arc->_i] != Z_OUT[arc->_j])
+			if (Z_OUT[i] != Z_OUT[j])
 				continue ;
-			adj[arc->_i].push_back(*arc) ;
+			adj[i].push_back({i, j}) ;
 		}
 		connected_components(adj, cc) ;
 		int nr_comp = 1 + *ranges::max_element(cc) ;
@@ -2855,11 +2845,11 @@ non null eigenvalues => each corresponds to a cut.
 
 		adj = vector<vector<MPD_Arc> >(n) ;
 		cc = vector<int>(n,0) ;
-		for (const MPD_Arc *arc : list_edges(adj_))
+		for (const auto& [i, j] : adj_ | views::join)
 		{
-			if (Z_OUT[arc->_i] != Z_OUT[arc->_j])
+			if (Z_OUT[i] != Z_OUT[j])
 				continue ;
-			adj[arc->_i].push_back(*arc) ;
+			adj[i].push_back({i, j}) ;
 		}
 		connected_components(adj, cc) ;
 		nr_comp = 1 + *ranges::max_element(cc) ;
