@@ -268,7 +268,7 @@ void test()
 			printf("dim_max(compute_frame(output_rectangles)) : %d\n", dim_max(compute_frame(rectangles)));
 
 			latuile_test_json_output(input_rectangles,
-                        		        rectangles,
+                        		        ctx.rectangles,
                                 		edges,
                                 		expected_rectangles,
                                 		"test_latuile",
