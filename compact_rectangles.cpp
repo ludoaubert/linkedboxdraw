@@ -4,6 +4,7 @@
 #include "index_from.h"
 #include "FunctionTimer.h"
 #include <vector>
+#include <ranges>
 #include <algorithm>
 #include "latuile_test_json_output.h"
 using namespace std ;
@@ -23,12 +24,12 @@ bool compact_rectangles(vector<MyRect> &rectangles, const vector<vector<MPD_Arc>
 
 	int n = rectangles.size() ;
 	vector<vector<MyRect*> > unordered_adjacency_list(n) ;
-	for (const MPD_Arc *edge : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		if (edge->_i == edge->_j)
+		if (i == j)
 			continue ;
-		unordered_adjacency_list[edge->_i].push_back(&rectangles[edge->_j]) ;
-		unordered_adjacency_list[edge->_j].push_back(&rectangles[edge->_i]) ;
+		unordered_adjacency_list[i].push_back(&rectangles[j]) ;
+		unordered_adjacency_list[j].push_back(&rectangles[i]) ;
 	}
 
 	vector<MyPoint> candidate_translations ;
