@@ -9,9 +9,6 @@
 #define _MPD_ARC_
 
 
-#include <vector>
-
-
 struct MPD_Arc
 {
 	int _i ;
@@ -19,10 +16,6 @@ struct MPD_Arc
 
 	bool operator==(const MPD_Arc&) const = default;
 } ;
-
-
-std::vector<const MPD_Arc*> list_edges(const std::vector<std::vector<MPD_Arc> >& graph) ;
-std::vector<MPD_Arc*> list_edges(std::vector<std::vector<MPD_Arc> >& graph) ;
 
 
 #endif
