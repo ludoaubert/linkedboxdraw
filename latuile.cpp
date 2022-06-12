@@ -35,7 +35,7 @@ void test()
 {
     TestFunctionTimer ft("test_latuile");
 
-    struct TestInput{vector<MyRect> rectangles; vector<Edge> edges;};
+    struct TestInput{vector<MyRect> input_rectangles; vector<Edge> edges;};
     struct TestOutputContext{string title; MyRect frame; vector<TranslatedBox> translatedBoxes;};
     struct TestContext{TestInput input; vector<TestOutputContext> output;};
 
@@ -85,7 +85,7 @@ void test()
 
     TestContext context = {
         {//input
-            {//rectangles
+            {//input_rectangles
  /*0*/{/*left*/0,/*right*/141,/*top*/0,/*bottom*/40 },
  /*1*/{/*left*/0,/*right*/162,/*top*/0,/*bottom*/56 },
  /*2*/{/*left*/0,/*right*/64,/*top*/0,/*bottom*/104 },
@@ -163,7 +163,7 @@ void test()
 	}//output
     };
 
-    vector<MyRect> rectangles = context.input.rectangles;
+    vector<MyRect> rectangles = context.input.input_rectangles;
     int i=0;
     bool selected=true;
     for (MyRect& rec : rectangles)
