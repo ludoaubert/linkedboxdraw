@@ -3,6 +3,7 @@
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
 #include <vector>
+#include <ranges>
 #include <algorithm>
 #include "latuile_test_json_output.h"
 using namespace std ;
@@ -144,12 +145,13 @@ void optimize_rectangle_positions(vector<MyRect> &rectangles, const vector<vecto
 
         int n=rectangles.size();
         vector<vector<MPD_Arc> > unordered_edges(n);
-        for (MPD_Arc edge : list_edges_(adjacency_list))
+        for (const auto& [i, j] : adjacency_list | views::join)
         {
-             unordered_edges[edge._i].push_back(edge);
-             unordered_edges[edge._j].push_back(edge);
+             unordered_edges[i].push_back({i, j});
+             unordered_edges[j].push_back({i, j});
         }
-	vector<MPD_Arc> edges = list_edges_(adjacency_list) ;
+	auto r = adjacency_list | views::join ;
+	vector<MPD_Arc> edges(begin(r), end(r));
 
 	while (true)
 	{
