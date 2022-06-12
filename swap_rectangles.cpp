@@ -62,14 +62,14 @@ struct DecisionTreeNode
 	int depth ;
 } ;
 
-void swap_rectangles(vector<MyRect> &rectangles, vector<const MPD_Arc*> edges, vector<tuple<int, RectCorner, int, RectCorner> >& swaps)
+void swap_rectangles(vector<MyRect> &rectangles, const vector<MPD_Arc>& edges, vector<tuple<int, RectCorner, int, RectCorner> >& swaps)
 {
         FunctionTimer ft("swap_rectangles");
 
 	int edge_distance = 0 ;
-	for (const MPD_Arc* edge : edges)
+	for (const auto& [i, j] : edges)
 	{
-		edge_distance += rectangle_distance(rectangles[edge->_i], rectangles[edge->_j]) ;
+		edge_distance += rectangle_distance(rectangles[i], rectangles[j]) ;
 	}
 
 	MyRect frame = compute_frame(rectangles) ;
@@ -115,9 +115,9 @@ void swap_rectangles(vector<MyRect> &rectangles, vector<const MPD_Arc*> edges, v
 						continue ;
 
 					int edge_distance_ = 0 ;
-					for (const MPD_Arc* edge : edges)
+					for (const auto& [i, j] : edges)
 					{
-						edge_distance_ += rectangle_distance(rectangles_[edge->_i], rectangles_[edge->_j]) ;
+						edge_distance_ += rectangle_distance(rectangles_[i], rectangles_[j]) ;
 					}
 
 					int index = decision_tree.size() ;
@@ -208,9 +208,9 @@ etage 3: etage 2 * 16*16 soit 2^28 = 256 M  max
 								continue ;
 
 							int edge_distance_ = 0 ;
-							for (const MPD_Arc* edge : edges)
+							for (const auto& [i, j] : edges)
 							{
-								edge_distance_ += rectangle_distance(rectangles_[edge->_i], rectangles_[edge->_j]) ;
+								edge_distance_ += rectangle_distance(rectangles_[i], rectangles_[j]) ;
 							}
 
 							int index = decision_tree.size() ;
@@ -409,7 +409,7 @@ void test_swap_rectangles()
 			rectangles[i].i = i ;
 		vector<tuple<int, RectCorner, int, RectCorner> > swaps ;
 
-		swap_rectangles(rectangles, list_edges(adjacency_list_), swaps) ;
+		swap_rectangles(rectangles, edges, swaps) ;
 		int i, j ;
 		RectCorner rci, rcj ;
 		for (int k=0; k < swaps.size(); k++)

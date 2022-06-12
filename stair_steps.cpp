@@ -1155,11 +1155,14 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 		vec[r.i] = r ;
 	}
 
+        auto rg = adjacency_list | views::join ;
+        vector<MPD_Arc> edges(begin(rg), end(rg));
+
 	vector<tuple<int, RectCorner, int, RectCorner> > swaps ;
 	do
 	{
 		swaps.clear() ;
-		swap_rectangles(vec, list_edges(adjacency_list), swaps) ;
+		swap_rectangles(vec, edges, swaps) ;
 	}
 	while (!swaps.empty()) ;
 
@@ -1169,7 +1172,7 @@ void stair_steps_layout(vector<MyRect> &vect, const vector<vector<MPD_Arc> > &ad
 	do
 	{
 		swaps.clear() ;
-		swap_rectangles(vec, list_edges(adjacency_list), swaps) ;
+		swap_rectangles(vec, edges, swaps) ;
 	}
 	while (!swaps.empty()) ;
 
