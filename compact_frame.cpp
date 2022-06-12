@@ -4,6 +4,7 @@
 #include "index_from.h"
 #include "FunctionTimer.h"
 #include <vector>
+#include <ranges>
 #include <stack>
 #include <cstdint>
 #include "latuile_test_json_output.h"
@@ -24,14 +25,11 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 {
         FunctionTimer ft("compact_frame");
 
-	vector<const MPD_Arc*> edges = list_edges(adjacency_list) ;
-
 	int n = rectangles.size() ;
 
 	vector<vector<int> > unordered_adjacency_list(n) ;
-	for (const MPD_Arc* edge : list_edges(adjacency_list))
+	for (const auto& [i, j] : adjacency_list | views::join)
 	{
-		int i = edge->_i, j = edge->_j ;
 		if (i == j)
 			continue ;
 		unordered_adjacency_list[i].push_back(j) ;
@@ -123,8 +121,8 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 			float _frame_diameter = frame_diameter(rectangles) ;
 			int _total_distance = 0 ;
-			for (const MPD_Arc* edge : list_edges(adjacency_list))
-				_total_distance += rectangle_distance(rectangles[edge->_i], rectangles[edge->_j]) ;
+			for (const auto& [i, j] : adjacency_list | views::join)
+				_total_distance += rectangle_distance(rectangles[i], rectangles[j]) ;
 
 
 			for (MyRect& r : rectangles)
@@ -135,8 +133,8 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 			float frame_diameter_ = frame_diameter(rectangles) ;
 			int total_distance_ = 0 ;
-			for (const MPD_Arc* edge : list_edges(adjacency_list))
-				total_distance_ += rectangle_distance(rectangles[edge->_i], rectangles[edge->_j]) ;
+			for (const auto& [i, j] : adjacency_list | views::join)
+				total_distance_ += rectangle_distance(rectangles[i], rectangles[j]) ;
 
 			if (frame_diameter_ >= _frame_diameter && !(total_distance_ < _total_distance))
 				break ;
