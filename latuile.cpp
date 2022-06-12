@@ -183,21 +183,29 @@ void test()
         printf("frame={%d, %d, %d, %d}\n", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
         for (MyRect& rec : ctx.rectangles)
         {
-            printf("i=%d, no_sequence=%d, x=%d, y=%d\n", rec.i, rec.no_sequence, rec.m_left, rec.m_top);
+		printf("i=%d, no_sequence=%d, x=%d, y=%d\n", rec.i, rec.no_sequence, rec.m_left, rec.m_top);
         }
         vector<TranslatedBox> translatedBoxes;
         for (MyRect& rec : ctx.rectangles)
         {
-            translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
+ 		translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
         }
 	bool bOK = expected_contexts[i].translatedBoxes == translatedBoxes;
         printf("%s\n", bOK ? "OK" : "KO");
 	(bOK ? nbOK : nbKO)++;
 	int test_number = i;
+
+        vector<MyRect> expected_rectangles = input_rectangles;
+
+        for (int j=0; j<n; j++)
+        {
+		expected_rectangles[j] = translate(input_rectangles[j], expected_contexts[i].translatedBoxes[j].translation);
+        }
+
 	latuile_test_json_output(input_rectangles,
                                 rectangles,
                                 edges,
-                                rectangles,
+                                expected_rectangles,
                                 "test_latuile",
                                 test_number);
     }
