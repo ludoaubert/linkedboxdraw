@@ -35,9 +35,8 @@ void test()
 {
     TestFunctionTimer ft("test_latuile");
 
-    struct TestInput{vector<MyRect> input_rectangles; vector<Edge> edges;};
-    struct TestOutputContext{string title; MyRect frame; vector<TranslatedBox> translatedBoxes;};
-    struct TestContext{TestInput input; vector<TestOutputContext> output;};
+    struct TestOutputContext{MyRect frame; vector<TranslatedBox> translatedBoxes;};
+    struct TestContext{vector<MyRect> input_rectangles; vector<Edge> edges; vector<TestOutputContext> expected_contexts;};
 
 
 /*
@@ -83,31 +82,30 @@ void test()
 */
 
 
-    TestContext context = {
-        {//input
-            {//input_rectangles
- /*0*/{.m_left=0, .m_right=141, .m_top=0, .m_bottom=40 },
- /*1*/{.m_left=0, .m_right=162, .m_top=0, .m_bottom=56 },
- /*2*/{.m_left=0, .m_right=64, .m_top=0, .m_bottom=104 },
- /*3*/{.m_left=0, .m_right=120, .m_top=0, .m_bottom=120 },
- /*4*/{.m_left=0, .m_right=141, .m_top=0, .m_bottom=56 },
- /*5*/{.m_left=0, .m_right=267, .m_top=0, .m_bottom=72 },
- /*6*/{.m_left=0, .m_right=71, .m_top=0, .m_bottom=136 },
- /*7*/{.m_left=0, .m_right=78, .m_top=0, .m_bottom=72 },
- /*8*/{.m_left=0, .m_right=211, .m_top=0, .m_bottom=72 },
- /*9*/{.m_left=0, .m_right=133, .m_top=0, .m_bottom=88 },
- /*10*/{.m_left=0, .m_right=106, .m_top=0, .m_bottom=104 },
- /*11*/{.m_left=0, .m_right=105, .m_top=0, .m_bottom=120 },
- /*12*/{.m_left=0, .m_right=57, .m_top=0, .m_bottom=56 },
- /*13*/{.m_left=0, .m_right=63, .m_top=0, .m_bottom=72 },
- /*14*/{.m_left=0, .m_right=154, .m_top=0, .m_bottom=88 },
- /*15*/{.m_left=0, .m_right=98, .m_top=0, .m_bottom=56 },
- /*16*/{.m_left=0, .m_right=112, .m_top=0, .m_bottom=56 },
- /*17*/{.m_left=0, .m_right=112, .m_top=0, .m_bottom=72 },
- /*18*/{.m_left=0, .m_right=50, .m_top=0, .m_bottom=56 },
- /*19*/{.m_left=0, .m_right=196, .m_top=0, .m_bottom=120 }
-    	    },//rectangles
-            {//edges
+    const TestContext test_context = {
+	.input_rectangles={
+ {.m_left=0, .m_right=141, .m_top=0, .m_bottom=40, .no_sequence=0},
+ {.m_left=0, .m_right=162, .m_top=0, .m_bottom=56, .no_sequence=1 },
+ {.m_left=0, .m_right=64, .m_top=0, .m_bottom=104, .no_sequence=2 },
+ {.m_left=0, .m_right=120, .m_top=0, .m_bottom=120, .no_sequence=3 },
+ {.m_left=0, .m_right=141, .m_top=0, .m_bottom=56, .no_sequence=4 },
+ {.m_left=0, .m_right=267, .m_top=0, .m_bottom=72, .no_sequence=5 },
+ {.m_left=0, .m_right=71, .m_top=0, .m_bottom=136, .no_sequence=6 },
+ {.m_left=0, .m_right=78, .m_top=0, .m_bottom=72, .no_sequence=7 },
+ {.m_left=0, .m_right=211, .m_top=0, .m_bottom=72, .no_sequence=8 },
+ {.m_left=0, .m_right=133, .m_top=0, .m_bottom=88, .no_sequence=9 },
+ {.m_left=0, .m_right=106, .m_top=0, .m_bottom=104, .no_sequence=10 },
+ {.m_left=0, .m_right=105, .m_top=0, .m_bottom=120, .no_sequence=11 },
+ {.m_left=0, .m_right=57, .m_top=0, .m_bottom=56, .no_sequence=12 },
+ {.m_left=0, .m_right=63, .m_top=0, .m_bottom=72, .no_sequence=13 },
+ {.m_left=0, .m_right=154, .m_top=0, .m_bottom=88, .no_sequence=14 },
+ {.m_left=0, .m_right=98, .m_top=0, .m_bottom=56, .no_sequence=15 },
+ {.m_left=0, .m_right=112, .m_top=0, .m_bottom=56, .no_sequence=16 },
+ {.m_left=0, .m_right=112, .m_top=0, .m_bottom=72, .no_sequence=17 },
+ {.m_left=0, .m_right=50, .m_top=0, .m_bottom=56, .no_sequence=18 },
+ {.m_left=0, .m_right=196, .m_top=0, .m_bottom=120, .no_sequence=19 }
+ 	},
+	.edges={
  {.from=1,  .to=14 },
  {.from=2,  .to=14 },
  {.from=2,  .to=5 },
@@ -131,13 +129,12 @@ void test()
  {.from=19,  .to=7 },
  {.from=19,  .to=8 },
  {.from=19,  .to=11 }
-   	     }//edges
-	},//input
-	{//output
-            {//context 0
-	        "",//title
-	        {.m_left=0, .m_right=707, .m_top=0, .m_bottom=744},//frame
-	        {//translatedBoxes
+   	},
+
+	.expected_contexts={
+            {
+	        .frame={.m_left=0, .m_right=707, .m_top=0, .m_bottom=744},
+	        .translatedBoxes={
 		    {.id=0, .translation={.x=329, .y=250}},
 		    {.id=1, .translation={.x=523, .y=235}},
 		    {.id=2, .translation={.x=114, .y=42}},
@@ -158,22 +155,18 @@ void test()
 		    {.id=17, .translation={.x=59, .y=298}},
 		    {.id=18, .translation={.x=87, .y=410}},
 		    {.id=19, .translation={.x=329, .y=490}}
-	        }//translatedBoxes
-            }//context 0
-	}//output
+	        }
+            }
+	}
     };
 
-    vector<MyRect> rectangles = context.input.input_rectangles;
-    int i=0;
-    bool selected=true;
-    for (MyRect& rec : rectangles)
-    {
-	rec.no_sequence = i++;
-    }
+    const auto& [input_rectangles, edges, expected_contexts] = test_context;
+
+    vector<MyRect> rectangles = input_rectangles;
     int n = rectangles.size() ;
     vector<vector<MPD_Arc> > adjacency_list(n) ;
 
-    for (Edge& e : context.input.edges)
+    for (const Edge& e : edges)
     {
         adjacency_list[e.from].push_back({e.from, e.to}) ;
     }
@@ -197,14 +190,14 @@ void test()
         {
             translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
         }
-	bool bOK = context.output[i].translatedBoxes == translatedBoxes;
+	bool bOK = expected_contexts[i].translatedBoxes == translatedBoxes;
         printf("%s\n", bOK ? "OK" : "KO");
 	(bOK ? nbOK : nbKO)++;
 	int test_number = i;
-	latuile_test_json_output(ctx.rectangles,
-                                ctx.rectangles,
-                                context.input.edges,
-                                ctx.rectangles,
+	latuile_test_json_output(input_rectangles,
+                                rectangles,
+                                edges,
+                                rectangles,
                                 "test_latuile",
                                 test_number);
     }
