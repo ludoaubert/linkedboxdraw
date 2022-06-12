@@ -35,9 +35,8 @@ void test()
 {
     TestFunctionTimer ft("test_latuile");
 
-    struct Rect {int left,right,top,bottom;};
-    struct TestInput{vector<Rect> rectangles; vector<Edge> edges;};
-    struct TestOutputContext{string title; Rect frame; vector<TranslatedBox> translatedBoxes;};
+    struct TestInput{vector<MyRect> rectangles; vector<Edge> edges;};
+    struct TestOutputContext{string title; MyRect frame; vector<TranslatedBox> translatedBoxes;};
     struct TestContext{TestInput input; vector<TestOutputContext> output;};
 
 
@@ -164,14 +163,12 @@ void test()
 	}//output
     };
 
-    vector<MyRect> rectangles;
+    vector<MyRect> rectangles = context.input.rectangles;
     int i=0;
     bool selected=true;
-    for (Rect& rec : context.input.rectangles)
+    for (MyRect& rec : rectangles)
     {
-	MyRect rect = {rec.left, rec.right, rec.top, rec.bottom, i, i, selected};
-	i++;
-	rectangles.push_back(rect);
+	rec.no_sequence = i++;
     }
     int n = rectangles.size() ;
     vector<vector<MPD_Arc> > adjacency_list(n) ;
