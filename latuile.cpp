@@ -36,7 +36,7 @@ void test()
     TestFunctionTimer ft("test_latuile");
 
     struct TestOutputContext{MyRect frame; vector<TranslatedBox> translatedBoxes;};
-    struct TestContext{vector<MyRect> input_rectangles; vector<Edge> edges; vector<TestOutputContext> expected_contexts;};
+    struct TestContext{int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<TestOutputContext> expected_contexts;};
 
 
 /*
@@ -82,28 +82,30 @@ void test()
 */
 
 
-    const TestContext test_context = {
+    const vector<TestContext> test_contexts = {
+{
+	.testid=1,
 	.input_rectangles={
- {.m_left=0, .m_right=141, .m_top=0, .m_bottom=40, .no_sequence=0},
- {.m_left=0, .m_right=162, .m_top=0, .m_bottom=56, .no_sequence=1 },
- {.m_left=0, .m_right=64, .m_top=0, .m_bottom=104, .no_sequence=2 },
- {.m_left=0, .m_right=120, .m_top=0, .m_bottom=120, .no_sequence=3 },
- {.m_left=0, .m_right=141, .m_top=0, .m_bottom=56, .no_sequence=4 },
- {.m_left=0, .m_right=267, .m_top=0, .m_bottom=72, .no_sequence=5 },
- {.m_left=0, .m_right=71, .m_top=0, .m_bottom=136, .no_sequence=6 },
- {.m_left=0, .m_right=78, .m_top=0, .m_bottom=72, .no_sequence=7 },
- {.m_left=0, .m_right=211, .m_top=0, .m_bottom=72, .no_sequence=8 },
- {.m_left=0, .m_right=133, .m_top=0, .m_bottom=88, .no_sequence=9 },
- {.m_left=0, .m_right=106, .m_top=0, .m_bottom=104, .no_sequence=10 },
- {.m_left=0, .m_right=105, .m_top=0, .m_bottom=120, .no_sequence=11 },
- {.m_left=0, .m_right=57, .m_top=0, .m_bottom=56, .no_sequence=12 },
- {.m_left=0, .m_right=63, .m_top=0, .m_bottom=72, .no_sequence=13 },
- {.m_left=0, .m_right=154, .m_top=0, .m_bottom=88, .no_sequence=14 },
- {.m_left=0, .m_right=98, .m_top=0, .m_bottom=56, .no_sequence=15 },
- {.m_left=0, .m_right=112, .m_top=0, .m_bottom=56, .no_sequence=16 },
- {.m_left=0, .m_right=112, .m_top=0, .m_bottom=72, .no_sequence=17 },
- {.m_left=0, .m_right=50, .m_top=0, .m_bottom=56, .no_sequence=18 },
- {.m_left=0, .m_right=196, .m_top=0, .m_bottom=120, .no_sequence=19 }
+{.m_left=0, .m_right=141, .m_top=0, .m_bottom=40, .no_sequence=0},
+{.m_left=0, .m_right=162, .m_top=0, .m_bottom=56, .no_sequence=1 },
+{.m_left=0, .m_right=64, .m_top=0, .m_bottom=104, .no_sequence=2 },
+{.m_left=0, .m_right=120, .m_top=0, .m_bottom=120, .no_sequence=3 },
+{.m_left=0, .m_right=141, .m_top=0, .m_bottom=56, .no_sequence=4 },
+{.m_left=0, .m_right=267, .m_top=0, .m_bottom=72, .no_sequence=5 },
+{.m_left=0, .m_right=71, .m_top=0, .m_bottom=136, .no_sequence=6 },
+{.m_left=0, .m_right=78, .m_top=0, .m_bottom=72, .no_sequence=7 },
+{.m_left=0, .m_right=211, .m_top=0, .m_bottom=72, .no_sequence=8 },
+{.m_left=0, .m_right=133, .m_top=0, .m_bottom=88, .no_sequence=9 },
+{.m_left=0, .m_right=106, .m_top=0, .m_bottom=104, .no_sequence=10 },
+{.m_left=0, .m_right=105, .m_top=0, .m_bottom=120, .no_sequence=11 },
+{.m_left=0, .m_right=57, .m_top=0, .m_bottom=56, .no_sequence=12 },
+{.m_left=0, .m_right=63, .m_top=0, .m_bottom=72, .no_sequence=13 },
+{.m_left=0, .m_right=154, .m_top=0, .m_bottom=88, .no_sequence=14 },
+{.m_left=0, .m_right=98, .m_top=0, .m_bottom=56, .no_sequence=15 },
+{.m_left=0, .m_right=112, .m_top=0, .m_bottom=56, .no_sequence=16 },
+{.m_left=0, .m_right=112, .m_top=0, .m_bottom=72, .no_sequence=17 },
+{.m_left=0, .m_right=50, .m_top=0, .m_bottom=56, .no_sequence=18 },
+{.m_left=0, .m_right=196, .m_top=0, .m_bottom=120, .no_sequence=19 }
  	},
 	.edges={
  {.from=1,  .to=14 },
@@ -158,57 +160,58 @@ void test()
 	        }
             }
 	}
+}
     };
 
-    const auto& [input_rectangles, edges, expected_contexts] = test_context;
+	for (const auto& [testid, input_rectangles, edges, expected_contexts] : test_contexts)
+	{
+		vector<MyRect> rectangles = input_rectangles;
+		int n = rectangles.size() ;
+ 		vector<vector<MPD_Arc> > adjacency_list(n) ;
 
-    vector<MyRect> rectangles = input_rectangles;
-    int n = rectangles.size() ;
-    vector<vector<MPD_Arc> > adjacency_list(n) ;
+    		for (const Edge& e : edges)
+    		{
+        		adjacency_list[e.from].push_back({e.from, e.to}) ;
+    		}
 
-    for (const Edge& e : edges)
-    {
-        adjacency_list[e.from].push_back({e.from, e.to}) ;
-    }
+    		vector<Context> contexts ;
+    		high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    		compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
 
-    vector<Context> contexts ;
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    compute_contexts(rectangles, adjacency_list, max_nb_boxes_per_diagram, contexts) ;
-//on ne conserve que les rectangles
-    for (int i=0; i < contexts.size(); i++)
-    {
-        Context &ctx = contexts[i];
-        ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
-        MyRect &frame = ctx.frame;
-        printf("frame={%d, %d, %d, %d}\n", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
-        for (MyRect& rec : ctx.rectangles)
-        {
-		printf("i=%d, no_sequence=%d, x=%d, y=%d\n", rec.i, rec.no_sequence, rec.m_left, rec.m_top);
-        }
-        vector<TranslatedBox> translatedBoxes;
-        for (MyRect& rec : ctx.rectangles)
-        {
- 		translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
-        }
-	bool bOK = expected_contexts[i].translatedBoxes == translatedBoxes;
-        printf("%s\n", bOK ? "OK" : "KO");
-	(bOK ? nbOK : nbKO)++;
-	int test_number = i;
+    		for (int i=0; i < contexts.size(); i++)
+    		{
+        		Context &ctx = contexts[i];
+        		ranges::sort(ctx.rectangles, {}, &MyRect::no_sequence);
+        		MyRect &frame = ctx.frame;
+        		printf("frame={%d, %d, %d, %d}\n", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
+        		for (MyRect& rec : ctx.rectangles)
+        		{
+				printf("i=%d, no_sequence=%d, x=%d, y=%d\n", rec.i, rec.no_sequence, rec.m_left, rec.m_top);
+        		}
+        		vector<TranslatedBox> translatedBoxes;
+        		for (MyRect& rec : ctx.rectangles)
+        		{
+ 				translatedBoxes.push_back({rec.no_sequence, {rec.m_left, rec.m_top}});
+        		}
+			bool bOK = expected_contexts[i].translatedBoxes == translatedBoxes;
+        		printf("%s\n", bOK ? "OK" : "KO");
+			(bOK ? nbOK : nbKO)++;
 
-        vector<MyRect> expected_rectangles = input_rectangles;
+        		vector<MyRect> expected_rectangles = input_rectangles;
 
-        for (int j=0; j<n; j++)
-        {
-		expected_rectangles[j] = translate(input_rectangles[j], expected_contexts[i].translatedBoxes[j].translation);
-        }
+        		for (int j=0; j<n; j++)
+        		{
+				expected_rectangles[j] = translate(input_rectangles[j], expected_contexts[i].translatedBoxes[j].translation);
+        		}
 
-	latuile_test_json_output(input_rectangles,
-                                rectangles,
-                                edges,
-                                expected_rectangles,
-                                "test_latuile",
-                                test_number);
-    }
+			latuile_test_json_output(input_rectangles,
+                        		        rectangles,
+                                		edges,
+                                		expected_rectangles,
+                                		"test_latuile",
+                                		testid);
+    		}
+    	}
 }
 
 void parse_command(const char* rectdim,
