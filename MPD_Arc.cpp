@@ -11,18 +11,6 @@
 using namespace std ;
 
 
-vector<MPD_Arc> list_edges_(const vector<vector<MPD_Arc> >& graph)
-{
-	vector<MPD_Arc> edges ;
-	for (const vector<MPD_Arc>& adj : graph){
-		for (const MPD_Arc& arc : adj){
-			edges.push_back(arc) ;
-		}
-	}
-	return edges ;
-}
-
-
 vector<const MPD_Arc*> list_edges(const vector<vector<MPD_Arc> >& graph)
 {
 	vector<const MPD_Arc*> edges ;

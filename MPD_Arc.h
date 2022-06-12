@@ -23,7 +23,6 @@ struct MPD_Arc
 
 std::vector<const MPD_Arc*> list_edges(const std::vector<std::vector<MPD_Arc> >& graph) ;
 std::vector<MPD_Arc*> list_edges(std::vector<std::vector<MPD_Arc> >& graph) ;
-std::vector<MPD_Arc> list_edges_(const std::vector<std::vector<MPD_Arc> >& graph) ;
 
 
 #endif
