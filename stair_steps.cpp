@@ -2088,7 +2088,7 @@ perm * A : permute rows
 		for (int i=0; i < ctx.rectangles.size(); i++)
 			ctx.rectangles[i].i = i ;
 
-		if (list_edges(ctx.adjacency_list).empty())
+		if ((ctx.adjacency_list | views::join).empty())
 		{
 			int w=0/*800*/, h=0/*600*/ ;
 			binpack(ctx.rectangles, w, h) ;
