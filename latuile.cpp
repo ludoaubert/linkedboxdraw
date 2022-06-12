@@ -264,6 +264,9 @@ void test()
 				expected_rectangles[j] = translate(input_rectangles[j], expected_contexts[i].translatedBoxes[j].translation);
         		}
 
+                        printf("dim_max(compute_frame(expected_rectangles)) : %d\n", dim_max(compute_frame(expected_rectangles)));
+			printf("dim_max(compute_frame(output_rectangles)) : %d\n", dim_max(compute_frame(rectangles)));
+
 			latuile_test_json_output(input_rectangles,
                         		        rectangles,
                                 		edges,
