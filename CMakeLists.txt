@@ -12,7 +12,7 @@ find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 #include_directories(/usr/include/eigen3)
 
-set(SOURCES latuile.cpp latuile_test_json_output.cpp binpack.cpp compact_frame.cpp compact_rectangles.cpp fit_together.cpp KMeansRexCore.cpp MPD_Arc.cpp MyRect.cpp optimize_rectangle_positions.cpp permutation.cpp stair_steps.cpp swap_rectangles.cpp WidgetContext.cpp FunctionTimer.cpp)
+set(SOURCES latuile.cpp latuile_test_json_output.cpp binpack.cpp compact_frame.cpp compact_rectangles.cpp fit_together.cpp KMeansRexCore.cpp MyRect.cpp optimize_rectangle_positions.cpp permutation.cpp stair_steps.cpp swap_rectangles.cpp WidgetContext.cpp FunctionTimer.cpp)
 
 add_executable(latuile ${SOURCES})
 target_link_libraries (latuile Eigen3::Eigen)
