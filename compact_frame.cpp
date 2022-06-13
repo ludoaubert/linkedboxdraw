@@ -46,31 +46,31 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
-			printf("enter RectDim::LEFT\n");
+			printf("[%d] enter RectDim::LEFT\n", __LINE__ );
 			rake.m_right = frame.m_left ;
 			translation.x = 1 ;
 			break ;
 		case RectDim::RIGHT:
-			printf("enter RectDim::RIGHT\n");
+			printf("[%d] enter RectDim::RIGHT\n", __LINE__ );
 			rake.m_left = frame.m_right ;
 			translation.x = -1 ;
 			break ;
 		case RectDim::TOP:
-			printf("enter RectDim::TOP\n");
+			printf("[%d] enter RectDim::TOP\n", __LINE__ );
 			rake.m_bottom = frame.m_top ;
 			translation.y = 1 ;
 			break ;
 		case RectDim::BOTTOM:
-			printf("enter RectDim::BOTTOM\n");
+			printf("[%d] enter RectDim::BOTTOM\n", __LINE__ );
 			rake.m_top = frame.m_bottom ;
 			translation.y = -1 ;
 			break ;
 		}
 		
-		auto [m_left, m_right, m_top, m_bottom] = rake;
-		printf("rake=[%d, %d, %d, %d]\n", m_left, m_right, m_top, m_bottom);
+		auto [r_left, r_right, r_top, r_bottom] = rake;
+		printf("[%d] rake=[%d, %d, %d, %d]\n", __LINE__ , r_left, r_right, r_top, r_bottom);
 		auto [x, y] = translation;
-		printf("translation=[%d, %d]\n", x, y);
+		printf("[%d] translation=[%d, %d]\n", __LINE__ , x, y);
 
 		stack<MyRect> my_stack ;
 
@@ -79,7 +79,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			if (intersect(rake, r))
 			{
 				my_stack.push(r) ;
-				printf("my_stack.push(r.i=%d) because intersect(rake, r)\n", r.i);
+				printf("[%d] my_stack.push(r.i=%d) because intersect(rake, r)\n", __LINE__ , r.i);
 			}
 		}
 
@@ -87,11 +87,11 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		{
 			const MyRect r = my_stack.top() ;
 			my_stack.pop() ;
-			printf("my_stack.pop(r.i=%d)\n", r.i);
+			printf("[%d] my_stack.pop(r.i=%d)\n", __LINE__ , r.i);
 			if (index2partition[r.i] == 1)
 				continue ;
 			index2partition[r.i] = 1 ;
-			printf("setting index2partition[%d]=1\n", r.i);
+			printf("[%d] setting index2partition[%d]=1\n", __LINE__ , r.i);
 			for (int j : unordered_adjacency_list[r.i])
 			{
 				const MyRect &rj = rectangles[j] ;
@@ -100,7 +100,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
 				{
 					my_stack.push(rj) ;
-					printf("my_stack.push(rj.i=%d) because (intersect_strict() or rectangle_distance would increase) and index2partition[rj.i=%d] == 0.\n", rj.i, rj.i);
+					printf("[%d] my_stack.push(rj.i=%d) because (intersect_strict() or rectangle_distance would increase) and index2partition[rj.i=%d] == 0.\n", __LINE__ , rj.i, rj.i);
 				}
 			}
 
@@ -113,7 +113,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (edge_overlap(r, translate(rr, translation)) < edge_overlap(r, rr))
 				{
 					my_stack.push(rr) ;
-					printf("my_stack.push(rr.i=%d) because edge_overlap()would decrease\n", rr.i);
+					printf("[%d] my_stack.push(rr.i=%d) because edge_overlap()would decrease\n", __LINE__ , rr.i);
 				}
 			}
 		}//while (!my_stack.empty())
@@ -131,7 +131,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				 {
 					 if (index2partition[ri.i] < index2partition[rj.i] && intersect_strict(ri, translate(rj, translation)))
 					 {
-						 printf("translating %d by [%d, %d] would collision into %d\n", ri.j, x, y, rj.i);
+						 printf("[%d] translating %d by [%d, %d] would collision into %d\n", __LINE__ , ri.j, x, y, rj.i);
 						 collision = true ;
 					 }
 				 }
@@ -139,11 +139,11 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 			if (collision)
 			{
-				printf("collision detected.\n");
+				printf("[%d] collision detected.\n", __LINE__ );
 				continue ;
 			}
 			
-			printf("no collision detected.\n");
+			printf("[%d] no collision detected.\n", __LINE__ );
 
 			float frame_diameter_before = frame_diameter(rectangles) ;
 			int total_distance_before = 0 ;
@@ -163,8 +163,7 @@ int total_distance_before = adjacency_list |
 				if (index2partition[r.i]==1)
 				{
 					const auto& [m_left, m_right, m_top, m_bottom] = r ;
-					const auto& [x, y] = translation;
-					printf("translate [%d, %d, %d, %d] by [%d, %d]\n", m_left, m_right, m_top, m_bottom, x, y);
+					printf("[%d] translate [%d, %d, %d, %d] by [%d, %d]\n", __LINE__ , m_left, m_right, m_top, m_bottom, x, y);
 					translate(r, translation) ;
 				}
 			}
@@ -183,7 +182,7 @@ int total_distance_before = adjacency_list |
 
 			if (frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before)
 			{
-				printf("breaking because frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before");
+				printf("[%d] breaking because frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before", __LINE__ );
 				break ;
 			}
 		}
@@ -191,16 +190,16 @@ int total_distance_before = adjacency_list |
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
-			printf("exit RectDim::LEFT\n");
+			printf("[%d] exit RectDim::LEFT\n", __LINE__ );
 			break ;
 		case RectDim::RIGHT:
-			printf("exit RectDim::RIGHT\n");
+			printf("[%d] exit RectDim::RIGHT\n", __LINE__ );
 			break ;
 		case RectDim::TOP:
-			printf("exit RectDim::TOP\n");
+			printf("[%d] exit RectDim::TOP\n", __LINE__ );
 			break ;
 		case RectDim::BOTTOM:
-			printf("exit RectDim::BOTTOM\n");
+			printf("[%d] exit RectDim::BOTTOM\n", __LINE__ );
 			break ;
 		}
 	}
