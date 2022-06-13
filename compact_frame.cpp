@@ -8,36 +8,15 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
-/*
-snowball effect.
-on cree un rectangle = une ligne correspondant a un cote du cadre actuel.
-on la fait avancer de facon iterative 1 pixel par 1 pixel. on prend les rectangles r qui l'intersectent. 
-Pour chaque r, on prend les rectangles r' qui sont connectés avec r ou qui sont en contact avec r.
-r' connectes: si la distance de la connection diminue, on ne prend pas r'.
-r' en contact: si le overlap de contact diminue, on prend. si elle augmente, on ne prend pas.
-*/
-
 
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
     	FunctionTimer ft("compact_frame");
 
-	int n = rectangles.size() ;
-
-	vector<vector<int> > unordered_adjacency_list(n) ;
-	for (const auto& [i, j] : adjacency_list | views::join)
-	{
-		if (i == j)
-			continue ;
-		unordered_adjacency_list[i].push_back(j) ;
-		unordered_adjacency_list[j].push_back(i) ;
-	}
-
 	for (RectDim rect_dim : RectDims)
 	{
-		MyRect frame = compute_frame(rectangles) ;
-		vector<int> index2partition(n,0) ;
+		MyRect frame = compute_frame(rectangles);
 		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
 		MyPoint translation = {0,0} ;
 
