@@ -23,7 +23,7 @@ r' en contact: si le overlap de contact diminue, on prend. si elle augmente, on 
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
-        FunctionTimer ft("compact_frame");
+    FunctionTimer ft("compact_frame");
 
 	int n = rectangles.size() ;
 
@@ -72,118 +72,30 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		auto [x, y] = translation;
 		printf("[%d] translation=[%d, %d]\n", __LINE__ , x, y);
 
-		stack<MyRect> my_stack ;
 
-		for (const MyRect &r : rectangles)
-		{
-			if (intersect(rake, r))
-			{
-				my_stack.push(r) ;
-				printf("[%d] my_stack.push(r.i=%d) because intersect(rake, r)\n", __LINE__ , r.i);
-			}
+	//rectangles that we want to rake along
+		auto rg = rectangles : views::filter([&](const MyRect& r){return intersect(rake, r);});
+	
+	//its complement (not moving rectangles)
+		auto rgc = rectangles : views::filter([&](const MyRect& r){return !intersect(rake, r);});
+	
+		auto detect_collision = [&]()={
+	
+			bool detect = false;
+			for (const MyRect& r : rg)
+				for (const MyRect& rc : rgc){
+					if (intersect_strict(translate(r, translation), rc))
+						detect = true;
+				}
+			return detect;
 		}
-
-		while (!my_stack.empty())
+		
+		while (detect_collision() == false)
 		{
-			const MyRect r = my_stack.top() ;
-			my_stack.pop() ;
-			printf("[%d] my_stack.pop(r.i=%d)\n", __LINE__ , r.i);
-			if (index2partition[r.i] == 1)
-				continue ;
-			index2partition[r.i] = 1 ;
-			printf("[%d] setting index2partition[%d]=1\n", __LINE__ , r.i);
-			for (int j : unordered_adjacency_list[r.i])
+			for (MyRect& r : rg)
 			{
-				const MyRect &rj = rectangles[j] ;
-				if (index2partition[rj.i] == 1)
-					continue ;
-				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
-				{
-					my_stack.push(rj) ;
-					printf("[%d] my_stack.push(rj.i=%d) because (intersect_strict() or rectangle_distance would increase) and index2partition[rj.i=%d] == 0.\n", __LINE__ , rj.i, rj.i);
-				}
-			}
-
-			for (const MyRect& rr : rectangles)
-			{
-				if (rr.i == r.i)
-					continue ;
-				if (index2partition[rr.i] == 1)
-					continue ;
-				if (edge_overlap(r, translate(rr, translation)) < edge_overlap(r, rr))
-				{
-					my_stack.push(rr) ;
-					printf("[%d] my_stack.push(rr.i=%d) because edge_overlap()would decrease\n", __LINE__ , rr.i);
-				}
-			}
-		}//while (!my_stack.empty())
-
-		if (index_from(index2partition, 0)==-1 || index_from(index2partition, 1)==-1)
-			continue ;
-
-		bool collision = false ;
-
-		while (collision == false)
-		{
-			for (const MyRect& ri : rectangles)
-			{
-				 for (const MyRect& rj: rectangles)
-				 {
-					 if (index2partition[ri.i] < index2partition[rj.i] && intersect_strict(ri, translate(rj, translation)))
-					 {
-						 printf("[%d] translating %d by [%d, %d] would collision into %d\n", __LINE__ , ri.j, x, y, rj.i);
-						 collision = true ;
-					 }
-				 }
-			}
-
-			if (collision)
-			{
-				printf("[%d] collision detected.\n", __LINE__ );
-				continue ;
-			}
-			
-			printf("[%d] no collision detected.\n", __LINE__ );
-
-			float frame_diameter_before = frame_diameter(rectangles) ;
-			int total_distance_before = 0 ;
-			for (const auto& [i, j] : adjacency_list | views::join)
-				total_distance_before += rectangle_distance(rectangles[i], rectangles[j]) ;
-			
-/*
-TODO: 
-int total_distance_before = adjacency_list | 
-							   views::join | 
-							   views::transform([&]([i, j]){return rectangle_distance(rectangles[i], rectangles[j]);}) |
-							   views::accumulate;
-*/
-
-			for (MyRect& r : rectangles)
-			{
-				if (index2partition[r.i]==1)
-				{
-					const auto& [m_left, m_right, m_top, m_bottom] = r ;
-					printf("[%d] translate [%d, %d, %d, %d] by [%d, %d]\n", __LINE__ , m_left, m_right, m_top, m_bottom, x, y);
-					translate(r, translation) ;
-				}
-			}
-
-			float frame_diameter_after = frame_diameter(rectangles) ;
-			int total_distance_after = 0 ;
-			for (const auto& [i, j] : adjacency_list | views::join)
-				total_distance_after += rectangle_distance(rectangles[i], rectangles[j]) ;
-			
-			printf("frame_diameter_before=%d\n", frame_diameter_before);
-			printf("frame_diameter_after=%d\n", frame_diameter_after);
-			
-			printf("total_distance_before=%d\n", total_distance_before);
-			printf("total_distance_after=%d\n", total_distance_after);
-
-
-			if (frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before)
-			{
-				printf("[%d] breaking because frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before", __LINE__ );
-				break ;
+				translate(r, {x,y});
+				printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
 			}
 		}
 		
@@ -204,6 +116,7 @@ int total_distance_before = adjacency_list |
 		}
 	}
 }
+
 
 
 void test_compact_frame()
