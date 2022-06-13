@@ -100,7 +100,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
 				{
 					my_stack.push(rj) ;
-					printf("my_stack.push(rj.i=%d) because intersect_strict()\n", rj.i);
+					printf("my_stack.push(rj.i=%d) because (intersect_strict() or rectangle_distance would increase) and index2partition[rj.i=%d] == 0.\n", rj.i, rj.i);
 				}
 			}
 
@@ -113,7 +113,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (edge_overlap(r, translate(rr, translation)) < edge_overlap(r, rr))
 				{
 					my_stack.push(rr) ;
-					printf("my_stack.push(rr.i=%d) because edge_overlap()\n", rr.i);
+					printf("my_stack.push(rr.i=%d) because edge_overlap()would decrease\n", rr.i);
 				}
 			}
 		}//while (!my_stack.empty())
@@ -125,17 +125,25 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 		while (collision == false)
 		{
-			for (MyRect& ri : rectangles)
+			for (const MyRect& ri : rectangles)
 			{
 				 for (const MyRect& rj: rectangles)
 				 {
 					 if (index2partition[ri.i] < index2partition[rj.i] && intersect_strict(ri, translate(rj, translation)))
+					 {
+						 printf("translating %d by [%d, %d] would collision into %d\n", ri.j, x, y, rj.i);
 						 collision = true ;
+					 }
 				 }
 			}
 
 			if (collision)
+			{
+				printf("collision detected.\n");
 				continue ;
+			}
+			
+			printf("no collision detected.\n");
 
 			float _frame_diameter = frame_diameter(rectangles) ;
 			int _total_distance = 0 ;
