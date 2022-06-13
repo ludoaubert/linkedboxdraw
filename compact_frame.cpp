@@ -159,10 +159,12 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			for (const auto& [i, j] : adjacency_list | views::join)
 				total_distance_ += rectangle_distance(rectangles[i], rectangles[j]) ;
 			
-			printf("frame_diameter_=%d\n", frame_diameter_);
-			printf("_frame_diameter=%d\n", _frame_diameter);
-			printf("total_distance_=%d\n", total_distance_);
-			printf("_total_distance=%d\n", _total_distance);
+			printf("_frame_diameter=%d (before translation)\n", _frame_diameter);
+			printf("frame_diameter_=%d (after translation)\n", frame_diameter_);
+			
+			printf("_total_distance=%d (before translation)\n", _total_distance);
+			printf("total_distance_=%d (after translation)\n", total_distance_);
+
 
 			if (frame_diameter_ >= _frame_diameter && !(total_distance_ < _total_distance))
 				break ;
