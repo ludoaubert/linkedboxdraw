@@ -128,7 +128,12 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			for (MyRect& r : rectangles)
 			{
 				if (index2partition[r.i]==1)
+				{
+					const auto& [m_left, m_right, m_top, m_bottom] = r ;
+					const auto& [x, y] = translation;
+					printf("translate [%d, %d, %d, %d] by [%d, %d]\n", m_left, m_right, m_top, m_bottom, x, y);
 					translate(r, translation) ;
+				}
 			}
 
 			float frame_diameter_ = frame_diameter(rectangles) ;
