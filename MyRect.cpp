@@ -1,6 +1,6 @@
 /* MyRect.cpp
 *
-* Copyright (c) 2005-2015 Ludovic Aubert. ALL RIGHTS RESERVED.
+* Copyright (c) 2005-2022 Ludovic Aubert. ALL RIGHTS RESERVED.
 * ludo.aubert@gmail.com
 * This file should not be transmitted nor published.
 *
