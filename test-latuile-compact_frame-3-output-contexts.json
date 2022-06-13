@@ -1,5 +1,5 @@
 {"contexts":[{
-"frame":{"left":31,"right":947,"top":20,"bottom":724},
+"frame":{"left":98,"right":947,"top":20,"bottom":724},
 "translatedBoxes":[
 {"id":0,"translation":{"x":406,"y":20}},
 {"id":1,"translation":{"x":330,"y":340}},
@@ -14,8 +14,8 @@
 {"id":10,"translation":{"x":774,"y":196}},
 {"id":11,"translation":{"x":753,"y":516}},
 {"id":12,"translation":{"x":103,"y":163}},
-{"id":13,"translation":{"x":31,"y":291}},
-{"id":14,"translation":{"x":31,"y":451}}
+{"id":13,"translation":{"x":98,"y":291}},
+{"id":14,"translation":{"x":98,"y":451}}
 ],
 "links":[]
 }],
