@@ -61,27 +61,21 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		//its complement (not moving rectangles)
 			auto rgc = rectangles | views::filter([&](const MyRect& r){return !intersect(rake, r);});
 
-			auto detect_collision = [&](){
+			bool detect = false;
+			for (const MyRect& r : rg)
+				for (const MyRect& rc : rgc){
+					if (intersect_strict(translate(r, translation), rc))
+						detect = true;
+				}
 
-				bool detect = false;
-				for (const MyRect& r : rg)
-					for (const MyRect& rc : rgc){
-						if (intersect_strict(translate(r, translation), rc))
-							detect = true;
-					}
-				return detect;
-			};
+			vector<MyRect> rects = rectangles;
+			int dm1 = dim_max(compute_frame(rects));
+			for (const MyRect& r : rg)
+				translate(rects[r.i], translation);
+			int dm2 = dim_max(compute_frame(rects));
+			bool shrink = dm2 < dm1;
 
-			auto shrink = [&](){
-				vector<MyRect> rects = rectangles;
-				int dm1 = dim_max(compute_frame(rects));
-				for (const MyRect& r : rg)
-					translate(rects[r.i], translation);
-				int dm2 = dim_max(compute_frame(rects));
-				return dm2 < dm1;
-			};
-
-			if (detect_collision() == true || shrink() == false)
+			if (detect == true || shrink == false)
 				break;
 
 			for (MyRect& r : rg)
