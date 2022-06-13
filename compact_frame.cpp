@@ -145,10 +145,10 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			
 			printf("no collision detected.\n");
 
-			float _frame_diameter = frame_diameter(rectangles) ;
-			int _total_distance = 0 ;
+			float frame_diameter_before = frame_diameter(rectangles) ;
+			int total_distance_before = 0 ;
 			for (const auto& [i, j] : adjacency_list | views::join)
-				_total_distance += rectangle_distance(rectangles[i], rectangles[j]) ;
+				total_distance_before += rectangle_distance(rectangles[i], rectangles[j]) ;
 
 
 			for (MyRect& r : rectangles)
@@ -162,20 +162,23 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				}
 			}
 
-			float frame_diameter_ = frame_diameter(rectangles) ;
-			int total_distance_ = 0 ;
+			float frame_diameter_after = frame_diameter(rectangles) ;
+			int total_distance_after = 0 ;
 			for (const auto& [i, j] : adjacency_list | views::join)
-				total_distance_ += rectangle_distance(rectangles[i], rectangles[j]) ;
+				total_distance_after += rectangle_distance(rectangles[i], rectangles[j]) ;
 			
-			printf("_frame_diameter=%d (before translation)\n", _frame_diameter);
-			printf("frame_diameter_=%d (after translation)\n", frame_diameter_);
+			printf("frame_diameter_before=%d\n", frame_diameter_before);
+			printf("frame_diameter_after=%d\n", frame_diameter_after);
 			
-			printf("_total_distance=%d (before translation)\n", _total_distance);
-			printf("total_distance_=%d (after translation)\n", total_distance_);
+			printf("total_distance_before=%d\n", total_distance_before);
+			printf("total_distance_after=%d\n", total_distance_after);
 
 
-			if (frame_diameter_ >= _frame_diameter && !(total_distance_ < _total_distance))
+			if (frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before)
+			{
+				printf("breaking because frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before");
 				break ;
+			}
 		}
 	}
 }
