@@ -46,18 +46,22 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
+			printf("RectDim::LEFT\n");
 			rake.m_right = frame.m_left ;
 			translation.x = 1 ;
 			break ;
 		case RectDim::RIGHT:
+			printf("RectDim::RIGHT\n");
 			rake.m_left = frame.m_right ;
 			translation.x = -1 ;
 			break ;
 		case RectDim::TOP:
+			printf("RectDim::TOP\n");
 			rake.m_bottom = frame.m_top ;
 			translation.y = 1 ;
 			break ;
 		case RectDim::BOTTOM:
+			printf("RectDim::BOTTOM\n");
 			rake.m_top = frame.m_bottom ;
 			translation.y = -1 ;
 			break ;
@@ -70,6 +74,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			if (intersect(rake, r))
 			{
 				my_stack.push(r) ;
+				printf("my_stack.push(r.i=%d)\n", r.i);
 			}
 		}
 
@@ -77,16 +82,21 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		{
 			const MyRect r = my_stack.top() ;
 			my_stack.pop() ;
+			printf("my_stack.pop(r.i=%d)\n", r.i);
 			if (index2partition[r.i] == 1)
 				continue ;
 			index2partition[r.i] = 1 ;
+			printf("setting index2partition[%d]=1\n", r.i);
 			for (int j : unordered_adjacency_list[r.i])
 			{
 				const MyRect &rj = rectangles[j] ;
 				if (index2partition[rj.i] == 1)
 					continue ;
 				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
+				{
 					my_stack.push(rj) ;
+					printf("my_stack.push(rj.i=%d)\n", rj.i);
+				}
 			}
 
 			for (const MyRect& rr : rectangles)
@@ -96,7 +106,10 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (index2partition[rr.i] == 1)
 					continue ;
 				if (edge_overlap(r, translate(rr, translation)) < edge_overlap(r, rr))
+				{
 					my_stack.push(rr) ;
+					printf("my_stack.push(rr.i=%d)\n", rr.i);
+				}
 			}
 		}//while (!my_stack.empty())
 
