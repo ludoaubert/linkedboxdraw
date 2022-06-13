@@ -1,11 +1,11 @@
 {"contexts":[{
-"frame":{"left":0,"right":683,"top":0,"bottom":680},
+"frame":{"left":0,"right":654,"top":0,"bottom":680},
 "translatedBoxes":[
-{"id":0,"translation":{"x":358,"y":400}},
-{"id":1,"translation":{"x":529,"y":608}},
+{"id":0,"translation":{"x":358,"y":288}},
+{"id":1,"translation":{"x":358,"y":608}},
 {"id":2,"translation":{"x":529,"y":480}},
-{"id":3,"translation":{"x":358,"y":144}},
-{"id":4,"translation":{"x":529,"y":273}},
+{"id":3,"translation":{"x":358,"y":32}},
+{"id":4,"translation":{"x":529,"y":272}},
 {"id":5,"translation":{"x":187,"y":0}},
 {"id":6,"translation":{"x":19,"y":96}},
 {"id":7,"translation":{"x":25,"y":336}},
