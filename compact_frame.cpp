@@ -1,11 +1,9 @@
 #include "compact_frame.h"
 #include "MyRect.h"
 #include "MPD_Arc.h"
-#include "index_from.h"
 #include "FunctionTimer.h"
 #include <vector>
 #include <ranges>
-#include <stack>
 #include <cstdint>
 #include "latuile_test_json_output.h"
 using namespace std ;
@@ -23,7 +21,7 @@ r' en contact: si le overlap de contact diminue, on prend. si elle augmente, on 
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
-    FunctionTimer ft("compact_frame");
+    	FunctionTimer ft("compact_frame");
 
 	int n = rectangles.size() ;
 
@@ -66,21 +64,20 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			translation.y = -1 ;
 			break ;
 		}
-		
-		auto [r_left, r_right, r_top, r_bottom] = rake;
-		printf("[%d] rake=[%d, %d, %d, %d]\n", __LINE__ , r_left, r_right, r_top, r_bottom);
+
+		printf("[%d] rake=[%d, %d, %d, %d]\n", __LINE__ , rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
 		auto [x, y] = translation;
 		printf("[%d] translation=[%d, %d]\n", __LINE__ , x, y);
 
 
 	//rectangles that we want to rake along
-		auto rg = rectangles : views::filter([&](const MyRect& r){return intersect(rake, r);});
-	
+		auto rg = rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);});
+
 	//its complement (not moving rectangles)
-		auto rgc = rectangles : views::filter([&](const MyRect& r){return !intersect(rake, r);});
-	
-		auto detect_collision = [&]()={
-	
+		auto rgc = rectangles | views::filter([&](const MyRect& r){return !intersect(rake, r);});
+
+		auto detect_collision = [&](){
+
 			bool detect = false;
 			for (const MyRect& r : rg)
 				for (const MyRect& rc : rgc){
@@ -88,17 +85,17 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 						detect = true;
 				}
 			return detect;
-		}
-		
+		};
+
 		while (detect_collision() == false)
 		{
 			for (MyRect& r : rg)
 			{
-				translate(r, {x,y});
+				translate(r, translation);
 				printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
 			}
 		}
-		
+
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
