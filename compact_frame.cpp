@@ -87,7 +87,16 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			return detect;
 		};
 
-		while (detect_collision() == false)
+		auto shrink = [&](){
+			vector<MyRect> rects = rectangles;
+			int dm1 = dim_max(compute_frame(rects));
+			for (const MyRect& r : rg)
+				translate(rects[r.i], translation);
+			int dm2 = dim_max(compute_frame(rects));
+			return dm2 < dm1;
+		};
+
+		while (detect_collision() == false && shrink() == true)
 		{
 			for (MyRect& r : rg)
 			{
