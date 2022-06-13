@@ -149,7 +149,14 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			int total_distance_before = 0 ;
 			for (const auto& [i, j] : adjacency_list | views::join)
 				total_distance_before += rectangle_distance(rectangles[i], rectangles[j]) ;
-
+			
+/*
+TODO: 
+int total_distance_before = adjacency_list | 
+							   views::join | 
+							   views::transform([&]([i, j]){return rectangle_distance(rectangles[i], rectangles[j]);}) |
+							   views::accumulate;
+*/
 
 			for (MyRect& r : rectangles)
 			{
