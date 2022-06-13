@@ -46,22 +46,22 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		switch(rect_dim)
 		{
 		case RectDim::LEFT:
-			printf("RectDim::LEFT\n");
+			printf("enter RectDim::LEFT\n");
 			rake.m_right = frame.m_left ;
 			translation.x = 1 ;
 			break ;
 		case RectDim::RIGHT:
-			printf("RectDim::RIGHT\n");
+			printf("enter RectDim::RIGHT\n");
 			rake.m_left = frame.m_right ;
 			translation.x = -1 ;
 			break ;
 		case RectDim::TOP:
-			printf("RectDim::TOP\n");
+			printf("enter RectDim::TOP\n");
 			rake.m_bottom = frame.m_top ;
 			translation.y = 1 ;
 			break ;
 		case RectDim::BOTTOM:
-			printf("RectDim::BOTTOM\n");
+			printf("enter RectDim::BOTTOM\n");
 			rake.m_top = frame.m_bottom ;
 			translation.y = -1 ;
 			break ;
@@ -179,6 +179,22 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				printf("breaking because frame_diameter_after >= frame_diameter_before && total_distance_after >= total_distance_before");
 				break ;
 			}
+		}
+		
+		switch(rect_dim)
+		{
+		case RectDim::LEFT:
+			printf("exit RectDim::LEFT\n");
+			break ;
+		case RectDim::RIGHT:
+			printf("exit RectDim::RIGHT\n");
+			break ;
+		case RectDim::TOP:
+			printf("exit RectDim::TOP\n");
+			break ;
+		case RectDim::BOTTOM:
+			printf("exit RectDim::BOTTOM\n");
+			break ;
 		}
 	}
 }
