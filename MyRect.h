@@ -1,6 +1,6 @@
 /* MyRect.h
 *
-* Copyright (c) 2005-2017 Ludovic Aubert. ALL RIGHTS RESERVED.
+* Copyright (c) 2005-2022 Ludovic Aubert. ALL RIGHTS RESERVED.
 * ludo.aubert@gmail.com
 * This file should not be transmitted nor published.
 *
@@ -30,9 +30,9 @@ const Direction directions[2] = { EAST_WEST, NORTH_SOUTH };
 
 const int CHAR_RECT_HEIGHT = 16 ;
 
-extern const int THIN_FRAME_BORDER ;
-extern const int FRAME_BORDER ;
-extern const int RECT_BORDER ;
+const int THIN_FRAME_BORDER = 10 ;
+const int FRAME_BORDER = 30 ;
+const int RECT_BORDER = 20 ;
 
 struct MyPoint
 {

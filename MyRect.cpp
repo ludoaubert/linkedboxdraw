@@ -18,9 +18,6 @@
 using namespace std ;
 
 
-const int THIN_FRAME_BORDER = 10 ;
-const int FRAME_BORDER = 30 ;
-const int RECT_BORDER = 20 ;
 
 /*
 vector rects = {{1,2,3,4},{10,20,30,40}};
@@ -37,17 +34,13 @@ MyRect compute_frame(const vector<MyRect>& rectangles)
 
 	if (rectangles.size()==0)
 		return frame;
-
-	auto r1 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_left;});
-	frame.m_left = ranges::min(r1);
-	auto r2 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_right;});
-	frame.m_right = ranges::max(r2);
-	auto r3 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_top;});
-	frame.m_top = ranges::min(r3);
-	auto r4 = ranges::views::transform(rectangles, [](const MyRect& r){return r.m_bottom;});
-	frame.m_bottom = ranges::max(r4);
-
-        return frame ;
+	
+	return {
+		ranges::min(rectangles | views::transform(&MyRect::m_left)),
+		ranges::max(rectangles | views::transform(&MyRect::m_right)),
+		ranges::min(rectangles | views::transform(&MyRect::m_top)),
+		ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+	};
 }
 
 
