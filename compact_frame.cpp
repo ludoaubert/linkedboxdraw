@@ -8,6 +8,12 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
+const char* RectDimString[4]={
+"RectDim::LEFT",
+"RectDim::RIGHT",
+"RectDim::TOP",
+"RectDim::BOTTOM"
+};
 
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
@@ -16,67 +22,68 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 	for (RectDim rect_dim : RectDims)
 	{
-		MyRect frame = compute_frame(rectangles);
-		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
-		MyPoint translation = {0,0} ;
+                printf("enter %s\n", RectDimString[rect_dim]);
 
-		switch(rect_dim)
+		while (true)
 		{
-		case RectDim::LEFT:
-			printf("[%d] enter RectDim::LEFT\n", __LINE__ );
-			rake.m_right = frame.m_left ;
-			translation.x = 1 ;
-			break ;
-		case RectDim::RIGHT:
-			printf("[%d] enter RectDim::RIGHT\n", __LINE__ );
-			rake.m_left = frame.m_right ;
-			translation.x = -1 ;
-			break ;
-		case RectDim::TOP:
-			printf("[%d] enter RectDim::TOP\n", __LINE__ );
-			rake.m_bottom = frame.m_top ;
-			translation.y = 1 ;
-			break ;
-		case RectDim::BOTTOM:
-			printf("[%d] enter RectDim::BOTTOM\n", __LINE__ );
-			rake.m_top = frame.m_bottom ;
-			translation.y = -1 ;
-			break ;
-		}
+			MyRect frame = compute_frame(rectangles);
+			MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
+			MyPoint translation = {0,0} ;
 
-		printf("[%d] rake=[%d, %d, %d, %d]\n", __LINE__ , rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
-		auto [x, y] = translation;
-		printf("[%d] translation=[%d, %d]\n", __LINE__ , x, y);
+			switch(rect_dim)
+			{
+			case RectDim::LEFT:
+				rake.m_right = frame.m_left ;
+				translation.x = 1 ;
+				break ;
+			case RectDim::RIGHT:
+				rake.m_left = frame.m_right ;
+				translation.x = -1 ;
+				break ;
+			case RectDim::TOP:
+				rake.m_bottom = frame.m_top ;
+				translation.y = 1 ;
+				break ;
+			case RectDim::BOTTOM:
+				rake.m_top = frame.m_bottom ;
+				translation.y = -1 ;
+				break ;
+			}
+
+			printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
+			auto [x, y] = translation;
+			printf("translation=[%d, %d]\n", x, y);
 
 
-	//rectangles that we want to rake along
-		auto rg = rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);});
+		//rectangles that we want to rake along
+			auto rg = rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);});
 
-	//its complement (not moving rectangles)
-		auto rgc = rectangles | views::filter([&](const MyRect& r){return !intersect(rake, r);});
+		//its complement (not moving rectangles)
+			auto rgc = rectangles | views::filter([&](const MyRect& r){return !intersect(rake, r);});
 
-		auto detect_collision = [&](){
+			auto detect_collision = [&](){
 
-			bool detect = false;
-			for (const MyRect& r : rg)
-				for (const MyRect& rc : rgc){
-					if (intersect_strict(translate(r, translation), rc))
-						detect = true;
-				}
-			return detect;
-		};
+				bool detect = false;
+				for (const MyRect& r : rg)
+					for (const MyRect& rc : rgc){
+						if (intersect_strict(translate(r, translation), rc))
+							detect = true;
+					}
+				return detect;
+			};
 
-		auto shrink = [&](){
-			vector<MyRect> rects = rectangles;
-			int dm1 = dim_max(compute_frame(rects));
-			for (const MyRect& r : rg)
-				translate(rects[r.i], translation);
-			int dm2 = dim_max(compute_frame(rects));
-			return dm2 < dm1;
-		};
+			auto shrink = [&](){
+				vector<MyRect> rects = rectangles;
+				int dm1 = dim_max(compute_frame(rects));
+				for (const MyRect& r : rg)
+					translate(rects[r.i], translation);
+				int dm2 = dim_max(compute_frame(rects));
+				return dm2 < dm1;
+			};
 
-		while (detect_collision() == false && shrink() == true)
-		{
+			if (detect_collision() == true || shrink() == false)
+				break;
+
 			for (MyRect& r : rg)
 			{
 				translate(r, translation);
@@ -84,21 +91,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			}
 		}
 
-		switch(rect_dim)
-		{
-		case RectDim::LEFT:
-			printf("[%d] exit RectDim::LEFT\n", __LINE__ );
-			break ;
-		case RectDim::RIGHT:
-			printf("[%d] exit RectDim::RIGHT\n", __LINE__ );
-			break ;
-		case RectDim::TOP:
-			printf("[%d] exit RectDim::TOP\n", __LINE__ );
-			break ;
-		case RectDim::BOTTOM:
-			printf("[%d] exit RectDim::BOTTOM\n", __LINE__ );
-			break ;
-		}
+		printf("exit %s\n", RectDimString[rect_dim]);
 	}
 }
 
