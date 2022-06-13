@@ -66,6 +66,11 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			translation.y = -1 ;
 			break ;
 		}
+		
+		auto [m_left, m_right, m_top, m_bottom] = rake;
+		printf("rake=[%d, %d, %d, %d]\n", m_left, m_right, m_top, m_bottom);
+		auto [x, y] = translation;
+		printf("translation=[%d, %d]\n", x, y);
 
 		stack<MyRect> my_stack ;
 
@@ -74,7 +79,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			if (intersect(rake, r))
 			{
 				my_stack.push(r) ;
-				printf("my_stack.push(r.i=%d)\n", r.i);
+				printf("my_stack.push(r.i=%d) because intersect(rake, r)\n", r.i);
 			}
 		}
 
@@ -95,7 +100,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (intersect_strict(translate(r, translation), rj) || rectangle_distance(rj, translate(r, translation)) > rectangle_distance(rj, r))
 				{
 					my_stack.push(rj) ;
-					printf("my_stack.push(rj.i=%d)\n", rj.i);
+					printf("my_stack.push(rj.i=%d) because intersect_strict()\n", rj.i);
 				}
 			}
 
@@ -108,7 +113,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 				if (edge_overlap(r, translate(rr, translation)) < edge_overlap(r, rr))
 				{
 					my_stack.push(rr) ;
-					printf("my_stack.push(rr.i=%d)\n", rr.i);
+					printf("my_stack.push(rr.i=%d) because edge_overlap()\n", rr.i);
 				}
 			}
 		}//while (!my_stack.empty())
@@ -153,6 +158,11 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			int total_distance_ = 0 ;
 			for (const auto& [i, j] : adjacency_list | views::join)
 				total_distance_ += rectangle_distance(rectangles[i], rectangles[j]) ;
+			
+			printf("frame_diameter_=%d\n", frame_diameter_);
+			printf("_frame_diameter=%d\n", _frame_diameter);
+			printf("total_distance_=%d\n", total_distance_);
+			printf("_total_distance=%d\n", _total_distance);
 
 			if (frame_diameter_ >= _frame_diameter && !(total_distance_ < _total_distance))
 				break ;
