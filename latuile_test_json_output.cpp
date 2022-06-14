@@ -23,9 +23,10 @@ void json_context_output(const vector<MyRect> &rectangles,
 "translatedBoxes":[
 )", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
 
-        for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence] : rectangles)
+	int i=0;
+        for (const MyRect& r : rectangles)
         {
-                pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%d,\"y\":%d}},\n", no_sequence, m_left, m_top);
+                pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%d,\"y\":%d}},\n", i++, r.m_left, r.m_top);
         }
 
         if (buffer[pos-2]==',')
