@@ -20,68 +20,89 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 {
     	FunctionTimer ft("compact_frame");
 
+	for (int i=0; i < rectangles.size(); i++)
+		rectangles[i].i = i;
+
 	for (RectDim rect_dim : RectDims)
 	{
                 printf("enter %s\n", RectDimString[rect_dim]);
 
-		while (true)
+		MyRect frame = compute_frame(rectangles);
+		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
+		MyPoint translation = {0,0} ;
+
+		switch(rect_dim)
 		{
-			MyRect frame = compute_frame(rectangles);
-			MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
-			MyPoint translation = {0,0} ;
+		case RectDim::LEFT:
+			rake.m_right = frame.m_left ;
+			translation.x = 1 ;
+			break ;
+		case RectDim::RIGHT:
+			rake.m_left = frame.m_right ;
+			translation.x = -1 ;
+			break ;
+		case RectDim::TOP:
+			rake.m_bottom = frame.m_top ;
+			translation.y = 1 ;
+			break ;
+		case RectDim::BOTTOM:
+			rake.m_top = frame.m_bottom ;
+			translation.y = -1 ;
+			break ;
+		}
 
-			switch(rect_dim)
-			{
-			case RectDim::LEFT:
-				rake.m_right = frame.m_left ;
-				translation.x = 1 ;
-				break ;
-			case RectDim::RIGHT:
-				rake.m_left = frame.m_right ;
-				translation.x = -1 ;
-				break ;
-			case RectDim::TOP:
-				rake.m_bottom = frame.m_top ;
-				translation.y = 1 ;
-				break ;
-			case RectDim::BOTTOM:
-				rake.m_top = frame.m_bottom ;
-				translation.y = -1 ;
-				break ;
-			}
+		printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
+		auto [x, y] = translation;
+		printf("translation=[%d, %d]\n", x, y);
 
-			printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
-			auto [x, y] = translation;
-			printf("translation=[%d, %d]\n", x, y);
+		for (MyRect& r : rectangles)
+			r.selected = false;
 
+		MyRect frame_before = compute_frame(rectangles);
 
 		//rectangles that we want to rake along
-			auto rg = rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);});
+		for (MyRect& r : rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);}))
+		{
+			r.selected = true;
+			translate(r, translation);
+		}
 
-		//its complement (not moving rectangles)
-			auto rgc = rectangles | views::filter([&](const MyRect& r){return !intersect(rake, r);});
+		for  (bool stop = false; stop == false;)
+		{
+			stop=true;
 
-			bool detect = false;
-			for (const MyRect& r : rg)
-				for (const MyRect& rc : rgc){
-					if (intersect_strict(translate(r, translation), rc))
-						detect = true;
-				}
-
-			vector<MyRect> rects = rectangles;
-			int dm1 = dim_max(compute_frame(rects));
-			for (const MyRect& r : rg)
-				translate(rects[r.i], translation);
-			int dm2 = dim_max(compute_frame(rects));
-			bool shrink = dm2 < dm1;
-
-			if (detect == true || shrink == false)
-				break;
-
-			for (MyRect& r : rg)
+			for (MyRect& r : rectangles | views::filter([](const MyRect& r){return r.selected;}))
 			{
-				translate(r, translation);
-				printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
+				for (MyRect& rc : rectangles | views::filter([](const MyRect& r){return !r.selected;}))
+				{
+					if (intersect_strict(r, rc))
+					{
+						rc.selected = true;
+						stop = false;
+						translate(rc, translation);
+					}
+				}
+			}
+		}
+
+		MyRect frame_after = compute_frame(rectangles);
+		if ( dimensions(frame_after) == dimensions(frame_before) )
+		{
+			for (MyRect& r : rectangles)
+			{
+				if (r.selected)
+				{
+					translate(r, -translation);
+					r.selected = false;
+				}
+			}
+		}
+
+                for (MyRect& r : rectangles)
+                {
+                       	if (r.selected)
+                        {
+                                printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
 			}
 		}
 
