@@ -19,14 +19,13 @@ void json_context_output(const vector<MyRect> &rectangles,
         MyRect frame = compute_frame(rectangles);
 
         pos += sprintf(buffer + pos, R"({"contexts":[{
-"frame":{"left":%hu,"right":%hu,"top":%hu,"bottom":%hu},
+"frame":{"left":%d,"right":%d,"top":%d,"bottom":%d},
 "translatedBoxes":[
 )", frame.m_left, frame.m_right, frame.m_top, frame.m_bottom);
 
-        int i=0;
-        for (const auto& [left, right, top, bottom, j, jj, selected] : rectangles)
+        for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence] : rectangles)
         {
-                pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%hu,\"y\":%hu}},\n", i++, left, top);
+                pos += sprintf(buffer + pos, "{\"id\":%d,\"translation\":{\"x\":%d,\"y\":%d}},\n", no_sequence, m_left, m_top);
         }
 
         if (buffer[pos-2]==',')
@@ -40,9 +39,9 @@ void json_context_output(const vector<MyRect> &rectangles,
 }],
 "rectangles":[
 )");
-		for (const auto& [left, right, top, bottom, i, ii, selected] : rectangles)
+		for (const MyRect& r : rectangles)
 		{
-			pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
+			pos += sprintf(buffer + pos, "\t{\"left\":%d,\"right\":%d,\"top\":%d,\"bottom\":%d},\n", 0, width(r), 0, height(r));
 		}
 
 		if (buffer[pos-2]==',')
