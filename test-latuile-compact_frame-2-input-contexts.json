@@ -2,7 +2,7 @@
 "frame":{"left":0,"right":10,"top":0,"bottom":30},
 "translatedBoxes":[
 {"id":0,"translation":{"x":0,"y":0}},
-{"id":0,"translation":{"x":0,"y":20}}
+{"id":1,"translation":{"x":0,"y":20}}
 ],
 "links":[]
 }],

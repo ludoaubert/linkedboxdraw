@@ -2,10 +2,10 @@
 "frame":{"left":0,"right":348,"top":0,"bottom":376},
 "translatedBoxes":[
 {"id":0,"translation":{"x":255,"y":208}},
-{"id":0,"translation":{"x":255,"y":80}},
-{"id":0,"translation":{"x":122,"y":240}},
-{"id":0,"translation":{"x":123,"y":64}},
-{"id":0,"translation":{"x":0,"y":0}}
+{"id":1,"translation":{"x":255,"y":80}},
+{"id":2,"translation":{"x":122,"y":240}},
+{"id":3,"translation":{"x":123,"y":64}},
+{"id":4,"translation":{"x":0,"y":0}}
 ],
 "links":[]
 }],
