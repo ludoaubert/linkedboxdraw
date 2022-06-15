@@ -18,103 +18,112 @@ const char* RectDimString[4]={
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
-    FunctionTimer ft("compact_frame");
+	FunctionTimer ft("compact_frame");
 
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i;
-	
+
 	int n = rectangles.size();
 
 	for (RectDim rect_dim : RectDims)
 	{
-        printf("enter %s\n", RectDimString[rect_dim]);
-		
-		vector<MyPoint> translations(n);
+        	printf("enter %s\n", RectDimString[rect_dim]);
 
-		MyRect frame = compute_frame(rectangles);
-		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
-		MyPoint translation = {0,0} ;
+                MyPoint translation = {0,0} ;
 
-		switch(rect_dim)
+		const vector<MyRect> rects = rectangles;
+
+                switch(rect_dim)
+                {
+                case RectDim::LEFT:
+                        translation.x = 1 ;
+                        break ;
+                case RectDim::RIGHT:
+                        translation.x = -1 ;
+                        break ;
+                case RectDim::TOP:
+                        translation.y = 1 ;
+                        break ;
+                case RectDim::BOTTOM:
+                        translation.y = -1 ;
+                        break ;
+                }
+
+                auto [x, y] = translation;
+                printf("translation=[%d, %d]\n", x, y);
+
+		while (true)
 		{
-		case RectDim::LEFT:
-			rake.m_right = frame.m_left ;
-			translation.x = 1 ;
-			break ;
-		case RectDim::RIGHT:
-			rake.m_left = frame.m_right ;
-			translation.x = -1 ;
-			break ;
-		case RectDim::TOP:
-			rake.m_bottom = frame.m_top ;
-			translation.y = 1 ;
-			break ;
-		case RectDim::BOTTOM:
-			rake.m_top = frame.m_bottom ;
-			translation.y = -1 ;
-			break ;
-		}
+			MyRect frame = compute_frame(rectangles);
+			MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
 
-		printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
-		auto [x, y] = translation;
-		printf("translation=[%d, %d]\n", x, y);
-
-		for (MyRect& r : rectangles)
-			r.selected = false;
-
-		MyRect frame_before = compute_frame(rectangles);
-
-		//rectangles that we want to rake along
-		for (MyRect& r : rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);}))
-		{
-			r.selected = true;
-			translate(r, translation);
-		}
-
-		for  (bool stop = false; stop == false;)
-		{
-			stop=true;
-
-			for (MyRect& r : rectangles | views::filter([](const MyRect& r){return r.selected;}))
+			switch(rect_dim)
 			{
-				for (MyRect& rc : rectangles | views::filter([](const MyRect& r){return !r.selected;}))
+			case RectDim::LEFT:
+				rake.m_right = frame.m_left ;
+				break ;
+			case RectDim::RIGHT:
+				rake.m_left = frame.m_right ;
+				break ;
+			case RectDim::TOP:
+				rake.m_bottom = frame.m_top ;
+				break ;
+			case RectDim::BOTTOM:
+				rake.m_top = frame.m_bottom ;
+				break ;
+			}
+
+			//printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
+
+			for (MyRect& r : rectangles)
+				r.selected = false;
+
+			//rectangles that we want to rake along
+			for (MyRect& r : rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);}))
+			{
+				r.selected = true;
+				translate(r, translation);
+			}
+
+			for  (bool stop = false; stop == false;)
+			{
+				stop=true;
+
+				for (MyRect& r : rectangles | views::filter([](const MyRect& r){return r.selected;}))
 				{
-					if (intersect_strict(r, rc))
+					for (MyRect& rc : rectangles | views::filter([](const MyRect& r){return !r.selected;}))
 					{
-						rc.selected = true;
-						stop = false;
-						translate(rc, translation);
+						if (intersect_strict(r, rc))
+						{
+							rc.selected = true;
+							stop = false;
+							translate(rc, translation);
+						}
 					}
 				}
 			}
-		}
 
-		MyRect frame_after = compute_frame(rectangles);
-		if ( dimensions(frame_after) == dimensions(frame_before) )
-		{
-			for (MyRect& r : rectangles)
+			if ( dimensions(frame) == dimensions(compute_frame(rectangles)) )
 			{
-				if (r.selected)
+				for (MyRect& r : rectangles)
 				{
-					translate(r, -translation);
-					r.selected = false;
+					if (r.selected)
+					{
+						r.selected = false;
+						translate(r, - translation);
+					}
 				}
+				break;
 			}
 		}
 
-        for (MyRect& r : rectangles)
-        {
-            if (r.selected)
-            {
-				translations[r.i] += translation;
-			}
-		}
-		
-		for (const MyRect& r : rectangles)
+		for (int i=0; i < n; i++)
 		{
-			const auto& [x, y] = translations[r.i];
-			if (x != 0 || y != 0)
-				printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
+			const MyRect &r2 = rectangles[i], &r1 = rects[i];
+			int xx = r2.m_left - r1.m_left;
+			int yy = r2.m_top - r1.m_top;
+			if (x*xx != 0 || y*yy != 0)
+				printf("translate(r.i=%d, {x=%d, y=%d}\n", i, x*xx, y*yy);
 		}
 
 		printf("exit %s\n", RectDimString[rect_dim]);

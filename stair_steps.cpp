@@ -2699,7 +2699,8 @@ void test_stair_steps_layout_from_111_boxes()
         FILE *f = fopen("test-latuile-101boxes-output-contexts.json", "w");
         fprintf(f, "%s", buffer);
         fclose(f);
-	json_diagdata_output(n, edges, "test-latuile-101boxes-diagdata.json");
+	int testid=1;
+	json_diagdata_output(n, edges, "test-latuile-101boxes-diagdata.json", testid);
 
         int c=0;
         for (Context &ctx : contexts)
