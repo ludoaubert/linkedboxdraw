@@ -60,13 +60,12 @@ void json_context_output(const vector<MyRect> &rectangles,
 }
 
 void json_diagdata_output(int n,
-			const std::vector<Edge> &edges,
-                        const char* file_name)
+						const std::vector<Edge> &edges,
+                        const char* file_name,
+						int testid)
 {
 	char buffer[100 * 1024];
 	int pos = 0;
-
-	int testid=0;
 
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
 	for (int i=0; i < n; i++)
@@ -125,15 +124,15 @@ void latuile_test_json_output(const vector<MyRect> &input_rectangles,
 				const vector<Edge> &edges,
 				const vector<MyRect> &expected_rectangles,
 				const char* test_name,
-				int test_number)
+				int testid)
 {
 	char file_name[200];
-        sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, test_number);
-	json_diagdata_output(input_rectangles.size(), edges, file_name);
-        sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, test_number);
+        sprintf(file_name, "test-latuile-%s-%d-diagdata.json", test_name, testid);
+	json_diagdata_output(input_rectangles.size(), edges, file_name, testid);
+        sprintf(file_name, "test-latuile-%s-%d-input-contexts.json", test_name, testid);
 	json_context_output(input_rectangles, file_name);
-	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, test_number);
+	sprintf(file_name, "test-latuile-%s-%d-expected-contexts.json", test_name, testid);
 	json_context_output(expected_rectangles, file_name);
-        sprintf(file_name, "test-latuile-%s-%d-output-contexts.json", test_name, test_number);
+        sprintf(file_name, "test-latuile-%s-%d-output-contexts.json", test_name, testid);
         json_context_output(output_rectangles, file_name);
 }

@@ -24,7 +24,7 @@ void latuile_test_json_output(const std::vector<MyRect> &input_rectangles,
                                	const std::vector<Edge> &edges,
                                 const std::vector<MyRect> &expected_rectangles,
                                 const char* test_name,
-                                int test_number);
+                                int testid);
 
 
 #endif
