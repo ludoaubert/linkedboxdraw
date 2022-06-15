@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <stdint.h>
-
+#include <stdio.h>
 
 enum Direction
 {
@@ -38,13 +38,6 @@ struct MyPoint
 {
 	int16_t x=0, y=0 ;
 	bool operator==(const MyPoint&) const = default;
-	
-	MyPoint& operator+=(const MyPoint& rhs){
-
-		  this->x += rhs.x;
-		  this->y += rhs.y;
-		  return *this;
-	}
 } ;
 
 

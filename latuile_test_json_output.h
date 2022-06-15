@@ -16,7 +16,8 @@ struct Edge
 
 void json_diagdata_output(int n,
 			const std::vector<Edge> &edges,
-                        const char* file_name);
+                        const char* file_name,
+			int testid);
 
 
 void latuile_test_json_output(const std::vector<MyRect> &input_rectangles,
