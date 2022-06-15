@@ -1,0 +1,295 @@
+test_latuile()
+translate(r.i=0, {x=12, y=0}
+translate(r.i=1, {x=12, y=0}
+translate(r.i=5, {x=12, y=0}
+translate(r.i=9, {x=12, y=0}
+translate(r.i=11, {x=12, y=0}
+translate(r.i=12, {x=12, y=0}
+frame={0, 703, 0, 752}
+i=10, no_sequence=0, x=317, y=250
+i=19, no_sequence=1, x=511, y=234
+i=18, no_sequence=2, x=32, y=42
+i=17, no_sequence=3, x=317, y=330
+i=16, no_sequence=4, x=477, y=394
+i=15, no_sequence=5, x=10, y=186
+i=14, no_sequence=6, x=206, y=10
+i=13, no_sequence=7, x=199, y=298
+i=12, no_sequence=8, x=183, y=650
+i=11, no_sequence=9, x=10, y=634
+i=0, no_sequence=10, x=183, y=506
+i=9, no_sequence=11, x=565, y=490
+i=8, no_sequence=12, x=511, y=138
+i=7, no_sequence=13, x=553, y=650
+i=6, no_sequence=14, x=317, y=122
+i=5, no_sequence=15, x=10, y=538
+i=4, no_sequence=16, x=165, y=410
+i=3, no_sequence=17, x=47, y=298
+i=2, no_sequence=18, x=75, y=410
+i=1, no_sequence=19, x=329, y=490
+test latuile Verlan KO
+dim_max(compute_frame(expected_rectangles)) : 712
+dim_max(compute_frame(output_rectangles)) : 712
+translate(r.i=1, {x=125, y=0}
+translate(r.i=2, {x=125, y=0}
+translate(r.i=4, {x=125, y=0}
+translate(r.i=5, {x=118, y=0}
+translate(r.i=6, {x=68, y=0}
+translate(r.i=7, {x=125, y=0}
+translate(r.i=8, {x=104, y=0}
+translate(r.i=9, {x=125, y=0}
+translate(r.i=10, {x=125, y=0}
+translate(r.i=11, {x=118, y=0}
+translate(r.i=12, {x=68, y=0}
+frame={0, 859, 0, 704}
+i=0, no_sequence=0, x=224, y=10
+i=1, no_sequence=1, x=405, y=330
+i=2, no_sequence=2, x=349, y=218
+i=3, no_sequence=3, x=58, y=10
+i=4, no_sequence=4, x=183, y=202
+i=5, no_sequence=5, x=197, y=506
+i=6, no_sequence=6, x=494, y=154
+i=7, no_sequence=7, x=197, y=330
+i=8, no_sequence=8, x=384, y=506
+i=9, no_sequence=9, x=10, y=362
+i=10, no_sequence=10, x=10, y=202
+i=11, no_sequence=11, x=10, y=506
+i=12, no_sequence=12, x=674, y=154
+i=13, no_sequence=13, x=674, y=282
+i=14, no_sequence=14, x=654, y=442
+test latuile LOLA KO
+dim_max(compute_frame(expected_rectangles)) : 887
+dim_max(compute_frame(output_rectangles)) : 819
+test_latuile() took 1.930694 seconds.
+test_optimize_rectangle_positions()
+optimize_rectangle_positions testid=1 OK
+dim_max(frame) : 1003 => 787
+optimize_rectangle_positions testid=2 KO
+dim_max(frame) : 887 => 725
+test_optimize_rectangle_positions() took 0.849840 seconds.
+test_compact_rectangles()
+compact_rectangles testid=1 OK
+dim_max(frame) : 1024 => 928
+compact_rectangles testid=2 KO
+dim_max(frame) : 887 => 887
+test_compact_rectangles() took 0.000887 seconds.
+test_compact_frame()
+translate(r.i=1, {x=0, y=48}
+translate(r.i=9, {x=0, y=48}
+compact_frame testid=1 : KO
+dim_max(frame) : 857 => 857
+translate(r.i=0, {x=0, y=10}
+compact_frame testid=2 : OK
+dim_max(frame) : 30 => 20
+translate(r.i=13, {x=68, y=0}
+translate(r.i=14, {x=67, y=0}
+compact_frame testid=3 : KO
+dim_max(frame) : 917 => 849
+test_compact_frame() took 0.001135 seconds.
+test_fit_together()
+OK
+test_fit_together() took 0.000036 seconds.
+test_swap_rectangles()
+swap_rectangles testid=1 KO
+dim_max(frame) : 1003 => 1003
+swap_rectangles testid=2 KO
+dim_max(frame) : 774 => 774
+test_swap_rectangles() took 0.021832 seconds.
+test_binpack()
+OK
+OK
+OK
+test_binpack() took 0.002238 seconds.
+test_split_and_fit()
+test_split_and_fit() took 0.000002 seconds.
+test_stair_steps_layout_from_111_boxes()
+translate(r.i=1, {x=68, y=0}
+translate(r.i=2, {x=68, y=0}
+translate(r.i=9, {x=68, y=0}
+translate(r.i=11, {x=68, y=0}
+translate(r.i=12, {x=68, y=0}
+translate(r.i=15, {x=68, y=0}
+translate(r.i=16, {x=68, y=0}
+translate(r.i=17, {x=62, y=0}
+translate(r.i=0, {x=6, y=0}
+translate(r.i=3, {x=6, y=0}
+translate(r.i=6, {x=6, y=0}
+translate(r.i=8, {x=6, y=0}
+translate(r.i=4, {x=0, y=32}
+translate(r.i=6, {x=0, y=32}
+translate(r.i=11, {x=0, y=32}
+translate(r.i=12, {x=0, y=32}
+translate(r.i=15, {x=0, y=32}
+translate(r.i=18, {x=0, y=32}
+translate(r.i=0, {x=28, y=0}
+translate(r.i=1, {x=28, y=0}
+translate(r.i=3, {x=28, y=0}
+translate(r.i=4, {x=28, y=0}
+translate(r.i=5, {x=35, y=0}
+translate(r.i=7, {x=28, y=0}
+translate(r.i=11, {x=19, y=0}
+translate(r.i=2, {x=37, y=0}
+translate(r.i=4, {x=37, y=0}
+translate(r.i=6, {x=37, y=0}
+translate(r.i=7, {x=37, y=0}
+translate(r.i=9, {x=37, y=0}
+translate(r.i=3, {x=0, y=64}
+translate(r.i=4, {x=0, y=64}
+translate(r.i=5, {x=0, y=64}
+translate(r.i=9, {x=0, y=64}
+translate(r.i=2, {x=10, y=0}
+translate(r.i=5, {x=10, y=0}
+translate(r.i=6, {x=10, y=0}
+translate(r.i=8, {x=10, y=0}
+translate(r.i=10, {x=10, y=0}
+translate(r.i=12, {x=10, y=0}
+translate(r.i=13, {x=10, y=0}
+translate(r.i=0, {x=0, y=64}
+translate(r.i=5, {x=0, y=48}
+translate(r.i=7, {x=0, y=48}
+translate(r.i=8, {x=0, y=48}
+translate(r.i=11, {x=0, y=32}
+translate(r.i=5, {x=13, y=0}
+translate(r.i=8, {x=21, y=0}
+translate(r.i=9, {x=21, y=0}
+translate(r.i=4, {x=0, y=16}
+translate(r.i=5, {x=0, y=16}
+translate(r.i=9, {x=0, y=16}
+translate(r.i=5, {x=0, y=32}
+translate(r.i=6, {x=0, y=32}
+translate(r.i=7, {x=0, y=32}
+translate(r.i=0, {x=21, y=0}
+translate(r.i=1, {x=21, y=0}
+translate(r.i=2, {x=57, y=0}
+translate(r.i=9, {x=57, y=0}
+translate(r.i=12, {x=21, y=0}
+KO
+KO
+KO
+KO
+KO
+KO
+OK
+KO
+OK
+OK
+test_stair_steps_layout_from_111_boxes() took 1.102893 seconds.
+test_stair_steps()
+OK [1]         My first SVG 0.000072 seconds elapsed
+OK [2]          RANELITEG/1 0.000170 seconds elapsed
+OK [3]          RANELITEG/2 0.000326 seconds elapsed
+OK [4]            SINITAX/1 0.000408 seconds elapsed
+OK [5]            SINITAX/2 0.000096 seconds elapsed
+OK [6]            SINITAX/3 0.000098 seconds elapsed
+OK [7]             SAKILA/1 0.000084 seconds elapsed
+OK [8]             SAKILA/2 0.000133 seconds elapsed
+OK [9]             SAKILA/3 0.000097 seconds elapsed
+OK [10]           COCOGIRL/1 0.003092 seconds elapsed
+OK [11]           COCOGIRL/2 0.000096 seconds elapsed
+KO [12]                 LOLA 0.010775 seconds elapsed
+test_stair_steps() took 0.019570 seconds.
+test_stair_steps_layout()
+translate(r.i=1, {x=0, y=32}
+translate(r.i=5, {x=0, y=32}
+translate(r.i=7, {x=0, y=32}
+translate(r.i=10, {x=0, y=32}
+translate(r.i=11, {x=0, y=32}
+translate(r.i=14, {x=0, y=32}
+KO [1]            RANELITEG 0.127360 seconds elapsed
+translate(r.i=0, {x=16, y=0}
+translate(r.i=5, {x=16, y=0}
+translate(r.i=6, {x=16, y=0}
+translate(r.i=7, {x=16, y=0}
+translate(r.i=8, {x=16, y=0}
+translate(r.i=9, {x=16, y=0}
+translate(r.i=10, {x=16, y=0}
+translate(r.i=0, {x=42, y=0}
+translate(r.i=2, {x=40, y=0}
+translate(r.i=4, {x=46, y=0}
+translate(r.i=6, {x=56, y=0}
+translate(r.i=7, {x=42, y=0}
+translate(r.i=8, {x=56, y=0}
+translate(r.i=9, {x=56, y=0}
+translate(r.i=10, {x=28, y=0}
+translate(r.i=12, {x=7, y=0}
+translate(r.i=14, {x=7, y=0}
+KO [2]               SAKILA 0.980407 seconds elapsed
+translate(r.i=0, {x=27, y=0}
+translate(r.i=2, {x=3, y=0}
+translate(r.i=3, {x=3, y=0}
+translate(r.i=4, {x=26, y=0}
+translate(r.i=6, {x=26, y=0}
+translate(r.i=9, {x=27, y=0}
+translate(r.i=10, {x=1, y=0}
+translate(r.i=11, {x=1, y=0}
+translate(r.i=12, {x=26, y=0}
+translate(r.i=13, {x=26, y=0}
+translate(r.i=1, {x=0, y=16}
+translate(r.i=2, {x=0, y=16}
+translate(r.i=4, {x=0, y=16}
+translate(r.i=5, {x=0, y=16}
+translate(r.i=6, {x=0, y=16}
+translate(r.i=8, {x=0, y=16}
+KO [3]              SINITAX 0.569802 seconds elapsed
+translate(r.i=0, {x=13, y=0}
+translate(r.i=2, {x=13, y=0}
+translate(r.i=4, {x=13, y=0}
+translate(r.i=5, {x=8, y=0}
+translate(r.i=8, {x=13, y=0}
+translate(r.i=0, {x=0, y=48}
+translate(r.i=7, {x=0, y=48}
+translate(r.i=8, {x=0, y=48}
+KO [4]           COCOGIRL/1 0.038244 seconds elapsed
+translate(r.i=2, {x=0, y=64}
+translate(r.i=8, {x=0, y=64}
+translate(r.i=11, {x=0, y=64}
+KO [5]           COCOGIRL/2 0.163765 seconds elapsed
+KO [6]           COCOGIRL/3 0.188870 seconds elapsed
+translate(r.i=1, {x=5, y=0}
+translate(r.i=4, {x=5, y=0}
+translate(r.i=9, {x=5, y=0}
+KO [7]           COCOGIRL/4 0.301371 seconds elapsed
+translate(r.i=0, {x=25, y=0}
+translate(r.i=1, {x=25, y=0}
+translate(r.i=2, {x=18, y=0}
+translate(r.i=8, {x=25, y=0}
+translate(r.i=9, {x=25, y=0}
+translate(r.i=10, {x=18, y=0}
+translate(r.i=12, {x=18, y=0}
+translate(r.i=15, {x=18, y=0}
+translate(r.i=17, {x=18, y=0}
+translate(r.i=18, {x=18, y=0}
+translate(r.i=19, {x=18, y=0}
+translate(r.i=3, {x=0, y=112}
+translate(r.i=4, {x=0, y=112}
+translate(r.i=5, {x=0, y=112}
+translate(r.i=10, {x=0, y=112}
+translate(r.i=11, {x=0, y=112}
+translate(r.i=12, {x=0, y=32}
+translate(r.i=13, {x=0, y=112}
+KO [8]           COCOGIRL/5 0.453224 seconds elapsed
+OK [9]           COCOGIRL/6 0.084858 seconds elapsed
+OK [10]           COCOGIRL/7 0.054658 seconds elapsed
+translate(r.i=1, {x=7, y=0}
+translate(r.i=2, {x=7, y=0}
+translate(r.i=5, {x=24, y=0}
+translate(r.i=7, {x=7, y=0}
+translate(r.i=10, {x=7, y=0}
+translate(r.i=11, {x=7, y=0}
+translate(r.i=12, {x=57, y=0}
+translate(r.i=13, {x=68, y=0}
+translate(r.i=14, {x=68, y=0}
+KO [11]           COCOGIRL/8 0.668670 seconds elapsed
+translate(r.i=1, {x=125, y=0}
+translate(r.i=2, {x=125, y=0}
+translate(r.i=4, {x=125, y=0}
+translate(r.i=5, {x=118, y=0}
+translate(r.i=6, {x=68, y=0}
+translate(r.i=7, {x=125, y=0}
+translate(r.i=8, {x=104, y=0}
+translate(r.i=9, {x=125, y=0}
+translate(r.i=10, {x=125, y=0}
+translate(r.i=11, {x=118, y=0}
+translate(r.i=12, {x=68, y=0}
+KO [12]                 LOLA 0.281591 seconds elapsed
+test_stair_steps_layout() took 3.918247 seconds.
+latuile: 23/49 tests successful.
