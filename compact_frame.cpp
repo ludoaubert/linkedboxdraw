@@ -18,14 +18,18 @@ const char* RectDimString[4]={
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
-    	FunctionTimer ft("compact_frame");
+    FunctionTimer ft("compact_frame");
 
 	for (int i=0; i < rectangles.size(); i++)
 		rectangles[i].i = i;
+	
+	int n = rectangles.size();
 
 	for (RectDim rect_dim : RectDims)
 	{
-                printf("enter %s\n", RectDimString[rect_dim]);
+        printf("enter %s\n", RectDimString[rect_dim]);
+		
+		vector<MyPoint> translations(n);
 
 		MyRect frame = compute_frame(rectangles);
 		MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
@@ -98,16 +102,24 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			}
 		}
 
-                for (MyRect& r : rectangles)
-                {
-                       	if (r.selected)
-                        {
-                                printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
+        for (MyRect& r : rectangles)
+        {
+            if (r.selected)
+            {
+				translations[r.i] += translation;
 			}
+		}
+		
+		for (const MyRect& r : rectangles)
+		{
+			const auto& [x, y] = translations[r.i];
+			if (x != 0 || y != 0)
+				printf("translate(r.i=%d, {x=%d, y=%d}\n", r.i, x, y);
 		}
 
 		printf("exit %s\n", RectDimString[rect_dim]);
 	}
+
 }
 
 

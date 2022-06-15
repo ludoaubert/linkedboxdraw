@@ -36,8 +36,15 @@ const int RECT_BORDER = 20 ;
 
 struct MyPoint
 {
-	int16_t x, y ;
+	int16_t x=0, y=0 ;
 	bool operator==(const MyPoint&) const = default;
+	
+	MyPoint& operator+=(const MyPoint& rhs){
+
+		  this->x += rhs.x;
+		  this->y += rhs.y;
+		  return *this;
+	}
 } ;
 
 
@@ -48,6 +55,7 @@ inline MyPoint operator-(const MyPoint& p)
         result.y = -p.y ;
         return result ;
 }
+
 
 inline MyPoint operator-(const MyPoint& p1, const MyPoint& p2)
 {
