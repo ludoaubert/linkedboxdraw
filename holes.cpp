@@ -1,5 +1,4 @@
 #include <vector>
-#include <ranges>
 #include <algorithm>
 using namespace std;
 
@@ -15,7 +14,7 @@ struct MyRect
 } ;
 
 struct Edge {
-	int from; 
+	int from;
 	int to;
 };
 
@@ -84,6 +83,8 @@ void main()
 
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
+		vector<MyRect> holes;
+
 		for (const auto& [m_left, m_right, m_top, m_bottom] : input_rectangles)
 		{
 			const MyPoint pt4[4]={{.x=m_left, .y=m_top},
@@ -101,17 +102,23 @@ void main()
 			for (int corner=0; corner<4; corner++)
 			{
 				const MyPoint& pt = pt4[corner];
-				for (const MyPoint& pt : directions[corner])
+				for (const MyPoint& dir : directions[corner])
 				{
+					MyRect rec;
 					int intervalle[2]={2, INT_MAX};
 					auto& [m, M] = intervalle;
 					while (m != M)
 					{
 						int value = M==INT_MAX ? 2*m : (m+M)/2 ;
-						
+						const auto [x1, y1] = pt;
+						const auto [x2, y2] = pt + value*dir ;
+						rec = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+						auto r = input_rectangles | views::filter([](const MyRect& r){return intersect(rec,r) || contains(rec,r)};
+						(r.empty() ? m : M) = value;
 					}
 				}
 			}
+			holes.push_back(rec);
 		}
 	}
 }
