@@ -66,7 +66,11 @@ inline MyPoint operator+(const MyPoint& p1, const MyPoint& p2)
         return p ;
 }
 
-
+inline MyPoint operator*(int value, const MyPoint& p)
+{
+	const auto& [x, y] = p;
+	return {value*x, value*y};
+}
 
 enum RectCorner
 {
