@@ -103,7 +103,13 @@ void main()
 				const MyPoint& pt = pt4[corner];
 				for (const MyPoint& pt : directions[corner])
 				{
-
+					int intervalle[2]={2, INT_MAX};
+					auto& [m, M] = intervalle;
+					while (m != M)
+					{
+						int value = M==INT_MAX ? 2*m : (m+M)/2 ;
+						
+					}
 				}
 			}
 		}
