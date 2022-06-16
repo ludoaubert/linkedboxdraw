@@ -21,7 +21,7 @@ struct Edge {
 
 void main()
 {
-	
+
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
 	const TestContext test_contexts[1]={
@@ -81,37 +81,18 @@ void main()
 		}
 	}
 	};
-	
+
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		for (const auto& [m_left, m_right, m_top, m_bottom] : input_rectangles)
 		{
 			MyRect rec4[4]={{m_left,m_left,m_top,m_top},
-							{m_left,m_left,m_bottom,m_bottom},
-							{m_right,m_right,m_top,m_top},
-							{m_right,m_right,m_bottom,m_bottom}};
+					{m_left,m_left,m_bottom,m_bottom},
+					{m_right,m_right,m_top,m_top},
+					{m_right,m_right,m_bottom,m_bottom}};
 			for (MyRect& hole : rec4)
 			{
-				hole.m_left = ranges::max(
-											input_rectangles | views::filter([](const MyRect r){return r.m_top < hole.m_top && hole.m_top < r.m_bottom;}
-															| views::filter([](const MyRect& r){return r.m_right < hole.m_left;}
-															| views::transform(&MyRect::m_right)
-											);
-				hole.m_right = ranges::min(
-											input_rectangles | views::filter([](const MyRect r){return r.m_top < hole.m_top && hole.m_top < r.m_bottom;}
-															| views::filter([](const MyRect& r){return r.m_left > hole.m_right;}
-															| views::transform(&MyRect::m_left)
-											);
-				hole.m_top = ranges::max(
-											input_rectangles | views::filter([](const MyRect r){return r.m_left < hole.m_left && hole.m_left < r.m_right;}
-															| views::filter([](const MyRect& r){return r.m_bottom < hole.m_top;}
-															| views::transform(&MyRect::m_bottom)
-											);
-				hole.m_bottom = ranges::min(
-											input_rectangles | views::filter([](const MyRect r){return r.m_left < hole.m_left && hole.m_left < r.m_right;}
-															| views::filter([](const MyRect& r){return r.m_top > hole.m_bottom;}
-															| views::transform(&MyRect::m_top)
-											);
+				
 			}
 		}
 	}

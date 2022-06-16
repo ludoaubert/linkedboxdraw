@@ -25,55 +25,26 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 	int n = rectangles.size();
 
-	for (RectDim rect_dim : RectDims)
-	{
-        	printf("enter %s\n", RectDimString[rect_dim]);
+	MyPoint translation4[4]={{.x=1, .y=0},
+				 {.x=-1, .y=0},
+				 {.x=0, .y=1},
+				 {.x=0, .y=-1}};
 
-                MyPoint translation = {0,0} ;
+	for (RectDim rect_dim : RectDims)//{LEFT, RIGHT, TOP, BOTTOM}
+	{
+                MyPoint translation = translation4[rect_dim] ;
 
 		const vector<MyRect> rects = rectangles;
 
-                switch(rect_dim)
-                {
-                case RectDim::LEFT:
-                        translation.x = 1 ;
-                        break ;
-                case RectDim::RIGHT:
-                        translation.x = -1 ;
-                        break ;
-                case RectDim::TOP:
-                        translation.y = 1 ;
-                        break ;
-                case RectDim::BOTTOM:
-                        translation.y = -1 ;
-                        break ;
-                }
-
-                auto [x, y] = translation;
-                printf("translation=[%d, %d]\n", x, y);
-
 		while (true)
 		{
-			MyRect frame = compute_frame(rectangles);
-			MyRect rake = {-INT16_MAX, INT16_MAX, -INT16_MAX, INT16_MAX} ;
+			const MyRect frame = compute_frame(rectangles);
+			const MyRect rake4[4] = {{.m_left=-INT16_MAX, .m_right=frame.m_left, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
+						{.m_left=frame.m_right, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
+						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=frame.m_top},
+						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=frame.m_bottom, .m_bottom=INT16_MAX}};
 
-			switch(rect_dim)
-			{
-			case RectDim::LEFT:
-				rake.m_right = frame.m_left ;
-				break ;
-			case RectDim::RIGHT:
-				rake.m_left = frame.m_right ;
-				break ;
-			case RectDim::TOP:
-				rake.m_bottom = frame.m_top ;
-				break ;
-			case RectDim::BOTTOM:
-				rake.m_top = frame.m_bottom ;
-				break ;
-			}
-
-			//printf("rake=[%d, %d, %d, %d]\n", rake.m_left, rake.m_right, rake.m_top, rake.m_bottom);
+			const MyRect rake = rake4[rect_dim];
 
 			for (MyRect& r : rectangles)
 				r.selected = false;
@@ -122,11 +93,9 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			const MyRect &r2 = rectangles[i], &r1 = rects[i];
 			int xx = r2.m_left - r1.m_left;
 			int yy = r2.m_top - r1.m_top;
-			if (x*xx != 0 || y*yy != 0)
-				printf("translate(r.i=%d, {x=%d, y=%d}\n", i, x*xx, y*yy);
+			if (xx != 0 || yy != 0)
+				printf("translate(r.i=%d, {x=%d, y=%d}\n", i, xx, yy);
 		}
-
-		printf("exit %s\n", RectDimString[rect_dim]);
 	}
 
 }
