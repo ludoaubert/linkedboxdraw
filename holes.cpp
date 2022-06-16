@@ -86,13 +86,25 @@ void main()
 	{
 		for (const auto& [m_left, m_right, m_top, m_bottom] : input_rectangles)
 		{
-			MyRect rec4[4]={{m_left,m_left,m_top,m_top},
-					{m_left,m_left,m_bottom,m_bottom},
-					{m_right,m_right,m_top,m_top},
-					{m_right,m_right,m_bottom,m_bottom}};
-			for (MyRect& hole : rec4)
+			const MyPoint pt4[4]={{.x=m_left, .y=m_top},
+						{.x=m_left, .y=m_bottom},
+						{.x=m_right, .y=m_top},
+						{.y=m_right, .y=m_bottom}};
+
+			const MyPoint directions[4][3]={
+								{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
+                                                                {{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
+                                                                {{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
+                                                                {{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+							};
+
+			for (int corner=0; corner<4; corner++)
 			{
-				
+				const MyPoint& pt = pt4[corner];
+				for (const MyPoint& pt : directions[corner])
+				{
+
+				}
 			}
 		}
 	}
