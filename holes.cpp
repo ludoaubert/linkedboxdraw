@@ -1,23 +1,37 @@
 #include <vector>
 #include <algorithm>
+#include <ranges>
 #include <stdio.h>
 using namespace std;
 
+const int FRAME_BORDER = 30 ;
+const int RECT_BORDER = 20 ;
 
 struct MyRect
 {
 	int16_t m_left=0, m_right=0, m_top=0, m_bottom=0 ;
-	int16_t no_sequence=0 ;
-	int16_t i=-1 ;
-	bool selected=false ;
-
-	auto operator<=>(const MyRect&) const = default;
 } ;
 
 struct Edge {
 	int from;
 	int to;
 };
+
+MyRect compute_frame(const vector<MyRect>& rectangles)
+{
+        MyRect frame ;
+
+	if (rectangles.size()==0)
+		return frame;
+	
+	return {
+		ranges::min(rectangles | views::transform(&MyRect::m_left)),
+		ranges::max(rectangles | views::transform(&MyRect::m_right)),
+		ranges::min(rectangles | views::transform(&MyRect::m_top)),
+		ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+	};
+}
+
 
 bool intersect_strict(const MyRect& r1, const MyRect& r2)
 {
