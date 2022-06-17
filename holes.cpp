@@ -137,7 +137,7 @@ void main()
 					MyRect rec;
 					int intervalle[2]={2, INT16_MAX};
 					auto& [m, M] = intervalle;
-					while (m != M)
+					while (M > 1+m)
 					{
 						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
 						const auto [x1, y1] = pt;
