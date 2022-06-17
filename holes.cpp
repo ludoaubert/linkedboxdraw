@@ -145,6 +145,7 @@ void main()
 						rec = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
 						auto rg = input_rectangles | views::filter([](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec)};
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
+						printf("[%d %d]\n", m, M);
 					}
 					holes.push_back(rec);
 				}
