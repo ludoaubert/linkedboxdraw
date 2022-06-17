@@ -1,5 +1,6 @@
 #include <vector>
 #include <algorithm>
+#include <stdio.h>
 using namespace std;
 
 
@@ -134,7 +135,12 @@ void main()
 					holes.push_back(rec);
 				}
 			}
-
+		}
+		
+		ranges::sort(holes, std::ranges::greater{}, [](const MyRect& r){return width(r);});
+		for (const auto& [m_left, m_right, m_top, m_bottom] : holes | views::take(6))
+		{
+			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d]\n", m_left, m_right, m_top, m_bottom);
 		}
 	}
 }
