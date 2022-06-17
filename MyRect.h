@@ -66,7 +66,7 @@ inline MyPoint operator+(const MyPoint& p1, const MyPoint& p2)
         return p ;
 }
 
-inline MyPoint operator*(int value, const MyPoint& p)
+inline MyPoint operator*(int16_t value, const MyPoint& p)
 {
 	const auto& [x, y] = p;
 	return {value*x, value*y};

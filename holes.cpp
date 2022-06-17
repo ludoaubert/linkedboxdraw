@@ -2,49 +2,16 @@
 #include <algorithm>
 #include <ranges>
 #include <stdio.h>
+#include "MyRect.h"
 using namespace std;
-
-const int FRAME_BORDER = 30 ;
-const int RECT_BORDER = 20 ;
-
-struct MyRect
-{
-	int16_t m_left=0, m_right=0, m_top=0, m_bottom=0 ;
-} ;
 
 struct Edge {
 	int from;
 	int to;
 };
 
-MyRect compute_frame(const vector<MyRect>& rectangles)
-{
-        MyRect frame ;
 
-	if (rectangles.size()==0)
-		return frame;
-	
-	return {
-		ranges::min(rectangles | views::transform(&MyRect::m_left)),
-		ranges::max(rectangles | views::transform(&MyRect::m_right)),
-		ranges::min(rectangles | views::transform(&MyRect::m_top)),
-		ranges::max(rectangles | views::transform(&MyRect::m_bottom))
-	};
-}
-
-
-bool intersect_strict(const MyRect& r1, const MyRect& r2)
-{
-        return !(r1.m_left >= r2.m_right || r1.m_right <= r2.m_left || r1.m_top >= r2.m_bottom || r1.m_bottom <= r2.m_top) ;
-}
-
-//is r1 inside r2 ?
-bool is_inside(const MyRect& r1, const MyRect& r2)
-{
-	return r1.m_right <= r2.m_right && r1.m_left >= r2.m_left && r1.m_top >= r2.m_top && r1.m_bottom <= r2.m_bottom ;
-}
-
-void main()
+int main()
 {
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
@@ -110,24 +77,24 @@ void main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		const MyRect frame = compute_frame(input_rectangles);
-		
+
 		vector<MyRect> holes;
 
-		for (const auto& [m_left, m_right, m_top, m_bottom] : input_rectangles)
+		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 		{
 			const MyPoint pt4[4]={
-						{.x=m_left, .y=m_top},
-						{.x=m_left, .y=m_bottom},
-						{.x=m_right, .y=m_top},
-						{.y=m_right, .y=m_bottom}
-						};
+					{.x=m_left, .y=m_top},
+					{.x=m_left, .y=m_bottom},
+					{.x=m_right, .y=m_top},
+					{.x=m_right, .y=m_bottom}
+			};
 
 			const MyPoint directions[4][3]={
-								{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
-								{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
-								{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
-								{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
-							};
+					{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
+					{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
+					{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
+					{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+			};
 
 			for (int corner=0; corner<4; corner++)
 			{
@@ -143,7 +110,7 @@ void main()
 						const auto [x1, y1] = pt;
 						const auto [x2, y2] = pt + value*dir ;
 						rec = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
-						auto rg = input_rectangles | views::filter([](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec)};
+						auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 						printf("[%d %d]\n", m, M);
 					}
@@ -151,9 +118,9 @@ void main()
 				}
 			}
 		}
-		
+
 		ranges::sort(holes, std::ranges::greater{}, [](const MyRect& r){return width(r);});
-		for (const auto& [m_left, m_right, m_top, m_bottom] : holes | views::take(6))
+		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(6))
 		{
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d]\n", m_left, m_right, m_top, m_bottom);
 		}
