@@ -8,6 +8,9 @@ SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
 add_executable(bombix bombix-origine.cpp)
 add_executable(bombix-experimental bombix-origine-experimental.cpp)
 
+set (SOURCES holes.cpp MyRect.cpp)
+add_executable(holes ${SOURCES})
+
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 #include_directories(/usr/include/eigen3)
@@ -21,3 +24,4 @@ enable_testing()
 
 add_test(latuile latuile)
 add_test(bombix bombix)
+add_test(holes holes)
