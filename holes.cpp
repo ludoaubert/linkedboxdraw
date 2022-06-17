@@ -18,6 +18,17 @@ struct Edge {
 	int to;
 };
 
+bool intersect_strict(const MyRect& r1, const MyRect& r2)
+{
+        return !(r1.m_left >= r2.m_right || r1.m_right <= r2.m_left || r1.m_top >= r2.m_bottom || r1.m_bottom <= r2.m_top) ;
+}
+
+//is r1 inside r2 ?
+bool is_inside(const MyRect& r1, const MyRect& r2)
+{
+	return r1.m_right <= r2.m_right && r1.m_left >= r2.m_left && r1.m_top >= r2.m_top && r1.m_bottom <= r2.m_bottom ;
+}
+
 void main()
 {
 
@@ -83,20 +94,24 @@ void main()
 
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
+		const MyRect frame = compute_frame(input_rectangles);
+		
 		vector<MyRect> holes;
 
 		for (const auto& [m_left, m_right, m_top, m_bottom] : input_rectangles)
 		{
-			const MyPoint pt4[4]={{.x=m_left, .y=m_top},
+			const MyPoint pt4[4]={
+						{.x=m_left, .y=m_top},
 						{.x=m_left, .y=m_bottom},
 						{.x=m_right, .y=m_top},
-						{.y=m_right, .y=m_bottom}};
+						{.y=m_right, .y=m_bottom}
+						};
 
 			const MyPoint directions[4][3]={
 								{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
-                                                                {{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
-                                                                {{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
-                                                                {{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+								{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
+								{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
+								{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
 							};
 
 			for (int corner=0; corner<4; corner++)
@@ -105,20 +120,21 @@ void main()
 				for (const MyPoint& dir : directions[corner])
 				{
 					MyRect rec;
-					int intervalle[2]={2, INT_MAX};
+					int intervalle[2]={2, INT16_MAX};
 					auto& [m, M] = intervalle;
 					while (m != M)
 					{
-						int value = M==INT_MAX ? 2*m : (m+M)/2 ;
+						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
 						const auto [x1, y1] = pt;
 						const auto [x2, y2] = pt + value*dir ;
 						rec = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
-						auto r = input_rectangles | views::filter([](const MyRect& r){return intersect(rec,r) || contains(rec,r)};
-						(r.empty() ? m : M) = value;
+						auto rg = input_rectangles | views::filter([](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec)};
+						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 					}
+					holes.push_back(rec);
 				}
 			}
-			holes.push_back(rec);
+
 		}
 	}
 }

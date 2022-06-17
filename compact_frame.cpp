@@ -8,12 +8,6 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
-const char* RectDimString[4]={
-"RectDim::LEFT",
-"RectDim::RIGHT",
-"RectDim::TOP",
-"RectDim::BOTTOM"
-};
 
 
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
