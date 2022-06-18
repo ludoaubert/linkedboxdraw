@@ -125,7 +125,7 @@ int main()
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d]\n", m_left, m_right, m_top, m_bottom);
 		}
 
-		FILE *f=fopen("holes.svg", "w");
+		FILE *f=fopen("holes.html", "w");
 		fprintf(f, "<html>\n<body>\n");
 		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
 		for (const MyRect& r : input_rectangles)
