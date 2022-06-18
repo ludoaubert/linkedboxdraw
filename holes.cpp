@@ -126,11 +126,12 @@ int main()
 		}
 
 		FILE *f=fopen("holes.svg", "w");
+		fprintf(f, "<html>\n<body>\n");
 		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
 		for (const MyRect& r : input_rectangles)
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />",
 				r.m_left, r.m_top, width(r), height(r));
-		fprintf(f, "</svg>");
+		fprintf(f, "</svg>\n</html>");
 		fclose(f);
 	}
 }
