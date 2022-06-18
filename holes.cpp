@@ -124,5 +124,13 @@ int main()
 		{
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d]\n", m_left, m_right, m_top, m_bottom);
 		}
+
+		FILE *f=fopen("holes.svg", "w");
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
+		for (const MyRect& r : input_rectangles)
+			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />",
+				r.m_left, r.m_top, width(r), height(r));
+		fprintf(f, "</svg>");
+		fclose(f);
 	}
 }
