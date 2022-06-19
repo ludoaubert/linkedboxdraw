@@ -129,9 +129,20 @@ int main()
 		fprintf(f, "<html>\n<body>\n");
 		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
 		for (const MyRect& r : input_rectangles)
-			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />",
+		{
+			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 				r.m_left, r.m_top, width(r), height(r));
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec%d</text>\n", r.m_left, r.m_top, r.i);
+		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
+
+		for (auto [from, to] : edges)
+		{
+			const MyRect &r1 = input_rectangles[from], &r2 = input_rectangles[to];
+			int eo = edge_overlap(r1, r2);
+			if (eo == 0)
+				printf("no edge overlap between %d and %d\n", from, to);
+		}
 	}
 }
