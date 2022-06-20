@@ -5,6 +5,7 @@
 #include <vector>
 #include <ranges>
 #include <cstdint>
+#include <assert.h>
 #include "latuile_test_json_output.h"
 using namespace std ;
 
@@ -28,13 +29,13 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 		MyPoint translation = translation4[rect_dim] ;
 
 		const vector<MyRect> rects = rectangles;
-		
+
 		vector<MPD_Arc> contacts;
 
 		while (true)
 		{
 			const MyRect frame = compute_frame(rectangles);
-			
+
 			const MyRect rake4[4] = {
 						{.m_left=-INT16_MAX, .m_right=frame.m_left, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
 						{.m_left=frame.m_right, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
@@ -43,8 +44,8 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 					};
 
 			int sens = rect_dim % 2;
-			int dimension = rect / 2;
-			assert(rect_dim == 2*dimension + sens];
+			int dimension = rect_dim / 2;
+			assert(rect_dim == 2*dimension + sens);
 
 			const MyRect rake = rake4[rect_dim];
 			const MyRect baseline = rake4[2*dimension + (1-sens)];
@@ -80,7 +81,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 					}
 				}
 			}
-			
+
 			//rectangles that hit the baseline
 			auto rg = rectangles | views::filter([&](const MyRect& r){return intersect_strict(baseline, r);});
 			for (MyRect& r : rg)
@@ -98,7 +99,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 						translate(r, - translation);
 					}
 				}
-				
+
 				break;
 			}
 		}
@@ -111,29 +112,29 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			if (xx != 0 || yy != 0)
 				printf("translate(r.i=%d, {x=%d, y=%d}\n", i, xx, yy);
 		}
-		
-		for (auto [_i, _j] = contacts)
+
+		for (auto [_i, _j] : contacts)
 		{
 			printf("contact trace: {i=%d, j=%d}\n", _i, _j);
 		}
-		
+
 		vector<int> stress_line;
-		
+
 // As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
-		
+
 		auto list_stress_line = [&](int target, auto&& list_stress_line) {
 			if (target == -INT16_MAX)
 				return;
 			if (target != INT16_MAX)
 				stress_line.push_back(target);
-			for (int i : contact | views::filter([](auto [_i, _j]){return _j == target;}) | views::transform(&MPD_Arc::_i))
+			for (int i : contacts | views::filter([&](const MPD_Arc& e){return e._j == target;}) | views::transform(&MPD_Arc::_i))
 				list_stress_line(i, list_stress_line);
-		}
-		
+		};
+
 		// Function as an argument
 		list_stress_line(INT16_MAX, list_stress_line);
-	
-		printf("pressure line:\n", i);
+
+		printf("pressure line:\n");
 		for (int i: stress_line)
 		{
 			printf("%d\n", i);
