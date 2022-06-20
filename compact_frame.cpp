@@ -9,7 +9,6 @@
 using namespace std ;
 
 
-
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
 	FunctionTimer ft("compact_frame");
@@ -26,19 +25,31 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 	for (RectDim rect_dim : RectDims)//{LEFT, RIGHT, TOP, BOTTOM}
 	{
-                MyPoint translation = translation4[rect_dim] ;
+		MyPoint translation = translation4[rect_dim] ;
 
 		const vector<MyRect> rects = rectangles;
+		
+		vector<MPD_Arc> contacts;
 
 		while (true)
 		{
 			const MyRect frame = compute_frame(rectangles);
-			const MyRect rake4[4] = {{.m_left=-INT16_MAX, .m_right=frame.m_left, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
+			
+			const MyRect rake4[4] = {
+						{.m_left=-INT16_MAX, .m_right=frame.m_left, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
 						{.m_left=frame.m_right, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
 						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=frame.m_top},
-						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=frame.m_bottom, .m_bottom=INT16_MAX}};
+						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=frame.m_bottom, .m_bottom=INT16_MAX}
+					};
+
+			int sens = rect_dim % 2;
+			int dimension = rect / 2;
+			assert(rect_dim == 2*dimension + sens];
 
 			const MyRect rake = rake4[rect_dim];
+			const MyRect baseline = rake4[2*dimension + (1-sens)];
+
+			contacts.clear();
 
 			for (MyRect& r : rectangles)
 				r.selected = false;
@@ -47,6 +58,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			for (MyRect& r : rectangles | views::filter([&](const MyRect& r){return intersect(rake, r);}))
 			{
 				r.selected = true;
+				contacts.push_back({-INT16_MAX, r.i});
 				translate(r, translation);
 			}
 
@@ -61,14 +73,22 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 						if (intersect_strict(r, rc))
 						{
 							rc.selected = true;
+							contacts.push_back({r.i, rc.i});
 							stop = false;
 							translate(rc, translation);
 						}
 					}
 				}
 			}
+			
+			//rectangles that hit the baseline
+			auto rg = rectangles | views::filter([&](const MyRect& r){return intersect_strict(baseline, r);});
+			for (MyRect& r : rg)
+			{
+				contacts.push_back({r.i, INT16_MAX});
+			}
 
-			if ( dimensions(frame) == dimensions(compute_frame(rectangles)) )
+			if ( rg.empty() == false )
 			{
 				for (MyRect& r : rectangles)
 				{
@@ -78,6 +98,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 						translate(r, - translation);
 					}
 				}
+				
 				break;
 			}
 		}
@@ -89,6 +110,33 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 			int yy = r2.m_top - r1.m_top;
 			if (xx != 0 || yy != 0)
 				printf("translate(r.i=%d, {x=%d, y=%d}\n", i, xx, yy);
+		}
+		
+		for (auto [_i, _j] = contacts)
+		{
+			printf("contact trace: {i=%d, j=%d}\n", _i, _j);
+		}
+		
+		vector<int> stress_line;
+		
+// As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
+		
+		auto list_stress_line = [&](int target, auto&& list_stress_line) {
+			if (target == -INT16_MAX)
+				return;
+			if (target != INT16_MAX)
+				stress_line.push_back(target);
+			for (int i : contact | views::filter([](auto [_i, _j]){return _j == target;}) | views::transform(&MPD_Arc::_i))
+				list_stress_line(i, list_stress_line);
+		}
+		
+		// Function as an argument
+		list_stress_line(INT16_MAX, list_stress_line);
+	
+		printf("pressure line:\n", i);
+		for (int i: stress_line)
+		{
+			printf("%d\n", i);
 		}
 	}
 
