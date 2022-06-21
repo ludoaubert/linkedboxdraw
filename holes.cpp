@@ -123,22 +123,26 @@ int main()
 			for (int corner=0; corner<4; corner++)
 			{
 				const MyPoint& pt = pt4[corner];
+
 				for (const MyVector& dir : directions[corner])
 				{
-					MyRect rec;
+					auto rect = [&](int value){
+						const auto [x1, y1] = pt;
+                                                const auto [x2, y2] = pt + value*dir ;
+                                                return MyRect{.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+					};
+
 					int intervalle[2]={2, INT16_MAX};
 					auto& [m, M] = intervalle;
 					while (M > 1+m)
 					{
 						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-						const auto [x1, y1] = pt;
-						const auto [x2, y2] = pt + value*dir ;
-						rec = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+						MyRect rec = rect(value);
 						auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 						printf("[%d %d]\n", m, M);
 					}
-					holes.push_back(rec);
+					holes.push_back(rect(m));
 				}
 			}
 		}
@@ -189,7 +193,7 @@ int main()
 			int dy = 0;
 			for (int ri : hole_topology | views::filter([&](const Edge& e){return e.from==h.i;}) | views::transform(&Edge::to))
 			{
-				dy += 8;
+				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
 			}
 		}
