@@ -187,7 +187,7 @@ int main()
 		for (const MyRect& h : holes | views::take(12))
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-				h.m_left, h.m_right, width(h), height(h));
+				h.m_left, h.m_top, width(h), height(h));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
 
 			int dy = 0;
