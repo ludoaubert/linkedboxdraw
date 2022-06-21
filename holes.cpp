@@ -184,13 +184,13 @@ int main()
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_right, width(h), height(h));
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
 
 			int dy = 0;
 			for (int ri : hole_topology | views::filter([&](const Edge& e){return e.from==h.i;}) | views::transform(&Edge::to))
 			{
 				dy += 8;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
