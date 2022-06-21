@@ -143,10 +143,32 @@ int main()
 			}
 		}
 
+		int m = holes.size():
 		ranges::sort(holes, std::ranges::greater{}, [](const MyRect& r){return width(r);});
-		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(6))
+		for (int i=0; i < m; i++)
+			holes[i].i = i;
+		printf("top 12 largest holes:\n");
+		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(12))
 		{
-			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d]\n", m_left, m_right, m_top, m_bottom);
+			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
+		}
+		
+		vector<MPD_Arc> hole_topology;
+		for (const MyRect& h : holes)
+		{
+			for (const MyRect& r : input_rectangles)
+			{
+				if (edge_overlap(h, r))
+				{
+					hole_topology.push_back({h.i, r.i});
+				}
+			}
+		}
+		
+		printf("hole topology:\n");
+		for (const [hi, ri] : hole_topology)
+		{
+			printf("{.h.i=%d, .r.i=%d}\n", hi, ri);
 		}
 
 		FILE *f=fopen("holes.html", "w");
@@ -156,7 +178,20 @@ int main()
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 				r.m_left, r.m_top, width(r), height(r));
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec%d</text>\n", r.m_left, r.m_top, r.i);
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", r.m_left, r.m_top, r.i);
+		}
+		for (const MyRect& h : holes | views::take(12))
+		{
+			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+				h.m_left, h.m_right, width(h), height(h));
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
+			
+			int dy = 0;
+			for (int ri : hole_topology | views::filter([](const MPD_Arc& e){return e._i==h.i;}) | views::transform(&MPD_Arc::_j))
+			{
+				dy += 8;
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, r.i);
+			}
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
@@ -168,5 +203,6 @@ int main()
 			if (eo == 0)
 				printf("no edge overlap between %d and %d\n", from, to);
 		}
+		
 	}
 }
