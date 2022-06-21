@@ -15,7 +15,7 @@ struct MyVector
 {
 	float x=0.0f;
 	float y=0.0f;
-	
+
 	operator MyPoint() const {
 		return {x, y};
 	}
@@ -95,14 +95,14 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		const MyRect frame = compute_frame(input_rectangles);
-		
+
 		const MyRect shape = input_rectangles[2];
-		auto [width, height] = dimensions(shape);
-		
-		const float k = 1.0f * height / width;
+		auto [width_, height_] = dimensions(shape);
+
+		const float k = 1.0f * height_ / width_;
 
 		vector<MyRect> holes;
-		
+
 
 		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 		{
@@ -143,7 +143,7 @@ int main()
 			}
 		}
 
-		int m = holes.size():
+		int m = holes.size();
 		ranges::sort(holes, std::ranges::greater{}, [](const MyRect& r){return width(r);});
 		for (int i=0; i < m; i++)
 			holes[i].i = i;
@@ -152,8 +152,8 @@ int main()
 		{
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
 		}
-		
-		vector<MPD_Arc> hole_topology;
+
+		vector<Edge> hole_topology;
 		for (const MyRect& h : holes)
 		{
 			for (const MyRect& r : input_rectangles)
@@ -164,9 +164,9 @@ int main()
 				}
 			}
 		}
-		
+
 		printf("hole topology:\n");
-		for (const [hi, ri] : hole_topology)
+		for (const auto [hi, ri] : hole_topology)
 		{
 			printf("{.h.i=%d, .r.i=%d}\n", hi, ri);
 		}
@@ -185,12 +185,12 @@ int main()
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_right, width(h), height(h));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
-			
+
 			int dy = 0;
-			for (int ri : hole_topology | views::filter([](const MPD_Arc& e){return e._i==h.i;}) | views::transform(&MPD_Arc::_j))
+			for (int ri : hole_topology | views::filter([&](const Edge& e){return e.from==h.i;}) | views::transform(&Edge::to))
 			{
 				dy += 8;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, r.i);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
@@ -203,6 +203,6 @@ int main()
 			if (eo == 0)
 				printf("no edge overlap between %d and %d\n", from, to);
 		}
-		
+
 	}
 }
