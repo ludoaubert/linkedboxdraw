@@ -11,6 +11,24 @@ struct Edge {
 };
 
 
+struct MyVector
+{
+	float x=0.0f;
+	float y=0.0f;
+	
+	operator MyPoint() const {
+		return {x, y};
+	}
+};
+
+inline MyVector operator*(int16_t value, const MyVector& vec)
+{
+	const auto& [x, y] = vec;
+	return {value*x, value*y};
+}
+
+
+
 int main()
 {
 
@@ -77,8 +95,14 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		const MyRect frame = compute_frame(input_rectangles);
+		
+		const MyRect shape = input_rectangles[2];
+		auto [width, height] = dimensions(shape);
+		
+		const float k = 1.0f * height / width;
 
 		vector<MyRect> holes;
+		
 
 		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 		{
@@ -89,17 +113,17 @@ int main()
 					{.x=m_right, .y=m_bottom}
 			};
 
-			const MyPoint directions[4][3]={
-					{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
-					{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
-					{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
-					{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+			const MyVector directions[4][3]={
+					{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
+					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
+					{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
+					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
 			};
 
 			for (int corner=0; corner<4; corner++)
 			{
 				const MyPoint& pt = pt4[corner];
-				for (const MyPoint& dir : directions[corner])
+				for (const MyVector& dir : directions[corner])
 				{
 					MyRect rec;
 					int intervalle[2]={2, INT16_MAX};
