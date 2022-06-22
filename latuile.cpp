@@ -183,20 +183,20 @@ void test()
 		{.m_left=0,.m_right=175,.m_top=0,.m_bottom=136, .no_sequence=14}//53-14
 	},
         .edges={
-		{.from=13,.to=12},
-		{.from=13,.to=14},
+                {.from=0,.to=3},
+                {.from=1,.to=7},
+                {.from=2,.to=7},
+                {.from=3,.to=4},
 		{.from=4,.to=7},
-		{.from=3,.to=4},
-		{.from=1,.to=7},
 		{.from=5,.to=7},
+                {.from=6,.to=7},
 		{.from=7,.to=11},
-		{.from=6,.to=7},
+                {.from=8,.to=7},
+                {.from=9,.to=7},
 		{.from=10,.to=7},
-		{.from=9,.to=7},
-		{.from=2,.to=7},
-		{.from=8,.to=7},
-		{.from=0,.to=3},
-		{.from=12,.to=6}
+		{.from=12,.to=6},
+                {.from=13,.to=12},
+                {.from=13,.to=14}
 	},
         .expected_contexts={
 	    {
