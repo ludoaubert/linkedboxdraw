@@ -2,13 +2,14 @@
 #include <algorithm>
 #include <ranges>
 #include <stdio.h>
+#include <assert.h>
 #include "MyRect.h"
 using namespace std;
 
 struct Edge {
 	int from;
 	int to;
-	
+
 	friend auto operator<=>(const Edge&, const Edge&) = default;
 };
 
@@ -100,12 +101,12 @@ int main()
 
 		auto contacts = [&](int i) -> vector<int> {
 			vector<int> v;
-			ranges::set_union(edges | views::filter([](const Edge& e){return e.from=i;}) | views::transform(&Edge::to),
-							edges | views::filter([](const Edge& e){return e.to=i;}) | views::transform(&Edge::from),
+			ranges::set_union(edges | views::filter([&](const Edge& e){return e.from==i;}) | views::transform(&Edge::to),
+							edges | views::filter([&](const Edge& e){return e.to==i;}) | views::transform(&Edge::from),
 							std::back_inserter(v));
 			return v;
 		};
-		
+
 		const MyRect frame = compute_frame(input_rectangles);
 
 		const MyRect shape = input_rectangles[2];
@@ -180,11 +181,11 @@ int main()
 				}
 			}
 		}
-		sort(hole_topology);
-		
+		ranges::sort(hole_topology);
+
 		auto hole_contacts =  [&](int hi) -> vector<int> {
 			vector<int> v;
-			ranges::copy(hole_topology | views::filter([](const Edge& e){return e.from=hi;}) | views::transform(&Edge::to),
+			ranges::copy(hole_topology | views::filter([&](const Edge& e){return e.from==hi;}) | views::transform(&Edge::to),
 							std::back_inserter(v));
 			return v;
 		};
@@ -203,7 +204,7 @@ int main()
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 				r.m_left, r.m_top, width(r), height(r));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", r.m_left, r.m_top, r.i);
-			
+
 			int dy = 0;
 			for (int ri : contacts(r.i))
 			{
