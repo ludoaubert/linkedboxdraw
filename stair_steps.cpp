@@ -505,14 +505,14 @@ void test_stair_steps(int rect_border)
 			{0, 96, 0, 72},
 		    },
 	            {
-			{0, 1},
-			{1, 2},
-			{1, 3},
-			{1, 4},
-			{5, 1},
-			{6, 1},
-			{7, 0},
-			{8, 1}
+			{.from=0, .to=1},
+			{.from=1, .to=2},
+			{.from=1, .to=3},
+			{.from=1, .to=4},
+			{.from=5, .to=1},
+			{.from=6, .to=1},
+			{.from=7, .to=0},
+			{.from=8, .to=1}
 		    },
                     {
                         {0,{0,256}},
@@ -539,12 +539,12 @@ void test_stair_steps(int rect_border)
 			{0, 100, 0, 56}
 		    },
 		    {
-			{0, 3},
-			{0, 4},
-			{0, 5},
-			{1, 0},
-			{1, 6},
-			{2, 0}
+			{.from=0, .to=3},
+			{.from=0, .to=4},
+			{.from=0, .to=5},
+			{.from=1, .to=0},
+			{.from=1, .to=6},
+			{.from=2, .to=0}
 		    },
                     {
                         {0,{95,144}},
@@ -570,17 +570,17 @@ void test_stair_steps(int rect_border)
 			{0, 50, 0, 72}
 		    },
 		    {
-			{0, 2},
-			{0, 4},
-			{1, 0},
-			{3, 0},
-			{3, 1},
-			{3, 2},
-			{3, 4},
-			{3, 7},
-			{4, 2},
-			{6, 3},
-			{6, 5}
+			{.from=0, .to=2},
+			{.from=0, .to=4},
+			{.from=1, .to=0},
+			{.from=3, .to=0},
+			{.from=3, .to=1},
+			{.from=3, .to=2},
+			{.from=3, .to=4},
+			{.from=3, .to=7},
+			{.from=4, .to=2},
+			{.from=6, .to=3},
+			{.from=6, .to=5}
 		    },
                     {
                         {0,{0,0}},
@@ -605,13 +605,13 @@ void test_stair_steps(int rect_border)
 			{0, 69, 0, 72}
 		    },
 		    {
-			{0, 5},
-			{1, 1},
-			{1, 3},
-			{2, 0},
-			{2, 1},
-			{4, 0},
-			{4, 3}
+			{.from=0, .to=5},
+			{.from=1, .to=1},
+			{.from=1, .to=3},
+			{.from=2, .to=0},
+			{.from=2, .to=1},
+			{.from=4, .to=0},
+			{.from=4, .to=3}
 		    },
                     {
                         {0,{128,128}},
@@ -631,8 +631,8 @@ void test_stair_steps(int rect_border)
 			{0, 77, 0, 136}
 		    },
 		    {
-			{0, 2},
-			{1, 0}
+			{.from=0, .to=2},
+			{.from=1, .to=0}
 		    },
                     {
                         {0,{20,0}},
@@ -651,12 +651,12 @@ void test_stair_steps(int rect_border)
 			{0, 83, 0, 200}
 		    },
 		    {
-			{2, 0},
-			{2, 3},
-			{2, 4},
-			{3, 0},
-			{3, 1},
-			{3, 4}
+			{.from=2, .to=0},
+			{.from=2, .to=3},
+			{.from=2, .to=4},
+			{.from=3, .to=0},
+			{.from=3, .to=1},
+			{.from=3, .to=4}
 		    },
                     {
                         {0,{255,208}},
@@ -676,9 +676,9 @@ void test_stair_steps(int rect_border)
 			{0, 109, 0, 88}
 		    },
 		    {
-			{0, 1},
-			{1, 2},
-			{3, 0}
+			{.from=0, .to=1},
+			{.from=1, .to=2},
+			{.from=3, .to=0}
 		    },
                     {
                         {0,{129,160}},
@@ -699,11 +699,11 @@ void test_stair_steps(int rect_border)
 			{0, 91, 0, 72}
 		    },
                     {
-			{2, 5},
-			{3, 0},
-			{3, 2},
-			{4, 1},
-			{4, 2}
+			{.from=2, .to=5},
+			{.from=3, .to=0},
+			{.from=3, .to=2},
+			{.from=4, .to=1},
+			{.from=4, .to=2}
 		    },
                     {
                         {0,{305,0}},
@@ -730,15 +730,15 @@ void test_stair_steps(int rect_border)
 			{0, 69, 0, 40}
 		    },
                     {
-			{0, 1},
-			{1, 2},
-			{1, 3},
-			{1, 5},
-			{1, 7},
-			{1, 9},
-			{4, 3},
-			{6, 5},
-			{8, 7}
+			{.from=0, .to=1},
+			{.from=1, .to=2},
+			{.from=1, .to=3},
+			{.from=1, .to=5},
+			{.from=1, .to=7},
+			{.from=1, .to=9},
+			{.from=4, .to=3},
+			{.from=6, .to=5},
+			{.from=8, .to=7}
 		    },
                     {
                         {0,{71,336}},
@@ -765,12 +765,12 @@ void test_stair_steps(int rect_border)
 			{0, 146, 0, 248}
 		    },
                     {
-			{0, 2},
-			{1, 2},
-			{4, 0},
-			{4, 3},
-			{5, 0},
-			{5, 3}
+			{.from=0, .to=2},
+			{.from=1, .to=2},
+			{.from=4, .to=0},
+			{.from=4, .to=3},
+			{.from=5, .to=0},
+			{.from=5, .to=3}
 		    },
                     {
                         {0,{116,400}},
@@ -803,20 +803,20 @@ void test_stair_steps(int rect_border)
 			{.m_left=0,.m_right=175,.m_top=0,.m_bottom=136}//53-14
 		    },
                     .edges={
-			{.from=13,.to=12},
-			{.from=13,.to=14},
-			{.from=4,.to=7},
-			{.from=3,.to=4},
-			{.from=1,.to=7},
-			{.from=5,.to=7},
-			{.from=7,.to=11},
-			{.from=6,.to=7},
-			{.from=10,.to=7},
-			{.from=9,.to=7},
-			{.from=2,.to=7},
-			{.from=8,.to=7},
 			{.from=0,.to=3},
-			{.from=12,.to=6}
+			{.from=1,.to=7},
+			{.from=2,.to=7},
+			{.from=3,.to=4},
+			{.from=4,.to=7},
+			{.from=5,.to=7},
+			{.from=6,.to=7},
+			{.from=7,.to=11},
+			{.from=8,.to=7},
+			{.from=9,.to=7},
+			{.from=10,.to=7},
+			{.from=12,.to=6},
+			{.from=13,.to=12},
+			{.from=13,.to=14}
 		    },
                     .expected_translations={
 			{.id=0,.translation={.x=396,.y=10}},
