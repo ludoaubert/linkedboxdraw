@@ -477,10 +477,10 @@ void test_stair_steps(int rect_border)
                         {0, 30, 0, 40}
                     },
                     {
-                        {0, 2},
-                        {0, 1},
-                        {1, 4},
-                        {1, 3}
+                        {.from=0, .to=1},
+                        {.from=0, .to=2},
+                        {.from=1, .to=3},
+                        {.from=1, .to=4}
                     },
                     {
                         {0,{90,50}},
