@@ -473,7 +473,7 @@ struct Matrix
 struct Graph
 {
 	const Matrix<bool> &definition_matrix;
-	const Matrix<Span> (&range_matrix)[2];	
+	const Matrix<Span> (&range_matrix)[2];
 	const vector<int> (&coords)[2];
 };
 
@@ -1391,7 +1391,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 	{
 		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
 	}
-	
+
 	buffer[pos-2]='\n';
 	pos--;
 
@@ -1429,27 +1429,27 @@ const TestContext contexts[] = {
 	},
 	.frame={.left= 0, .right= 1016, .top= 0, .bottom= 769},
 	.links={
-/*0*/ {.from= 17, .to= 19},
-/*1*/ {.from= 17, .to= 18},
-/*2*/ {.from= 7, .to= 9},
-/*3*/ {.from= 7, .to= 0},
-/*4*/ {.from= 3, .to= 9},
-/*5*/ {.from= 8, .to= 9},
-/*6*/ {.from= 1, .to= 9},
-/*7*/ {.from= 1, .to= 0},
-/*8*/ {.from= 9, .to= 16},
-/*9*/ {.from= 0, .to= 9},
-/*10*/ {.from= 0, .to= 0},
-/*11*/ {.from= 12, .to= 0},
-/*12*/ {.from= 6, .to= 0},
-/*13*/ {.from= 14, .to= 0},
-/*14*/ {.from= 15, .to= 9},
-/*15*/ {.from= 13, .to= 9},
-/*16*/ {.from= 11, .to= 9},
-/*17*/ {.from= 4, .to= 9},
-/*18*/ {.from= 5, .to= 9},
-/*19*/ {.from= 2, .to= 9},
-/*20*/ {.from= 10, .to= 9},
+/*0*/ {.from= 0, .to= 0},
+/*1*/ {.from= 0, .to= 9},
+/*2*/ {.from= 1, .to= 0},
+/*3*/ {.from= 1, .to= 9},
+/*4*/ {.from= 2, .to= 9},
+/*5*/ {.from= 3, .to= 9},
+/*6*/ {.from= 4, .to= 9},
+/*7*/ {.from= 5, .to= 9},
+/*8*/ {.from= 6, .to= 0},
+/*9*/ {.from= 7, .to= 0},
+/*10*/ {.from= 7, .to= 9},
+/*11*/ {.from= 8, .to= 9},
+/*12*/ {.from= 9, .to= 16},
+/*13*/ {.from= 10, .to= 9},
+/*14*/ {.from= 11, .to= 9},
+/*15*/ {.from= 12, .to= 0},
+/*16*/ {.from= 13, .to= 9},
+/*17*/ {.from= 14, .to= 0},
+/*18*/ {.from= 15, .to= 9},
+/*19*/ {.from= 17, .to= 18},
+/*20*/ {.from= 17, .to= 19},
 /*21*/ {.from= 19, .to= 15}
 	},
 	.faisceau_output={},
