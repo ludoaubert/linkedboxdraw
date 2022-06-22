@@ -8,6 +8,8 @@ using namespace std;
 struct Edge {
 	int from;
 	int to;
+	
+	friend auto operator<=>(const Edge&, const Edge&) = default;
 };
 
 
@@ -56,20 +58,20 @@ int main()
 		},
 
 		.edges = {
-			{.from=13,.to=12},
-			{.from=13,.to=14},
-			{.from=4,.to=7},
-			{.from=3,.to=4},
-			{.from=1,.to=7},
-			{.from=5,.to=7},
-			{.from=7,.to=11},
-			{.from=6,.to=7},
-			{.from=10,.to=7},
-			{.from=9,.to=7},
-			{.from=2,.to=7},
-			{.from=8,.to=7},
 			{.from=0,.to=3},
-			{.from=12,.to=6}
+			{.from=1,.to=7},
+			{.from=2,.to=7},
+			{.from=3,.to=4},
+			{.from=4,.to=7},
+			{.from=5,.to=7},
+			{.from=6,.to=7},
+			{.from=7,.to=11},
+			{.from=8,.to=7},	
+			{.from=9,.to=7},
+			{.from=10,.to=7},
+			{.from=12,.to=6},
+			{.from=13,.to=12},
+			{.from=13,.to=14}
 		},
 
 		.expected_rectangles = {
@@ -94,6 +96,16 @@ int main()
 
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
+		assert( ranges::is_sorted(edges) );
+
+		auto contacts = [&](int i) -> vector<int> {
+			vector<int> v;
+			ranges::set_union(edges | views::filter([](const Edge& e){return e.from=i;}) | views::transform(&Edge::to),
+							edges | views::filter([](const Edge& e){return e.to=i;}) | views::transform(&Edge::from),
+							std::back_inserter(v));
+			return v;
+		};
+		
 		const MyRect frame = compute_frame(input_rectangles);
 
 		const MyRect shape = input_rectangles[2];
@@ -168,6 +180,14 @@ int main()
 				}
 			}
 		}
+		sort(hole_topology);
+		
+		auto hole_contacts =  [&](int hi) -> vector<int> {
+			vector<int> v;
+			ranges::copy(hole_topology | views::filter([](const Edge& e){return e.from=hi;}) | views::transform(&Edge::to),
+							std::back_inserter(v));
+			return v;
+		};
 
 		printf("hole topology:\n");
 		for (const auto [hi, ri] : hole_topology)
@@ -183,6 +203,13 @@ int main()
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 				r.m_left, r.m_top, width(r), height(r));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", r.m_left, r.m_top, r.i);
+			
+			int dy = 0;
+			for (int ri : contacts(r.i))
+			{
+				dy += 14;
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+			}
 		}
 		for (const MyRect& h : holes | views::take(12))
 		{
@@ -191,7 +218,7 @@ int main()
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
 
 			int dy = 0;
-			for (int ri : hole_topology | views::filter([&](const Edge& e){return e.from==h.i;}) | views::transform(&Edge::to))
+			for (int ri : hole_contacts(h.i))
 			{
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
