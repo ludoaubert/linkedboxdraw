@@ -157,7 +157,7 @@ int main()
 		for (int i=0; i < m; i++)
 			holes[i].i = i;
 		printf("top 12 largest holes:\n");
-		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(15))
+		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(18))
 		{
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
 		}
@@ -194,7 +194,7 @@ int main()
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 			}
 		}
-		for (const MyRect& h : holes | views::take(15))
+		for (const MyRect& h : holes | views::take(18))
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_top, width(h), height(h));
