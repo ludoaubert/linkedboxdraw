@@ -99,16 +99,6 @@ int main()
 	{
 		assert( ranges::is_sorted(edges) );
 
-//TODO: C++23 introduces views::set_union range adapter. No need for vector<int> v. Remove the lambda and call the composition
-// directly where it is needed.
-		auto contacts = [&](int i) -> vector<int> {
-			vector<int> v;
-			ranges::set_union(edges | views::filter([&](const Edge& e){return e.from==i;}) | views::transform(&Edge::to),
-							edges | views::filter([&](const Edge& e){return e.to==i;}) | views::transform(&Edge::from),
-							std::back_inserter(v));
-			return v;
-		};
-
 		const MyRect frame = compute_frame(input_rectangles);
 
 		const MyRect shape = input_rectangles[2];
@@ -184,7 +174,14 @@ int main()
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", r.m_left, r.m_top, r.i);
 
 			int dy = 0;
-			for (int ri : contacts(r.i))
+//TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
+			vector<int> contacts;
+			ranges::set_union(
+						edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+						edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+						std::back_inserter(contacts)
+							);
+			for (int ri : contacts)
 			{
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
