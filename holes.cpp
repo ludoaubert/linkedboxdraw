@@ -187,7 +187,7 @@ int main()
 			for (int ri : contacts(r.i))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
 			}
 			
 			dy = 0;
