@@ -99,6 +99,8 @@ int main()
 	{
 		assert( ranges::is_sorted(edges) );
 
+//TODO: C++23 introduces views::set_union range adapter. No need for vector<int> v. Remove the lambda and call the composition
+// directly where it is needed.
 		auto contacts = [&](int i) -> vector<int> {
 			vector<int> v;
 			ranges::set_union(edges | views::filter([&](const Edge& e){return e.from==i;}) | views::transform(&Edge::to),
