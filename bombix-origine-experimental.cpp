@@ -1790,27 +1790,27 @@ const TestContext contexts[] = {
  .frame={ 0, 707, 0, 744 },
  .links={
  {.from=1, .to=14 },
- {.from=2, .to=14 },
  {.from=2, .to=5 },
+ {.from=2, .to=14 },
  {.from=3, .to=4 },
  {.from=5, .to=17 },
- {.from=6, .to=14 },
  {.from=6, .to=5 },
+ {.from=6, .to=14 },
  {.from=7, .to=0 },
  {.from=7, .to=16 },
  {.from=8, .to=9 },
  {.from=9, .to=15 },
- {.from=10, .to=18 },
- {.from=10, .to=16 },
  {.from=10, .to=9 },
+ {.from=10, .to=16 },
+ {.from=10, .to=18 },
  {.from=11, .to=13 },
  {.from=12, .to=14 },
  {.from=14, .to=7 },
  {.from=16, .to=3 },
  {.from=17, .to=7 },
- {.from=19, .to=10 },
  {.from=19, .to=7 },
  {.from=19, .to=8 },
+ {.from=19, .to=10 },
  {.from=19, .to=11 }
  },
 .faisceau_output={
@@ -2458,7 +2458,7 @@ const TestContext contexts[] = {
             {.left=60,.right=120,.top=200,.bottom=240}
         },
         .frame={.left=0,.right=200,.top=0,.bottom=300},
-        .links={{.from=2,.to=1},{.from=2,.to=0}},
+        .links={{.from=2,.to=0},{.from=2,.to=1}},
 		.faisceau_output={
 			{
 				.targets={
@@ -2701,7 +2701,7 @@ const TestContext contexts[] = {
             {.left=10,.right=137,.top=10,.bottom=82 }
         },
         .frame={.left=0,.right=203,.top=0,.bottom=124},
-        .links={{.from=1,.to=2},{.from=3,.to=0},{.from=4,.to=0},{.from=4,.to=2},{.from=2,.to=0}},
+        .links={{.from=1,.to=2},{.from=2,.to=0},{.from=3,.to=0},{.from=4,.to=0},{.from=4,.to=2}},
 	.faisceau_output={
                         {
                                 .targets={
