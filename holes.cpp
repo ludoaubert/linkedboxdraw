@@ -157,7 +157,7 @@ int main()
 		for (int i=0; i < m; i++)
 			holes[i].i = i;
 		printf("top 12 largest holes:\n");
-		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(12))
+		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(15))
 		{
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
 		}
@@ -194,7 +194,7 @@ int main()
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);
 			}
 		}
-		for (const MyRect& h : holes | views::take(12))
+		for (const MyRect& h : holes | views::take(15))
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_top, width(h), height(h));
@@ -204,7 +204,7 @@ int main()
 			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 20, h.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
