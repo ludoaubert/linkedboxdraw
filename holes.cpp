@@ -67,7 +67,7 @@ int main()
 			{.from=5,.to=7},
 			{.from=6,.to=7},
 			{.from=7,.to=11},
-			{.from=8,.to=7},	
+			{.from=8,.to=7},
 			{.from=9,.to=7},
 			{.from=10,.to=7},
 			{.from=12,.to=6},
@@ -171,7 +171,7 @@ int main()
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 				r.m_left, r.m_top, width(r), height(r));
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">rec-%d</text>\n", r.m_left, r.m_top, r.i);
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
 
 			int dy = 0;
 //TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
@@ -184,17 +184,17 @@ int main()
 			for (int ri : contacts)
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
 			}
 
 			dy = 0;
 			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);
 			}
 		}
-		for (const MyRect& h : holes)
+		for (const MyRect& h : holes | views::take(12))
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_top, width(h), height(h));
@@ -204,7 +204,7 @@ int main()
 			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
