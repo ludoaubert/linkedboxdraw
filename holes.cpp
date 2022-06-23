@@ -186,22 +186,22 @@ int main()
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
 			}
-			
+
 			dy = 0;
-			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);})
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);				
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);
 			}
 		}
-		for (const MyRect& h : holes | views::take(12))
+		for (const MyRect& h : holes)
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				h.m_left, h.m_top, width(h), height(h));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
 
 			int dy = 0;
-			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);})
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);}))
 			{
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
