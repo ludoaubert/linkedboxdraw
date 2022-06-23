@@ -191,7 +191,7 @@ int main()
 			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 			}
 		}
 		for (const MyRect& h : holes | views::take(15))
@@ -204,7 +204,7 @@ int main()
 			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 20, h.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
