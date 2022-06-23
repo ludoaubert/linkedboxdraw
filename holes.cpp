@@ -170,31 +170,7 @@ int main()
 			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
 		}
 
-		vector<Edge> hole_topology;
-		for (const MyRect& h : holes)
-		{
-			for (const MyRect& r : input_rectangles)
-			{
-				if (edge_overlap(h, r))
-				{
-					hole_topology.push_back({h.i, r.i});
-				}
-			}
-		}
-		ranges::sort(hole_topology);
-
-		auto hole_contacts =  [&](int hi) -> vector<int> {
-			vector<int> v;
-			ranges::copy(hole_topology | views::filter([&](const Edge& e){return e.from==hi;}) | views::transform(&Edge::to),
-							std::back_inserter(v));
-			return v;
-		};
-
-		printf("hole topology:\n");
-		for (const auto [hi, ri] : hole_topology)
-		{
-			printf("{.h.i=%d, .r.i=%d}\n", hi, ri);
-		}
+		int n = input_rectangles.size();
 
 		FILE *f=fopen("holes.html", "w");
 		fprintf(f, "<html>\n<body>\n");
@@ -211,6 +187,13 @@ int main()
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
 			}
+			
+			dy = 0;
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);})
+			{
+				dy += 14;
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", r.m_left + 20, r.m_top + dy, ri);				
+			}
 		}
 		for (const MyRect& h : holes | views::take(12))
 		{
@@ -219,7 +202,7 @@ int main()
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
 
 			int dy = 0;
-			for (int ri : hole_contacts(h.i))
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);})
 			{
 				dy += 14;
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rec-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
