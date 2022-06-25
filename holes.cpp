@@ -125,23 +125,17 @@ int main()
 
 				for (const MyVector& dir : directions[corner])
 				{
-					auto rect = [&](int value){
-						const auto [x1, y1] = pt;
-                        const auto [x2, y2] = pt + value*dir ;
-                        return MyRect{.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
-					};
-
 					int intervalle[2]={2, INT16_MAX};
 					auto& [m, M] = intervalle;
 					while (M > 1+m)
 					{
 						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-						MyRect rec = rect(value);
+						MyRect rec(pt, pt + value*dir);
 						auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 						printf("[%d %d]\n", m, M);
 					}
-					holes.push_back({RectCorner, dir, m, rect(m)});
+					holes.push_back({RectCorner, dir, m, MyRect(pt, pt + m*dir)});
 				}
 			}
 		}
@@ -204,11 +198,7 @@ int main()
 		MyRect r2 = input_rectangles[2];
 		vector<MyRect> rectangles = input_rectangles;
 		const auto [RectCorner, dir, value, rec] = holes[17];
-		MyRect& r = rectangles[2];
-		MyPoint pt = r[RectCorner];
-		const auto [x1, y1] = pt;
-        const auto [x2, y2] = pt + value*dir ;
-		r = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+		rectangles[2] = MyRect(r[RectCorner], r[RectCorner] + value*dir);
 	//expand phase (call "find_my_name()")
 	//collapse phase (call compact_frame())
 

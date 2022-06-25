@@ -109,6 +109,16 @@ struct MyRect
 	int16_t i=-1 ;
 	bool selected=false ;
 	
+	MyRect(const MyPoint& pt1, const MyPoint& pt2)
+	{
+		const auto [x1, y1] = pt1;
+        const auto [x2, y2] = pt2;
+        m_left = min(x1,x2);
+		m_right = max(x1,x2);
+		m_top = min(y1,y2);
+		m_bottom = max(y1, y2);	
+	}
+	
 	MyPoint operator[](RectCorner rc) const
 	{
 		switch(rc)
