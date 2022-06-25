@@ -198,7 +198,8 @@ int main()
 		MyRect r2 = input_rectangles[2];
 		vector<MyRect> rectangles = input_rectangles;
 		const auto [RectCorner, dir, value, rec] = holes[17];
-		rectangles[2] = MyRect(r[RectCorner], r[RectCorner] + value*dir);
+		MyRect& r = rectangles[2];
+		r = MyRect(r[RectCorner], r[RectCorner] + value*dir);
 	//expand phase (call "find_my_name()")
 	//collapse phase (call compact_frame())
 
