@@ -89,11 +89,11 @@ enum RectDim
   LEFT,
   RIGHT,
   TOP,
-  BOTTOM,
-  NR_RECT_DIMENSIONS
+  BOTTOM
 } ;
 
-const RectDim RectDims[NR_RECT_DIMENSIONS]=
+
+const RectDim RectDims[4]=
 {
    RectDim::LEFT,
    RectDim::RIGHT,
@@ -108,6 +108,21 @@ struct MyRect
 	int16_t no_sequence=0 ;
 	int16_t i=-1 ;
 	bool selected=false ;
+	
+	MyPoint operator[](RectCorner rc) const
+	{
+		switch(rc)
+		{
+		case TOP_LEFT:
+			return {m_left, m_top};
+		case BOTTOM_LEFT:
+			return {m_left, m_bottom};
+		case TOP_RIGHT:
+			return {m_right, m_top};
+		case BOTTOM_RIGHT:
+			return {m_right, m_bottom};
+		}
+	}
 
 	auto operator<=>(const MyRect&) const = default;
 } ;

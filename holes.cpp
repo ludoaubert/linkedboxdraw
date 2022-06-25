@@ -105,19 +105,13 @@ int main()
 		auto [width_, height_] = dimensions(shape);
 
 		const float k = 1.0f * height_ / width_;
+		
+		struct RectHole {RectCorner corner; MyVector direction; int value; MyRect rec;};
 
-		vector<MyRect> holes;
+		vector<RectHole> holes;
 
-
-		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
+		for (const auto& ir : input_rectangles)
 		{
-			const MyPoint pt4[4]={
-					{.x=m_left, .y=m_top},
-					{.x=m_left, .y=m_bottom},
-					{.x=m_right, .y=m_top},
-					{.x=m_right, .y=m_bottom}
-			};
-
 			const MyVector directions[4][3]={
 					{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
 					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
@@ -125,16 +119,16 @@ int main()
 					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
 			};
 
-			for (int corner=0; corner<4; corner++)
+			for (RectCorner RectCorner : RectCorners)
 			{
-				const MyPoint& pt = pt4[corner];
+				const MyPoint pt = ir[RectCorner] ;
 
 				for (const MyVector& dir : directions[corner])
 				{
 					auto rect = [&](int value){
 						const auto [x1, y1] = pt;
-                                                const auto [x2, y2] = pt + value*dir ;
-                                                return MyRect{.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+                        const auto [x2, y2] = pt + value*dir ;
+                        return MyRect{.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
 					};
 
 					int intervalle[2]={2, INT16_MAX};
@@ -147,20 +141,15 @@ int main()
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 						printf("[%d %d]\n", m, M);
 					}
-					holes.push_back(rect(m));
+					holes.push_back({RectCorner, dir, m, rect(m)});
 				}
 			}
 		}
 
 		int m = holes.size();
-		ranges::sort(holes, std::ranges::greater{}, [](const MyRect& r){return width(r);});
+		ranges::sort(holes, std::ranges::greater{}, [](const RectHole& h){return width(h.rec);});
 		for (int i=0; i < m; i++)
-			holes[i].i = i;
-		printf("top 12 largest holes:\n");
-		for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : holes | views::take(18))
-		{
-			printf("[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d]\n", m_left, m_right, m_top, m_bottom, i);
-		}
+			holes[i].rec.i = i;
 
 		int n = input_rectangles.size();
 
@@ -194,29 +183,34 @@ int main()
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 			}
 		}
-		for (const MyRect& h : holes | views::take(18))
+		for (const RectHole& h : holes | views::take(18))
 		{
+			const auto& [RectCorner, direction, value, rec] = h;
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-				h.m_left, h.m_top, width(h), height(h));
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", h.m_left, h.m_top, h.i);
+				rec.m_left, rec.m_top, width(rec), height(rec));
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, rec.i);
 
 			int dy = 0;
-			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(h, input_rectangles[rj]);}))
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", h.m_left + 8, h.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, ri);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
-
-		for (auto [from, to] : edges)
-		{
-			const MyRect &r1 = input_rectangles[from], &r2 = input_rectangles[to];
-			int eo = edge_overlap(r1, r2);
-			if (eo == 0)
-				printf("no edge overlap between %d and %d\n", from, to);
-		}
+		
+	//r2 => h17
+		MyRect r2 = input_rectangles[2];
+		vector<MyRect> rectangles = input_rectangles;
+		const auto [RectCorner, dir, value, rec] = holes[17];
+		MyRect& r = rectangles[2];
+		MyPoint pt = r[RectCorner];
+		const auto [x1, y1] = pt;
+        const auto [x2, y2] = pt + value*dir ;
+		r = {.m_left=min(x1,x2), .m_right=max(x1,x2), .m_top=min(y1,y2), .m_bottom = max(y1, y2)};
+	//expand phase (call "find_my_name()")
+	//collapse phase (call compact_frame())
 
 	}
 }
