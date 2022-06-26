@@ -95,13 +95,7 @@ enum RectDim
 } ;
 
 
-const RectDim RectDims[4]=
-{
-   LEFT,
-   RIGHT,
-   TOP,
-   BOTTOM
-} ;
+const RectDim RectDims[4]={LEFT,RIGHT,TOP,BOTTOM} ;
 
 
 struct MyRect
@@ -155,6 +149,15 @@ struct MyRect
                         return m_bottom;
                 }
         }
+
+	MyRect& operator+=(const MyRect& r)
+	{
+		m_left += r.m_left;
+		m_right += r.m_right;
+		m_top += r.m_top;
+		m_bottom += r.m_bottom;
+		return *this;
+	}
 
 	auto operator<=>(const MyRect&) const = default;
 } ;

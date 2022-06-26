@@ -31,7 +31,6 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-
 int main()
 {
 
@@ -195,38 +194,61 @@ int main()
 		fclose(f);
 
 	//r2 => h17
-		MyRect r2 = input_rectangles[2];
+		enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
+		struct ST { MyRect initial_tf, tf; };
+		ST Transformations[2][2]={
+			{
+				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+                                {.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+			},
+                        {
+                                {.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+                                {.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+                        }
+		};
+
+		int i_select=2;
+		MyRect r2 = input_rectangles[i_select];
 		vector<MyRect> rectangles = input_rectangles;
 		const auto [rectCorner, dir, value, rec] = holes[17];
-		MyRect& r = rectangles[2];
+		MyRect& r = rectangles[i_select];
 		r = rect(r[rectCorner], r[rectCorner] + value*dir);
 
-		vector<MyRect> transformation(n);
-		for (MyRect& tf : transformation)
-		{
-			for (RectDim rd : RectDims)
-				tf[rd] = 0;
-		}
-		transformation[2][LEFT]=-1;
+		vector<MyRect> accumulated_transformation(n);
+                const MyRect identity;
 
-		const MyRect identity = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=0},
-			tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0};
+		auto ff=[&](const ST& st)->vector<MyRect> {
 
-		for (bool stop=false; stop==false; )
-		{
-			stop=true;
-			for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==identity;}))
+                        auto [initial_tf, tf] = st;
+
+                	vector<MyRect> transformation(n);
+
+			transformation[i_select] = initial_tf;
+
+			for (bool stop=false; stop==false; )
 			{
-				for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=identity;}))
+				stop=true;
+				for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==identity;}))
 				{
-					if (intersect_strict(rectangles[i]+transformation[i], rectangles[j]+transformation[j]))
+					for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=identity;}))
 					{
-						transformation[i] = tf;
-						stop=false;
+						if (intersect_strict(rectangles[i] + accumulated_transformation[i] + transformation[i],
+									rectangles[j] + accumulated_transformation[i] + transformation[j]))
+						{
+							transformation[i] = tf;
+							stop=false;
+						}
 					}
 				}
 			}
-		}
+			return transformation;
+		};
+
+		vector<MyRect> transformation = ranges::max(Transformations[0] | views::transform(ff), {},
+								[&](const vector<MyRect>& t){return ranges::count(t, identity);}
+							);
+		for (int i=0; i<n; i++)
+			accumulated_transformation[i] += transformation[i];
 	//collapse phase (call compact_frame())
 
 	}
