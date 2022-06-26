@@ -208,7 +208,10 @@ int main()
 				tf[rd] = 0;
 		}
 		transformation[2][LEFT]=-1;
-		const MyRect identity={.m_left=0, .m_right=0, .m_top=0, .m_bottom=0};
+
+		const MyRect identity = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=0},
+			tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0};
+
 		for (bool stop=false; stop==false; )
 		{
 			stop=true;
@@ -218,8 +221,7 @@ int main()
 				{
 					if (intersect_strict(rectangles[i]+transformation[i], rectangles[j]+transformation[j]))
 					{
-						MyRect& tf = transformation[i];
-						tf[LEFT] = tf[RIGHT] = -1;
+						transformation[i] = tf;
 						stop=false;
 					}
 				}
