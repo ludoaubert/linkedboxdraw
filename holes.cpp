@@ -31,6 +31,19 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
+vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
+{
+	assert(m1.size() == m2.size());
+	int n = m1.size();
+	vector<MyRect> m(n);
+	for (int i=0; i < n; i++)
+	{
+		m[i] = m1[i] + m2[i];
+	}
+	return m;
+}
+
+
 int main()
 {
 
@@ -196,7 +209,7 @@ int main()
 	//r2 => h17
 		enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
 		struct ST { MyRect initial_tf, tf; };
-		ST Transformations[2][2]={
+		const ST Transformations[2][2]={
 			{
 				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
                                 {.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
@@ -217,9 +230,12 @@ int main()
 		vector<MyRect> accumulated_transformation(n);
                 const MyRect identity;
 
+		vector<TransformationType> v;
+//TODO: fill it up
+
 		auto ff=[&](const ST& st)->vector<MyRect> {
 
-                        auto [initial_tf, tf] = st;
+                        const auto& [initial_tf, tf] = st;
 
                 	vector<MyRect> transformation(n);
 
@@ -244,8 +260,12 @@ int main()
 			return transformation;
 		};
 
-		vector<MyRect> transformation = ranges::max(Transformations[0] | views::transform(ff), {},
-								[&](const vector<MyRect>& t){return ranges::count(t, identity);}
+		vector<MyRect> transformation = ranges::min(Transformations[0] | views::transform(ff), {},
+								[&](const vector<MyRect>& tf){
+												const auto [width_, height_] = dimensions(compute_frame(rectangles + tf));
+												int nb = n - ranges::count(tf, identity);
+												return make_tuple(width_, height_, nb);
+											     }
 							);
 		for (int i=0; i<n; i++)
 			accumulated_transformation[i] += transformation[i];
