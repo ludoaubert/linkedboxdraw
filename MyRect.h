@@ -97,10 +97,10 @@ enum RectDim
 
 const RectDim RectDims[4]=
 {
-   RectDim::LEFT,
-   RectDim::RIGHT,
-   RectDim::TOP,
-   RectDim::BOTTOM
+   LEFT,
+   RIGHT,
+   TOP,
+   BOTTOM
 } ;
 
 
@@ -126,9 +126,49 @@ struct MyRect
 		}
 	}
 
+	int16_t operator[](RectDim rd) const
+	{
+		switch(rd)
+		{
+		case LEFT:
+			return m_left;
+		case RIGHT:
+			return m_right;
+		case TOP:
+			return m_top;
+		case BOTTOM:
+			return m_bottom;
+		}
+	}
+
+        int16_t& operator[](RectDim rd)
+        {
+                switch(rd)
+                {
+                case LEFT:
+                        return m_left;
+                case RIGHT:
+                        return m_right;
+                case TOP:
+                        return m_top;
+                case BOTTOM:
+                        return m_bottom;
+                }
+        }
+
 	auto operator<=>(const MyRect&) const = default;
 } ;
 
+
+inline MyRect operator+(const MyRect& r1, const MyRect& r2)
+{
+	return {
+		.m_left = r1.m_left + r2.m_left,
+		.m_right = r1.m_right + r2.m_right,
+		.m_top = r1.m_top + r2.m_top,
+		.m_bottom = r1.m_bottom + r2.m_bottom
+	};
+}
 
 inline MyRect rect(const MyPoint& pt1, const MyPoint& pt2)
 {

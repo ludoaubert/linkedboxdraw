@@ -200,7 +200,31 @@ int main()
 		const auto [rectCorner, dir, value, rec] = holes[17];
 		MyRect& r = rectangles[2];
 		r = rect(r[rectCorner], r[rectCorner] + value*dir);
-	//expand phase (call "find_my_name()")
+
+		vector<MyRect> transformation(n);
+		for (MyRect& tf : transformation)
+		{
+			for (RectDim rd : RectDims)
+				tf[rd] = 0;
+		}
+		transformation[2][LEFT]=-1;
+		const MyRect identity={.m_left=0, .m_right=0, .m_top=0, .m_bottom=0};
+		for (bool stop=false; stop==false; )
+		{
+			stop=true;
+			for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==identity;}))
+			{
+				for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=identity;}))
+				{
+					if (intersect_strict(rectangles[i]+transformation[i], rectangles[j]+transformation[j]))
+					{
+						MyRect& tf = transformation[i];
+						tf[LEFT] = tf[RIGHT] = -1;
+						stop=false;
+					}
+				}
+			}
+		}
 	//collapse phase (call compact_frame())
 
 	}
