@@ -105,7 +105,7 @@ int main()
 		auto [width_, height_] = dimensions(shape);
 
 		const float k = 1.0f * height_ / width_;
-		
+
 		struct RectHole {RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 		vector<RectHole> holes;
@@ -119,23 +119,23 @@ int main()
 					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
 			};
 
-			for (RectCorner RectCorner : RectCorners)
+			for (RectCorner rectCorner : RectCorners)
 			{
-				const MyPoint pt = ir[RectCorner] ;
+				const MyPoint pt = ir[rectCorner] ;
 
-				for (const MyVector& dir : directions[corner])
+				for (const MyVector& dir : directions[rectCorner])
 				{
 					int intervalle[2]={2, INT16_MAX};
 					auto& [m, M] = intervalle;
 					while (M > 1+m)
 					{
 						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-						MyRect rec(pt, pt + value*dir);
+						MyRect rec = rect(pt, pt + value*dir);
 						auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
 						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 						printf("[%d %d]\n", m, M);
 					}
-					holes.push_back({RectCorner, dir, m, MyRect(pt, pt + m*dir)});
+					holes.push_back({rectCorner, dir, m, rect(pt, pt + m*dir)});
 				}
 			}
 		}
@@ -193,13 +193,13 @@ int main()
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
-		
+
 	//r2 => h17
 		MyRect r2 = input_rectangles[2];
 		vector<MyRect> rectangles = input_rectangles;
-		const auto [RectCorner, dir, value, rec] = holes[17];
+		const auto [rectCorner, dir, value, rec] = holes[17];
 		MyRect& r = rectangles[2];
-		r = MyRect(r[RectCorner], r[RectCorner] + value*dir);
+		r = rect(r[rectCorner], r[rectCorner] + value*dir);
 	//expand phase (call "find_my_name()")
 	//collapse phase (call compact_frame())
 

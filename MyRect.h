@@ -12,6 +12,8 @@
 #include <vector>
 #include <stdint.h>
 #include <stdio.h>
+#include <algorithm>
+
 
 enum Direction
 {
@@ -108,17 +110,7 @@ struct MyRect
 	int16_t no_sequence=0 ;
 	int16_t i=-1 ;
 	bool selected=false ;
-	
-	MyRect(const MyPoint& pt1, const MyPoint& pt2)
-	{
-		const auto [x1, y1] = pt1;
-        const auto [x2, y2] = pt2;
-        m_left = min(x1,x2);
-		m_right = max(x1,x2);
-		m_top = min(y1,y2);
-		m_bottom = max(y1, y2);	
-	}
-	
+
 	MyPoint operator[](RectCorner rc) const
 	{
 		switch(rc)
@@ -136,6 +128,19 @@ struct MyRect
 
 	auto operator<=>(const MyRect&) const = default;
 } ;
+
+
+inline MyRect rect(const MyPoint& pt1, const MyPoint& pt2)
+{
+        const auto [x1, y1] = pt1;
+        const auto [x2, y2] = pt2;
+        return {
+		.m_left = std::min(x1,x2),
+        	.m_right = std::max(x1,x2),
+        	.m_top = std::min(y1,y2),
+        	.m_bottom = std::max(y1, y2)
+	};
+}
 
 
 struct TranslatedBox
@@ -211,7 +216,7 @@ inline int range_overlap(int16_t left1, int16_t right1, int16_t left2, int16_t r
     return 0 ;
   else if (left1 >= right2)
     return 0 ;
-  else 
+  else
     return std::min(right1,right2) - std::max(left1, left2) ;
 }
 
