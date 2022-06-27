@@ -212,63 +212,66 @@ int main()
 		const ST Transformations[2][2]={
 			{
 				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-                                {.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+				{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
 			},
-                        {
-                                {.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-                                {.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-                        }
+			{
+				{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+				{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+			}
 		};
 
 		int i_select=2;
 		MyRect r2 = input_rectangles[i_select];
 		vector<MyRect> rectangles = input_rectangles;
-		const auto [rectCorner, dir, value, rec] = holes[17];
+		const auto [rectCorner, dir, value, hrec] = holes[17];
 		MyRect& r = rectangles[i_select];
 		r = rect(r[rectCorner], r[rectCorner] + value*dir);
 
 		vector<MyRect> accumulated_transformation(n);
-                const MyRect identity;
+		const MyRect zero;
 
-		vector<TransformationType> v;
-//TODO: fill it up
+		int n1 = width(r2) - width(hrec);
+		int n2 = height(r2) - height(hrec);
+		for (TransformationType transformationType : views::iota(0,n1+n2) | views::transform([&](int i){return i < n1 ? STRETCH_WIDTH : STRETCH_HEIGHT;}))
+		{
 
-		auto ff=[&](const ST& st)->vector<MyRect> {
+			auto ff=[&](const ST& st)->vector<MyRect> {
 
-                        const auto& [initial_tf, tf] = st;
+							const auto& [initial_tf, tf] = st;
 
-                	vector<MyRect> transformation(n);
+						vector<MyRect> transformation(n);
 
-			transformation[i_select] = initial_tf;
+				transformation[i_select] = initial_tf;
 
-			for (bool stop=false; stop==false; )
-			{
-				stop=true;
-				for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==identity;}))
+				for (bool stop=false; stop==false; )
 				{
-					for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=identity;}))
+					stop=true;
+					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
 					{
-						if (intersect_strict(rectangles[i] + accumulated_transformation[i] + transformation[i],
-									rectangles[j] + accumulated_transformation[i] + transformation[j]))
+						for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
 						{
-							transformation[i] = tf;
-							stop=false;
+							if (intersect_strict(rectangles[i] + accumulated_transformation[i] + transformation[i],
+										rectangles[j] + accumulated_transformation[i] + transformation[j]))
+							{
+								transformation[i] = tf;
+								stop=false;
+							}
 						}
 					}
 				}
-			}
-			return transformation;
-		};
+				return transformation;
+			};
 
-		vector<MyRect> transformation = ranges::min(Transformations[0] | views::transform(ff), {},
-								[&](const vector<MyRect>& tf){
-												const auto [width_, height_] = dimensions(compute_frame(rectangles + tf));
-												int nb = n - ranges::count(tf, identity);
-												return make_tuple(width_, height_, nb);
-											     }
-							);
-		for (int i=0; i<n; i++)
-			accumulated_transformation[i] += transformation[i];
+			vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
+									[&](const vector<MyRect>& tf){
+													const auto [width_, height_] = dimensions(compute_frame(rectangles + tf));
+													int nb = n - ranges::count(tf, zero);
+													return make_tuple(width_, height_, nb);
+													 }
+								);
+			for (int i=0; i<n; i++)
+				accumulated_transformation[i] += transformation[i];
+		}
 	//collapse phase (call compact_frame())
 
 	}
