@@ -273,15 +273,15 @@ int main()
 			for (int i=0; i<n; i++)
 				accumulated_transformation[i] += transformation[i];
 		}
-		
+
 		for (int i=0; i < n; i++)
 			rectangles[i] += accumulated_transformation[i];
-		
-		frame = compute_frame(rectangles);
+
+		MyRect frame_ = compute_frame(rectangles);
 
 		f=fopen("rects.html", "w");
 		fprintf(f, "<html>\n<body>\n");
-		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame_), height(frame_));
 		for (const MyRect& r : rectangles)
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
