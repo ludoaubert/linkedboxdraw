@@ -252,7 +252,7 @@ int main()
 						for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
 						{
 							if (intersect_strict(rectangles[i] + accumulated_transformation[i] + transformation[i],
-										rectangles[j] + accumulated_transformation[i] + transformation[j]))
+										rectangles[j] + accumulated_transformation[j] + transformation[j]))
 							{
 								transformation[i] = tf;
 								stop=false;
