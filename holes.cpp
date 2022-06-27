@@ -225,7 +225,7 @@ int main()
 		vector<MyRect> rectangles = input_rectangles;
 		const auto [rectCorner, dir, value, hrec] = holes[17];
 		MyRect& r = rectangles[i_select];
-		r = rect(r[rectCorner], r[rectCorner] + value*dir);
+		r = hrec;
 		r.i = i_select;
 
 		vector<MyRect> accumulated_transformation(n);
