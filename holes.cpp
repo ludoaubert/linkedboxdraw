@@ -226,6 +226,7 @@ int main()
 		const auto [rectCorner, dir, value, hrec] = holes[17];
 		MyRect& r = rectangles[i_select];
 		r = rect(r[rectCorner], r[rectCorner] + value*dir);
+		r.i = i_select;
 
 		vector<MyRect> accumulated_transformation(n);
 		const MyRect zero;
@@ -272,7 +273,44 @@ int main()
 			for (int i=0; i<n; i++)
 				accumulated_transformation[i] += transformation[i];
 		}
-	//collapse phase (call compact_frame())
+		
+		for (int i=0; i < n; i++)
+			rectangles[i] += accumulated_transformation[i];
+		
+		frame = compute_frame(rectangles);
+
+		f=fopen("rects.html", "w");
+		fprintf(f, "<html>\n<body>\n");
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame), height(frame));
+		for (const MyRect& r : rectangles)
+		{
+			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
+				r.m_left, r.m_top, width(r), height(r));
+			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
+
+			int dy = 0;
+//TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
+			vector<int> contacts;
+			ranges::set_union(
+						edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+						edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+						std::back_inserter(contacts)
+							);
+			for (int ri : contacts)
+			{
+				dy += 14;
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+			}
+
+			dy = 0;
+			for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
+			{
+				dy += 14;
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
+			}
+		}
+		fprintf(f, "</svg>\n</html>");
+		fclose(f);
 
 	}
 }

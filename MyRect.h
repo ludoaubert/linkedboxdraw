@@ -169,7 +169,9 @@ inline MyRect operator+(const MyRect& r1, const MyRect& r2)
 		.m_left = r1.m_left + r2.m_left,
 		.m_right = r1.m_right + r2.m_right,
 		.m_top = r1.m_top + r2.m_top,
-		.m_bottom = r1.m_bottom + r2.m_bottom
+		.m_bottom = r1.m_bottom + r2.m_bottom,
+		.no_sequence = r1.no_sequence;
+		.i = r1.i;
 	};
 }
 
