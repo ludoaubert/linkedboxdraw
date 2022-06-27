@@ -170,8 +170,8 @@ inline MyRect operator+(const MyRect& r1, const MyRect& r2)
 		.m_right = r1.m_right + r2.m_right,
 		.m_top = r1.m_top + r2.m_top,
 		.m_bottom = r1.m_bottom + r2.m_bottom,
-		.no_sequence = r1.no_sequence;
-		.i = r1.i;
+		.no_sequence = r1.no_sequence,
+		.i = r1.i
 	};
 }
 
@@ -180,7 +180,7 @@ inline MyRect rect(const MyPoint& pt1, const MyPoint& pt2)
         const auto [x1, y1] = pt1;
         const auto [x2, y2] = pt2;
         return {
-		.m_left = std::min(x1,x2),
+			.m_left = std::min(x1,x2),
         	.m_right = std::max(x1,x2),
         	.m_top = std::min(y1,y2),
         	.m_bottom = std::max(y1, y2)
