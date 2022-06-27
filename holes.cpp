@@ -237,9 +237,9 @@ int main()
 
 			auto ff=[&](const ST& st)->vector<MyRect> {
 
-							const auto& [initial_tf, tf] = st;
+				const auto& [initial_tf, tf] = st;
 
-						vector<MyRect> transformation(n);
+				vector<MyRect> transformation(n);
 
 				transformation[i_select] = initial_tf;
 
