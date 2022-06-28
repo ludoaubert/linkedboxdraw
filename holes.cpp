@@ -44,6 +44,24 @@ vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
 }
 
 
+struct RectMat
+{
+	RectMat(vector<MyRect>& m):_m(m){}
+	
+	RectMat& operator+=(const vector<MyRect>& m)
+	{
+		assert(_m.size() == m.size());
+		
+		int n = _m.size();
+		
+		for (int i=0; i < n; i++)
+			_m[i] += m[i];
+	}
+	
+	vector<MyRect>& _m;
+};
+
+
 int main()
 {
 
@@ -270,12 +288,10 @@ int main()
 													return make_tuple(width_, height_, nb);
 													 }
 								);
-			for (int i=0; i<n; i++)
-				accumulated_transformation[i] += transformation[i];
+			RectMat(accumulated_transformation) += transformation;
 		}
 
-		for (int i=0; i < n; i++)
-			rectangles[i] += accumulated_transformation[i];
+		RectMat(rectangles) += accumulated_transformation;
 
 		MyRect frame_ = compute_frame(rectangles);
 
