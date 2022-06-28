@@ -145,6 +145,68 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 
 
+void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_line)[2])
+{
+	MyRect frame = compute_frame(rectangles);
+	
+	for (Direction direction : directions)
+	{
+		const auto [minRectDim, maxRectDim] = rectDimRanges[direction];
+		
+		vector<MPD_Arc> contacts;
+		
+	//rectangles that hit the baseline
+		for (const MyRect& r : rectangles | views::filter([&](const MyRect& r){return r[minRectDim] == frame[minRectDim];}))
+		{
+			contacts.push_back({-INT16_MAX, r.i});
+		}
+
+		for (const MyRect& r1 : rectangles)
+		{
+			for (const MyRect& r2 : rectangles)
+			{
+				if (r1.i != r2.i && edge_overlap(r1, r2, directions[1-direction]))
+				{
+					contacts.push_back({r1.i, r2.i});
+				}
+			}
+		}
+
+
+	//rectangles that hit the baseline
+		for (const MyRect& r : rectangles | views::filter([&](const MyRect& r){return r[maxRectDim] == frame[maxRectDim];}))
+		{
+			contacts.push_back({r.i, INT16_MAX});
+		}
+
+// As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
+
+		auto list_stress_line = [&](int target, auto&& list_stress_line) {
+			if (target == -INT16_MAX)
+				return;
+			if (target != INT16_MAX)
+				stress_line[direction].push_back(target);
+			for (int i : contacts | views::filter([&](const MPD_Arc& e){return e._j == target;}) | views::transform(&MPD_Arc::_i))
+				list_stress_line(i, list_stress_line);
+		};
+
+		// Function as an argument
+		list_stress_line(INT16_MAX, list_stress_line);
+
+	}
+	
+	for (Direction direction : directions)
+	{
+		printf("pressure line:\n");
+		for (int i: stress_line[direction])
+		{
+			printf("%d\n", i);
+		}
+	}
+}
+
+
+
 void test_compact_frame()
 {
 	TestFunctionTimer ft("test_compact_frame");
@@ -283,6 +345,9 @@ void test_compact_frame()
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		compact_frame(rectangles, adjacency_list) ;
+		
+		vector<int> stress_line[2];
+		compute_stress_line(rectangles, stress_line);
 
 		int dm2 = dim_max(compute_frame(rectangles));
 

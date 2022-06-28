@@ -98,6 +98,14 @@ enum RectDim
 const RectDim RectDims[4]={LEFT,RIGHT,TOP,BOTTOM} ;
 
 
+struct RectDimRange{ RectDim min, max;};
+
+const RectDimRange rectDimRanges[2] = {
+	{ LEFT, RIGHT },
+	{ TOP, BOTTOM }
+};
+
+
 struct MyRect
 {
 	int16_t m_left=0, m_right=0, m_top=0, m_bottom=0 ;
@@ -135,20 +143,20 @@ struct MyRect
 		}
 	}
 
-        int16_t& operator[](RectDim rd)
-        {
-                switch(rd)
-                {
-                case LEFT:
-                        return m_left;
-                case RIGHT:
-                        return m_right;
-                case TOP:
-                        return m_top;
-                case BOTTOM:
-                        return m_bottom;
-                }
-        }
+	int16_t& operator[](RectDim rd)
+	{
+		switch(rd)
+		{
+		case LEFT:
+				return m_left;
+		case RIGHT:
+				return m_right;
+		case TOP:
+				return m_top;
+		case BOTTOM:
+				return m_bottom;
+		}
+	}
 
 	MyRect& operator+=(const MyRect& r)
 	{
