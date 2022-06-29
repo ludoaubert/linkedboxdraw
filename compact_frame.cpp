@@ -157,7 +157,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		for (int i : {-INT16_MAX, INT16_MAX})
 			petit_poucet[i] = {i};
 
-		auto list_stress_line = [&](int source, auto&& list_stress_line) {
+		auto list_stress_line = [&](int source, auto&& list_stress_line)->void {
 
 			for (const MPD_Arc& e : contacts | views::filter([&](const MPD_Arc& e){return e._i == source;}))
 			{
@@ -167,6 +167,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 
 				list_stress_line(e._j, list_stress_line);
 			}
+
 		};
 
 		// Function as an argument
