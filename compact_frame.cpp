@@ -132,8 +132,8 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 					continue;
 
 				if (
-						(direction == EAST_WEST && r1[RIGHT]==r2[LEFT] && range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom)) ||
-						(direction == NORTH_SOUTH && r1[BOTTOM]==r2[TOP] && range_overlap(r1.m_left, r1.m_right, r2.m_left, r2.m_right))
+					(direction == EAST_WEST && r1[RIGHT]==r2[LEFT] && range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom)!=0) ||
+					(direction == NORTH_SOUTH && r1[BOTTOM]==r2[TOP] && range_overlap(r1.m_left, r1.m_right, r2.m_left, r2.m_right)!=0)
 				)
 				{
 					contacts.push_back({r1.i, r2.i});
@@ -147,6 +147,12 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		{
 			contacts.push_back({r.i, INT16_MAX});
 		}
+
+                printf("contacts:\n");
+                for (const auto& [i, j] : contacts)
+                {
+                        printf("%d -> %d\n", i, j);
+                }
 
 // As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
 
