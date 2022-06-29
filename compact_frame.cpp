@@ -147,7 +147,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 
 void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_line)[2])
 {
-	MyRect frame = compute_frame(rectangles);
+	const MyRect frame = compute_frame(rectangles);
 	
 	for (Direction direction : directions)
 	{
@@ -156,7 +156,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		vector<MPD_Arc> contacts;
 		
 	//rectangles that hit the baseline
-		for (const MyRect& r : rectangles | views::filter([&](const MyRect& r){return r[minRectDim] == frame[minRectDim];}))
+		for (const MyRect& r : rectangles | views::filter([&](const MyRect& r){return frame[minRectDim] == r[minRectDim];}))
 		{
 			contacts.push_back({-INT16_MAX, r.i});
 		}
@@ -165,7 +165,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		{
 			for (const MyRect& r2 : rectangles)
 			{
-				if (r1.i != r2.i && edge_overlap(r1, r2, directions[1-direction]))
+				if (r1.i != r2.i && r1[maxRectDim]==r2[minRectDim] && edge_overlap(r1, r2, directions[1-direction]))
 				{
 					contacts.push_back({r1.i, r2.i});
 				}
