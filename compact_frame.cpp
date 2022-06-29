@@ -184,28 +184,36 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 
 // As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
 
-		auto list_stress_line = [&](int target, auto&& list_stress_line) {
-			if (target == -INT16_MAX)
-				return;
-			if (target != INT16_MAX)
-				stress_line[direction].push_back(target);
-			for (int i : contacts | views::filter([&](const MPD_Arc& e){return e._j == target;}) | views::transform(&MPD_Arc::_i))
-				list_stress_line(i, list_stress_line);
+		map<int, <vector<int> > petit_poucet(n);	//remembers all rectangles visited via all possible roads
+
+		for (int i : views::iota(0, n))
+			petit_poucet[i] = {i};
+		for (int i : {-INT16_MAX, INT16_MAX})
+			petit_poucet[i] = {i};	
+
+		auto list_stress_line = [&](int source, auto&& list_stress_line) {
+			stress_line.push_back(target);
+			for (const MPD_Arc& e : contacts | views::filter([&](const MPD_Arc& e){return e._i == source;}))
+			{
+				vector<int> vj;
+				ranges::set_union(petit_poucet[e._i], petit_poucet[e._j], std::back_inserter(vj));
+				petit_poucet[e._j] = vj;
+
+				list_stress_line(e._j, list_stress_line);
+			}
 		};
 
 		// Function as an argument
-		list_stress_line(INT16_MAX, list_stress_line);
+		list_stress_line(-INT16_MAX, list_stress_line);
 
-	}
-	
-	for (Direction direction : directions)
-	{
 		printf("pressure line:\n");
-		for (int i: stress_line[direction])
+		for (int i: petit_poucet[INT16_MAX])
 		{
 			printf("%d\n", i);
 		}
+
 	}
+
 }
 
 
