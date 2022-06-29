@@ -165,7 +165,13 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		{
 			for (const MyRect& r2 : rectangles)
 			{
-				if (r1.i != r2.i && r1[maxRectDim]==r2[minRectDim] && edge_overlap(r1, r2, directions[1-direction]))
+				if (r1.i != r2.i)
+					continue;
+				
+				if (
+						(direction == EAST_WEST && r1[RIGHT]==r2[LEFT] && range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom)) ||
+						(direction == NORTH_SOUTH && r1[BOTTOM]==r2[TOP] && range_overlap(r1.m_left, r1.m_right, r2.m_left, r2.m_right))
+				)
 				{
 					contacts.push_back({r1.i, r2.i});
 				}

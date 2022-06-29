@@ -171,24 +171,6 @@ int edge_overlap(const MyRect& r1, const MyRect& r2)
 }
 
 
-int edge_overlap(const MyRect& r1, const MyRect& r2, Direction direction)
-{
-	switch (direction)
-	{
-	case NORTH_SOUTH:
-		if (r1.m_left == r2.m_right || r1.m_right == r2.m_left)
-			return range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
-		else
-			return 0;
-	case EAST_WEST:
-		if (r1.m_top == r2.m_bottom || r1.m_bottom == r2.m_top)
-			return range_overlap(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
-		else
-			return 0 ;
-	}
-}
-
-
 //is r1 inside r2 ?
 bool is_inside(const MyRect& r1, const MyRect& r2)
 {
