@@ -123,10 +123,7 @@ void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &a
 // As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
 
 		auto list_stress_line = [&](int target, auto&& list_stress_line) {
-			if (target == -INT16_MAX)
-				return;
-			if (target != INT16_MAX)
-				stress_line.push_back(target);
+			stress_line.push_back(target);
 			for (int i : contacts | views::filter([&](const MPD_Arc& e){return e._j == target;}) | views::transform(&MPD_Arc::_i))
 				list_stress_line(i, list_stress_line);
 		};
