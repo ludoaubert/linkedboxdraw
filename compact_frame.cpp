@@ -322,7 +322,7 @@ void test_compact_frame()
 			{.m_left=50, .m_right=100, .m_top=50, .m_bottom=100},
 			{.m_left=20, .m_right=70, .m_top=100, .m_bottom=150},
 			{.m_left=120, .m_right=170, .m_top=0, .m_bottom=50},
-			{.m_left=140, .m_right=190, .m_top=50, .m_bottom=100}
+			{.m_left=100, .m_right=150, .m_top=50, .m_bottom=100}
 		},
 
 		.edges = {
@@ -335,7 +335,7 @@ void test_compact_frame()
 			{.m_left=50, .m_right=100, .m_top=50, .m_bottom=100},
 			{.m_left=20, .m_right=70, .m_top=100, .m_bottom=150},
 			{.m_left=120, .m_right=170, .m_top=0, .m_bottom=50},
-			{.m_left=140, .m_right=190, .m_top=50, .m_bottom=100}
+			{.m_left=100, .m_right=150, .m_top=50, .m_bottom=100}
 		}
 	}
 	};
