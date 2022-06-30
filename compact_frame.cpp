@@ -162,6 +162,23 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 			petit_poucet[i] = {i};
 		for (int i : {-INT16_MAX, INT16_MAX})
 			petit_poucet[i] = {i};
+		
+//TODO: use https://en.cppreference.com/w/cpp/language/member_functions#Explicit_object_parameter
+//C++23 feature called "deducing `this`"
+/*
+		auto list_stress_line = [&](this auto self, int source)->void {
+
+			for (const MPD_Arc& e : contacts | views::filter([&](const MPD_Arc& e){return e._i == source;}))
+			{
+				vector<int> vj;
+				ranges::set_union(petit_poucet[e._i], petit_poucet[e._j], std::back_inserter(vj));
+				petit_poucet[e._j] = vj;
+
+				self(e._j);
+			}
+
+		};
+*/
 
 		auto list_stress_line = [&](int source, auto&& list_stress_line)->void {
 
