@@ -148,11 +148,11 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 			contacts.push_back({r.i, INT16_MAX});
 		}
 
-                printf("contacts:\n");
-                for (const auto& [i, j] : contacts)
-                {
-                        printf("%d -> %d\n", i, j);
-                }
+		printf("contacts:\n");
+		for (const auto& [i, j] : contacts)
+		{
+			printf("%d -> %d\n", i, j);
+		}
 
 // As explained here : https://www.geeksforgeeks.org/recursive-lambda-expressions-in-cpp/
 
@@ -312,6 +312,30 @@ void test_compact_frame()
 			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
 			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
 			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
+		}
+	},
+	{
+		.testid=4,
+		.input_rectangles = {
+			{.m_left=20, .m_right=70, .m_top=0, .m_bottom=50},
+			{.m_left=0, .m_right=50, .m_top=50, .m_bottom=100},
+			{.m_left=50, .m_right=100, .m_top=50, .m_bottom=100},
+			{.m_left=20, .m_right=70, .m_top=100, .m_bottom=150},
+			{.m_left=120, .m_right=170, .m_top=0, .m_bottom=50},
+			{.m_left=140, .m_right=190, .m_top=50, .m_bottom=100}
+		},
+
+		.edges = {
+			{.from=0,.to=1}
+		},
+
+		.expected_rectangles = {
+			{.m_left=20, .m_right=70, .m_top=0, .m_bottom=50},
+			{.m_left=0, .m_right=50, .m_top=50, .m_bottom=100},
+			{.m_left=50, .m_right=100, .m_top=50, .m_bottom=100},
+			{.m_left=20, .m_right=70, .m_top=100, .m_bottom=150},
+			{.m_left=120, .m_right=170, .m_top=0, .m_bottom=50},
+			{.m_left=140, .m_right=190, .m_top=50, .m_bottom=100}
 		}
 	}
 	};
