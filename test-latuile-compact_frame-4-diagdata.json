@@ -1,0 +1,37 @@
+{"documentTitle":"reg-test-4",
+"boxes":[
+	{"title":"rec-0",
+	"id":0,
+	"fields":[
+		{"name":"rec-1","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-1",
+	"id":1,
+	"fields":[
+		{"name":"rec-0","isPrimaryKey":false,"isForeignKey":false}
+	]},
+	{"title":"rec-2",
+	"id":2,
+	"fields":[
+	]},
+	{"title":"rec-3",
+	"id":3,
+	"fields":[
+	]},
+	{"title":"rec-4",
+	"id":4,
+	"fields":[
+	]},
+	{"title":"rec-5",
+	"id":5,
+	"fields":[
+	]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+	{"from":0,"fromField":-1,"fromCardinality":"","to":1,"toField":-1,"toCardinality":"","Category":""}
+],
+"fieldColors":[]
+}

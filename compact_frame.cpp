@@ -128,7 +128,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		{
 			for (const MyRect& r2 : rectangles)
 			{
-				if (r1.i != r2.i)
+				if (r1.i == r2.i)
 					continue;
 
 				if (
@@ -162,7 +162,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 			petit_poucet[i] = {i};
 		for (int i : {-INT16_MAX, INT16_MAX})
 			petit_poucet[i] = {i};
-		
+
 //TODO: use https://en.cppreference.com/w/cpp/language/member_functions#Explicit_object_parameter
 //C++23 feature called "deducing `this`"
 /*
