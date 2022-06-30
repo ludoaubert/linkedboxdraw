@@ -216,7 +216,7 @@ void test_compact_frame()
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
-	const TestContext test_contexts[3]={
+	const vector<TestContext> test_contexts={
 
 	{
 		.testid=1,
