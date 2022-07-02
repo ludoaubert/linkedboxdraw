@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "MyRect.h"
+#include "compact_frame.h"
 using namespace std;
 
 struct Edge {
@@ -47,17 +48,19 @@ vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
 struct RectMat
 {
 	RectMat(vector<MyRect>& m):_m(m){}
-	
+
 	RectMat& operator+=(const vector<MyRect>& m)
 	{
 		assert(_m.size() == m.size());
-		
+
 		int n = _m.size();
-		
+
 		for (int i=0; i < n; i++)
 			_m[i] += m[i];
+
+		return *this;
 	}
-	
+
 	vector<MyRect>& _m;
 };
 
@@ -84,8 +87,8 @@ int main()
 			{.m_left=764-RECT_BORDER+FRAME_BORDER, .m_right=764+133+RECT_BORDER+FRAME_BORDER, .m_top=186-RECT_BORDER+FRAME_BORDER, .m_bottom=186+120+RECT_BORDER+FRAME_BORDER, .i=10},//32
 			{.m_left=743-RECT_BORDER+FRAME_BORDER, .m_right=743+147+RECT_BORDER+FRAME_BORDER, .m_top=506-RECT_BORDER+FRAME_BORDER, .m_bottom=506+168+RECT_BORDER+FRAME_BORDER, .i=11},//44
 			{.m_left=93-RECT_BORDER+FRAME_BORDER, .m_right=93+140+RECT_BORDER+FRAME_BORDER, .m_top=153-RECT_BORDER+FRAME_BORDER, .m_bottom=153+88+RECT_BORDER+FRAME_BORDER, .i=12},//48
-			{.m_left=20-RECT_BORDER+FRAME_BORDER, .m_right=10+155+RECT_BORDER+FRAME_BORDER, .m_top=281-RECT_BORDER+FRAME_BORDER, .m_bottom=281+120+RECT_BORDER+FRAME_BORDER, .i=13},//52
-			{.m_left=21-RECT_BORDER+FRAME_BORDER, .m_right=21+175+RECT_BORDER+FRAME_BORDER, .m_top=441-RECT_BORDER+FRAME_BORDER, .m_bottom=441+136+RECT_BORDER+FRAME_BORDER, .i=14}//53
+			{.m_left=118-RECT_BORDER+FRAME_BORDER, .m_right=118+155+RECT_BORDER+FRAME_BORDER, .m_top=281-RECT_BORDER+FRAME_BORDER, .m_bottom=281+120+RECT_BORDER+FRAME_BORDER, .i=13},//52
+			{.m_left=160-RECT_BORDER+FRAME_BORDER, .m_right=160+175+RECT_BORDER+FRAME_BORDER, .m_top=441-RECT_BORDER+FRAME_BORDER, .m_bottom=441+136+RECT_BORDER+FRAME_BORDER, .i=14}//53
 		},
 
 		.edges = {
@@ -128,47 +131,51 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-
+                struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
 		const MyRect frame = compute_frame(input_rectangles);
 
-		const MyRect shape = input_rectangles[2];
-		auto [width_, height_] = dimensions(shape);
+		auto compute_holes = [&](int ri)->vector<RectHole>{
 
-		const float k = 1.0f * height_ / width_;
+			const MyRect shape = input_rectangles[ri];
+			auto [width_, height_] = dimensions(shape);
 
-		struct RectHole {RectCorner corner; MyVector direction; int value; MyRect rec;};
+			const float k = 1.0f * height_ / width_;
 
-		vector<RectHole> holes;
+			vector<RectHole> holes;
 
-		for (const auto& ir : input_rectangles)
-		{
-			const MyVector directions[4][3]={
-					{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
-					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
-					{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
-					{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
-			};
-
-			for (RectCorner rectCorner : RectCorners)
+			for (const auto& ir : input_rectangles)
 			{
-				const MyPoint pt = ir[rectCorner] ;
+				const MyVector directions[4][3]={
+						{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
+						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
+						{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
+						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
+				};
 
-				for (const MyVector& dir : directions[rectCorner])
+				for (RectCorner rectCorner : RectCorners)
 				{
-					int intervalle[2]={2, INT16_MAX};
-					auto& [m, M] = intervalle;
-					while (M > 1+m)
+					const MyPoint pt = ir[rectCorner] ;
+
+					for (const MyVector& dir : directions[rectCorner])
 					{
-						int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-						MyRect rec = rect(pt, pt + value*dir);
-						auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
-						(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-						printf("[%d %d]\n", m, M);
+						int intervalle[2]={2, INT16_MAX};
+						auto& [m, M] = intervalle;
+						while (M > 1+m)
+						{
+							int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
+							MyRect rec = rect(pt, pt + value*dir);
+							auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
+							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
+							printf("[%d %d]\n", m, M);
+						}
+						holes.push_back({ri, rectCorner, dir, m, rect(pt, pt + m*dir)});
 					}
-					holes.push_back({rectCorner, dir, m, rect(pt, pt + m*dir)});
 				}
 			}
-		}
+			return holes;
+		};
+
+		vector<RectHole> holes = compute_holes(2);
 
 		int m = holes.size();
 		ranges::sort(holes, std::ranges::greater{}, [](const RectHole& h){return width(h.rec);});
@@ -209,16 +216,16 @@ int main()
 		}
 		for (const RectHole& h : holes | views::take(18))
 		{
-			const auto& [RectCorner, direction, value, rec] = h;
+			const auto& [ri, RectCorner, direction, value, rec] = h;
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				rec.m_left, rec.m_top, width(rec), height(rec));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, rec.i);
 
 			int dy = 0;
-			for (int ri : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+			for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
 			{
 				dy += 14;
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
 			}
 		}
 		fprintf(f, "</svg>\n</html>");
@@ -238,10 +245,39 @@ int main()
 			}
 		};
 
+		vector<int> stress_line[2];
+		compute_stress_line(input_rectangles, stress_line);
+
+		vector<RectHole> kept_holes;
+
+		for (Direction direction : directions)
+		{
+			auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})
+						| views::join
+						| views::filter([&](const RectHole& rh){
+/*
+                                        const auto& [ri, corner, direction, value, rec] = rh;
+
+		                        vector<int> logical_contacts;
+        		                ranges::set_union(
+                	                                edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+                        	                        edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+                                	                std::back_inserter(logical_contacts)
+                                        	         );
+
+					auto geometric_contacts = views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
+					return ranges::includes(geometric_contacts, logical_contacts);
+*/
+return true;				});
+			ranges::copy(rg, back_inserter(kept_holes));
+		}
+
+		printf("kept_holes.size()=%ld\n", kept_holes.size());
+		printf("hard coded i_select=2\n");
 		int i_select=2;
 		MyRect r2 = input_rectangles[i_select];
 		vector<MyRect> rectangles = input_rectangles;
-		const auto [rectCorner, dir, value, hrec] = holes[17];
+		const auto [ri, rectCorner, dir, value, hrec] = holes[17];
 		MyRect& r = rectangles[i_select];
 		r = hrec;
 		r.i = i_select;
