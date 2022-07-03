@@ -135,7 +135,7 @@ int main()
 	{
 		assert( ranges::is_sorted(edges) );
 
-		const MyRect frame = compute_frame(input_rectangles);
+		const MyRect frame = compute_frame(input_rectangles) + MyRect{.m_left=0, .m_right=2*FRAME_BORDER, .m_top=0, .m_bottom=2*FRAME_BORDER};
 
 		auto compute_holes = [&](int ri)->vector<RectHole>{
 
