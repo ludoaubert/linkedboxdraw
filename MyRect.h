@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <algorithm>
+#include <assert.h>
 
 
 enum Direction
@@ -198,6 +199,26 @@ inline MyRect rect(const MyPoint& pt1, const MyPoint& pt2)
 	};
 }
 
+std::vector<MyRect> operator+(const std::vector<MyRect> m1, const std::vector<MyRect>& m2);
+
+struct RectMat
+{
+        RectMat(std::vector<MyRect>& m):_m(m){}
+
+        RectMat& operator+=(const std::vector<MyRect>& m)
+        {
+                assert(_m.size() == m.size());
+
+                int n = _m.size();
+
+                for (int i=0; i < n; i++)
+                        _m[i] += m[i];
+
+                return *this;
+        }
+
+        std::vector<MyRect>& _m;
+};
 
 struct TranslatedBox
 {

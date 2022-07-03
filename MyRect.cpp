@@ -21,6 +21,19 @@ using namespace std ;
 const char* RectCornerString[4]={"TOP_LEFT", "BOTTOM_LEFT", "TOP_RIGHT", "BOTTOM_RIGHT"};
 
 
+vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
+{
+        assert(m1.size() == m2.size());
+        int n = m1.size();
+        vector<MyRect> m(n);
+        for (int i=0; i < n; i++)
+        {
+                m[i] = m1[i] + m2[i];
+        }
+        return m;
+}
+
+
 /*
 vector rects = {{1,2,3,4},{10,20,30,40}};
 auto r = rects | ranges::views::transform([](const MyRect& r){return vector{r.left, r.right};}) | views::join ;
@@ -46,7 +59,7 @@ MyRect compute_frame(const vector<MyRect>& rectangles)
 }
 
 
-void expand_by(MyRect& r, int border) 
+void expand_by(MyRect& r, int border)
 {
 	r.m_left -= border ;
 	r.m_right += border ;
@@ -102,7 +115,7 @@ bool is_on_rect_border(const MyRect& r, const MyPoint& p)
 		((p.x == r.m_left || p.x == r.m_right) && (r.m_top < p.y && p.y < r.m_bottom))
 		  ||
 	    ((p.y == r.m_top || p.y == r.m_bottom) && (r.m_left < p.x && p.x < r.m_right))
-	) ; 
+	) ;
 }
 
 void rect_swap_dimensions(MyRect& r)

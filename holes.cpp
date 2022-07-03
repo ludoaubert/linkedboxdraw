@@ -32,39 +32,6 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
-{
-	assert(m1.size() == m2.size());
-	int n = m1.size();
-	vector<MyRect> m(n);
-	for (int i=0; i < n; i++)
-	{
-		m[i] = m1[i] + m2[i];
-	}
-	return m;
-}
-
-
-struct RectMat
-{
-	RectMat(vector<MyRect>& m):_m(m){}
-
-	RectMat& operator+=(const vector<MyRect>& m)
-	{
-		assert(_m.size() == m.size());
-
-		int n = _m.size();
-
-		for (int i=0; i < n; i++)
-			_m[i] += m[i];
-
-		return *this;
-	}
-
-	vector<MyRect>& _m;
-};
-
-
 struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 
