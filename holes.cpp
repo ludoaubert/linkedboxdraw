@@ -171,7 +171,8 @@ int main()
 							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 							printf("[%d %d]\n", m, M);
 						}
-						holes.push_back({ri, ir.i, rectCorner, dir, m, rect(pt, pt + m*dir)});
+						if (m > 2)
+							holes.push_back({ri, ir.i, rectCorner, dir, m, rect(pt, pt + m*dir)});
 					}
 				}
 			}
