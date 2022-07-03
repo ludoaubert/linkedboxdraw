@@ -268,15 +268,12 @@ int main()
 		printf("hard coded i_select=2\n");
 		int i_select=2;
 		MyRect r2 = input_rectangles[i_select];
-		vector<MyRect> rectangles = input_rectangles;
 		const auto [ri, rj, rectCorner, dir, value, hrec] = holes[17];
 		printf("holes[17]=\n");
                 printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
-		MyRect& r = rectangles[i_select];
-		r = hrec;
-		r.i = i_select;
 
 		vector<MyRect> accumulated_transformation(n);
+		accumulated_transformation[i_select] = hrec - input_rectangles[i_select];
 		const MyRect zero;
 
 		int n1 = width(r2) - width(hrec);
@@ -299,8 +296,8 @@ int main()
 					{
 						for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
 						{
-							if (intersect_strict(rectangles[i] + accumulated_transformation[i] + transformation[i],
-										rectangles[j] + accumulated_transformation[j] + transformation[j]))
+							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+										input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
 							{
 								transformation[i] = tf;
 								stop=false;
@@ -313,7 +310,7 @@ int main()
 
 			vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
 									[&](const vector<MyRect>& tf){
-													const auto [width_, height_] = dimensions(compute_frame(rectangles + tf));
+													const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
 													int nb = n - ranges::count(tf, zero);
 													return make_tuple(width_, height_, nb);
 													 }
@@ -321,6 +318,7 @@ int main()
 			RectMat(accumulated_transformation) += transformation;
 		}
 
+		vector<MyRect> rectangles = input_rectangles;
 		RectMat(rectangles) += accumulated_transformation;
 
 		MyRect frame_ = compute_frame(rectangles);
