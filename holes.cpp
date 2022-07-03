@@ -185,7 +185,19 @@ int main()
 				int n = ranges::count_if(logical_contacts, [&](int rj){return ri!=rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);});
                                 int n_ = ranges::count_if(logical_contacts, [&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
 
-                                return 3 * value >= width(input_rectangles[ri]) && n <= n_;
+				float dist=0, dist_=0;
+				for (int rj : logical_contacts)
+				{
+					dist += rectangle_distance(input_rectangles[ri], input_rectangles[rj]);
+                                        dist_ += rectangle_distance(rec, input_rectangles[rj]);
+				}
+
+                                if (3 * value < width(input_rectangles[ri]))
+					return false;
+				if (n_ > 0)
+					return n <= n_;
+				else
+					return dist >= dist_;
                         });
                 	ranges::copy(rg, back_inserter(kept_holes));
 		}
