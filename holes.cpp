@@ -146,7 +146,7 @@ int main()
 
 			vector<RectHole> holes;
 
-			for (const auto& ir : input_rectangles)
+			for (const MyRect& ir : input_rectangles)
 			{
 				const MyVector directions[4][3]={
 						{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
