@@ -65,7 +65,7 @@ struct RectMat
 };
 
 
-struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
+struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 
 int main()
@@ -171,7 +171,7 @@ int main()
 							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 							printf("[%d %d]\n", m, M);
 						}
-						holes.push_back({ri, rectCorner, dir, m, rect(pt, pt + m*dir)});
+						holes.push_back({ri, ir.i, rectCorner, dir, m, rect(pt, pt + m*dir)});
 					}
 				}
 			}
@@ -219,7 +219,7 @@ int main()
 		}
 		for (const RectHole& h : holes | views::take(18))
 		{
-			const auto& [ri, RectCorner, direction, value, rec] = h;
+			const auto& [ri, rj, RectCorner, direction, value, rec] = h;
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 				rec.m_left, rec.m_top, width(rec), height(rec));
 			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, rec.i);
@@ -258,7 +258,7 @@ int main()
 		{
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
-                               const auto& [ri, corner, direction, value, rec] = rh;
+                               const auto& [ri, rj, corner, direction, value, rec] = rh;
 
                                vector<int> logical_contacts;
                                ranges::set_union(
@@ -291,15 +291,17 @@ int main()
 		ranges::copy(rg, back_inserter(kept_holes));
 */
 		printf("kept_holes.size()=%ld\n", kept_holes.size());
-		for (auto [ri, corner, direction, value, rec] : kept_holes)
+		for (auto [ri, rj, corner, direction, value, rec] : kept_holes)
 		{
-			printf("ri=%d value=%d\n", ri, value);
+			printf("ri=%d width(ri)=%d rj=%d corner=%d dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, corner, direction.x, direction.y, value);
 		}
 		printf("hard coded i_select=2\n");
 		int i_select=2;
 		MyRect r2 = input_rectangles[i_select];
 		vector<MyRect> rectangles = input_rectangles;
-		const auto [ri, rectCorner, dir, value, hrec] = holes[17];
+		const auto [ri, rj, rectCorner, dir, value, hrec] = holes[17];
+		printf("holes[17]=\n");
+                printf("ri=%d width(ri)=%d rj=%d corner=%d dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, rectCorner, dir.x, dir.y, value);
 		MyRect& r = rectangles[i_select];
 		r = hrec;
 		r.i = i_select;
