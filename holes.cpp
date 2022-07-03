@@ -256,8 +256,6 @@ int main()
 		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
 		for (int ri : stress_line[direction])
 		{
-			if (ri == INT16_MAX || ri == -INT16_MAX)
-				continue;
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
                                const auto& [ri, corner, direction, value, rec] = rh;
@@ -293,6 +291,10 @@ int main()
 		ranges::copy(rg, back_inserter(kept_holes));
 */
 		printf("kept_holes.size()=%ld\n", kept_holes.size());
+		for (auto [ri, corner, direction, value, rec] : kept_holes)
+		{
+			printf("ri=%d value=%d\n", ri, value);
+		}
 		printf("hard coded i_select=2\n");
 		int i_select=2;
 		MyRect r2 = input_rectangles[i_select];

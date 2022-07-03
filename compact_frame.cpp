@@ -196,7 +196,11 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 		// Function as an argument
 		list_stress_line(-INT16_MAX, list_stress_line);
 
-		stress_line[direction] = petit_poucet[INT16_MAX];
+		for (int ri : petit_poucet[INT16_MAX])
+		{
+			if (ri != INT16_MAX && ri != -INT16_MAX)
+				stress_line[direction].push_back(ri);
+		}
 
 		printf("pressure line:\n");
 		for (int i: petit_poucet[INT16_MAX])
