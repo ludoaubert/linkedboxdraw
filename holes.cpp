@@ -295,7 +295,7 @@ int main()
 		printf("kept_holes.size()=%ld\n", kept_holes.size());
 		for (auto [ri, rj, corner, direction, value, rec] : kept_holes)
 		{
-			printf("ri=%d width(ri)=%d rj=%d corner=%d dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, corner, direction.x, direction.y, value);
+			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value);
 		}
 		printf("hard coded i_select=2\n");
 		int i_select=2;
@@ -303,7 +303,7 @@ int main()
 		vector<MyRect> rectangles = input_rectangles;
 		const auto [ri, rj, rectCorner, dir, value, hrec] = holes[17];
 		printf("holes[17]=\n");
-                printf("ri=%d width(ri)=%d rj=%d corner=%d dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, rectCorner, dir.x, dir.y, value);
+                printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 		MyRect& r = rectangles[i_select];
 		r = hrec;
 		r.i = i_select;

@@ -83,6 +83,9 @@ enum RectCorner
 } ;
 
 
+extern const char* RectCornerString[4];
+
+
 const RectCorner RectCorners[4]={TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT} ;
 
 

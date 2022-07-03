@@ -18,6 +18,8 @@
 using namespace std ;
 
 
+const char* RectCornerString[4]={"TOP_LEFT", "BOTTOM_LEFT", "TOP_RIGHT", "BOTTOM_RIGHT"};
+
 
 /*
 vector rects = {{1,2,3,4},{10,20,30,40}};
@@ -34,7 +36,7 @@ MyRect compute_frame(const vector<MyRect>& rectangles)
 
 	if (rectangles.size()==0)
 		return frame;
-	
+
 	return {
 		ranges::min(rectangles | views::transform(&MyRect::m_left)),
 		ranges::max(rectangles | views::transform(&MyRect::m_right)),
