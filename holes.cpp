@@ -157,7 +157,7 @@ int main()
 
 		FILE *f=fopen("holes.html", "w");
 		fprintf(f, "<html>\n<body>\n");
-		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+80, height(frame));
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
 		for (const MyRect& r : input_rectangles)
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
@@ -326,7 +326,7 @@ int main()
 
 		f=fopen("rects.html", "w");
 		fprintf(f, "<html>\n<body>\n");
-		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame_)+80, height(frame_));
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame_)+100, height(frame_));
 		for (const MyRect& r : rectangles)
 		{
 			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
