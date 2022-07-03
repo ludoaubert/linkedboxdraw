@@ -265,61 +265,64 @@ int main()
 		{
 			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value);
 		}
-		printf("hard coded i_select=2\n");
-		int i_select=2;
-		MyRect r2 = input_rectangles[i_select];
-		const auto [ri, rj, rectCorner, dir, value, hrec] = holes[17];
-		printf("holes[17]=\n");
-                printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
-		vector<MyRect> accumulated_transformation(n);
-		accumulated_transformation[i_select] = hrec - input_rectangles[i_select];
-		const MyRect zero;
+		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
-		int n1 = width(r2) - width(hrec);
-		int n2 = height(r2) - height(hrec);
-		for (TransformationType transformationType : views::iota(0,n1+n2) | views::transform([&](int i){return i < n1 ? STRETCH_WIDTH : STRETCH_HEIGHT;}))
-		{
+			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 
-			auto ff=[&](const ST& st)->vector<MyRect> {
+	                printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
-				const auto& [initial_tf, tf] = st;
+			vector<MyRect> accumulated_transformation(n);
+			const MyRect dr = hrec - input_rectangles[ri];
+			accumulated_transformation[ri] = dr;
+			const MyRect zero;
 
-				vector<MyRect> transformation(n);
+			const auto [n1, n2] = dimensions(-dr);
 
-				transformation[i_select] = initial_tf;
+			for (TransformationType transformationType : views::iota(0,n1+n2) | views::transform([&](int i){return i < n1 ? STRETCH_WIDTH : STRETCH_HEIGHT;}))
+			{
 
-				for (bool stop=false; stop==false; )
-				{
-					stop=true;
-					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+				auto ff=[&](const ST& st)->vector<MyRect> {
+
+					const auto& [initial_tf, tf] = st;
+
+					vector<MyRect> transformation(n);
+
+					transformation[ri] = initial_tf;
+
+					for (bool stop=false; stop==false; )
 					{
-						for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
+						stop=true;
+						for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
 						{
-							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-										input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+							for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
 							{
-								transformation[i] = tf;
-								stop=false;
+								if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+											input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+								{
+									transformation[i] = tf;
+									stop=false;
+								}
 							}
 						}
 					}
-				}
-				return transformation;
-			};
+					return transformation;
+				};
 
-			vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
-									[&](const vector<MyRect>& tf){
-													const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
-													int nb = n - ranges::count(tf, zero);
-													return make_tuple(width_, height_, nb);
-													 }
-								);
-			RectMat(accumulated_transformation) += transformation;
-		}
+				vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
+										[&](const vector<MyRect>& tf){
+														const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
+														int nb = n - ranges::count(tf, zero);
+														return make_tuple(width_, height_, nb);
+														 }
+									);
+				RectMat(accumulated_transformation) += transformation;
+			}
+			return accumulated_transformation;
+		};
 
 		vector<MyRect> rectangles = input_rectangles;
-		RectMat(rectangles) += accumulated_transformation;
+		RectMat(rectangles) += compute_transformation(holes[17]);
 
 		MyRect frame_ = compute_frame(rectangles);
 

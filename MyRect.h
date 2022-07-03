@@ -171,6 +171,11 @@ struct MyRect
 		return *this;
 	}
 
+	MyRect operator-() const
+	{
+		return {.m_left=-m_left, .m_right=-m_right, .m_top=-m_top, .m_bottom=-m_bottom, .no_sequence=no_sequence, .i=i, .selected=selected};
+	}
+
 	auto operator<=>(const MyRect&) const = default;
 } ;
 
