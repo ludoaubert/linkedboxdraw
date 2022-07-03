@@ -321,9 +321,7 @@ int main()
 			return accumulated_transformation;
 		};
 
-		vector<MyRect> rectangles = input_rectangles;
-		RectMat(rectangles) += compute_transformation(holes[17]);
-
+		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes[17]);
 		MyRect frame_ = compute_frame(rectangles);
 
 		f=fopen("rects.html", "w");
