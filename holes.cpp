@@ -65,6 +65,9 @@ struct RectMat
 };
 
 
+struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
+
+
 int main()
 {
 
@@ -131,7 +134,7 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-                struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
+
 		const MyRect frame = compute_frame(input_rectangles);
 
 		auto compute_holes = [&](int ri)->vector<RectHole>{
@@ -250,28 +253,45 @@ int main()
 
 		vector<RectHole> kept_holes;
 
-		for (Direction direction : directions)
+		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
+		for (int ri : stress_line[direction])
 		{
-			auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})
-						| views::join
-						| views::filter([&](const RectHole& rh){
-/*
-                                        const auto& [ri, corner, direction, value, rec] = rh;
+			if (ri == INT16_MAX || ri == -INT16_MAX)
+				continue;
+			vector<RectHole> holes = compute_holes(ri);
+			auto rg = holes | views::filter([&](const RectHole& rh){
+                               const auto& [ri, corner, direction, value, rec] = rh;
 
-		                        vector<int> logical_contacts;
-        		                ranges::set_union(
-                	                                edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-                        	                        edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-                                	                std::back_inserter(logical_contacts)
-                                        	         );
+                               vector<int> logical_contacts;
+                               ranges::set_union(
+                                               edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+                                                edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+                                                std::back_inserter(logical_contacts)
+                                                 );
 
-					auto geometric_contacts = views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
-					return ranges::includes(geometric_contacts, logical_contacts);
-*/
-return true;				});
-			ranges::copy(rg, back_inserter(kept_holes));
+                                auto geometric_contacts = views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
+                                return ranges::includes(geometric_contacts, logical_contacts);
+                        });
+                	ranges::copy(rg, back_inserter(kept_holes));
 		}
+/*
+		auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})
+					| views::join
+					| views::filter([&](const RectHole& rh){
+                               const auto& [ri, corner, direction, value, rec] = rh;
 
+		               vector<int> logical_contacts;
+        	               ranges::set_union(
+                                               edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+                      	                        edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+                               	                std::back_inserter(logical_contacts)
+                                       	         );
+
+				auto geometric_contacts = views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
+				return ranges::includes(geometric_contacts, logical_contacts);
+			});
+		ranges::copy(rg, back_inserter(kept_holes));
+*/
 		printf("kept_holes.size()=%ld\n", kept_holes.size());
 		printf("hard coded i_select=2\n");
 		int i_select=2;
