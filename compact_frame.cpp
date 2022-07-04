@@ -11,6 +11,90 @@
 using namespace std ;
 
 
+vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
+{
+	FunctionTimer ft("compute_compact_frame_transform");
+
+	int n = rectangles.size();
+	
+	vector<MyRect> accumulated_transform(n);
+	
+	const MyRect zero;
+
+	MyPoint translation4[4]={{.x=1, .y=0},
+				 {.x=-1, .y=0},
+				 {.x=0, .y=1},
+				 {.x=0, .y=-1}};
+
+	for (RectDim rect_dim : RectDims)//{LEFT, RIGHT, TOP, BOTTOM}
+	{
+		const auto [x, y] = translation4[rect_dim] ;
+		const MyRect translation = {.m_left=x, .m_right=x,.m_top=y, .m_bottom=y};
+		
+		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&&compute_tf){
+
+			vector<MyRect> transform(n) ;
+			
+			const MyRect frame = compute_frame(rectangles + accumulated_transform);
+
+			const MyRect rake4[4] = {
+						{.m_left=-INT16_MAX, .m_right=frame.m_left, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
+						{.m_left=frame.m_right, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=INT16_MAX},
+						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=-INT16_MAX, .m_bottom=frame.m_top},
+						{.m_left=-INT16_MAX, .m_right=INT16_MAX, .m_top=frame.m_bottom, .m_bottom=INT16_MAX}
+					};
+
+			int sens = rect_dim % 2;
+			int dimension = rect_dim / 2;
+			assert(rect_dim == 2*dimension + sens);
+
+			const MyRect rake = rake4[rect_dim];
+			const MyRect baseline = rake4[2*dimension + (1-sens)];
+
+			//rectangles that we want to rake along
+			for (int ri : views::iota(0, n) | views::filter([&](int ri){return intersect(rake, rectangles[ri] + accumulated_transform[ri]);}))
+			{
+				transform[ri] = translation;
+			}
+
+			for  (bool stop = false; stop == false;)
+			{
+				stop=true;
+
+				for (int ri : views::iota(0, n) | views::filter([&](int ri){return transform[ri]!=zero;}))
+				{
+					for (int rj : views::iota(0, n) | views::filter([&](int ri){return transform[ri]==zero;}))
+					{
+						if (intersect_strict(rectangles[ri]+accumulated_transform[ri]+transform[ri], rectangles[rj]+accumulated_transform[rj]+transform[rj]))
+						{
+							stop = false;
+							transform[rj] = translation;
+						}
+					}
+				}
+			}
+			
+			//rectangles that hit the baseline
+			auto rg = views::atoi(0, n) | views::filter([&](int ri){return intersect_strict(baseline, rectangles[ri] + accumulated_transform[ri] + transform[ri]));
+
+			if ( rg.empty() == false )
+			{
+				ranges::fill(transform, zero);
+				return accumulated_transform + transform;
+			}
+			else
+			{
+				return accumulated_transform + transform + compute_atf(accumulated_transform + transform, compute_atf);
+			}
+		};
+		
+		RectMat(accumulated_transform) += compute_atf(accumulated_transform, compute_atf);
+	}
+	
+	return accumulated_transform;
+}
+
+
 void compact_frame(vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
 {
 	FunctionTimer ft("compact_frame");
@@ -375,7 +459,8 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		compact_frame(rectangles, adjacency_list) ;
+		vector<MyRect> compact_frame_transform = compute_compact_frame_transform(rectangles, adjacency_list) ;
+		RectMat(rectangles) += compact_frame_transform;
 
 		vector<int> stress_line[2];
 		compute_stress_line(rectangles, stress_line);
