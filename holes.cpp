@@ -169,7 +169,7 @@ int main()
 		vector<RectHole> kept_holes;
 
 		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
-		for (int ri : stress_line[direction])
+		for (int ri : views::iota(0,n))
 		{
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
