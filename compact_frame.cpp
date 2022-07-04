@@ -79,15 +79,16 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 
 			if ( rg.empty() == false )
 			{
-				return accumulated_transform;
+				vector<MyRect> zeros(n);
+				return zeros;
 			}
 			else
 			{
-				return accumulated_transform + transform + compute_atf(accumulated_transform + transform, compute_atf);
+				return transform + compute_atf(accumulated_transform + transform, compute_atf);
 			}
 		};
 		
-		accumulated_transform = compute_atf(accumulated_transform, compute_atf);
+		RectMat(accumulated_transform) += compute_atf(accumulated_transform, compute_atf);
 	}
 	
 	return accumulated_transform;
