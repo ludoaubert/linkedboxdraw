@@ -16,9 +16,9 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 	FunctionTimer ft("compute_compact_frame_transform");
 
 	int n = rectangles.size();
-	
+
 	vector<MyRect> accumulated_transform(n);
-	
+
 	const MyRect zero;
 
 	MyPoint translation4[4]={{.x=1, .y=0},
@@ -30,11 +30,11 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 	{
 		const auto [x, y] = translation4[rect_dim] ;
 		const MyRect translation = {.m_left=x, .m_right=x,.m_top=y, .m_bottom=y};
-		
-		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&&compute_tf)->vector<MyRect>{
+
+		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&& compute_atf)->vector<MyRect>{
 
 			vector<MyRect> transform(n) ;
-			
+
 			const MyRect frame = compute_frame(rectangles + accumulated_transform);
 
 			const MyRect rake4[4] = {
@@ -73,9 +73,9 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 					}
 				}
 			}
-			
+
 			//rectangles that hit the baseline
-			auto rg = views::atoi(0, n) | views::filter([&](int ri){return intersect_strict(baseline, rectangles[ri] + accumulated_transform[ri] + transform[ri]));
+			auto rg = views::iota(0, n) | views::filter([&](int ri){return intersect_strict(baseline, rectangles[ri] + accumulated_transform[ri] + transform[ri]);});
 
 			if ( rg.empty() == false )
 			{
@@ -87,10 +87,10 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 				return transform + compute_atf(accumulated_transform + transform, compute_atf);
 			}
 		};
-		
+
 		RectMat(accumulated_transform) += compute_atf(accumulated_transform, compute_atf);
 	}
-	
+
 	return accumulated_transform;
 }
 
