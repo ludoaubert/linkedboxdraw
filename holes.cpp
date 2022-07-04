@@ -181,20 +181,20 @@ int main()
 					edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
 					std::back_inserter(logical_contacts)
 				);
-
+/*
 				int n = ranges::count_if(logical_contacts, [&](int rj){return ri!=rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);});
 				int n_ = ranges::count_if(logical_contacts, [&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
-
+*/
 				float distance=0, distance_=0;
 				for (int rj : logical_contacts)
 				{
 					distance += rect_distance(input_rectangles[ri], input_rectangles[rj]);
 					distance_ += rect_distance(rec, input_rectangles[rj]);
 				}
-				
+
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
-
+/*
 				if (n_ > 0)
 				{
 					if (n <= n_)
@@ -203,10 +203,11 @@ int main()
 				}
 				else
 				{
+*/
 					if (distance >= distance_)
 						printf("ri=%d rj=%d corner=%s value=%d distance=%f distance_=%f\n", ri, rj, RectCornerString[corner], value, distance, distance_);
 					return distance >= distance_;
-				}
+//				}
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
