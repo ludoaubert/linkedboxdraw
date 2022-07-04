@@ -173,33 +173,42 @@ int main()
 		{
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
-                               const auto& [ri, rj, corner, direction, value, rec] = rh;
+				const auto& [ri, rj, corner, direction, value, rec] = rh;
 
-                               vector<int> logical_contacts;
-                               ranges::set_union(
-                                               edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-                                                edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-                                                std::back_inserter(logical_contacts)
-                                                 );
+				vector<int> logical_contacts;
+				ranges::set_union(
+					edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+					edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+					std::back_inserter(logical_contacts)
+				);
 
 				int n = ranges::count_if(logical_contacts, [&](int rj){return ri!=rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);});
-                                int n_ = ranges::count_if(logical_contacts, [&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
+				int n_ = ranges::count_if(logical_contacts, [&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
 
-				float dist=0, dist_=0;
+				float distance=0, distance_=0;
 				for (int rj : logical_contacts)
 				{
-					dist += rectangle_distance(input_rectangles[ri], input_rectangles[rj]);
-                                        dist_ += rectangle_distance(rec, input_rectangles[rj]);
+					distance += rect_distance(input_rectangles[ri], input_rectangles[rj]);
+					distance_ += rect_distance(rec, input_rectangles[rj]);
 				}
-
-                                if (3 * value < width(input_rectangles[ri]))
+				
+				if (3 * value < width(input_rectangles[ri]))
 					return false;
+
 				if (n_ > 0)
+				{
+					if (n <= n_)
+						printf("ri=%d rj=%d corner=%s value=%d n=%d n_=%d\n", ri, rj, RectCornerString[corner], value, n, n_);
 					return n <= n_;
+				}
 				else
-					return dist >= dist_;
-                        });
-                	ranges::copy(rg, back_inserter(kept_holes));
+				{
+					if (distance >= distance_)
+						printf("ri=%d rj=%d corner=%s value=%d distance=%f distance_=%f\n", ri, rj, RectCornerString[corner], value, distance, distance_);
+					return distance >= distance_;
+				}
+			});
+			ranges::copy(rg, back_inserter(kept_holes));
 		}
 /*
 		auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})

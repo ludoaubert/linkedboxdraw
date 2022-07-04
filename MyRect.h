@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <algorithm>
+#include <math.h>
 #include <assert.h>
 
 
@@ -327,6 +328,49 @@ inline bool intersect_strict(const MyRect& r1, const MyRect& r2)
 
 
 int edge_overlap(const MyRect& r1, const MyRect& r2) ;
+
+
+/*
+dist is the euclidean distance between points
+rect. 1 is formed by points (x1, y1) and (x1b, y1b)
+rect. 2 is formed by points (x2, y2) and (x2b, y2b)
+*/
+inline float rect_distance(const MyRect& r1, const MyRect& r2)
+{
+	const auto& [x1, x1b, y1, y1b] = r1;
+	const auto& [x2, x2b, y2, y2b] = r2;
+	
+	auto dist = [](const MyPoint& p1, const MyPoint& p2){
+		const auto& [x1, y1] = p1;
+		const auto& [x2, y2] = p2;
+		return sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
+	};
+
+	bool left = x2b < x1;
+    bool right = x1b < x2;
+    bool bottom = y2b < y1;
+    bool top = y1b < y2;
+	
+    if (top && left)
+        return dist({x1, y1b}, {x2b, y2});
+    else if (left && bottom)
+        return dist({x1, y1}, {x2b, y2b});
+    else if (bottom && right)
+        return dist({x1b, y1}, {x2, y2b});
+    else if (right && top)
+        return dist({x1b, y1b}, {x2, y2});
+    else if (left)
+        return x1 - x2b;
+    else if (right)
+        return x2 - x1b;
+    else if (bottom)
+        return y1 - y2b;
+    else if (top)
+        return y2 - y1b;
+    else:             // rectangles intersect
+        return 0;
+}
+
 
 //this function is 'inspired' by the intersect() function
 inline float rectangle_distance(const MyRect& r1, const MyRect& r2)
