@@ -31,7 +31,7 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 		const auto [x, y] = translation4[rect_dim] ;
 		const MyRect translation = {.m_left=x, .m_right=x,.m_top=y, .m_bottom=y};
 		
-		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&&compute_tf){
+		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&&compute_tf)->vector<MyRect>{
 
 			vector<MyRect> transform(n) ;
 			
@@ -79,8 +79,7 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 
 			if ( rg.empty() == false )
 			{
-				ranges::fill(transform, zero);
-				return accumulated_transform + transform;
+				return accumulated_transform;
 			}
 			else
 			{
@@ -88,7 +87,7 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles,
 			}
 		};
 		
-		RectMat(accumulated_transform) += compute_atf(accumulated_transform, compute_atf);
+		accumulated_transform = compute_atf(accumulated_transform, compute_atf);
 	}
 	
 	return accumulated_transform;
