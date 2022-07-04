@@ -181,10 +181,7 @@ int main()
 					edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
 					std::back_inserter(logical_contacts)
 				);
-/*
-				int n = ranges::count_if(logical_contacts, [&](int rj){return ri!=rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);});
-				int n_ = ranges::count_if(logical_contacts, [&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
-*/
+
 				float distance=0, distance_=0;
 				for (int rj : logical_contacts)
 				{
@@ -194,20 +191,10 @@ int main()
 
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
-/*
-				if (n_ > 0)
-				{
-					if (n <= n_)
-						printf("ri=%d rj=%d corner=%s value=%d n=%d n_=%d\n", ri, rj, RectCornerString[corner], value, n, n_);
-					return n <= n_;
-				}
-				else
-				{
-*/
-					if (distance >= distance_)
-						printf("ri=%d rj=%d corner=%s value=%d distance=%f distance_=%f\n", ri, rj, RectCornerString[corner], value, distance, distance_);
-					return distance >= distance_;
-//				}
+
+				if (distance >= distance_)
+					printf("ri=%d rj=%d corner=%s value=%d distance=%f distance_=%f\n", ri, rj, RectCornerString[corner], value, distance, distance_);
+				return distance >= distance_;
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
@@ -356,7 +343,7 @@ int main()
 			return accumulated_transformation;
 		};
 
-		vector<MyRect> rectangles = input_rectangles + compute_transformation(kept_holes_dedup[0]);
+		vector<MyRect> rectangles = input_rectangles + compute_transformation(kept_holes_dedup[5]);
 		MyRect frame_ = compute_frame(rectangles);
 
 		f=fopen("rects.html", "w");
