@@ -175,6 +175,36 @@ int main()
 			auto rg = holes | views::filter([&](const RectHole& rh){
 				const auto& [ri, rj, corner, direction, value, rec] = rh;
 
+				float distance=0, distance_=0;
+				
+//1) edges where ri is not present, but where ri and rec can act as a pivot to possibly reduce distance. To reduce distance, we assume
+//	that rect_distance(ri, ri) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
+				
+			//considering a hole as a distance pivot
+			
+				auto f=[&](const Edge& e, const MyRect& hole)->bool{
+					return ranges::any_of({e.from, e.to}, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
+				};
+
+				auto delta=[&](const Edge& e, const MyRect& hole)->float{
+					const auto& [i, j] = e;
+					return rect_distance(hole, input_rectangles[i]) + rect_distance(hole, input_rectangles[j]) -
+						rect_distance(input_rectangles[i], input_rectangles[j]);
+				};
+
+				for (const Edges& e : edges | views::filter([&](const Edge& e){return f(e, rec);}))
+				{
+					distance += delta(e, rec);
+				}
+
+			// input_rectangles[ri] would become the new hole
+
+				for (const Edges& e : edges | views::filter([&](const Edge& e){return e.from!=ri && e.to!=ri && f(e, input_rectangles[ri]);}))
+				{
+					distance_ += delta(e, input_rectangles[ri]);			
+				}
+
+//2) edges where ri is present
 				vector<int> logical_contacts;
 				ranges::set_union(
 					edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
@@ -182,7 +212,6 @@ int main()
 					std::back_inserter(logical_contacts)
 				);
 
-				float distance=0, distance_=0;
 				for (int rj : logical_contacts)
 				{
 					distance += rect_distance(input_rectangles[ri], input_rectangles[rj]);
