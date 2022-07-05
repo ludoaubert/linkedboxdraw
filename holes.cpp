@@ -189,8 +189,11 @@ int main()
 
 				auto delta=[&](const Edge& e, const MyRect& hole)->float{
 					const auto& [i, j] = e;
-					return rect_distance(hole, input_rectangles[i]) + rect_distance(hole, input_rectangles[j]) -
-						rect_distance(input_rectangles[i], input_rectangles[j]);
+					float h_i = rect_distance(hole, input_rectangles[i]),
+						h_j = rect_distance(hole, input_rectangles[j]),
+						i_j = rect_distance(input_rectangles[i], input_rectangles[j]);
+					float result = h_i + h_j - i_j;
+					return result < 0 ? result : 0;
 				};
 
 				for (const Edge& e : edges | views::filter([&](const Edge& e){return f(e, rec);}))
