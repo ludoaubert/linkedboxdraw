@@ -184,7 +184,7 @@ int main()
 
 				auto f=[&](const Edge& e, const MyRect& hole)->bool{
 					int a[2]={e.from, e.to};
-					return ranges::any_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
+					return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
 				};
 
 				auto delta=[&](const Edge& e, const MyRect& hole)->float{
