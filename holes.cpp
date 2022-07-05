@@ -176,14 +176,15 @@ int main()
 				const auto& [ri, rj, corner, direction, value, rec] = rh;
 
 				float distance=0, distance_=0;
-				
+
 //1) edges where ri is not present, but where ri and rec can act as a pivot to possibly reduce distance. To reduce distance, we assume
 //	that rect_distance(ri, ri) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
-				
+
 			//considering a hole as a distance pivot
-			
+
 				auto f=[&](const Edge& e, const MyRect& hole)->bool{
-					return ranges::any_of({e.from, e.to}, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
+					int a[2]={e.from, e.to};
+					return ranges::any_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
 				};
 
 				auto delta=[&](const Edge& e, const MyRect& hole)->float{
@@ -192,16 +193,16 @@ int main()
 						rect_distance(input_rectangles[i], input_rectangles[j]);
 				};
 
-				for (const Edges& e : edges | views::filter([&](const Edge& e){return f(e, rec);}))
+				for (const Edge& e : edges | views::filter([&](const Edge& e){return f(e, rec);}))
 				{
 					distance += delta(e, rec);
 				}
 
 			// input_rectangles[ri] would become the new hole
 
-				for (const Edges& e : edges | views::filter([&](const Edge& e){return e.from!=ri && e.to!=ri && f(e, input_rectangles[ri]);}))
+				for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri && e.to!=ri && f(e, input_rectangles[ri]);}))
 				{
-					distance_ += delta(e, input_rectangles[ri]);			
+					distance_ += delta(e, input_rectangles[ri]);
 				}
 
 //2) edges where ri is present
