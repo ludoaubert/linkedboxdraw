@@ -138,7 +138,7 @@ int main()
 							MyRect rec = rect(pt, pt + value*dir);
 							auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
 							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-							printf("[%d %d]\n", m, M);
+							//printf("[%d %d]\n", m, M);
 						}
 						if (m > 2)
 							holes.push_back({ri, ir.i, rectCorner, dir, m, rect(pt, pt + m*dir)});

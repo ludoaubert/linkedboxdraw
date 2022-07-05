@@ -1,0 +1,80 @@
+contacts:
+-32767 -> 13
+0 -> 3
+1 -> 7
+2 -> 4
+3 -> 10
+4 -> 10
+6 -> 2
+7 -> 5
+9 -> 11
+12 -> 6
+13 -> 6
+14 -> 8
+5 -> 32767
+10 -> 32767
+pressure line:
+-32767
+2
+4
+6
+10
+13
+32767
+contacts:
+-32767 -> 0
+-32767 -> 3
+0 -> 6
+2 -> 1
+2 -> 7
+3 -> 4
+4 -> 7
+5 -> 11
+7 -> 8
+7 -> 9
+7 -> 11
+10 -> 5
+12 -> 13
+13 -> 14
+11 -> 32767
+pressure line:
+-32767
+3
+4
+7
+11
+32767
+ri=0 rj=0 corner=BOTTOM_RIGHT value=91 distance=0.000000 distance_=0.000000
+ri=0 rj=2 corner=TOP_RIGHT value=91 distance=0.000000 distance_=0.000000
+ri=0 rj=3 corner=BOTTOM_LEFT value=68 distance=0.000000 distance_=0.000000
+ri=0 rj=3 corner=TOP_RIGHT value=173 distance=0.000000 distance_=0.000000
+ri=0 rj=4 corner=TOP_LEFT value=68 distance=0.000000 distance_=0.000000
+ri=0 rj=10 corner=TOP_LEFT value=173 distance=0.000000 distance_=0.000000
+ri=0 rj=10 corner=TOP_RIGHT value=173 distance=0.000000 distance_=0.000000
+ri=1 rj=1 corner=BOTTOM_RIGHT value=128 distance=0.000000 distance_=0.000000
+ri=1 rj=7 corner=BOTTOM_LEFT value=128 distance=0.000000 distance_=0.000000
+ri=2 rj=1 corner=BOTTOM_RIGHT value=84 distance=0.000000 distance_=-90.426765
+ri=2 rj=7 corner=BOTTOM_LEFT value=84 distance=0.000000 distance_=-90.426765
+ri=3 rj=0 corner=BOTTOM_RIGHT value=56 distance=0.000000 distance_=0.000000
+ri=3 rj=2 corner=TOP_RIGHT value=56 distance=0.000000 distance_=0.000000
+ri=5 rj=1 corner=BOTTOM_RIGHT value=75 distance=0.000000 distance_=-14.000000
+ri=5 rj=7 corner=BOTTOM_LEFT value=75 distance=0.000000 distance_=-14.000000
+ri=8 rj=1 corner=BOTTOM_RIGHT value=84 distance=0.000000 distance_=0.000000
+ri=8 rj=7 corner=BOTTOM_LEFT value=84 distance=0.000000 distance_=0.000000
+ri=9 rj=1 corner=BOTTOM_RIGHT value=84 distance=0.000000 distance_=0.000000
+ri=9 rj=7 corner=BOTTOM_LEFT value=84 distance=0.000000 distance_=0.000000
+ri=10 rj=1 corner=BOTTOM_RIGHT value=70 distance=14.000000 distance_=0.000000
+ri=10 rj=7 corner=BOTTOM_LEFT value=70 distance=14.000000 distance_=0.000000
+kept_holes_dedup.size()=11
+ri=0 width(ri)=202 rj=0 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.71} value=91 rec=[.m_left=517, .m_right=608, .m_top=164, .m_bottom=228, .i=0, .no_sequence=-1]
+ri=0 width(ri)=202 rj=3 corner=BOTTOM_LEFT dir={.x=-1.00, .y=-0.71} value=68 rec=[.m_left=540, .m_right=608, .m_top=164, .m_bottom=212, .i=0, .no_sequence=-1]
+ri=0 width(ri)=202 rj=3 corner=TOP_RIGHT dir={.x=1.00, .y=0.71} value=173 rec=[.m_left=774, .m_right=947, .m_top=20, .m_bottom=143, .i=0, .no_sequence=-1]
+ri=0 width(ri)=202 rj=10 corner=TOP_LEFT dir={.x=1.00, .y=-0.71} value=173 rec=[.m_left=774, .m_right=947, .m_top=73, .m_bottom=196, .i=0, .no_sequence=-1]
+ri=1 width(ri)=222 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.50} value=128 rec=[.m_left=424, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=2 width(ri)=145 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.77} value=84 rec=[.m_left=468, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=3 width(ri)=166 rj=0 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=1.16} value=56 rec=[.m_left=552, .m_right=608, .m_top=164, .m_bottom=228, .i=0, .no_sequence=-1]
+ri=5 width(ri)=187 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.86} value=75 rec=[.m_left=477, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=8 width(ri)=208 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.77} value=84 rec=[.m_left=468, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=9 width(ri)=187 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.77} value=84 rec=[.m_left=468, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=10 width(ri)=173 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.92} value=70 rec=[.m_left=482, .m_right=552, .m_top=452, .m_bottom=516, .i=0, .no_sequence=-1]
+ri=2 width(ri)=145 rj=1 corner=BOTTOM_RIGHT dir={.x=-1.00, .y=0.77} value=84
