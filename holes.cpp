@@ -106,52 +106,23 @@ int main()
 
 		const MyRect frame = compute_frame(input_rectangles);
 
-	//considering a hole as a distance pivot
-
-		auto ff=[&](const Edge& e, const MyRect& hole)->bool{
-			int a[2]={e.from, e.to};
-			return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
-		};
-
-		auto delta=[&](const MyRect (&rect_edge)[2], const MyRect& hole)->float{
-			const auto& [r1, r2] = rect_edge;
-			float h_i = rect_distance(hole, r1),
-				h_j = rect_distance(hole, r2),
-				i_j = rect_distance(r1, r2);
-			float result = h_i + h_j - i_j;
-			return result < 0 ? result : 0;
-		};
-
-		struct Config{const MyRect& hole; int ri_hole; const MyRect& r;};
+		struct Config{int ri; const MyRect& r;};
 
 		auto compute_distance=[&](const Config& config)->float{
-			const auto& [hole, ri_hole, r] = config;
-
-//1) edges where ri is not present, but where hole can act as a pivot to possibly reduce distance. To reduce distance, we assume
-//	that rect_distance(ri, rj) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
+			const auto& [ri, r] = config;
 
 			float distance=0;
-			for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && ff(e, hole);}))
-			{
-				const auto& [i, j] = e;
-				distance += delta({input_rectangles[i],input_rectangles[j]}, hole);
-			}
 
-//2) edges where ri is present
 			vector<int> logical_contacts;
 			ranges::set_union(
-				edges | views::filter([&](const Edge& e){return e.from==ri_hole;}) | views::transform(&Edge::to),
-				edges | views::filter([&](const Edge& e){return e.to==ri_hole;}) | views::transform(&Edge::from),
+				edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+				edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
 				std::back_inserter(logical_contacts)
 			);
 
 			for (int rj : logical_contacts)
 			{
 				distance += rect_distance(r, input_rectangles[rj]);
-				if (edge_overlap(input_rectangles[rj], hole)!=0 && edge_overlap(r,hole)!=0)
-				{
-					distance += delta({r, input_rectangles[rj]}, hole);
-				}
 			}
 			return distance;
 		};
@@ -194,8 +165,8 @@ int main()
 						{
 							MyRect rec = rect(pt, pt + m*dir);
 							Config config2[2]={
-								{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
-								{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
+								{.ri=ri, .r=input_rectangles[ri]},
+								{.ri=ri, .r=rec}
 							};
 
 							float distance[2];
@@ -228,20 +199,9 @@ int main()
 		compute_stress_line(input_rectangles, stress_line);
 
 
-		vector<RectHole> kept_holes;
+		vector<RectHole> holes;
 
 //TODO: use views::join
-/*
-		auto rg = views::iota(0,n) |
-				views::transform([](int ri){return compute_holes(ri);}) |
-				views::join |
-				views::filter([&](const RectHole& rh){
-					const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
-					if (3 * value < width(input_rectangles[ri]))
-						return false;
-					return distance[0] > distance[1];
-				});
-*/
 		for (int ri : views::iota(0,n))
 		{
 			vector<RectHole> holes = compute_holes(ri);
@@ -250,27 +210,26 @@ int main()
 
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
-
-				return distance[0] >= distance[1];
 			});
-			ranges::copy(rg, back_inserter(kept_holes));
+			ranges::copy(rg, back_inserter(holes));
 		}
-
+printf("fesses\n");
 		map< tuple<int,MyRect>, int > rec2i;
-		for (int i=0; i < kept_holes.size(); i++)
+		for (int i=0; i < holes.size(); i++)
 		{
-			const auto& [ri, rj, corner, direction, value, rec, distance] = kept_holes[i];
+			const auto& [ri, rj, corner, direction, value, rec, distance] = holes[i];
 			const auto key = make_tuple(ri, rec);
 			if (rec2i.count(key)==0)
 				rec2i[key] = i;
 		}
-		vector<RectHole> kept_holes_dedup;
-		ranges::copy(rec2i | views::values | views::transform([&](int i){return kept_holes[i];}),
-				back_inserter(kept_holes_dedup)
+		vector<RectHole> holes_dedup;
+		ranges::copy(rec2i | views::values | views::transform([&](int i){return holes[i];}),
+				back_inserter(holes_dedup)
 		);
+printf("poils\n");
+		ranges::sort(holes_dedup, ranges::greater(), [](const RectHole& h){return h.distance[1]-h.distance[0];});
 
-		printf("kept_holes_dedup.size()=%ld\n", kept_holes_dedup.size());
-		for (auto [ri, rj, corner, direction, value, rec, distance] : kept_holes_dedup)
+		for (auto [ri, rj, corner, direction, value, rec, distance] : holes_dedup | views::take(15))
 		{
 			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
 				ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
@@ -307,9 +266,10 @@ int main()
 						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 				}
 		}
-		for (int hi=0; hi < kept_holes_dedup.size(); hi++)
+printf("foufoune\n");
+		for (int hi=0; hi < holes_dedup.size() && hi < 15; hi++)
 		{
-				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = kept_holes_dedup[hi];
+				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = holes_dedup[hi];
 
 				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 						rec.m_left, rec.m_top, width(rec), height(rec));
@@ -327,7 +287,7 @@ int main()
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
-
+printf("fessee\n");
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
@@ -383,7 +343,7 @@ int main()
 			return accumulated_transformation;
 		};
 
-		vector<MyRect> rectangles = input_rectangles + compute_transformation(kept_holes_dedup[5]);
+		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes_dedup[5]);
 		MyRect frame_ = compute_frame(rectangles);
 
 		f=fopen("rects.html", "w");
