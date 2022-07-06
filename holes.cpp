@@ -166,7 +166,62 @@ int main()
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
+	//considering a hole as a distance pivot
+
+		auto f=[&](const Edge& e, const MyRect& hole)->bool{
+			int a[2]={e.from, e.to};
+			return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
+		};
+		
+		struct RectEdge{MyRect r1, MyRect r2};
+
+		auto delta=[&](const RectEdge& re, const MyRect& hole)->float{
+			const auto& [r1, r2] = e;
+			float h_i = rect_distance(hole, r1),
+				h_j = rect_distance(hole, r2),
+				i_j = rect_distance(r1, r2);
+			float result = h_i + h_j - i_j;
+			return result < 0 ? result : 0;
+		};
+		
+		struct Config{MyRect hole; int ri_hole; MyRect r;};
+		
+		auto compute_distance=[&](const Config& config)->float{
+			const auto& [hole, ri_hole, r] = config;
+			
+//1) edges where ri is not present, but where hole can act as a pivot to possibly reduce distance. To reduce distance, we assume
+//	that rect_distance(ri, rj) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
+
+			float distance=0;
+			for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && f(e, hole);}))
+			{
+				const auto& [i, j] = e;
+				distance += delta({input_rectangles[i],input_rectangles[j]}, hole);
+			}
+
+//2) edges where ri is present
+			vector<int> logical_contacts;
+			ranges::set_union(
+				edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+				edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+				std::back_inserter(logical_contacts)
+			);
+
+			for (int rj : logical_contacts)
+			{
+				distance += rect_distance(r, input_rectangles[rj]);
+				if (edge_overlap(input_rectangles[rj], hole)!=0 && edge_overlap(r,hole)!=0)
+				{
+					distance += delta({r, input_rectangles[rj]}, hole);
+				}
+			}
+			return distance;
+		};
+
+
 		vector<RectHole> kept_holes;
+
+//TODO: use views::join
 
 		for (int ri : views::iota(0,n))
 		{
@@ -174,77 +229,19 @@ int main()
 			auto rg = holes | views::filter([&](const RectHole& rh){
 				const auto& [ri, rj, corner, direction, value, rec] = rh;
 
-			//considering a hole as a distance pivot
-
-				auto f=[&](const Edge& e, const MyRect& hole)->bool{
-					int a[2]={e.from, e.to};
-					return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
-				};
+				if (3 * value < width(input_rectangles[ri]))
+					return false;
 				
-				struct RectEdge{MyRect r1, MyRect r2};
-
-				auto delta=[&](const RectEdge& re, const MyRect& hole)->float{
-					const auto& [r1, r2] = e;
-					float h_i = rect_distance(hole, r1),
-						h_j = rect_distance(hole, r2),
-						i_j = rect_distance(r1, r2);
-					float result = h_i + h_j - i_j;
-					return result < 0 ? result : 0;
-				};
-				
-				struct Config{MyRect hole; int ri_hole; MyRect r;};
-
 				Config config2[2]={
 					{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
 					{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
 				};
-				
-				auto compute_distance=[&](const Config& config)->float{
-					const auto& [hole, ri_hole, r] = config;
-					
-//1) edges where ri is not present, but where hole can act as a pivot to possibly reduce distance. To reduce distance, we assume
-//	that rect_distance(ri, rj) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
 
-					float distance=0;
-					for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && f(e, hole);}))
-					{
-						const auto& [i, j] = e;
-						distance += delta({input_rectangles[i],input_rectangles[j]}, hole);
-					}
-
-//2) edges where ri is present
-					vector<int> logical_contacts;
-					ranges::set_union(
-						edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-						edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-						std::back_inserter(logical_contacts)
-					);
-
-					for (int rj : logical_contacts)
-					{
-						distance += rect_distance(r, input_rectangles[rj]);
-						if (edge_overlap(input_rectangles[rj], hole)!=0 && edge_overlap(r,hole)!=0)
-						{
-							distance += delta({r, input_rectangles[rj]}, hole);
-						}
-					}
-					return distance;
-				};
-
-				if (3 * value < width(input_rectangles[ri]))
-					return false;
-
-				if (compute_distance(config2[0]) >= compute_distance(config2[1]))
-				{
-					printf("ri=%d rj=%d corner=%s value=%d distance(config2[0])=%f distance(config2[1])=%f\n", ri, rj, RectCornerString[corner], value,
-									compute_distance(config2[0]), compute_distance(config2[1]));
-					return true;
-				}
-				else
-					return false;
+				return compute_distance(config2[0]) >= compute_distance(config2[1]);
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
+		
 /*
 		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
 
@@ -273,10 +270,29 @@ int main()
 			if (rec2i.count(key)==0)
 				rec2i[key] = i;
 		}
-                vector<RectHole> kept_holes_dedup;
+		vector<RectHole> kept_holes_dedup;
 		ranges::copy(rec2i | views::values | views::transform([&](int i){return kept_holes[i];}),
 				back_inserter(kept_holes_dedup)
 		);
+
+		struct HoleInfo
+		{
+			float distance[2];
+		};
+		vector<HoleInfo> hole_info;
+		
+		for (const auto& [ri, rj, corner, direction, value, rec] : kept_holes_dedup)
+		{
+			Config config2[2]={
+				{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
+				{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
+			};		
+			HoleInfo hi;
+			for (int c=0; c<2; c++)
+				hi.distance[c] = compute_distance(config2[c]);
+
+			hole_info.push_back(hi);
+		}
 
 		printf("kept_holes_dedup.size()=%ld\n", kept_holes_dedup.size());
 		for (auto [ri, rj, corner, direction, value, rec] : kept_holes_dedup)
@@ -287,55 +303,57 @@ int main()
 				m_left, m_right, m_top, m_bottom, i, no_sequence);
 		}
 
-                FILE *f=fopen("holes.html", "w");
+		FILE *f=fopen("holes.html", "w");
 
-                fprintf(f, "<html>\n<body>\n");
-                fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-                for (const MyRect& r : input_rectangles)
-                {
-                        fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
-                                r.m_left, r.m_top, width(r), height(r));
-                        fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
+		fprintf(f, "<html>\n<body>\n");
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
+		for (const MyRect& r : input_rectangles)
+		{
+				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
+						r.m_left, r.m_top, width(r), height(r));
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
 
-                        int dy = 0;
+				int dy = 0;
 //TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
-                        vector<int> contacts;
-                        ranges::set_union(
-                                                edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
-                                                edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
-                                                std::back_inserter(contacts)
-                                                        );
-                        for (int ri : contacts)
-                        {
-                                dy += 14;
-                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
-                        }
+				vector<int> contacts;
+				ranges::set_union(
+							edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+							edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+							std::back_inserter(contacts)
+									);
+				for (int ri : contacts)
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+				}
 
-                        dy = 0;
-                        for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
-                        {
-                                dy += 14;
-                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
-                        }
-                }
-                for (int hi=0; hi < kept_holes_dedup.size(); hi++)
-                {
-                        const auto& [ri, rj, RectCorner, direction, value, rec] = kept_holes_dedup[hi];
-                        fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-                                rec.m_left, rec.m_top, width(rec), height(rec));
-                        fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
+				dy = 0;
+				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
+				}
+		}
+		for (int hi=0; hi < kept_holes_dedup.size(); hi++)
+		{
+				const auto& [ri, rj, RectCorner, direction, value, rec] = kept_holes_dedup[hi];
+				const float (&distance)[2] = hole_info[hi].distance;
+				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+						rec.m_left, rec.m_top, width(rec), height(rec));
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
 
-                        int dy = 0;
-                        for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-                        {
-                                dy += 14;
-                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
-                        }
-                        fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
-                        fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
-                }
-                fprintf(f, "</svg>\n</html>");
-                fclose(f);
+				int dy = 0;
+				for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
+				}
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">%.2f-%.2f</text>\n", rec.m_left + 30, rec.m_top + 3*14, distance[0], distance[1]);
+		}
+		fprintf(f, "</svg>\n</html>");
+		fclose(f);
 
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
