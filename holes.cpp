@@ -122,7 +122,7 @@ int main()
 			return result < 0 ? result : 0;
 		};
 
-		struct Config{MyRect hole; int ri_hole; MyRect r;};
+		struct Config{const MyRect& hole; int ri_hole; const MyRect& r;};
 
 		auto compute_distance=[&](const Config& config)->float{
 			const auto& [hole, ri_hole, r] = config;
