@@ -234,7 +234,7 @@ int main()
 
 //TODO: use views::join
 /*
-		auto rg = views::iota(0,n) | 
+		auto rg = views::iota(0,n) |
 				views::transform([](int ri){return compute_holes(ri);}) |
 				views::join |
 				views::filter([&](const RectHole& rh){
@@ -253,7 +253,7 @@ int main()
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
 
-				return distance[0] > distance[1];
+				return distance[0] >= distance[1];
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
@@ -274,10 +274,8 @@ int main()
 		printf("kept_holes_dedup.size()=%ld\n", kept_holes_dedup.size());
 		for (auto [ri, rj, corner, direction, value, rec, distance] : kept_holes_dedup)
 		{
-			const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
-			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d rec=[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d, .no_sequence=%d]\n",
-				ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value,
-				m_left, m_right, m_top, m_bottom, i, no_sequence);
+			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
+				ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
 		}
 
 		FILE *f=fopen("holes.html", "w");
