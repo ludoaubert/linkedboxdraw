@@ -34,7 +34,7 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
+struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; int distance[2]};
 
 
 int main()
@@ -105,67 +105,7 @@ int main()
 		assert( ranges::is_sorted(edges) );
 
 		const MyRect frame = compute_frame(input_rectangles);
-
-		auto compute_holes = [&](int ri)->vector<RectHole>{
-
-			const MyRect shape = input_rectangles[ri];
-			auto [width_, height_] = dimensions(shape);
-
-			const float k = 1.0f * height_ / width_;
-
-			vector<RectHole> holes;
-
-			for (const MyRect& ir : input_rectangles)
-			{
-				const MyVector directions[4][3]={
-						{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
-						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
-						{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
-						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
-				};
-
-				for (RectCorner rectCorner : RectCorners)
-				{
-					const MyPoint pt = ir[rectCorner] ;
-
-					for (const MyVector& dir : directions[rectCorner])
-					{
-						int intervalle[2]={2, INT16_MAX};
-						auto& [m, M] = intervalle;
-						while (M > 1+m)
-						{
-							int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-							MyRect rec = rect(pt, pt + value*dir);
-							auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
-							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-							//printf("[%d %d]\n", m, M);
-						}
-						if (m > 2)
-							holes.push_back({ri, ir.i, rectCorner, dir, m, rect(pt, pt + m*dir)});
-					}
-				}
-			}
-			return holes;
-		};
-
-		int n = input_rectangles.size();
-
-		enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
-		struct ST { MyRect initial_tf, tf; };
-		const ST Transformations[2][2]={
-			{
-				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-				{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
-			},
-			{
-				{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-				{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-			}
-		};
-
-		vector<int> stress_line[2];
-		compute_stress_line(input_rectangles, stress_line);
-
+		
 	//considering a hole as a distance pivot
 
 		auto f=[&](const Edge& e, const MyRect& hole)->bool{
@@ -218,6 +158,77 @@ int main()
 			return distance;
 		};
 
+		auto compute_holes = [&](int ri)->vector<RectHole>{
+
+			const MyRect shape = input_rectangles[ri];
+			auto [width_, height_] = dimensions(shape);
+
+			const float k = 1.0f * height_ / width_;
+
+			vector<RectHole> holes;
+
+			for (const MyRect& ir : input_rectangles)
+			{
+				const MyVector directions[4][3]={
+						{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
+						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
+						{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
+						{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
+				};
+
+				for (RectCorner rectCorner : RectCorners)
+				{
+					const MyPoint pt = ir[rectCorner] ;
+
+					for (const MyVector& dir : directions[rectCorner])
+					{
+						int intervalle[2]={2, INT16_MAX};
+						auto& [m, M] = intervalle;
+						while (M > 1+m)
+						{
+							int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
+							MyRect rec = rect(pt, pt + value*dir);
+							auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
+							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
+							//printf("[%d %d]\n", m, M);
+						}
+						if (m > 2)
+						{
+							MyRect rec = rect(pt, pt + m*dir);
+							Config config2[2]={
+								{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
+								{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
+							};
+
+							int distance[2];
+							for (int c=0; c<2; c++)
+								distance[c] = compute_distance(config2[c]);
+							holes.push_back({ri, ir.i, rectCorner, dir, m, rec, distance});
+						}
+					}
+				}
+			}
+			return holes;
+		};
+
+		int n = input_rectangles.size();
+
+		enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
+		struct ST { MyRect initial_tf, tf; };
+		const ST Transformations[2][2]={
+			{
+				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+				{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+			},
+			{
+				{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+				{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+			}
+		};
+
+		vector<int> stress_line[2];
+		compute_stress_line(input_rectangles, stress_line);
+
 
 		vector<RectHole> kept_holes;
 
@@ -227,45 +238,20 @@ int main()
 		{
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
-				const auto& [ri, rj, corner, direction, value, rec] = rh;
+				const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
 
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
-				
-				Config config2[2]={
-					{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
-					{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
-				};
 
-				return compute_distance(config2[0]) >= compute_distance(config2[1]);
+				return distance[0] >= distance[1];
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
-		
-/*
-		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
 
-		auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})
-					| views::join
-					| views::filter([&](const RectHole& rh){
-                               const auto& [ri, corner, direction, value, rec] = rh;
-
-		               vector<int> logical_contacts;
-        	               ranges::set_union(
-                                               edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-                      	                        edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-                               	                std::back_inserter(logical_contacts)
-                                       	         );
-
-				auto geometric_contacts = views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);});
-				return ranges::includes(geometric_contacts, logical_contacts);
-			});
-		ranges::copy(rg, back_inserter(kept_holes));
-*/
 		map< tuple<int,MyRect>, int > rec2i;
 		for (int i=0; i < kept_holes.size(); i++)
 		{
-			const auto& [ri, rj, corner, direction, value, rec] = kept_holes[i];
+			const auto& [ri, rj, corner, direction, value, rec, distance] = kept_holes[i];
 			const auto key = make_tuple(ri, rec);
 			if (rec2i.count(key)==0)
 				rec2i[key] = i;
@@ -274,25 +260,6 @@ int main()
 		ranges::copy(rec2i | views::values | views::transform([&](int i){return kept_holes[i];}),
 				back_inserter(kept_holes_dedup)
 		);
-
-		struct HoleInfo
-		{
-			float distance[2];
-		};
-		vector<HoleInfo> hole_info;
-		
-		for (const auto& [ri, rj, corner, direction, value, rec] : kept_holes_dedup)
-		{
-			Config config2[2]={
-				{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
-				{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
-			};		
-			HoleInfo hi;
-			for (int c=0; c<2; c++)
-				hi.distance[c] = compute_distance(config2[c]);
-
-			hole_info.push_back(hi);
-		}
 
 		printf("kept_holes_dedup.size()=%ld\n", kept_holes_dedup.size());
 		for (auto [ri, rj, corner, direction, value, rec] : kept_holes_dedup)
@@ -336,8 +303,8 @@ int main()
 		}
 		for (int hi=0; hi < kept_holes_dedup.size(); hi++)
 		{
-				const auto& [ri, rj, RectCorner, direction, value, rec] = kept_holes_dedup[hi];
-				const float (&distance)[2] = hole_info[hi].distance;
+				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = kept_holes_dedup[hi];
+
 				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 						rec.m_left, rec.m_top, width(rec), height(rec));
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
@@ -357,9 +324,9 @@ int main()
 
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
-			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
+			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
 
-	                printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
+	        printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
 			vector<MyRect> accumulated_transformation(n);
 			const MyRect dr = hrec - input_rectangles[ri];
