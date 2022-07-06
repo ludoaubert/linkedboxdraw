@@ -113,10 +113,8 @@ int main()
 			return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
 		};
 
-		struct RectEdge{MyRect r1; MyRect r2;};
-
-		auto delta=[&](const RectEdge& re, const MyRect& hole)->float{
-			const auto& [r1, r2] = re;
+		auto delta=[&](const MyRect (&rect_edge)[2], const MyRect& hole)->float{
+			const auto& [r1, r2] = rect_edge;
 			float h_i = rect_distance(hole, r1),
 				h_j = rect_distance(hole, r2),
 				i_j = rect_distance(r1, r2);
