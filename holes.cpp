@@ -233,7 +233,17 @@ int main()
 		vector<RectHole> kept_holes;
 
 //TODO: use views::join
-
+/*
+		auto rg = views::iota(0,n) | 
+				views::transform([](int ri){return compute_holes(ri);}) |
+				views::join |
+				views::filter([&](const RectHole& rh){
+					const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
+					if (3 * value < width(input_rectangles[ri]))
+						return false;
+					return distance[0] > distance[1];
+				});
+*/
 		for (int ri : views::iota(0,n))
 		{
 			vector<RectHole> holes = compute_holes(ri);
@@ -243,7 +253,7 @@ int main()
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
 
-				return distance[0] >= distance[1];
+				return distance[0] > distance[1];
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
