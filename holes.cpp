@@ -204,16 +204,17 @@ int main()
 //TODO: use views::join
 		for (int ri : views::iota(0,n))
 		{
-			vector<RectHole> holes = compute_holes(ri);
-			auto rg = holes | views::filter([&](const RectHole& rh){
+			vector<RectHole> v = compute_holes(ri);
+			auto rg = v | views::filter([&](const RectHole& rh){
 				const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
 
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
+				return true;
 			});
 			ranges::copy(rg, back_inserter(holes));
 		}
-printf("fesses\n");
+printf("holes.size()=%ld\n", holes.size());
 		map< tuple<int,MyRect>, int > rec2i;
 		for (int i=0; i < holes.size(); i++)
 		{
@@ -226,8 +227,8 @@ printf("fesses\n");
 		ranges::copy(rec2i | views::values | views::transform([&](int i){return holes[i];}),
 				back_inserter(holes_dedup)
 		);
-printf("poils\n");
-		ranges::sort(holes_dedup, ranges::greater(), [](const RectHole& h){return h.distance[1]-h.distance[0];});
+
+		ranges::sort(holes_dedup, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
 
 		for (auto [ri, rj, corner, direction, value, rec, distance] : holes_dedup | views::take(15))
 		{
@@ -266,7 +267,7 @@ printf("poils\n");
 						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 				}
 		}
-printf("foufoune\n");
+
 		for (int hi=0; hi < holes_dedup.size() && hi < 15; hi++)
 		{
 				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = holes_dedup[hi];
@@ -287,7 +288,7 @@ printf("foufoune\n");
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
-printf("fessee\n");
+
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
