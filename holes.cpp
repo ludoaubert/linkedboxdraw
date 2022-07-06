@@ -200,10 +200,10 @@ int main()
 								{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
 							};
 
-							int distance[2];
+							float distance[2];
 							for (int c=0; c<2; c++)
 								distance[c] = compute_distance(config2[c]);
-							holes.push_back({ri, ir.i, rectCorner, dir, m, rec, distance});
+							holes.push_back({ri, ir.i, rectCorner, dir, m, rec, {distance[0],distance[1]}});
 						}
 					}
 				}
