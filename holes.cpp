@@ -34,7 +34,7 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; int distance[2]};
+struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; float distance[2];};
 
 
 int main()
@@ -105,35 +105,35 @@ int main()
 		assert( ranges::is_sorted(edges) );
 
 		const MyRect frame = compute_frame(input_rectangles);
-		
+
 	//considering a hole as a distance pivot
 
-		auto f=[&](const Edge& e, const MyRect& hole)->bool{
+		auto ff=[&](const Edge& e, const MyRect& hole)->bool{
 			int a[2]={e.from, e.to};
 			return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
 		};
-		
-		struct RectEdge{MyRect r1, MyRect r2};
+
+		struct RectEdge{MyRect r1; MyRect r2;};
 
 		auto delta=[&](const RectEdge& re, const MyRect& hole)->float{
-			const auto& [r1, r2] = e;
+			const auto& [r1, r2] = re;
 			float h_i = rect_distance(hole, r1),
 				h_j = rect_distance(hole, r2),
 				i_j = rect_distance(r1, r2);
 			float result = h_i + h_j - i_j;
 			return result < 0 ? result : 0;
 		};
-		
+
 		struct Config{MyRect hole; int ri_hole; MyRect r;};
-		
+
 		auto compute_distance=[&](const Config& config)->float{
 			const auto& [hole, ri_hole, r] = config;
-			
+
 //1) edges where ri is not present, but where hole can act as a pivot to possibly reduce distance. To reduce distance, we assume
 //	that rect_distance(ri, rj) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
 
 			float distance=0;
-			for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && f(e, hole);}))
+			for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && ff(e, hole);}))
 			{
 				const auto& [i, j] = e;
 				distance += delta({input_rectangles[i],input_rectangles[j]}, hole);
@@ -142,8 +142,8 @@ int main()
 //2) edges where ri is present
 			vector<int> logical_contacts;
 			ranges::set_union(
-				edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-				edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+				edges | views::filter([&](const Edge& e){return e.from==ri_hole;}) | views::transform(&Edge::to),
+				edges | views::filter([&](const Edge& e){return e.to==ri_hole;}) | views::transform(&Edge::from),
 				std::back_inserter(logical_contacts)
 			);
 
@@ -272,7 +272,7 @@ int main()
 		);
 
 		printf("kept_holes_dedup.size()=%ld\n", kept_holes_dedup.size());
-		for (auto [ri, rj, corner, direction, value, rec] : kept_holes_dedup)
+		for (auto [ri, rj, corner, direction, value, rec, distance] : kept_holes_dedup)
 		{
 			const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
 			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d rec=[.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d, .i=%d, .no_sequence=%d]\n",
