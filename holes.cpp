@@ -168,17 +168,11 @@ int main()
 
 		vector<RectHole> kept_holes;
 
-		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
 		for (int ri : views::iota(0,n))
 		{
 			vector<RectHole> holes = compute_holes(ri);
 			auto rg = holes | views::filter([&](const RectHole& rh){
 				const auto& [ri, rj, corner, direction, value, rec] = rh;
-
-				float distance=0, distance_=0;
-
-//1) edges where ri is not present, but where ri and rec can act as a pivot to possibly reduce distance. To reduce distance, we assume
-//	that rect_distance(ri, ri) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
 
 			//considering a hole as a distance pivot
 
@@ -186,52 +180,74 @@ int main()
 					int a[2]={e.from, e.to};
 					return ranges::all_of(a, [&](int i){return edge_overlap(input_rectangles[i], hole)!=0;});
 				};
+				
+				struct RectEdge{MyRect r1, MyRect r2};
 
-				auto delta=[&](const Edge& e, const MyRect& hole)->float{
-					const auto& [i, j] = e;
-					float h_i = rect_distance(hole, input_rectangles[i]),
-						h_j = rect_distance(hole, input_rectangles[j]),
-						i_j = rect_distance(input_rectangles[i], input_rectangles[j]);
+				auto delta=[&](const RectEdge& re, const MyRect& hole)->float{
+					const auto& [r1, r2] = e;
+					float h_i = rect_distance(hole, r1),
+						h_j = rect_distance(hole, r2),
+						i_j = rect_distance(r1, r2);
 					float result = h_i + h_j - i_j;
 					return result < 0 ? result : 0;
 				};
+				
+				struct Config{MyRect hole; int ri_hole; MyRect r;};
 
-				for (const Edge& e : edges | views::filter([&](const Edge& e){return f(e, rec);}))
-				{
-					distance += delta(e, rec);
-				}
+				Config config2[2]={
+					{.hole=rec, .ri_hole=-1, .r=input_rectangles[ri]},
+					{.hole=input_rectangles[ri], .ri_hole=ri, .r=rec}
+				};
+				
+				auto compute_distance=[&](const Config& config)->float{
+					const auto& [hole, ri_hole, r] = config;
+					
+//1) edges where ri is not present, but where hole can act as a pivot to possibly reduce distance. To reduce distance, we assume
+//	that rect_distance(ri, rj) is replaced by rect_distance(ri, hole)+rect_distance(rj,hole)
 
-			// input_rectangles[ri] would become the new hole
-
-				for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri && e.to!=ri && f(e, input_rectangles[ri]);}))
-				{
-					distance_ += delta(e, input_rectangles[ri]);
-				}
+					float distance=0;
+					for (const Edge& e : edges | views::filter([&](const Edge& e){return e.from!=ri_hole && e.to!=ri_hole && f(e, hole);}))
+					{
+						const auto& [i, j] = e;
+						distance += delta({input_rectangles[i],input_rectangles[j]}, hole);
+					}
 
 //2) edges where ri is present
-				vector<int> logical_contacts;
-				ranges::set_union(
-					edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-					edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-					std::back_inserter(logical_contacts)
-				);
+					vector<int> logical_contacts;
+					ranges::set_union(
+						edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
+						edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
+						std::back_inserter(logical_contacts)
+					);
 
-				for (int rj : logical_contacts)
-				{
-					distance += rect_distance(input_rectangles[ri], input_rectangles[rj]);
-					distance_ += rect_distance(rec, input_rectangles[rj]);
-				}
+					for (int rj : logical_contacts)
+					{
+						distance += rect_distance(r, input_rectangles[rj]);
+						if (edge_overlap(input_rectangles[rj], hole)!=0 && edge_overlap(r,hole)!=0)
+						{
+							distance += delta({r, input_rectangles[rj]}, hole);
+						}
+					}
+					return distance;
+				};
 
 				if (3 * value < width(input_rectangles[ri]))
 					return false;
 
-				if (distance >= distance_)
-					printf("ri=%d rj=%d corner=%s value=%d distance=%f distance_=%f\n", ri, rj, RectCornerString[corner], value, distance, distance_);
-				return distance >= distance_;
+				if (compute_distance(config2[0]) >= compute_distance(config2[1]))
+				{
+					printf("ri=%d rj=%d corner=%s value=%d distance(config2[0])=%f distance(config2[1])=%f\n", ri, rj, RectCornerString[corner], value,
+									compute_distance(config2[0]), compute_distance(config2[1]));
+					return true;
+				}
+				else
+					return false;
 			});
 			ranges::copy(rg, back_inserter(kept_holes));
 		}
 /*
+		Direction direction = width(frame) > height(frame) ? EAST_WEST : NORTH_SOUTH;
+
 		auto rg = stress_line[direction] | views::transform([&](int ri)->vector<RectHole>{return compute_holes(ri);})
 					| views::join
 					| views::filter([&](const RectHole& rh){
