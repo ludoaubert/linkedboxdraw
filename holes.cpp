@@ -45,7 +45,7 @@ struct DecisionTreeNode
 	RectHole rh;
 	MyPoint dim;
 	float rect_distances;
-}
+};
 
 
 int main()
@@ -172,7 +172,7 @@ int main()
 							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 							//printf("[%d %d]\n", m, M);
 						}
-						if (m > 2)
+						if (m > 2 && 3*m >= width(input_rectangles[ri]))
 						{
 							MyRect rec = rect(pt, pt + m*dir);
 							Config config2[2]={
@@ -188,57 +188,47 @@ int main()
 					}
 				}
 			}
-			return holes;
+                        printf("holes.size()=%ld\n", holes.size());
+
+                        ranges::sort(holes, {}, &RectHole::rec);
+                        vector<RectHole> holes_dedup;
+                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+
+                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+			return holes_dedup;
 		};
 
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
 
-		auto compute_holes=[](const vector<MyRect>& input_rectangles)->vector<RectHole>
+		auto compute_all_holes=[&](const vector<MyRect>& input_rectangles)->vector<RectHole>
 		{
 			vector<RectHole> holes;
 
 			int n = input_rectangles.size();
 
 			auto rgh = views::iota(0,n) | views::transform(compute_holes);
-/*										| views::join;
-										| views::filter([&](const RectHole& rh){return (3*rh.value >= width(input_rectangles[rh.ri]));});
+/*						| views::join;
 */
 //TODO: use views::join when g++-11 become available
 			for (int ri : views::iota(0,n))
 			{
-				vector<RectHole> v = compute_holes(ri);
-				auto rg = v | views::filter([&](const RectHole& rh){
-					const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
-
-					if (3 * value < width(input_rectangles[ri]))
-						return false;
-					return true;
-				});
-				ranges::copy(rg, back_inserter(holes));
+				ranges::copy(compute_holes(ri), back_inserter(holes));
 			}
-			printf("holes.size()=%ld\n", holes.size());
 
-			auto proj=[](const RectHole& h){return make_tuple(h.ri, h.rec);}
-			ranges::sort(holes, {}, proj);
-			vector<RectHole> holes_dedup;
-			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
-			
-			printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+			ranges::sort(holes, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
 
-			ranges::sort(holes_dedup, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
-
-			for (auto [ri, rj, corner, direction, value, rec, distance] : holes_dedup | views::take(15))
+			for (auto [ri, rj, corner, direction, value, rec, distance] : holes | views::take(15))
 			{
 				printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
 					ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
 			}
-			return holes_dedup;
-		}
-		
-		vector<RectHole> holes = compute_holes(input_rectangles);
-		
+			return holes;
+		};
+
+		vector<RectHole> holes = compute_all_holes(input_rectangles);
+
 
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
 
@@ -259,6 +249,7 @@ int main()
 
 	        printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
+			int n=input_rectangles.size();
 			vector<MyRect> accumulated_transformation(n);
 			const MyRect dr = hrec - input_rectangles[ri];
 			accumulated_transformation[ri] = dr;
@@ -309,10 +300,10 @@ int main()
 		};
 
 		vector<DecisionTreeNode> decision_tree;
-		
+
 		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
-			vector<RectHole> holes = compute_holes(input_rectangles);
-			
+			vector<RectHole> holes = compute_all_holes(input_rectangles);
+
 			vector<int> v;
 			for (int ri=parent_index; ri!=-1; ri=decision_tree[parent_index].parent_index)
 			{
@@ -320,25 +311,25 @@ int main()
 			}
 			ranges::reverse(v);
 			int depth = v.size();
-			
+
 			if (depth >= 5)
 				return;
-			
-			for (const auto& rh : holes | views::keep(15))
+
+			for (const auto& rh : holes | views::take(15))
 			{
 				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = rh;
-				if (ranges::includes(v, ri))
+				if (ranges::binary_search(v, ri))
 					continue;
-				
+
 				int index = decision_tree.size();
-				
+
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(rh);
 				vector<MyRect> tf = compute_compact_frame_transform(rectangles);
-				RectMat(rectanges) += tf;
+				RectMat(rectangles) += tf;
 				MyRect frame = compute_frame(rectangles);
 				MyPoint dim = dimensions(frame);
 				float rect_distances=0;
-				for (const auto [i, j] : edge)
+				for (const auto [i, j] : edges)
 				{
 					rect_distances += rect_distance(rectangles[i], rectangles[j]);
 				}
@@ -351,11 +342,12 @@ int main()
 
 		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes[5]);
 		MyRect frame_ = compute_frame(rectangles);
-		
+
 		build_decision_tree(-1, input_rectangles, build_decision_tree);
-		
+
 	//TODO: compute rankings and select best node.
-		
+		int n = input_rectangles.size();
+
 		FILE *f=fopen("holes.html", "w");
 
 		fprintf(f, "<html>\n<body>\n");

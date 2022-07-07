@@ -8,6 +8,8 @@
 
 void compute_stress_line(const std::vector<MyRect>& rectangles, std::vector<int> (&stress_line)[2]);
 
+std::vector<MyRect> compute_compact_frame_transform(const std::vector<MyRect>& rectangles);
+
 void compact_frame(std::vector<MyRect>& rectangles, const std::vector<std::vector<MPD_Arc> > &adjacency_list) ;
 
 void test_compact_frame() ;

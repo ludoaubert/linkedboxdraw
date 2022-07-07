@@ -11,7 +11,7 @@
 using namespace std ;
 
 
-vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles, const vector<vector<MPD_Arc> > &adjacency_list)
+vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 {
 	FunctionTimer ft("compute_compact_frame_transform");
 
@@ -459,7 +459,7 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyRect> compact_frame_transform = compute_compact_frame_transform(rectangles, adjacency_list) ;
+		vector<MyRect> compact_frame_transform = compute_compact_frame_transform(rectangles) ;
 		RectMat(rectangles) += compact_frame_transform;
 
 		vector<int> stress_line[2];
