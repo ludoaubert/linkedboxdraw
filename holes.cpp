@@ -36,9 +36,12 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; float distance[2];};
 
 
+//	lightweight node
+
 struct DecisionTreeNode
 {
 	int parent_index=-1;
+	int depth;
 	RectHole rh;
 }
 
@@ -316,6 +319,7 @@ int main()
 				v.push_back(ri);
 			}
 			ranges::reverse(v);
+			int depth = v.size();
 			
 			size_t size=decision_tree.size();
 			
@@ -324,7 +328,7 @@ int main()
 				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = rh;
 				if (ranges::includes(v, ri))
 					continue;
-				decision_tree.push_back({parent_index, rh});
+				decision_tree.push_back({parent_index, depth, rh});
 			}
 			
 			for (int i=size; i < decision_tree.size(); i++)
