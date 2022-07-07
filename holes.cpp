@@ -1,7 +1,6 @@
 #include <vector>
-#include <map>
-#include <tuple>
 #include <algorithm>
+#include <tuple>
 #include <ranges>
 #include <stdio.h>
 #include <assert.h>
@@ -205,7 +204,7 @@ int main()
 /*					| views::join;
 					| views::filter([&](const RectHole& rh){return (3*rh.value >= width(input_rectangles[rh.ri]));});
 */
-//TODO: use views::join
+//TODO: use views::join when g++-11 become available
 		for (int ri : views::iota(0,n))
 		{
 			vector<RectHole> v = compute_holes(ri);
@@ -218,19 +217,14 @@ int main()
 			});
 			ranges::copy(rg, back_inserter(holes));
 		}
-printf("holes.size()=%ld\n", holes.size());
-		map< tuple<int,MyRect>, int > rec2i;
-		for (int i=0; i < holes.size(); i++)
-		{
-			const auto& [ri, rj, corner, direction, value, rec, distance] = holes[i];
-			const auto key = make_tuple(ri, rec);
-			if (rec2i.count(key)==0)
-				rec2i[key] = i;
-		}
+		printf("holes.size()=%ld\n", holes.size());
+
+		auto proj=[](const RectHole& h){return make_tuple(h.ri, h.rec);}
+		ranges::sort(holes, {}, proj);
 		vector<RectHole> holes_dedup;
-		ranges::copy(rec2i | views::values | views::transform([&](int i){return holes[i];}),
-				back_inserter(holes_dedup)
-		);
+		ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
+		
+		printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 
 		ranges::sort(holes_dedup, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
 
