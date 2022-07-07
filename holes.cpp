@@ -201,6 +201,10 @@ int main()
 
 		vector<RectHole> holes;
 
+		auto rgh = views::iota(0,n) | views::transform(compute_holes);
+/*					| views::join;
+					| views::filter([&](const RectHole& rh){return (3*rh.value >= width(input_rectangles[rh.ri]));});
+*/
 //TODO: use views::join
 		for (int ri : views::iota(0,n))
 		{
