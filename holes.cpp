@@ -322,7 +322,7 @@ int main()
 			int depth = v.size();
 			
 			if (depth >= 5)
-				continue;
+				return;
 			
 			for (const auto& rh : holes | views::keep(15))
 			{
