@@ -188,13 +188,13 @@ int main()
 					}
 				}
 			}
-                        printf("holes.size()=%ld\n", holes.size());
+  //                      printf("holes.size()=%ld\n", holes.size());
 
                         ranges::sort(holes, {}, &RectHole::rec);
                         vector<RectHole> holes_dedup;
                         ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
 
-                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+//                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 			return holes_dedup;
 		};
 
@@ -218,12 +218,13 @@ int main()
 			}
 
 			ranges::sort(holes, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
-
+/*
 			for (auto [ri, rj, corner, direction, value, rec, distance] : holes | views::take(15))
 			{
 				printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
 					ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
 			}
+*/
 			return holes;
 		};
 
@@ -247,7 +248,7 @@ int main()
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
 
-	        printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
+	        //printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
 			int n=input_rectangles.size();
 			vector<MyRect> accumulated_transformation(n);
@@ -305,7 +306,7 @@ int main()
 			vector<RectHole> holes = compute_all_holes(input_rectangles);
 
 			vector<int> v;
-			for (int ri=parent_index; ri!=-1; ri=decision_tree[parent_index].parent_index)
+			for (int ri=parent_index; ri!=-1; ri=decision_tree[ri].parent_index)
 			{
 				v.push_back(ri);
 			}
@@ -326,6 +327,7 @@ int main()
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(rh);
 				vector<MyRect> tf = compute_compact_frame_transform(rectangles);
 				RectMat(rectangles) += tf;
+
 				MyRect frame = compute_frame(rectangles);
 				MyPoint dim = dimensions(frame);
 				float rect_distances=0;
@@ -334,6 +336,9 @@ int main()
 					rect_distances += rect_distance(rectangles[i], rectangles[j]);
 				}
 
+				size_t size = decision_tree.size();
+				if (size % 10000 ==0)
+					printf("decision_tree.size()=%ld\n", size);
 				decision_tree.push_back({parent_index, depth, rh, dim, rect_distances});
 
 				build_decision_tree(index, rectangles, build_decision_tree);

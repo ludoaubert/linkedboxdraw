@@ -13,7 +13,7 @@ using namespace std ;
 
 vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 {
-	FunctionTimer ft("compute_compact_frame_transform");
+//	FunctionTimer ft("compute_compact_frame_transform");
 
 	int n = rectangles.size();
 
@@ -31,8 +31,8 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 		const auto [x, y] = translation4[rect_dim] ;
 		const MyRect translation = {.m_left=x, .m_right=x,.m_top=y, .m_bottom=y};
 
-		auto compute_atf=[&](const vector<MyRect>& accumulated_transform, auto&& compute_atf)->vector<MyRect>{
-
+		while (true)
+		{
 			vector<MyRect> transform(n) ;
 
 			const MyRect frame = compute_frame(rectangles + accumulated_transform);
@@ -61,11 +61,13 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 			{
 				stop=true;
 
-				for (int ri : views::iota(0, n) | views::filter([&](int ri){return transform[ri]!=zero;}))
+				for (int ri=0; ri<n; ri++)
 				{
-					for (int rj : views::iota(0, n) | views::filter([&](int ri){return transform[ri]==zero;}))
+					for (int rj=0; rj<n; rj++)
 					{
-						if (intersect_strict(rectangles[ri]+accumulated_transform[ri]+transform[ri], rectangles[rj]+accumulated_transform[rj]+transform[rj]))
+						if (transform[ri]!=zero && transform[rj]==zero &&
+							intersect_strict(rectangles[ri]+accumulated_transform[ri]+transform[ri], rectangles[rj]+accumulated_transform[rj]+transform[rj])
+						)
 						{
 							stop = false;
 							transform[rj] = translation;
@@ -79,16 +81,11 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 
 			if ( rg.empty() == false )
 			{
-				vector<MyRect> zeros(n);
-				return zeros;
+				break;
 			}
-			else
-			{
-				return transform + compute_atf(accumulated_transform + transform, compute_atf);
-			}
-		};
 
-		RectMat(accumulated_transform) += compute_atf(accumulated_transform, compute_atf);
+			RectMat(accumulated_transform) += transform;
+		}
 	}
 
 	return accumulated_transform;
