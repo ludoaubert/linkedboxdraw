@@ -36,6 +36,13 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; float distance[2];};
 
 
+struct DecisionTreeNode
+{
+	int parent_index=-1;
+	RectHole rh;
+}
+
+
 int main()
 {
 
@@ -179,115 +186,71 @@ int main()
 			return holes;
 		};
 
-		int n = input_rectangles.size();
-
-		enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
-		struct ST { MyRect initial_tf, tf; };
-		const ST Transformations[2][2]={
-			{
-				{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-				{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
-			},
-			{
-				{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-				{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-			}
-		};
-
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
 
-		vector<RectHole> holes;
+		auto compute_holes=[](const vector<MyRect>& input_rectangles)->vector<RectHole>
+		{
+			vector<RectHole> holes;
 
-		auto rgh = views::iota(0,n) | views::transform(compute_holes);
-/*					| views::join;
-					| views::filter([&](const RectHole& rh){return (3*rh.value >= width(input_rectangles[rh.ri]));});
+			int n = input_rectangles.size();
+
+			auto rgh = views::iota(0,n) | views::transform(compute_holes);
+/*										| views::join;
+										| views::filter([&](const RectHole& rh){return (3*rh.value >= width(input_rectangles[rh.ri]));});
 */
 //TODO: use views::join when g++-11 become available
-		for (int ri : views::iota(0,n))
-		{
-			vector<RectHole> v = compute_holes(ri);
-			auto rg = v | views::filter([&](const RectHole& rh){
-				const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
+			for (int ri : views::iota(0,n))
+			{
+				vector<RectHole> v = compute_holes(ri);
+				auto rg = v | views::filter([&](const RectHole& rh){
+					const auto& [ri, rj, corner, direction, value, rec, distance] = rh;
 
-				if (3 * value < width(input_rectangles[ri]))
-					return false;
-				return true;
-			});
-			ranges::copy(rg, back_inserter(holes));
+					if (3 * value < width(input_rectangles[ri]))
+						return false;
+					return true;
+				});
+				ranges::copy(rg, back_inserter(holes));
+			}
+			printf("holes.size()=%ld\n", holes.size());
+
+			auto proj=[](const RectHole& h){return make_tuple(h.ri, h.rec);}
+			ranges::sort(holes, {}, proj);
+			vector<RectHole> holes_dedup;
+			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
+			
+			printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+
+			ranges::sort(holes_dedup, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
+
+			for (auto [ri, rj, corner, direction, value, rec, distance] : holes_dedup | views::take(15))
+			{
+				printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
+					ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
+			}
+			return holes_dedup;
 		}
-		printf("holes.size()=%ld\n", holes.size());
-
-		auto proj=[](const RectHole& h){return make_tuple(h.ri, h.rec);}
-		ranges::sort(holes, {}, proj);
-		vector<RectHole> holes_dedup;
-		ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
 		
-		printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+		vector<RectHole> holes = compute_holes(input_rectangles);
 
-		ranges::sort(holes_dedup, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
 
-		for (auto [ri, rj, corner, direction, value, rec, distance] : holes_dedup | views::take(15))
-		{
-			printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
-				ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
-		}
-
-		FILE *f=fopen("holes.html", "w");
-
-		fprintf(f, "<html>\n<body>\n");
-		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-		for (const MyRect& r : input_rectangles)
-		{
-				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
-						r.m_left, r.m_top, width(r), height(r));
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
-
-				int dy = 0;
-//TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
-				vector<int> contacts;
-				ranges::set_union(
-							edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
-							edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
-							std::back_inserter(contacts)
-									);
-				for (int ri : contacts)
-				{
-						dy += 14;
-						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
-				}
-
-				dy = 0;
-				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
-				{
-						dy += 14;
-						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
-				}
-		}
-
-		for (int hi=0; hi < holes_dedup.size() && hi < 15; hi++)
-		{
-				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = holes_dedup[hi];
-
-				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-						rec.m_left, rec.m_top, width(rec), height(rec));
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
-
-				int dy = 0;
-				for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-				{
-						dy += 14;
-						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
-				}
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">%.2f-%.2f</text>\n", rec.m_left + 30, rec.m_top + 3*14, distance[0], distance[1]);
-		}
-		fprintf(f, "</svg>\n</html>");
-		fclose(f);
+		
 
 		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
+
+			enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
+			struct ST { MyRect initial_tf, tf; };
+			const ST Transformations[2][2]={
+				{
+					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+				},
+				{
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+				}
+			};
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
 
@@ -342,8 +305,92 @@ int main()
 			return accumulated_transformation;
 		};
 
-		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes_dedup[5]);
+		vector<DecisionTreeNode> decision_tree;
+		
+		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
+			vector<RectHole> holes = compute_holes(input_rectangles);
+			
+			vector<int> v;
+			for (int ri=parent_index; ri!=-1; ri=decision_tree[parent_index].parent_index)
+			{
+				v.push_back(ri);
+			}
+			ranges::reverse(v);
+			
+			size_t size=decision_tree.size();
+			
+			for (const auto& rh : holes | views::keep(15))
+			{
+				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = rh;
+				if (ranges::includes(v, ri))
+					continue;
+				decision_tree.push_back({parent_index, rh});
+			}
+			
+			for (int i=size; i < decision_tree.size(); i++)
+			{
+				const auto [pi, rh] = decision_tree[i];
+				build_decision_tree(i, input_rectangles + compute_transformation(rh), build_decision_tree);
+			}
+		};
+
+		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes[5]);
 		MyRect frame_ = compute_frame(rectangles);
+		
+		build_decision_tree(-1, input_rectangles, build_decision_tree);
+		
+		FILE *f=fopen("holes.html", "w");
+
+		fprintf(f, "<html>\n<body>\n");
+		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
+		for (const MyRect& r : input_rectangles)
+		{
+				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
+						r.m_left, r.m_top, width(r), height(r));
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
+
+				int dy = 0;
+//TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
+				vector<int> contacts;
+				ranges::set_union(
+							edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+							edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+							std::back_inserter(contacts)
+									);
+				for (int ri : contacts)
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+				}
+
+				dy = 0;
+				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
+				}
+		}
+
+		for (int hi=0; hi < holes.size() && hi < 15; hi++)
+		{
+				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = holes[hi];
+
+				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+						rec.m_left, rec.m_top, width(rec), height(rec));
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
+
+				int dy = 0;
+				for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+				{
+						dy += 14;
+						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
+				}
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
+				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">%.2f-%.2f</text>\n", rec.m_left + 30, rec.m_top + 3*14, distance[0], distance[1]);
+		}
+		fprintf(f, "</svg>\n</html>");
+		fclose(f);
 
 		f=fopen("rects.html", "w");
 		fprintf(f, "<html>\n<body>\n");
