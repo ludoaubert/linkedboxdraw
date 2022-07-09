@@ -43,8 +43,10 @@ struct DecisionTreeNode
 	int parent_index=-1;
 	int depth;
 	RectHole rh;
+//KPIs:
 	MyPoint dim;
 	float rect_distances;
+	float potential;
 };
 
 
@@ -316,7 +318,7 @@ int main()
 			if (depth >= 5)
 				return;
 
-			for (const auto& rh : holes | views::take(15))
+			for (const auto& rh : holes | views::take(7))
 			{
 				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = rh;
 				if (ranges::binary_search(v, ri))
@@ -336,10 +338,23 @@ int main()
 					rect_distances += rect_distance(rectangles[i], rectangles[j]);
 				}
 
+				float potential=0;
+				for (const auto [i, j] : edges)
+				{
+					if (i != ri && j != ri)
+					{
+						const MyRect &r_h = input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+						float d = rect_distance(r_i, r_j);
+						float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
+						if (d_ < d)
+							potential += d - d_;
+					}
+				}
+
 				size_t size = decision_tree.size();
-				if (size % 10000 ==0)
+				if (size % 1000 ==0)
 					printf("decision_tree.size()=%ld\n", size);
-				decision_tree.push_back({parent_index, depth, rh, dim, rect_distances});
+				decision_tree.push_back({parent_index, depth, rh, dim, rect_distances, potential});
 
 				build_decision_tree(index, rectangles, build_decision_tree);
 			}
