@@ -337,9 +337,31 @@ int main()
 			vector<DecisionTreeNode> nodes;
 			ranges::copy(rg, back_inserter(nodes));
 
+			auto compute_ranking=[&](auto&& proj)->vector<int>{
+				vector<int> indices(nn), ranking(nn);
+				for (int ii=0; ii<nn; ii++)
+					indices[ii]=ii;
+				ranges::sort(indices, {}, proj);
+				for (int rk=0; rk<nn; rk++)
+				{
+					int ii = indices[rk];
+					ranking[ii]=rk;
+				}
+				return ranking;
+			};
+
+                        vector<int> ranking1 = compute_ranking([&](int ii){auto [w, h] = nodes[ii].dim; return max(w,h);});
+			vector<int> ranking2 = compute_ranking([&](int ii){return nodes[ii].rect_distances;});
+			vector<int> ranking3 = compute_ranking([&](int ii){return nodes[ii].potential;});
+			for (int& rk : ranking3)
+				rk = nn - rk;
+			vector<int> ranking = compute_ranking([&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
+
 			size_t index = decision_tree.size();
-			ranges::copy(nodes, back_inserter(decision_tree));
-			for (int ii : views::iota(0, nn))
+			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;})
+							| views::transform([&](int ii){return nodes[ii];}),
+					back_inserter(decision_tree));
+			for (int ii : views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;}))
 			{
 				build_decision_tree(index, node_rectangles[ii], build_decision_tree);
 			}
