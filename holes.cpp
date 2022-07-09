@@ -203,19 +203,27 @@ int main()
 		vector<RectHole> holes = compute_all_holes(input_rectangles);
 
 
-		auto compute_transformation = [&](const RectHole& rh)->vector<MyRect>{
+		auto compute_transformation = [&](const vector<MyRect>& input_rectangles, const RectHole& rh)->vector<MyRect>{
 
-			enum TransformationType {STRETCH_WIDTH, STRETCH_HEIGHT};
+			enum TransformationType {STRETCH_WIDTH, SQUEEZE_WIDTH, STRETCH_HEIGHT, SQUEEZE_HEIGHT};
 			struct ST { MyRect initial_tf, tf; };
-			const ST Transformations[2][2]={
+			const ST Transformations[4][2]={
 				{
 					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
 					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
 				},
+                                {
+                                        {.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+                                        {.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+                                },
 				{
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-				}
+				},
+                                {
+                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+                                }
 			};
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
@@ -228,38 +236,44 @@ int main()
 			accumulated_transformation[ri] = dr;
 			const MyRect zero;
 
-			const auto [n1, n2] = dimensions(-dr);
+                        auto ff=[&](const ST& st)->vector<MyRect> {
 
-			for (TransformationType transformationType : views::iota(0,n1+n2) | views::transform([&](int i){return i < n1 ? STRETCH_WIDTH : STRETCH_HEIGHT;}))
-			{
+                                const auto& [initial_tf, tf] = st;
 
-				auto ff=[&](const ST& st)->vector<MyRect> {
+                                vector<MyRect> transformation(n);
 
-					const auto& [initial_tf, tf] = st;
+                                transformation[ri] = initial_tf;
 
-					vector<MyRect> transformation(n);
-
-					transformation[ri] = initial_tf;
-
-					for (bool stop=false; stop==false; )
-					{
-						stop=true;
-						for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
-						{
-							for (int j : views::iota(0,n) | views::filter([&](int i){return transformation[i]!=zero;}))
-							{
-								if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-											input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
-								{
-									transformation[i] = tf;
-									stop=false;
-								}
+                                for (bool stop=false; stop==false; )
+                           	{
+                                        stop=true;
+                                        for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+                                 	{
+                                                for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
+                                    		{
+                                                	if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+                                                                             input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+                                                        {
+                                                                transformation[i] = tf;
+								stop=false;
 							}
 						}
 					}
-					return transformation;
-				};
+				}
+				return transformation;
+			};
 
+			const auto [n1, n2] = dimensions(-dr);
+
+			auto tt = [&](int i)->TransformationType{
+                        	if (i < abs(n1))
+                                	return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+                                else
+                                       	return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+			};
+
+			for (TransformationType transformationType : views::iota(0, abs(n1)+abs(n2)) | views::transform(tt))
+			{
 				vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
 										[&](const vector<MyRect>& tf){
 														const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
@@ -293,8 +307,62 @@ int main()
 			vector<RectHole> holes_;
 			ranges::copy(rgh, back_inserter(holes_));
 
-			auto rgr = holes_ | views::transform([&](const RectHole& rh)->vector<MyRect>{
-				vector<MyRect> rectangles = input_rectangles + compute_transformation(rh);
+                        auto compute_ranking=[](int n, auto&& proj)->vector<int>{
+                                vector<int> indices(n), ranking(n);
+                                for (int ii=0; ii<n; ii++)
+                                        indices[ii]=ii;
+                                ranges::sort(indices, {}, proj);
+                                for (int rk=0; rk<n; rk++)
+                                {
+                                        int ii = indices[rk];
+                                        ranking[ii]=rk;
+                                }
+                                return ranking;
+                        };
+
+			auto edge_distance_gain=[&](int ii)->float{
+				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+				float gain = 0;
+				for (const auto [i, j] : edges)
+				{
+					int k = i==ri ? j : i;
+					gain -= rect_distance(input_rectangles[ri], input_rectangles[k]);
+					gain += rect_distance(hrec, input_rectangles[k]);
+				}
+				return gain;
+			};
+
+			auto hole_potential=[&](int ii)->float{
+                                const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+                                float potential=0;
+                                for (const auto [i, j] : edges)
+                                {
+                                        if (i != ri && j != ri)
+                                        {
+                                                const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+                                                float d = rect_distance(r_i, r_j);
+                                                float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
+                                                if (d_ < d)
+                                                        potential += d - d_;
+                                        }
+                                }
+				return potential;
+			};
+
+                        vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
+			vector<int> ranking00 = compute_ranking(holes_.size(), hole_potential);
+			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii];});
+
+			vector<RectHole> keeper_holes;
+
+			int nn = holes_.size();
+
+                        ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < 15;})
+                                                        | views::transform([&](int ii){return holes_[ii];}),
+                                        back_inserter(keeper_holes));
+
+			auto rgr = keeper_holes | views::transform([&](const RectHole& rh)->vector<MyRect>{
+				vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, rh);
 				vector<MyRect> tf = compute_compact_frame_transform(rectangles);
 				RectMat(rectangles) += tf;
 				return rectangles;
@@ -303,11 +371,11 @@ int main()
 			vector<vector<MyRect> > node_rectangles;
 			ranges::copy(rgr, back_inserter(node_rectangles));
 
-			int nn = holes_.size();
+			nn = keeper_holes.size();
 			auto rg = views::iota(0, nn) | views::transform([&](int ii)->DecisionTreeNode{
 
 				const vector<MyRect>& rectangles = node_rectangles[ii];
-				const RectHole& rh = holes_[ii];
+				const RectHole& rh = keeper_holes[ii];
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 
 				MyRect frame = compute_frame(rectangles);
@@ -337,40 +405,31 @@ int main()
 			vector<DecisionTreeNode> nodes;
 			ranges::copy(rg, back_inserter(nodes));
 
-			auto compute_ranking=[&](auto&& proj)->vector<int>{
-				vector<int> indices(nn), ranking(nn);
-				for (int ii=0; ii<nn; ii++)
-					indices[ii]=ii;
-				ranges::sort(indices, {}, proj);
-				for (int rk=0; rk<nn; rk++)
-				{
-					int ii = indices[rk];
-					ranking[ii]=rk;
-				}
-				return ranking;
-			};
-
-                        vector<int> ranking1 = compute_ranking([&](int ii){auto [w, h] = nodes[ii].dim; return max(w,h);});
-			vector<int> ranking2 = compute_ranking([&](int ii){return nodes[ii].rect_distances;});
-			vector<int> ranking3 = compute_ranking([&](int ii){return nodes[ii].potential;});
+                        vector<int> ranking1 = compute_ranking(nodes.size(), [&](int ii){auto [w, h] = nodes[ii].dim; return max(w,h);});
+			vector<int> ranking2 = compute_ranking(nodes.size(), [&](int ii){return nodes[ii].rect_distances;});
+			vector<int> ranking3 = compute_ranking(nodes.size(), [&](int ii){return nodes[ii].potential;});
 			for (int& rk : ranking3)
 				rk = nn - rk;
-			vector<int> ranking = compute_ranking([&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
+			vector<int> ranking = compute_ranking(nodes.size(), [&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
 
 			size_t index = decision_tree.size();
 			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;})
 							| views::transform([&](int ii){return nodes[ii];}),
 					back_inserter(decision_tree));
+			printf("decision_tree.size()=%ld\n", decision_tree.size());
 			for (int ii : views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;}))
 			{
 				build_decision_tree(index, node_rectangles[ii], build_decision_tree);
+				if (decision_tree.size() % 100==0)
+					printf("decision_tree.size()=%ld\n", decision_tree.size());
 			}
 		};
 
-		vector<MyRect> rectangles = input_rectangles + compute_transformation(holes[5]);
-		MyRect frame_ = compute_frame(rectangles);
+		printf("calling build_decision_tree()\n");
+                build_decision_tree(-1, input_rectangles, build_decision_tree);
 
-		build_decision_tree(-1, input_rectangles, build_decision_tree);
+		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
+		MyRect frame_ = compute_frame(rectangles);
 
 	//TODO: compute rankings and select best node.
 		int n = input_rectangles.size();
