@@ -33,7 +33,7 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec; float distance[2];};
+struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 
 //	lightweight node
@@ -119,27 +119,6 @@ int main()
 
 		const MyRect frame = compute_frame(input_rectangles);
 
-		struct Config{int ri; const MyRect& r;};
-
-		auto compute_distance=[&](const Config& config)->float{
-			const auto& [ri, r] = config;
-
-			float distance=0;
-
-			vector<int> logical_contacts;
-			ranges::set_union(
-				edges | views::filter([&](const Edge& e){return e.from==ri;}) | views::transform(&Edge::to),
-				edges | views::filter([&](const Edge& e){return e.to==ri;}) | views::transform(&Edge::from),
-				std::back_inserter(logical_contacts)
-			);
-
-			for (int rj : logical_contacts)
-			{
-				distance += rect_distance(r, input_rectangles[rj]);
-			}
-			return distance;
-		};
-
 		auto compute_holes = [&](int ri)->vector<RectHole>{
 
 			const MyRect shape = input_rectangles[ri];
@@ -177,15 +156,7 @@ int main()
 						if (m > 2 && 3*m >= width(input_rectangles[ri]))
 						{
 							MyRect rec = rect(pt, pt + m*dir);
-							Config config2[2]={
-								{.ri=ri, .r=input_rectangles[ri]},
-								{.ri=ri, .r=rec}
-							};
-
-							float distance[2];
-							for (int c=0; c<2; c++)
-								distance[c] = compute_distance(config2[c]);
-							holes.push_back({ri, ir.i, rectCorner, dir, m, rec, {distance[0],distance[1]}});
+							holes.push_back({ri, ir.i, rectCorner, dir, m, rec});
 						}
 					}
 				}
@@ -213,13 +184,12 @@ int main()
 			auto rgh = views::iota(0,n) | views::transform(compute_holes);
 /*						| views::join;
 */
-//TODO: use views::join when g++-11 become available
+//TODO: use views::join when g++-12 become available
 			for (int ri : views::iota(0,n))
 			{
 				ranges::copy(compute_holes(ri), back_inserter(holes));
 			}
 
-			ranges::sort(holes, {}, [](const RectHole& h){return h.distance[1]-h.distance[0];});
 /*
 			for (auto [ri, rj, corner, direction, value, rec, distance] : holes | views::take(15))
 			{
@@ -248,7 +218,7 @@ int main()
 				}
 			};
 
-			const auto& [ri, rj, rectCorner, dir, value, hrec, distance] = rh;
+			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 
 	        //printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
@@ -305,6 +275,7 @@ int main()
 		vector<DecisionTreeNode> decision_tree;
 
 		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
+
 			vector<RectHole> holes = compute_all_holes(input_rectangles);
 
 			vector<int> v;
@@ -318,17 +289,26 @@ int main()
 			if (depth >= 5)
 				return;
 
-			for (const auto& rh : holes | views::take(7))
-			{
-				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = rh;
-				if (ranges::binary_search(v, ri))
-					continue;
+			auto rgh = holes | views::filter([&](const RectHole& rh){return ranges::binary_search(v,rh.ri)==false;});
+			vector<RectHole> holes_;
+			ranges::copy(rgh, back_inserter(holes_));
 
-				int index = decision_tree.size();
-
+			auto rgr = holes_ | views::transform([&](const RectHole& rh)->vector<MyRect>{
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(rh);
 				vector<MyRect> tf = compute_compact_frame_transform(rectangles);
 				RectMat(rectangles) += tf;
+				return rectangles;
+			});
+
+			vector<vector<MyRect> > node_rectangles;
+			ranges::copy(rgr, back_inserter(node_rectangles));
+
+			int nn = holes_.size();
+			auto rg = views::iota(0, nn) | views::transform([&](int ii)->DecisionTreeNode{
+
+				const vector<MyRect>& rectangles = node_rectangles[ii];
+				const RectHole& rh = holes_[ii];
+				const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 
 				MyRect frame = compute_frame(rectangles);
 				MyPoint dim = dimensions(frame);
@@ -343,7 +323,7 @@ int main()
 				{
 					if (i != ri && j != ri)
 					{
-						const MyRect &r_h = input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+						const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
 						float d = rect_distance(r_i, r_j);
 						float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
 						if (d_ < d)
@@ -351,12 +331,17 @@ int main()
 					}
 				}
 
-				size_t size = decision_tree.size();
-				if (size % 1000 ==0)
-					printf("decision_tree.size()=%ld\n", size);
-				decision_tree.push_back({parent_index, depth, rh, dim, rect_distances, potential});
+				return {parent_index, depth, rh, dim, rect_distances, potential};
+			});
 
-				build_decision_tree(index, rectangles, build_decision_tree);
+			vector<DecisionTreeNode> nodes;
+			ranges::copy(rg, back_inserter(nodes));
+
+			size_t index = decision_tree.size();
+			ranges::copy(nodes, back_inserter(decision_tree));
+			for (int ii : views::iota(0, nn))
+			{
+				build_decision_tree(index, node_rectangles[ii], build_decision_tree);
 			}
 		};
 
@@ -402,7 +387,7 @@ int main()
 
 		for (int hi=0; hi < holes.size() && hi < 15; hi++)
 		{
-				const auto& [ri, rj, RectCorner, direction, value, rec, distance] = holes[hi];
+				const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
 
 				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 						rec.m_left, rec.m_top, width(rec), height(rec));
@@ -416,7 +401,6 @@ int main()
 				}
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
-				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">%.2f-%.2f</text>\n", rec.m_left + 30, rec.m_top + 3*14, distance[0], distance[1]);
 		}
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
