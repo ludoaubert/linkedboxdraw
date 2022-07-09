@@ -286,6 +286,19 @@ int main()
 			return accumulated_transformation;
 		};
 
+                auto compute_ranking=[](int n, auto&& proj)->vector<int>{
+                        vector<int> indices(n), ranking(n);
+                        for (int ii=0; ii<n; ii++)
+                                indices[ii]=ii;
+                        ranges::sort(indices, {}, proj);
+                        for (int rk=0; rk<n; rk++)
+                        {
+                                int ii = indices[rk];
+                                ranking[ii]=rk;
+                        }
+                        return ranking;
+                };
+
 		vector<DecisionTreeNode> decision_tree;
 
 		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
@@ -428,7 +441,35 @@ int main()
 		printf("calling build_decision_tree()\n");
                 build_decision_tree(-1, input_rectangles, build_decision_tree);
 
-		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
+                vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return decision_tree[ii].rect_distances;});
+                vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return max(w, h);});
+                vector<int> ranking3 = compute_ranking(decision_tree.size(), [&](int ii){return ranking1[ii]+ranking2[ii];});
+
+		int ndt = decision_tree.size();
+		int i_best = ranges::min( views::iota(0, ndt), {}, [&](int ii){return ranking3[ii];});
+		int depth = decision_tree[i_best].depth;
+		vector<RectHole> chemin(depth+1);
+		printf("best ranking result:\n");
+		for (int i=i_best, j=depth; i!=-1; i=decision_tree[i].parent_index, j--)
+		{
+			const auto& [parent_index, depth, rh, dim, rect_distances, potential] = decision_tree[i];
+			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
+			printf("ri=%d depth=%d\n", ri, depth);
+			printf("rect_distances=%.2f min(dim)=%d\n", rect_distances, min(dim.x,dim.y));
+			chemin[j] = rh;
+			printf("chemin[%d] = rh;\n", j);
+		}
+
+		vector<MyRect> rectangles = input_rectangles;
+		for (const RectHole& rh : chemin)
+		{
+                	vector<MyRect> rectangles2 = rectangles + compute_transformation(rectangles, rh);
+                        vector<MyRect> tf = compute_compact_frame_transform(rectangles2);
+                        RectMat(rectangles2) += tf;
+                        rectangles = rectangles2;
+		}
+
+//		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
 		MyRect frame_ = compute_frame(rectangles);
 
 	//TODO: compute rankings and select best node.
@@ -438,7 +479,7 @@ int main()
 
 		fprintf(f, "<html>\n<body>\n");
 		fprintf(f, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-		for (const MyRect& r : input_rectangles)
+		for (const MyRect& r : /*input_*/rectangles)
 		{
 				fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",
 						r.m_left, r.m_top, width(r), height(r));
@@ -459,13 +500,13 @@ int main()
 				}
 
 				dy = 0;
-				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
+				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, /*input_*/rectangles[rj]);}))
 				{
 						dy += 14;
 						fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
 				}
 		}
-
+/*
 		for (int hi=0; hi < holes.size() && hi < 15; hi++)
 		{
 				const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
@@ -483,6 +524,7 @@ int main()
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
 				fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
 		}
+*/
 		fprintf(f, "</svg>\n</html>");
 		fclose(f);
 
