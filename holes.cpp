@@ -446,7 +446,7 @@ int main()
 
                         pos+= sprintf(buffer+pos, "<html>\n<body>\n");
                         pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-                        for (const MyRect& r : /*input_*/rectangles)
+                        for (const MyRect& r : rectangles)
                         {
                                 pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5>",r.m_left, r.m_top, width(r), height(r));
                                 pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
@@ -492,6 +492,7 @@ int main()
                         }
 */
                         pos += sprintf(buffer+pos, "</svg>\n</html>");
+			buffer[pos]=0;
                         return buffer;
                 };
 
