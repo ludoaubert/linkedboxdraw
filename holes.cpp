@@ -171,26 +171,35 @@ int main()
 							//printf("[%d %d]\n", m, M);
 						}
 
-						for (int ri : views::iota(0,n))
+						if (m > 2)
 						{
-							if (m > 2 && 3*m >= width(input_rectangles[ri]))
-							{
-								MyRect rec = rect(pt, pt + m*dir);
-								holes.push_back({ri, ir.i, rectCorner, dir, m, rec});
-							}
+							MyRect rec = rect(pt, pt + m*dir);
+							holes.push_back({.ri=-1, .rj=ir.i, .corner=rectCorner, .direction=dir, .value=m, .rec=rec});
 						}
 					}
 				}
 			}
   //                      printf("holes.size()=%ld\n", holes.size());
 
-			auto proj = [](const RectHole& rh){return make_tuple(rh.ri, rh.rec);};
-                        ranges::sort(holes, {}, proj);
+                        ranges::sort(holes, {}, &RectHole::rec);
                         vector<RectHole> holes_dedup;
-                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
+                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+
+			holes.clear();
+
+                        for (int ri : views::iota(0,n))
+                        {
+				for (const auto& [ri_, rj, corner, direction, value, rec] : holes_dedup)
+				{
+                                	if (3*value >= width(input_rectangles[ri]))
+                                	{
+                                		holes.push_back({ri, rj, corner, direction, value, rec});
+					}
+                                }
+                        }
 
 //                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
-			return holes_dedup;
+			return holes;
 		};
 
 		vector<int> stress_line[2];
