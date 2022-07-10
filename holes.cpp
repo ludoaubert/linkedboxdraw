@@ -119,12 +119,10 @@ int main()
 
 		const MyRect frame = compute_frame(input_rectangles);
 
-		auto compute_holes = [&](int ri)->vector<RectHole>{
+		auto compute_holes = [&](const vector<MyRect>& input_rectangles)->vector<RectHole>{
 
-			const MyRect shape = input_rectangles[ri];
-			auto [width_, height_] = dimensions(shape);
-
-			const float k = 1.0f * height_ / width_;
+			int n = input_rectangles.size();
+			const float k = 1.0f;
 
 			vector<RectHole> holes;
 
@@ -153,10 +151,14 @@ int main()
 							(rg.empty() && is_inside(rec,frame) ? m : M) = value;
 							//printf("[%d %d]\n", m, M);
 						}
-						if (m > 2 && 3*m >= width(input_rectangles[ri]))
+
+						for (int ri : views::iota(0,n))
 						{
-							MyRect rec = rect(pt, pt + m*dir);
-							holes.push_back({ri, ir.i, rectCorner, dir, m, rec});
+							if (m > 2 && 3*m >= width(input_rectangles[ri]))
+							{
+								MyRect rec = rect(pt, pt + m*dir);
+								holes.push_back({ri, ir.i, rectCorner, dir, m, rec});
+							}
 						}
 					}
 				}
@@ -174,33 +176,7 @@ int main()
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
-
-		auto compute_all_holes=[&](const vector<MyRect>& input_rectangles)->vector<RectHole>
-		{
-			vector<RectHole> holes;
-
-			int n = input_rectangles.size();
-
-			auto rgh = views::iota(0,n) | views::transform(compute_holes);
-/*						| views::join;
-*/
-//TODO: use views::join when g++-12 become available
-			for (int ri : views::iota(0,n))
-			{
-				ranges::copy(compute_holes(ri), back_inserter(holes));
-			}
-
-/*
-			for (auto [ri, rj, corner, direction, value, rec, distance] : holes | views::take(15))
-			{
-				printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d distance:%.2f => %.2f\n",
-					ri, width(input_rectangles[ri]), rj, RectCornerString[corner], direction.x, direction.y, value, distance[0], distance[1]);
-			}
-*/
-			return holes;
-		};
-
-		vector<RectHole> holes = compute_all_holes(input_rectangles);
+		vector<RectHole> holes = compute_holes(input_rectangles);
 
 
 		auto compute_transformation = [&](const vector<MyRect>& input_rectangles, const RectHole& rh)->vector<MyRect>{
@@ -303,12 +279,12 @@ int main()
 
 		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
 
-			vector<RectHole> holes = compute_all_holes(input_rectangles);
+			vector<RectHole> holes = compute_holes(input_rectangles);
 
 			vector<int> v;
-			for (int ri=parent_index; ri!=-1; ri=decision_tree[ri].parent_index)
+			for (int i=parent_index; i!=-1; i=decision_tree[i].parent_index)
 			{
-				v.push_back(ri);
+				v.push_back(decision_tree[i].rh.ri);
 			}
 			ranges::reverse(v);
 			int depth = v.size();
