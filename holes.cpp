@@ -55,9 +55,27 @@ int main()
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
-	const TestContext test_contexts[1]={
+	const vector<TestContext> test_contexts={
 	{
-		.testid=3,
+		.testid=1,
+		.input_rectangles = {
+			{.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
+                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+                        {.m_left=220, .m_right=320, .m_top=120, .m_bottom=220, .i=2}
+		},
+		.edges = {
+                        {.from=1,.to=0},
+                        {.from=1,.to=2}
+		},
+
+		.expected_rectangles={
+                        {.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
+                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+                        {.m_left=20, .m_right=120, .m_top=120, .m_bottom=220, .i=2}
+		}
+	},
+	{
+		.testid=2,
 		.input_rectangles = {
 			{.m_left=396-RECT_BORDER+FRAME_BORDER, .m_right=396+162+RECT_BORDER+FRAME_BORDER, .m_top=10-RECT_BORDER+FRAME_BORDER, .m_bottom=10+104+RECT_BORDER+FRAME_BORDER, .i=0},//8
 			{.m_left=320-RECT_BORDER+FRAME_BORDER, .m_right=320+182+RECT_BORDER+FRAME_BORDER, .m_top=330-RECT_BORDER+FRAME_BORDER, .m_bottom=330+72+RECT_BORDER+FRAME_BORDER, .i=1},//9
@@ -116,7 +134,8 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-
+if (testid != 1)
+	return 0;
 		const MyRect frame = compute_frame(input_rectangles);
 
 		auto compute_holes = [&](const vector<MyRect>& input_rectangles)->vector<RectHole>{
@@ -286,7 +305,13 @@ int main()
 			{
 				v.push_back(decision_tree[i].rh.ri);
 			}
-			ranges::reverse(v);
+			ranges::sort(v);
+/*
+printf("moved_rectangles:");
+for (int ri : v)
+	printf("%d,", ri);
+printf("\n");
+*/
 			int depth = v.size();
 
 			if (depth >= 5)
@@ -296,13 +321,25 @@ int main()
 			vector<RectHole> holes_;
 			ranges::copy(rgh, back_inserter(holes_));
 			holes.clear();
+/*
+printf("move candidate rectangles:");
+for (const RectHole rh : holes_)
+        printf("%d,", rh.ri);
+printf("\n");
+*/
 
 			auto edge_distance_gain=[&](int ii)->float{
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
 				float gain = 0;
 				for (const auto [i, j] : edges)
 				{
-					int k = i==ri ? j : i;
+					int k = -1;
+					if (i==ri)
+						k = j;
+					else if (j==ri)
+						k = i;
+					if (k == -1)
+						continue;
 					gain -= rect_distance(input_rectangles[ri], input_rectangles[k]);
 					gain += rect_distance(hrec, input_rectangles[k]);
 				}
