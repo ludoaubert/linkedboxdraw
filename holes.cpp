@@ -184,9 +184,10 @@ if (testid != 1)
 			}
   //                      printf("holes.size()=%ld\n", holes.size());
 
-                        ranges::sort(holes, {}, &RectHole::rec);
+			auto proj = [](const RectHole& rh){return make_tuple(rh.ri, rh.rec);};
+                        ranges::sort(holes, {}, proj);
                         vector<RectHole> holes_dedup;
-                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, proj);
 
 //                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 			return holes_dedup;
@@ -306,12 +307,12 @@ if (testid != 1)
 				v.push_back(decision_tree[i].rh.ri);
 			}
 			ranges::sort(v);
-/*
+
 printf("moved_rectangles:");
 for (int ri : v)
 	printf("%d,", ri);
 printf("\n");
-*/
+
 			int depth = v.size();
 
 			if (depth >= 5)
@@ -321,12 +322,14 @@ printf("\n");
 			vector<RectHole> holes_;
 			ranges::copy(rgh, back_inserter(holes_));
 			holes.clear();
-/*
+
 printf("move candidate rectangles:");
 for (const RectHole rh : holes_)
-        printf("%d,", rh.ri);
+{
+        const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rh.rec;
+        printf("%d => {%d,%d,%d,%d},", rh.ri, m_left, m_right, m_top, m_bottom);
+}
 printf("\n");
-*/
 
 			auto edge_distance_gain=[&](int ii)->float{
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
