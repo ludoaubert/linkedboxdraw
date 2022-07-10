@@ -295,19 +295,7 @@ int main()
 			auto rgh = holes | views::filter([&](const RectHole& rh){return ranges::binary_search(v,rh.ri)==false;});
 			vector<RectHole> holes_;
 			ranges::copy(rgh, back_inserter(holes_));
-
-                        auto compute_ranking=[](int n, auto&& proj)->vector<int>{
-                                vector<int> indices(n), ranking(n);
-                                for (int ii=0; ii<n; ii++)
-                                        indices[ii]=ii;
-                                ranges::sort(indices, {}, proj);
-                                for (int rk=0; rk<n; rk++)
-                                {
-                                        int ii = indices[rk];
-                                        ranking[ii]=rk;
-                                }
-                                return ranking;
-                        };
+			holes.clear();
 
 			auto edge_distance_gain=[&](int ii)->float{
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
@@ -401,16 +389,14 @@ int main()
 				rk = nn - rk;
 			vector<int> ranking = compute_ranking(nodes.size(), [&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
 
+			auto ft=[&](int ii){return ranking[ii] < 7;};
 			size_t index = decision_tree.size();
-			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;})
-							| views::transform([&](int ii){return nodes[ii];}),
+			ranges::copy(views::iota(0,nn) | views::filter(ft) | views::transform([&](int ii){return nodes[ii];}),
 					back_inserter(decision_tree));
-			printf("decision_tree.size()=%ld\n", decision_tree.size());
-			for (int ii : views::iota(0,nn) | views::filter([&](int ii){return ranking[ii] < 7;}))
+
+			for (int ii : views::iota(0,nn) | views::filter(ft))
 			{
-				build_decision_tree(index, node_rectangles[ii], build_decision_tree);
-				if (decision_tree.size() % 100==0)
-					printf("decision_tree.size()=%ld\n", decision_tree.size());
+				build_decision_tree(index++, node_rectangles[ii], build_decision_tree);
 			}
 		};
 
@@ -489,7 +475,7 @@ int main()
 			const auto& [parent_index, depth, rh, dim, rect_distances, potential] = decision_tree[i];
 			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 			printf("ri=%d depth=%d\n", ri, depth);
-			printf("rect_distances=%.2f min(dim)=%d\n", rect_distances, min(dim.x,dim.y));
+			printf("rect_distances=%.2f max(dim)=%d\n", rect_distances, max(dim.x,dim.y));
 			chemin[j] = rh;
 			printf("chemin[%d] = rh;\n", j);
 		}
