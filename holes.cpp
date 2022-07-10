@@ -134,8 +134,8 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-if (testid != 1)
-	return 0;
+//if (testid != 1)
+//	return 0;
 		const MyRect frame = compute_frame(input_rectangles);
 
 		auto compute_holes = [&](const vector<MyRect>& input_rectangles)->vector<RectHole>{
@@ -297,32 +297,25 @@ if (testid != 1)
 
 		vector<DecisionTreeNode> decision_tree;
 
-		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, auto&& build_decision_tree)->void{
+		auto build_decision_tree = [&](int parent_index, const vector<MyRect>& input_rectangles, const vector<int>& moved_rectangles, auto&& build_decision_tree)->void{
 
 			vector<RectHole> holes = compute_holes(input_rectangles);
-
-			vector<int> v;
-			for (int i=parent_index; i!=-1; i=decision_tree[i].parent_index)
-			{
-				v.push_back(decision_tree[i].rh.ri);
-			}
-			ranges::sort(v);
-
+/*
 printf("moved_rectangles:");
-for (int ri : v)
+for (int ri : moved_rectangles)
 	printf("%d,", ri);
 printf("\n");
-
-			int depth = v.size();
+*/
+			int depth = moved_rectangles.size();
 
 			if (depth >= 5)
 				return;
 
-			auto rgh = holes | views::filter([&](const RectHole& rh){return ranges::binary_search(v,rh.ri)==false;});
+			auto rgh = holes | views::filter([&](const RectHole& rh){return ranges::binary_search(moved_rectangles,rh.ri)==false;});
 			vector<RectHole> holes_;
 			ranges::copy(rgh, back_inserter(holes_));
 			holes.clear();
-
+/*
 printf("move candidate rectangles:");
 for (const RectHole rh : holes_)
 {
@@ -330,7 +323,7 @@ for (const RectHole rh : holes_)
         printf("%d => {%d,%d,%d,%d},", rh.ri, m_left, m_right, m_top, m_bottom);
 }
 printf("\n");
-
+*/
 			auto edge_distance_gain=[&](int ii)->float{
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
 				float gain = 0;
@@ -436,7 +429,9 @@ printf("\n");
 
 			for (int ii : views::iota(0,nn) | views::filter(ft))
 			{
-				build_decision_tree(index++, node_rectangles[ii], build_decision_tree);
+				vector<int> v, a{nodes[ii].rh.ri};
+				ranges::set_union(moved_rectangles, a, back_inserter(v));
+				build_decision_tree(index++, node_rectangles[ii], v, build_decision_tree);
 			}
 		};
 
@@ -499,7 +494,7 @@ printf("\n");
                 };
 
 		printf("calling build_decision_tree()\n");
-                build_decision_tree(-1, input_rectangles, build_decision_tree);
+                build_decision_tree(-1, input_rectangles, {}, build_decision_tree);
 
                 vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return decision_tree[ii].rect_distances;});
                 vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return max(w, h);});
