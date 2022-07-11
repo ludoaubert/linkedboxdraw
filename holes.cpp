@@ -169,8 +169,8 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-if (testid != 1)
-	return 0;
+//if (testid != 1)
+//	return 0;
 		const MyRect frame = compute_frame(input_rectangles);
 
 		auto compute_holes = [&](const vector<MyRect>& input_rectangles)->vector<RectHole>{
@@ -214,7 +214,7 @@ if (testid != 1)
 					}
 				}
 			}
-
+/*
 			printf("holes.size()=%ld before cross join with input rectangles (ri=-1)\n", holes.size());
 			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
 			{
@@ -222,11 +222,11 @@ if (testid != 1)
 				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
 						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
 			}
-
+*/
 			ranges::sort(holes, {}, &RectHole::rec);
 			vector<RectHole> holes_dedup;
 			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
-
+/*
 			printf("holes_dedup.size()=%ld before cross join with input rectangles (ri=-1)\n", holes_dedup.size());
 			for (const auto& [ri, rj, corner, direction, value, rec] : holes_dedup)
 			{
@@ -234,7 +234,7 @@ if (testid != 1)
 				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
 						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
 			}
-
+*/
 			holes.clear();
 
 			for (int ri : views::iota(0,n))
@@ -247,7 +247,7 @@ if (testid != 1)
 					}
 				}
 			}
-
+/*
 			printf("holes.size()=%ld after cross join with input rectangles (ri value is set)\n", holes.size());
 			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
 			{
@@ -255,7 +255,7 @@ if (testid != 1)
 				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
 						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
 			}
-
+*/
 			return holes;
 		};
 
