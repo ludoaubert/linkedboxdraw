@@ -8,41 +8,6 @@
 #include "compact_frame.h"
 using namespace std;
 
-struct RankingCap{
-	int n;
-	int before_heavy_computation;
-	int after_heavy_computation;
-};
-
-const vector<RankingCap> ranking_cap={
-	{.n=0, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=1, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=2, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=3, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=4, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=5, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=6, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
-	{.n=7, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=8, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=9, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=10, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=11, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=12, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=13, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=14, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=15, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=16, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=17, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=18, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=19, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=20, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=21, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=22, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=23, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=24, .before_heavy_computation=15, .after_heavy_computation=7},
-	{.n=25, .before_heavy_computation=15, .after_heavy_computation=7}
-};
-
 struct Edge {
 	int from;
 	int to;
@@ -95,18 +60,18 @@ int main()
 		.testid=1,
 		.input_rectangles = {
 			{.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
-			{.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
-			{.m_left=220, .m_right=320, .m_top=120, .m_bottom=220, .i=2}
+                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+                        {.m_left=220, .m_right=320, .m_top=120, .m_bottom=220, .i=2}
 		},
 		.edges = {
-			{.from=1,.to=0},
-			{.from=1,.to=2}
+                        {.from=1,.to=0},
+                        {.from=1,.to=2}
 		},
 
 		.expected_rectangles={
-			{.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
-			{.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
-			{.m_left=20, .m_right=120, .m_top=120, .m_bottom=220, .i=2}
+                        {.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
+                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+                        {.m_left=20, .m_right=120, .m_top=120, .m_bottom=220, .i=2}
 		}
 	},
 	{
@@ -214,48 +179,26 @@ int main()
 					}
 				}
 			}
-/*
-			printf("holes.size()=%ld before cross join with input rectangles (ri=-1)\n", holes.size());
-			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
-			{
-				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
-				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
-						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
-			}
-*/
-			ranges::sort(holes, {}, &RectHole::rec);
-			vector<RectHole> holes_dedup;
-			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
-/*
-			printf("holes_dedup.size()=%ld before cross join with input rectangles (ri=-1)\n", holes_dedup.size());
-			for (const auto& [ri, rj, corner, direction, value, rec] : holes_dedup)
-			{
-				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
-				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
-						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
-			}
-*/
+  //                      printf("holes.size()=%ld\n", holes.size());
+
+                        ranges::sort(holes, {}, &RectHole::rec);
+                        vector<RectHole> holes_dedup;
+                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+
 			holes.clear();
 
-			for (int ri : views::iota(0,n))
-			{
+                        for (int ri : views::iota(0,n))
+                        {
 				for (const auto& [ri_, rj, corner, direction, value, rec] : holes_dedup)
 				{
-					if (3*value >= width(input_rectangles[ri]))
-					{
-						holes.push_back({ri, rj, corner, direction, value, rec});
+                                	if (3*value >= width(input_rectangles[ri]))
+                                	{
+                                		holes.push_back({ri, rj, corner, direction, value, rec});
 					}
-				}
-			}
-/*
-			printf("holes.size()=%ld after cross join with input rectangles (ri value is set)\n", holes.size());
-			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
-			{
-				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
-				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
-						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
-			}
-*/
+                                }
+                        }
+
+//                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 			return holes;
 		};
 
@@ -274,18 +217,18 @@ int main()
 					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
 					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
 				},
-				{
-					{.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
-					{.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-				},
+                                {
+                                        {.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+                                        {.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+                                },
 				{
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
 				},
-				{
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-				}
+                                {
+                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+                                }
 			};
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
@@ -298,25 +241,25 @@ int main()
 			accumulated_transformation[ri] = dr;
 			const MyRect zero;
 
-			auto ff=[&](const ST& st)->vector<MyRect> {
+                        auto ff=[&](const ST& st)->vector<MyRect> {
 
-				const auto& [initial_tf, tf] = st;
+                                const auto& [initial_tf, tf] = st;
 
-				vector<MyRect> transformation(n);
+                                vector<MyRect> transformation(n);
 
-				transformation[ri] = initial_tf;
+                                transformation[ri] = initial_tf;
 
-				for (bool stop=false; stop==false; )
-				{
-					stop=true;
-					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
-					{
-						for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
-						{
-							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-												input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
-							{
-								transformation[i] = tf;
+                                for (bool stop=false; stop==false; )
+                           	{
+                                        stop=true;
+                                        for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+                                 	{
+                                                for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
+                                    		{
+                                                	if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+                                                                             input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+                                                        {
+                                                                transformation[i] = tf;
 								stop=false;
 							}
 						}
@@ -328,10 +271,10 @@ int main()
 			const auto [n1, n2] = dimensions(-dr);
 
 			auto tt = [&](int i)->TransformationType{
-							if (i < abs(n1))
-								return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
-							else
-								return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+                        	if (i < abs(n1))
+                                	return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+                                else
+                                       	return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
 			};
 
 			for (TransformationType transformationType : views::iota(0, abs(n1)+abs(n2)) | views::transform(tt))
@@ -348,18 +291,18 @@ int main()
 			return accumulated_transformation;
 		};
 
-		auto compute_ranking=[](int n, auto&& proj)->vector<int>{
-			vector<int> indices(n), ranking(n);
-			for (int ii=0; ii<n; ii++)
-				indices[ii]=ii;
-			ranges::sort(indices, {}, proj);
-			for (int rk=0; rk<n; rk++)
-			{
-				int ii = indices[rk];
-				ranking[ii]=rk;
-			}
-			return ranking;
-		};
+                auto compute_ranking=[](int n, auto&& proj)->vector<int>{
+                        vector<int> indices(n), ranking(n);
+                        for (int ii=0; ii<n; ii++)
+                                indices[ii]=ii;
+                        ranges::sort(indices, {}, proj);
+                        for (int rk=0; rk<n; rk++)
+                        {
+                                int ii = indices[rk];
+                                ranking[ii]=rk;
+                        }
+                        return ranking;
+                };
 
 		vector<DecisionTreeNode> decision_tree;
 
@@ -408,52 +351,34 @@ printf("\n");
 				return gain;
 			};
 
-			auto frame_size_gain=[&](int ii)->int{
-				int n = input_rectangles.size();
-				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
-				const MyRect frame = compute_frame(input_rectangles);
-				auto rg = views::iota(0,n) | views::transform([&](int i){return i==ri ? hrec : input_rectangles[i];});
-				const MyRect frame_ = {
-						ranges::min(rg | views::transform(&MyRect::m_left)),
-						ranges::max(rg | views::transform(&MyRect::m_right)),
-						ranges::min(rg | views::transform(&MyRect::m_top)),
-						ranges::max(rg | views::transform(&MyRect::m_bottom))
-				};
-				const auto [w, h]=dimensions(frame);
-				const auto [w_, h_]=dimensions(frame_);
-				return max(w_,h_) - max(w,h);
-			};
-
 			auto hole_potential=[&](int ii)->float{
-				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
-				float potential=0;
-				for (const auto [i, j] : edges)
-				{
-					if (i != ri && j != ri)
-					{
-						const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
-						float d = rect_distance(r_i, r_j);
-						float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
-						if (d_ < d)
-								potential += d - d_;
-					}
-				}
+                                const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+                                float potential=0;
+                                for (const auto [i, j] : edges)
+                                {
+                                        if (i != ri && j != ri)
+                                        {
+                                                const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+                                                float d = rect_distance(r_i, r_j);
+                                                float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
+                                                if (d_ < d)
+                                                        potential += d - d_;
+                                        }
+                                }
 				return potential;
 			};
 
-			vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
+                        vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
 			vector<int> ranking00 = compute_ranking(holes_.size(), hole_potential);
-			vector<int> ranking10 = compute_ranking(holes_.size(), frame_size_gain);
-			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii]+ranking10[ii];});
+			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii];});
 
 			vector<RectHole> keeper_holes;
 
 			int nn = holes_.size();
-			int n = input_rectangles.size();
 
-			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < ranking_cap[n].before_heavy_computation;})
-											| views::transform([&](int ii){return holes_[ii];}),
-							back_inserter(keeper_holes));
+                        ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < 15;})
+                                                        | views::transform([&](int ii){return holes_[ii];}),
+                                        back_inserter(keeper_holes));
 
 			auto rgr = keeper_holes | views::transform([&](const RectHole& rh)->vector<MyRect>{
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, rh);
@@ -499,14 +424,14 @@ printf("\n");
 			vector<DecisionTreeNode> nodes;
 			ranges::copy(rg, back_inserter(nodes));
 
-			vector<int> ranking1 = compute_ranking(nodes.size(), [&](int ii){auto [w, h] = nodes[ii].dim; return max(w,h);});
+                        vector<int> ranking1 = compute_ranking(nodes.size(), [&](int ii){auto [w, h] = nodes[ii].dim; return max(w,h);});
 			vector<int> ranking2 = compute_ranking(nodes.size(), [&](int ii){return nodes[ii].rect_distances;});
 			vector<int> ranking3 = compute_ranking(nodes.size(), [&](int ii){return nodes[ii].potential;});
 			for (int& rk : ranking3)
 				rk = nn - rk;
 			vector<int> ranking = compute_ranking(nodes.size(), [&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
 
-			auto ft=[&](int ii){return ranking[ii] < ranking_cap[n].after_heavy_computation;};
+			auto ft=[&](int ii){return ranking[ii] < 7;};
 			size_t index = decision_tree.size();
 			ranges::copy(views::iota(0,nn) | views::filter(ft) | views::transform([&](int ii){return nodes[ii];}),
 					back_inserter(decision_tree));
@@ -519,70 +444,70 @@ printf("\n");
 			}
 		};
 
-		auto print_html=[&](const vector<MyRect>& rectangles)->string{
+                auto print_html=[&](const vector<MyRect>& rectangles)->string{
 
 			int n = rectangles.size();
-			char buffer[10*1000];
-			int pos=0;
+                        char buffer[10*1000];
+                        int pos=0;
 
-			pos+= sprintf(buffer+pos, "<html>\n<body>\n");
-			pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-			for (const MyRect& r : rectangles)
-			{
-				pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",r.m_left, r.m_top, width(r), height(r));
-				pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
+                        pos+= sprintf(buffer+pos, "<html>\n<body>\n");
+                        pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
+                        for (const MyRect& r : rectangles)
+                        {
+                                pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",r.m_left, r.m_top, width(r), height(r));
+                                pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
 
-				int dy = 0;
+                                int dy = 0;
 //TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
-				vector<int> contacts;
-				ranges::set_union(
-					edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
-					edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
-					std::back_inserter(contacts)
-				);
-				for (int ri : contacts)
-				{
-					dy += 14;
-					pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
-				}
+                                vector<int> contacts;
+                                ranges::set_union(
+                                                        edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+                                                        edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+                                                        std::back_inserter(contacts)
+                                                                        );
+                                for (int ri : contacts)
+                                {
+                                                dy += 14;
+                                                pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+                                }
 
-				dy = 0;
-				for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, /*input_*/rectangles[rj]);}))
-				{
-					dy += 14;
-					pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
-				}
-			}
+                                dy = 0;
+                                for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, /*input_*/rectangles[rj]);}))
+                                {
+                                                dy += 14;
+                                                pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
+                                }
+                        }
 /*
-			for (int hi=0; hi < holes.size() && hi < 15; hi++)
-			{
-					const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
+                        for (int hi=0; hi < holes.size() && hi < 15; hi++)
+                        {
+                                const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
 
-					fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-									rec.m_left, rec.m_top, width(rec), height(rec));
-					fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
+                                fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+                                                rec.m_left, rec.m_top, width(rec), height(rec));
+                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
 
-					int dy = 0;
-					for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-					{
-									dy += 14;
-									fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
-					}
-					fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
-					fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
-			}
+                                int dy = 0;
+                                for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+                                {
+                                                dy += 14;
+                                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
+                                }
+                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
+                                fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
+                        }
 */
-			pos += sprintf(buffer+pos, "</svg>\n</html>");
+                        pos += sprintf(buffer+pos, "</svg>\n</html>");
 			buffer[pos]=0;
-			return buffer;
-		};
+                        return buffer;
+                };
 
 		printf("calling build_decision_tree()\n");
-		build_decision_tree(-1, input_rectangles, {}, build_decision_tree);
+                build_decision_tree(-1, input_rectangles, {}, build_decision_tree);
 
-		vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return make_tuple(decision_tree[ii].rect_distances, decision_tree[ii].depth);});
-		vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return make_tuple(max(w, h), decision_tree[ii].depth);});
-		vector<int> ranking3 = compute_ranking(decision_tree.size(), [&](int ii){return ranking1[ii]+ranking2[ii];});
+                vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return decision_tree[ii].rect_distances;});
+                vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return max(w, h);});
+                vector<int> ranking3 = compute_ranking(decision_tree.size(), [&](int ii){return ranking1[ii]+ranking2[ii];});
 
 		int ndt = decision_tree.size();
 		int i_best = ranges::min( views::iota(0, ndt), {}, [&](int ii){return ranking3[ii];});
@@ -603,22 +528,22 @@ printf("\n");
 		for (int i=0; i < chemin.size(); i++)
 		{
 			const RectHole& rh = chemin[i];
-			vector<MyRect> rectangles2 = rectangles + compute_transformation(rectangles, rh);
+                	vector<MyRect> rectangles2 = rectangles + compute_transformation(rectangles, rh);
 			char file_name[60];
 			sprintf(file_name, "holes_%d.html", i);
-			FILE *f;
+                	FILE *f;
 			f=fopen(file_name, "w");
-			string buffer=print_html(rectangles2);
+                	string buffer=print_html(rectangles2);
 			fprintf(f, "%s", buffer.c_str());
-			fclose(f);
-			RectMat(rectangles2) += compute_compact_frame_transform(rectangles2);
-			RectMat(rectangles2) += compute_center_frame_transform(rectangles2);
-			sprintf(file_name, "holes_compact_frame_%d.html", i);
-			f=fopen(file_name, "w");
-			buffer=print_html(rectangles2);
-			fprintf(f, "%s", buffer.c_str());
-			fclose(f);
-			rectangles = rectangles2;
+                	fclose(f);
+                        vector<MyRect> tf = compute_compact_frame_transform(rectangles2);
+                        RectMat(rectangles2) += tf;
+                        sprintf(file_name, "holes_compact_frame_%d.html", i);
+                        f=fopen(file_name, "w");
+                        buffer=print_html(rectangles2);
+                        fprintf(f, "%s", buffer.c_str());
+                        fclose(f);
+                        rectangles = rectangles2;
 		}
 
 //		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
