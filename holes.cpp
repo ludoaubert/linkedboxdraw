@@ -60,18 +60,18 @@ int main()
 		.testid=1,
 		.input_rectangles = {
 			{.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
-                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
-                        {.m_left=220, .m_right=320, .m_top=120, .m_bottom=220, .i=2}
+			{.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+			{.m_left=220, .m_right=320, .m_top=120, .m_bottom=220, .i=2}
 		},
 		.edges = {
-                        {.from=1,.to=0},
-                        {.from=1,.to=2}
+			{.from=1,.to=0},
+			{.from=1,.to=2}
 		},
 
 		.expected_rectangles={
-                        {.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
-                        {.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
-                        {.m_left=20, .m_right=120, .m_top=120, .m_bottom=220, .i=2}
+			{.m_left=20, .m_right=120, .m_top=20, .m_bottom=120, .i=0},
+			{.m_left=120, .m_right=220, .m_top=20, .m_bottom=220, .i=1},
+			{.m_left=20, .m_right=120, .m_top=120, .m_bottom=220, .i=2}
 		}
 	},
 	{
@@ -239,18 +239,18 @@ int main()
 					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
 					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
 				},
-                                {
-                                        {.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
-                                        {.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-                                },
+				{
+					{.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+					{.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+				},
 				{
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
 					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
 				},
-                                {
-                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-                                        {.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-                                }
+				{
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+				}
 			};
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
@@ -263,25 +263,25 @@ int main()
 			accumulated_transformation[ri] = dr;
 			const MyRect zero;
 
-                        auto ff=[&](const ST& st)->vector<MyRect> {
+			auto ff=[&](const ST& st)->vector<MyRect> {
 
-                                const auto& [initial_tf, tf] = st;
+				const auto& [initial_tf, tf] = st;
 
-                                vector<MyRect> transformation(n);
+				vector<MyRect> transformation(n);
 
-                                transformation[ri] = initial_tf;
+				transformation[ri] = initial_tf;
 
-                                for (bool stop=false; stop==false; )
-                           	{
-                                        stop=true;
-                                        for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
-                                 	{
-                                                for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
-                                    		{
-                                                	if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-                                                                             input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
-                                                        {
-                                                                transformation[i] = tf;
+				for (bool stop=false; stop==false; )
+				{
+					stop=true;
+					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+					{
+						for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
+						{
+							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+												input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+							{
+								transformation[i] = tf;
 								stop=false;
 							}
 						}
@@ -293,10 +293,10 @@ int main()
 			const auto [n1, n2] = dimensions(-dr);
 
 			auto tt = [&](int i)->TransformationType{
-                        	if (i < abs(n1))
-                                	return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
-                                else
-                                       	return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+							if (i < abs(n1))
+								return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+							else
+								return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
 			};
 
 			for (TransformationType transformationType : views::iota(0, abs(n1)+abs(n2)) | views::transform(tt))
@@ -313,18 +313,18 @@ int main()
 			return accumulated_transformation;
 		};
 
-                auto compute_ranking=[](int n, auto&& proj)->vector<int>{
-                        vector<int> indices(n), ranking(n);
-                        for (int ii=0; ii<n; ii++)
-                                indices[ii]=ii;
-                        ranges::sort(indices, {}, proj);
-                        for (int rk=0; rk<n; rk++)
-                        {
-                                int ii = indices[rk];
-                                ranking[ii]=rk;
-                        }
-                        return ranking;
-                };
+		auto compute_ranking=[](int n, auto&& proj)->vector<int>{
+			vector<int> indices(n), ranking(n);
+			for (int ii=0; ii<n; ii++)
+				indices[ii]=ii;
+			ranges::sort(indices, {}, proj);
+			for (int rk=0; rk<n; rk++)
+			{
+				int ii = indices[rk];
+				ranking[ii]=rk;
+			}
+			return ranking;
+		};
 
 		vector<DecisionTreeNode> decision_tree;
 
@@ -374,23 +374,23 @@ printf("\n");
 			};
 
 			auto hole_potential=[&](int ii)->float{
-                                const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
-                                float potential=0;
-                                for (const auto [i, j] : edges)
-                                {
-                                        if (i != ri && j != ri)
-                                        {
-                                                const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
-                                                float d = rect_distance(r_i, r_j);
-                                                float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
-                                                if (d_ < d)
-                                                        potential += d - d_;
-                                        }
-                                }
+				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+				float potential=0;
+				for (const auto [i, j] : edges)
+				{
+					if (i != ri && j != ri)
+					{
+						const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+						float d = rect_distance(r_i, r_j);
+						float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
+						if (d_ < d)
+								potential += d - d_;
+					}
+				}
 				return potential;
 			};
 
-                        vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
+			vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
 			vector<int> ranking00 = compute_ranking(holes_.size(), hole_potential);
 			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii];});
 
