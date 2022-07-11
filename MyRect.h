@@ -264,6 +264,8 @@ int16_t frame_dim_max(const std::vector<MyRect>& rectangles) ;
 
 MyRect compute_frame(const std::vector<MyRect>& rectangles) ;
 
+std::vector<MyRect> compute_center_frame_transform(const std::vector<MyRect>& rectangles);
+
 inline int rectangle_diameter_(const MyRect& r)
 {
         return width(r) + height(r) ;
