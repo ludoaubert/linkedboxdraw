@@ -538,6 +538,8 @@ printf("\n");
                 	fclose(f);
                         vector<MyRect> tf = compute_compact_frame_transform(rectangles2);
                         RectMat(rectangles2) += tf;
+			vector<MyRect> cft = compute_center_frame_transform(rectangles2);
+			RectMat(rectangles2) += cft;
                         sprintf(file_name, "holes_compact_frame_%d.html", i);
                         f=fopen(file_name, "w");
                         buffer=print_html(rectangles2);
