@@ -15,32 +15,32 @@ struct RankingCap{
 };
 
 const vector<RankingCap> ranking_cap={
-	{.n=0, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=1, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=2, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=3, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=4, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=5, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=6, .before_heavy_computation=INT16_MAX, ._after_heavy_computation=INT16_MAX},
-	{.n=7, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=8, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=9, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=10, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=11, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=12, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=13, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=14, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=15, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=16, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=17, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=18, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=19, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=20, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=21, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=22, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=23, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=24, .before_heavy_computation=15, ._after_heavy_computation=7},
-	{.n=25, .before_heavy_computation=15, ._after_heavy_computation=7}
+	{.n=0, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=1, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=2, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=3, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=4, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=5, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=6, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=7, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=8, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=9, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=10, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=11, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=12, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=13, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=14, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=15, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=16, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=17, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=18, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=19, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=20, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=21, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=22, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=23, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=24, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=25, .before_heavy_computation=15, .after_heavy_computation=7}
 };
 
 struct Edge {
@@ -169,8 +169,8 @@ int main()
 	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
 	{
 		assert( ranges::is_sorted(edges) );
-//if (testid != 1)
-//	return 0;
+if (testid != 1)
+	return 0;
 		const MyRect frame = compute_frame(input_rectangles);
 
 		auto compute_holes = [&](const vector<MyRect>& input_rectangles)->vector<RectHole>{
@@ -226,7 +226,7 @@ int main()
 			ranges::sort(holes, {}, &RectHole::rec);
 			vector<RectHole> holes_dedup;
 			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
-			
+
 			printf("holes_dedup.size()=%ld before cross join with input rectangles (ri=-1)\n", holes_dedup.size());
 			for (const auto& [ri, rj, corner, direction, value, rec] : holes_dedup)
 			{
@@ -247,7 +247,7 @@ int main()
 					}
 				}
 			}
-			
+
 			printf("holes.size()=%ld after cross join with input rectangles (ri value is set)\n", holes.size());
 			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
 			{
@@ -407,17 +407,17 @@ printf("\n");
 				}
 				return gain;
 			};
-			
+
 			auto frame_size_gain=[&](int ii)->int{
 				int n = input_rectangles.size();
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
 				const MyRect frame = compute_frame(input_rectangles);
 				auto rg = views::iota(0,n) | views::transform([&](int i){return i==ri ? hrec : input_rectangles[i];});
 				const MyRect frame_ = {
-						ranges::min(rg | views::transform(&MyRect::m_left));
-						ranges::max(rg | views::transform(&MyRect::m_right));
-						ranges::min(rg | views::transform(&MyRect::m_top));
-						ranges::max(rg | views::transform(&MyRect::m_bottom));
+						ranges::min(rg | views::transform(&MyRect::m_left)),
+						ranges::max(rg | views::transform(&MyRect::m_right)),
+						ranges::min(rg | views::transform(&MyRect::m_top)),
+						ranges::max(rg | views::transform(&MyRect::m_bottom))
 				};
 				const auto [w, h]=dimensions(frame);
 				const auto [w_, h_]=dimensions(frame_);
@@ -443,12 +443,13 @@ printf("\n");
 
 			vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
 			vector<int> ranking00 = compute_ranking(holes_.size(), hole_potential);
-			vector<int> ranking10 = compute_ranking(holes_size(), frame_size_gain);
+			vector<int> ranking10 = compute_ranking(holes_.size(), frame_size_gain);
 			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii]+ranking10[ii];});
 
 			vector<RectHole> keeper_holes;
 
 			int nn = holes_.size();
+			int n = input_rectangles.size();
 
 			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < ranking_cap[n].before_heavy_computation;})
 											| views::transform([&](int ii){return holes_[ii];}),
