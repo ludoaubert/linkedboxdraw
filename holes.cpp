@@ -450,7 +450,7 @@ printf("\n");
 
 			int nn = holes_.size();
 
-			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < ranking_cap[nn].before_heavy_computation;})
+			ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < ranking_cap[n].before_heavy_computation;})
 											| views::transform([&](int ii){return holes_[ii];}),
 							back_inserter(keeper_holes));
 
@@ -505,7 +505,7 @@ printf("\n");
 				rk = nn - rk;
 			vector<int> ranking = compute_ranking(nodes.size(), [&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
 
-			auto ft=[&](int ii){return ranking[ii] < ranking_cap[nn].before_heavy_computation;};
+			auto ft=[&](int ii){return ranking[ii] < ranking_cap[n].after_heavy_computation;};
 			size_t index = decision_tree.size();
 			ranges::copy(views::iota(0,nn) | views::filter(ft) | views::transform([&](int ii){return nodes[ii];}),
 					back_inserter(decision_tree));
