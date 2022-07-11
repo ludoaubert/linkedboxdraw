@@ -179,26 +179,48 @@ int main()
 					}
 				}
 			}
-  //                      printf("holes.size()=%ld\n", holes.size());
 
-                        ranges::sort(holes, {}, &RectHole::rec);
-                        vector<RectHole> holes_dedup;
-                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+			printf("holes.size()=%ld before cross join with input rectangles (ri=-1)\n", holes.size());
+			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
+			{
+				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
+				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
+						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
+			}
+
+			ranges::sort(holes, {}, &RectHole::rec);
+			vector<RectHole> holes_dedup;
+			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+			
+			printf("holes_dedup.size()=%ld before cross join with input rectangles (ri=-1)\n", holes_dedup.size());
+			for (const auto& [ri, rj, corner, direction, value, rec] : holes_dedup)
+			{
+				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
+				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
+						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
+			}
 
 			holes.clear();
 
-                        for (int ri : views::iota(0,n))
-                        {
+			for (int ri : views::iota(0,n))
+			{
 				for (const auto& [ri_, rj, corner, direction, value, rec] : holes_dedup)
 				{
-                                	if (3*value >= width(input_rectangles[ri]))
-                                	{
-                                		holes.push_back({ri, rj, corner, direction, value, rec});
+					if (3*value >= width(input_rectangles[ri]))
+					{
+						holes.push_back({ri, rj, corner, direction, value, rec});
 					}
-                                }
-                        }
+				}
+			}
+			
+			printf("holes.size()=%ld after cross join with input rectangles (ri value is set)\n", holes.size());
+			for (const auto& [ri, rj, corner, direction, value, rec] : holes)
+			{
+				const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rec;
+				printf("{.ri=%d, .rj=%d, .corner=%s, .rec={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}}\n",
+						ri, rj, RectCornerString[corner], m_left, m_right, m_top, m_bottom);
+			}
 
-//                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 			return holes;
 		};
 
