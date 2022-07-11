@@ -8,6 +8,41 @@
 #include "compact_frame.h"
 using namespace std;
 
+struct RankingCap{
+	int n;
+	int before_heavy_computation;
+	int after_heavy_computation;
+};
+
+const vector<RankingCap> ranking_cap={
+	{.n=0, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=1, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=2, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=3, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=4, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=5, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=6, .before_heavy_computation=INT16_MAX, .after_heavy_computation=INT16_MAX},
+	{.n=7, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=8, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=9, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=10, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=11, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=12, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=13, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=14, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=15, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=16, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=17, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=18, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=19, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=20, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=21, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=22, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=23, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=24, .before_heavy_computation=15, .after_heavy_computation=7},
+	{.n=25, .before_heavy_computation=15, .after_heavy_computation=7}
+};
+
 struct Edge {
 	int from;
 	int to;
@@ -374,9 +409,10 @@ printf("\n");
 
 			vector<RectHole> keeper_holes;
 
+			int n = input_rectangles.size();
 			int nn = holes_.size();
 
-                        ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < 15;})
+                        ranges::copy(views::iota(0,nn) | views::filter([&](int ii){return ranking01[ii] < ranking_cap[n].before_heavy_computation;})
                                                         | views::transform([&](int ii){return holes_[ii];}),
                                         back_inserter(keeper_holes));
 
@@ -431,7 +467,7 @@ printf("\n");
 				rk = nn - rk;
 			vector<int> ranking = compute_ranking(nodes.size(), [&](int ii){return ranking1[ii]+ranking2[ii]+ranking3[ii];});
 
-			auto ft=[&](int ii){return ranking[ii] < 7;};
+			auto ft=[&](int ii){return ranking[ii] < ranking_cap[n].after_heavy_computation;};
 			size_t index = decision_tree.size();
 			ranges::copy(views::iota(0,nn) | views::filter(ft) | views::transform([&](int ii){return nodes[ii];}),
 					back_inserter(decision_tree));
