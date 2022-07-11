@@ -543,7 +543,7 @@ printf("\n");
                         buffer=print_html(rectangles2);
                         fprintf(f, "%s", buffer.c_str());
                         fclose(f);
-                        rectangles = rectangles2;
+			rectangles = rectangles2;
 		}
 
 //		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
