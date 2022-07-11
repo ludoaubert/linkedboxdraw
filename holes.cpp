@@ -372,6 +372,22 @@ printf("\n");
 				}
 				return gain;
 			};
+			
+			auto frame_size_gain=[&](int ii)->int{
+				int n = input_rectangles.size();
+				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+				const MyRect frame = compute_frame(input_rectangles);
+				auto rg = views::iota(0,n) | views::transform([&](int i){return i==ri ? hrec : input_rectangles[i];});
+				const MyRect frame_ = {
+						ranges::min(rg | views::transform(&MyRect::m_left));
+						ranges::max(rg | views::transform(&MyRect::m_right));
+						ranges::min(rg | views::transform(&MyRect::m_top));
+						ranges::max(rg | views::transform(&MyRect::m_bottom));
+				};
+				const auto [w, h]=dimensions(frame);
+				const auto [w_, h_]=dimensions(frame_);
+				return max(w_,h_) - max(w,h);
+			};
 
 			auto hole_potential=[&](int ii)->float{
 				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
@@ -392,7 +408,8 @@ printf("\n");
 
 			vector<int> ranking0 = compute_ranking(holes_.size(), edge_distance_gain);
 			vector<int> ranking00 = compute_ranking(holes_.size(), hole_potential);
-			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii];});
+			vector<int> ranking10 = compute_ranking(holes_size(), frame_size_gain);
+			vector<int> ranking01 = compute_ranking(holes_.size(), [&](int ii){return ranking0[ii]+ranking00[ii]+ranking10[ii];});
 
 			vector<RectHole> keeper_holes;
 
