@@ -541,8 +541,8 @@ printf("\n");
 		printf("calling build_decision_tree()\n");
                 build_decision_tree(-1, input_rectangles, {}, build_decision_tree);
 
-                vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return decision_tree[ii].rect_distances;});
-                vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return max(w, h);});
+                vector<int> ranking1 = compute_ranking(decision_tree.size(), [&](int ii){return make_tuple(decision_tree[ii].rect_distances,decision_tree[ii].depth);});
+                vector<int> ranking2 = compute_ranking(decision_tree.size(), [&](int ii){const auto [w, h] = decision_tree[ii].dim;return make_tuple(max(w, h),decision_tree[ii].depth);});
                 vector<int> ranking3 = compute_ranking(decision_tree.size(), [&](int ii){return ranking1[ii]+ranking2[ii];});
 
 		int ndt = decision_tree.size();
