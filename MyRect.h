@@ -179,10 +179,26 @@ struct MyRect
 	{
 		return {.m_left=-m_left, .m_right=-m_right, .m_top=-m_top, .m_bottom=-m_bottom, .no_sequence=no_sequence, .i=i, .selected=selected};
 	}
+	
+	MyRect& operator=(const MyPoint& p)
+	{
+		m_left = m_right = p.x;
+		m_top = m_bottom = p.y;
+		return *this;
+	}
 
 	auto operator<=>(const MyRect&) const = default;
 } ;
 
+inline bool operator==(const MyRect& r, const MyPoint& p)
+{
+	return r.m_left==p.x && r.m_right==p.x && r.m_top==p.y && r.m_bottom==p.y;
+}
+
+inline bool operator!=(const MyRect& r, const MyPoint& p)
+{
+	return r.m_left!=p.x || r.m_right!=p.x || r.m_top!=p.y || r.m_bottom!=p.y
+}
 
 inline MyRect operator+(const MyRect& r1, const MyRect& r2)
 {

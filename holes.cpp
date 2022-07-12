@@ -211,23 +211,23 @@ int main()
 		auto compute_transformation = [&](const vector<MyRect>& input_rectangles, const RectHole& rh)->vector<MyRect>{
 
 			enum TransformationType {STRETCH_WIDTH, SQUEEZE_WIDTH, STRETCH_HEIGHT, SQUEEZE_HEIGHT};
-			struct ST { MyRect initial_tf, tf; };
+			struct ST { MyRect initial_tf; MyPoint tf; };
 			const ST Transformations[4][2]={
 				{
-					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
-					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
+					{.initial_tf = {.m_left=-1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.x=-1, .y=0}},
+					{.initial_tf = {.m_left=0, .m_right=+1, .m_top=0, .m_bottom=0}, .tf = {.x=+1, .y=0}},
 				},
 				{
-					{.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.m_left=+1, .m_right=+1, .m_top=0, .m_bottom=0}},
-					{.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.m_left=-1, .m_right=-1, .m_top=0, .m_bottom=0}},
+					{.initial_tf = {.m_left=+1, .m_right=0, .m_top=0, .m_bottom=0}, .tf = {.x=+1, .y=0}},
+					{.initial_tf = {.m_left=0, .m_right=-1, .m_top=0, .m_bottom=0}, .tf = {.x=-1, .y=0}},
 				},
 				{
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=0}, .tf = {.x=0, .y=-1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=+1}, .tf = {.x=0, .y=+1}},
 				},
 				{
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=+1}},
-					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.m_left=0, .m_right=0, .m_top=-1, .m_bottom=-1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=+1, .m_bottom=0}, .tf = {.x=0, .y=+1}},
+					{.initial_tf = {.m_left=0, .m_right=0, .m_top=0, .m_bottom=-1}, .tf = {.x=0, .y=-1}},
 				}
 			};
 
@@ -239,7 +239,7 @@ int main()
 			vector<MyRect> accumulated_transformation(n);
 			const MyRect dr = hrec - input_rectangles[ri];
 			accumulated_transformation[ri] = dr;
-			const MyRect zero;
+			const MyPoint zero;
 
 			auto ff=[&](const ST& st)->vector<MyRect> {
 
