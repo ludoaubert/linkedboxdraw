@@ -98,12 +98,11 @@ MyRect compute_frame(const vector<MyRect>& rectangles)
 }
 
 
-vector<MyPoint> compute_center_frame_transform(const vector<MyRect>& rectangles)
+MyPoint compute_center_frame_translation(const vector<MyRect>& rectangles)
 {
 	MyRect frame = compute_frame(rectangles);
-	int n = rectangles.size();
 	const MyPoint translation = {FRAME_BORDER-frame.m_left, FRAME_BORDER-frame.m_top};
-	return vector<MyPoint>(n, translation);
+	return translation;
 }
 
 
