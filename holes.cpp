@@ -241,25 +241,25 @@ int main()
 			accumulated_transformation[ri] = dr;
 			const MyRect zero;
 
-                        auto ff=[&](const ST& st)->vector<MyRect> {
+			auto ff=[&](const ST& st)->vector<MyRect> {
 
-                                const auto& [initial_tf, tf] = st;
+				const auto& [initial_tf, tf] = st;
 
-                                vector<MyRect> transformation(n);
+				vector<MyRect> transformation(n);
 
-                                transformation[ri] = initial_tf;
+				transformation[ri] = initial_tf;
 
-                                for (bool stop=false; stop==false; )
-                           	{
-                                        stop=true;
-                                        for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
-                                 	{
-                                                for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
-                                    		{
-                                                	if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-                                                                             input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
-                                                        {
-                                                                transformation[i] = tf;
+				for (bool stop=false; stop==false; )
+				{
+					stop=true;
+					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+					{
+						for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
+						{
+							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+												input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+							{
+								transformation[i] = tf;
 								stop=false;
 							}
 						}
