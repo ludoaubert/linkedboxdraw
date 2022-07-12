@@ -11,29 +11,28 @@
 using namespace std ;
 
 
-vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
+vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 {
 //	FunctionTimer ft("compute_compact_frame_transform");
 
 	int n = rectangles.size();
 
-	vector<MyRect> accumulated_transform(n);
+	vector<MyPoint> accumulated_transform(n);
 
-	const MyRect zero;
+	const MyPoint zero;
 
-	MyPoint translation4[4]={{.x=1, .y=0},
+	const MyPoint translation4[4]={{.x=1, .y=0},
 				 {.x=-1, .y=0},
 				 {.x=0, .y=1},
 				 {.x=0, .y=-1}};
 
 	for (RectDim rect_dim : RectDims)//{LEFT, RIGHT, TOP, BOTTOM}
 	{
-		const auto [x, y] = translation4[rect_dim] ;
-		const MyRect translation = {.m_left=x, .m_right=x,.m_top=y, .m_bottom=y};
+		const MyPoint& translation = translation4[rect_dim] ;
 
 		while (true)
 		{
-			vector<MyRect> transform(n) ;
+			vector<MyPoint> transform(n) ;
 
 			const MyRect frame = compute_frame(rectangles + accumulated_transform);
 
@@ -84,7 +83,7 @@ vector<MyRect> compute_compact_frame_transform(const vector<MyRect>& rectangles)
 				break;
 			}
 
-			RectMat(accumulated_transform) += transform;
+			mat(accumulated_transform) += transform;
 		}
 	}
 
@@ -456,8 +455,8 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyRect> compact_frame_transform = compute_compact_frame_transform(rectangles) ;
-		RectMat(rectangles) += compact_frame_transform;
+		vector<MyPoint> cft = compute_compact_frame_transform(rectangles) ;
+		mat(rectangles) += cft;
 
 		vector<int> stress_line[2];
 		compute_stress_line(rectangles, stress_line);

@@ -76,6 +76,9 @@ inline MyPoint operator*(int16_t value, const MyPoint& p)
 	return {value*x, value*y};
 }
 
+std::vector<MyPoint> operator+(const std::vector<MyPoint> m1, const std::vector<MyPoint>& m2);
+
+
 enum RectCorner
 {
 	TOP_LEFT=0,
@@ -217,13 +220,44 @@ inline MyRect rect(const MyPoint& pt1, const MyPoint& pt2)
 	};
 }
 
+inline MyRect operator+(const MyRect& r, const MyPoint& p)
+{
+	return {
+		.m_left = r.m_left + p.x,
+		.m_right = r.m_right + p.x,
+		.m_top = r.m_top + p.y,
+		.m_bottom = r.m_bottom + p.y,
+		.no_sequence = r.no_sequence,
+		.i = r.i
+	};
+}
+
+inline MyRect operator+(const MyPoint& p, const MyRect& r)
+{
+	return {
+		.m_left = r.m_left + p.x,
+		.m_right = r.m_right + p.x,
+		.m_top = r.m_top + p.y,
+		.m_bottom = r.m_bottom + p.y,
+		.no_sequence = r.no_sequence,
+		.i = r.i
+	};
+}
+
 std::vector<MyRect> operator+(const std::vector<MyRect> m1, const std::vector<MyRect>& m2);
 
-struct RectMat
-{
-        RectMat(std::vector<MyRect>& m):_m(m){}
+std::vector<MyRect> operator+(const std::vector<MyRect> m1, const std::vector<MyPoint>& m2);
 
-        RectMat& operator+=(const std::vector<MyRect>& m)
+std::vector<MyRect> operator+(const std::vector<MyPoint> m1, const std::vector<MyRect>& m2);
+
+
+template <typename T>
+struct Mat
+{
+        Mat(std::vector<T>& m):_m(m){}
+
+		template <typename U>
+        Mat& operator+=(const std::vector<U>& m)
         {
                 assert(_m.size() == m.size());
 
@@ -235,8 +269,14 @@ struct RectMat
                 return *this;
         }
 
-        std::vector<MyRect>& _m;
+        std::vector<T>& _m;
 };
+
+template <typename T>
+Mat<T> mat(std::vector<T>& m)
+{
+	return Mat(m);
+}
 
 struct TranslatedBox
 {

@@ -382,7 +382,7 @@ printf("\n");
 
 			auto rgr = keeper_holes | views::transform([&](const RectHole& rh)->vector<MyRect>{
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, rh);
-				vector<MyRect> tf = compute_compact_frame_transform(rectangles);
+				vector<MyPoint> tf = compute_compact_frame_transform(rectangles);
 				RectMat(rectangles) += tf;
 				return rectangles;
 			});
@@ -536,7 +536,7 @@ printf("\n");
                 	string buffer=print_html(rectangles2);
 			fprintf(f, "%s", buffer.c_str());
                 	fclose(f);
-                        vector<MyRect> tf = compute_compact_frame_transform(rectangles2);
+                        vector<MyPoint> tf = compute_compact_frame_transform(rectangles2);
                         RectMat(rectangles2) += tf;
                         sprintf(file_name, "holes_compact_frame_%d.html", i);
                         f=fopen(file_name, "w");
