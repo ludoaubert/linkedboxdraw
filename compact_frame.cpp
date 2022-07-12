@@ -3,12 +3,23 @@
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
 #include <vector>
+#include <set>
 #include <map>
 #include <ranges>
 #include <cstdint>
 #include <assert.h>
 #include "latuile_test_json_output.h"
 using namespace std ;
+
+
+struct SweepLineItem
+{
+	int value;
+	RectDim dim;
+	int ri;
+
+	auto operator<=>(const SweepLineItem&) const = default;
+};
 
 
 vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles)
@@ -49,6 +60,62 @@ vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles
 
 			const MyRect rake = rake4[rect_dim];
 			const MyRect baseline = rake4[2*dimension + (1-sens)];
+
+//TODO: choisir intelligement la direction du sweep
+			vector<int> is_selected(n,0);
+			vector<SweepLineItem> sweep_line_storage;
+			vector<SweepLineItem*> sweep_line;
+			set<int> active_line[2]; //1: selected
+			for (int ri=0; ri < n; ri++)
+			{
+                                const auto [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rectangles[ri] + accumulated_transform[ri];
+				SweepLineItem items4[4]={
+					{.value=m_left, .dim=LEFT, .ri=ri},
+					{.value=m_right, .dim=RIGHT, .ri=ri},
+                                        {.value=m_top, .dim=TOP, .ri=ri},
+					{.value=m_bottom, .dim=BOTTOM, .ri=ri}
+				};
+				ranges::copy(items4, back_inserter(sweep_line_storage));
+			}
+			for (SweepLineItem& item : sweep_line_storage)
+				sweep_line.push_back(&item);
+			ranges::sort(sweep_line, [](SweepLineItem* a, SweepLineItem* b){return *a < *b;});
+			for (SweepLineItem* item : sweep_line)
+			{
+				auto& [value, dim, ri] = *item;
+				int b = is_selected[ri];
+				switch(dim)
+				{
+				case LEFT:
+					active_line[b].insert(ri);
+					break;
+				case RIGHT:
+					active_line[b].erase(ri);
+					break;
+				}
+				for (bool stop=false; stop==false;)
+				{
+					stop=true;
+					for (int i : active_line[1])
+					{
+						for (int j : active_line[0])
+						{
+							if (range_intersect_strict(sweep_line_storage[4*i+TOP].value,
+										sweep_line_storage[4*i+BOTTOM].value,
+										sweep_line_storage[4*j+TOP].value,
+										sweep_line_storage[4*j+BOTTOM].value))
+							{
+								active_line[0].erase(j);
+								active_line[1].insert(j);
+								is_selected[j]=1;
+								transform[j] = translation;
+								bool stop=false;
+								break;
+							}
+						}
+					}
+				}
+			}
 
 			//rectangles that we want to rake along
 			for (int ri : views::iota(0, n) | views::filter([&](int ri){return intersect(rake, rectangles[ri] + accumulated_transform[ri]);}))
