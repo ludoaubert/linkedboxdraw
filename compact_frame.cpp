@@ -83,7 +83,7 @@ vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles
 				break;
 			}
 
-			mat(accumulated_transform) += transform;
+			matw(accumulated_transform) += transform;
 		}
 	}
 
@@ -456,7 +456,7 @@ void test_compact_frame()
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
 		vector<MyPoint> cft = compute_compact_frame_transform(rectangles) ;
-		mat(rectangles) += cft;
+		matw(rectangles) += cft;
 
 		vector<int> stress_line[2];
 		compute_stress_line(rectangles, stress_line);

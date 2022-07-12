@@ -42,6 +42,13 @@ struct MyPoint
 {
 	int16_t x=0, y=0 ;
 	bool operator==(const MyPoint&) const = default;
+
+        MyPoint& operator+=(const MyPoint& p)
+        {
+                x += p.x;
+                y += p.y;
+                return *this;
+        }
 } ;
 
 
@@ -175,11 +182,20 @@ struct MyRect
 		return *this;
 	}
 
+        MyRect& operator+=(const MyPoint& p)
+        {
+                m_left += p.x;
+                m_right += p.x;
+                m_top += p.y;
+                m_bottom += p.y;
+                return *this;
+        }
+
 	MyRect operator-() const
 	{
 		return {.m_left=-m_left, .m_right=-m_right, .m_top=-m_top, .m_bottom=-m_bottom, .no_sequence=no_sequence, .i=i, .selected=selected};
 	}
-	
+
 	MyRect& operator=(const MyPoint& p)
 	{
 		m_left = m_right = p.x;
@@ -197,7 +213,7 @@ inline bool operator==(const MyRect& r, const MyPoint& p)
 
 inline bool operator!=(const MyRect& r, const MyPoint& p)
 {
-	return r.m_left!=p.x || r.m_right!=p.x || r.m_top!=p.y || r.m_bottom!=p.y
+	return r.m_left!=p.x || r.m_right!=p.x || r.m_top!=p.y || r.m_bottom!=p.y;
 }
 
 inline MyRect operator+(const MyRect& r1, const MyRect& r2)
@@ -268,12 +284,12 @@ std::vector<MyRect> operator+(const std::vector<MyPoint> m1, const std::vector<M
 
 
 template <typename T>
-struct Mat
+struct MatWrap
 {
-        Mat(std::vector<T>& m):_m(m){}
+        MatWrap(std::vector<T>& m):_m(m){}
 
-		template <typename U>
-        Mat& operator+=(const std::vector<U>& m)
+	template <typename U>
+        MatWrap& operator+=(const std::vector<U>& m)
         {
                 assert(_m.size() == m.size());
 
@@ -289,9 +305,9 @@ struct Mat
 };
 
 template <typename T>
-Mat<T> mat(std::vector<T>& m)
+MatWrap<T> matw(std::vector<T>& m)
 {
-	return Mat(m);
+	return MatWrap(m);
 }
 
 struct TranslatedBox
