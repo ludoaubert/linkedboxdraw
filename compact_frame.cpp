@@ -54,16 +54,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	vector<SweepLineItem> sweep_line2[2];
 
 	for (int ri=0; ri < n; ri++)
-	{
-		const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rectangles[ri];
-		SweepLineItem items4[4]={
-			{.value=m_left, .rectdim=LEFT, .ri=ri},
-			{.value=m_right, .rectdim=RIGHT, .ri=ri},
-			{.value=m_top, .rectdim=TOP, .ri=ri},
-			{.value=m_bottom, .rectdim=BOTTOM, .ri=ri}
-		};
-		for (SweepLineItem& item : items4)
-			sweep_line2[ RectDimDirection[item.rectdim] ].push_back(item);
+	{	
+		for (RectDim rectdim : {LEFT,RIGHT,TOP,BOTTOM})
+		{
+			sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});	
+		}
 	}
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
