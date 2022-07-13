@@ -309,8 +309,8 @@ int main()
 			auto tt = [&](int i)->TransformationType{
 							if (i < abs(n1))
 									return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
-								else
-										return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+							else
+									return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
 			};
 
 			for (TransformationType transformationType : views::iota(0, abs(n1)+abs(n2)) | views::transform(tt))
