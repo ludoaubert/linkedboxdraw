@@ -101,10 +101,13 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				case TOP:
 					assert(is_selected[ri] == 0);
 					for (int rj : active_line | views::filter([](int rj){return is_selected[rj]==1;})
-											| views::filter([](int rj){ return range_intersect_strict(rectangles[ri][minCompactRectDim],
-																									rectangles[ri][maxCompactRectDim],
-																									rectangles[rj][minCompactRectDim]+1,
-																									rectangles[rj][maxCompactRectDim]+1))
+											| views::filter([](int rj){ 
+												return range_intersect_strict(rectangles[ri][minCompactRectDim],
+																			rectangles[ri][maxCompactRectDim],
+																			rectangles[rj][minCompactRectDim]+1,
+																			rectangles[rj][maxCompactRectDim]+1);
+																	}
+												)
 											| views::take(1)
 					)
 					{
