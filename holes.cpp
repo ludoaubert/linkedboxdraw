@@ -304,6 +304,65 @@ int main()
 				return transformation;
 			};
 
+/*
+			auto ff=[&](const ST& st)->vector<MyRect> {
+
+				const auto& [initial_tf, tf] = st;
+
+				vector<MyRect> transformation(n);
+
+				transformation[ri] = initial_tf;
+
+				for (bool stop=false; stop==false; )
+				{
+					stop=true;
+					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
+					{
+						for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
+						{
+							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
+												input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
+							{
+								transformation[i] = tf;
+								stop=false;
+							}
+						}
+					}
+				}
+				return transformation;
+			};
+
+
+			vector<MyRect> rectangles = input_rectangles;
+			for (Direction direction : {EAST_WEST, NORTH_SOUTH})
+			{
+				Direction sweep_direction = Direction(1-direction);
+				int n = dimensions(-dr)[dimension];
+				
+				auto tt = [&](int i)->TransformationType{
+						switch (direction)
+						{
+						case EAST_WEST:
+								return n<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+						case NORTH_SOUTH:
+								return n<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+						}
+				};
+				
+				for (TransformationType transformationType : views::iota(0, abs(n)) | views::transform(tt))
+				{
+						vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
+												[&](const vector<MyRect>& tf){
+																const auto [width_, height_] = dimensions(compute_frame(input_rectangles + accumulated_transformation + tf));
+																int nb = n - ranges::count(tf, zero);
+																return make_tuple(width_, height_, nb);
+																 }
+											);
+						matw(accumulated_transformation) += transformation;
+				}
+			}
+*/
+
 			const auto [n1, n2] = dimensions(-dr);
 
 			auto tt = [&](int i)->TransformationType{
@@ -317,7 +376,7 @@ int main()
 			{
 					vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
 											[&](const vector<MyRect>& tf){
-															const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
+															const auto [width_, height_] = dimensions(compute_frame(input_rectangles + accumulated_transformation + tf));
 															int nb = n - ranges::count(tf, zero);
 															return make_tuple(width_, height_, nb);
 															 }
