@@ -87,33 +87,25 @@ vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles
 				switch(dim)
 				{
 				case LEFT:
+                                	for (int rj : active_line[1-b])
+                                	{
+                                        	if (range_intersect_strict(sweep_line_storage[4*ri+TOP].value,
+                                                	                sweep_line_storage[4*ri+BOTTOM].value,
+									sweep_line_storage[4*rj+TOP].value,
+									sweep_line_storage[4*rj+BOTTOM].value))
+                                        	{
+                                                	active_line[0].erase(rj);
+                                                	active_line[1].insert(rj);
+                                                	is_selected[rj]=1;
+                                                	transform[rj] = translation;
+                                                	bool stop=false;
+                                        	}
+                                	}
 					active_line[b].insert(ri);
 					break;
 				case RIGHT:
 					active_line[b].erase(ri);
 					break;
-				}
-				for (bool stop=false; stop==false;)
-				{
-					stop=true;
-					for (int i : active_line[1])
-					{
-						for (int j : active_line[0])
-						{
-							if (range_intersect_strict(sweep_line_storage[4*i+TOP].value,
-										sweep_line_storage[4*i+BOTTOM].value,
-										sweep_line_storage[4*j+TOP].value,
-										sweep_line_storage[4*j+BOTTOM].value))
-							{
-								active_line[0].erase(j);
-								active_line[1].insert(j);
-								is_selected[j]=1;
-								transform[j] = translation;
-								bool stop=false;
-								break;
-							}
-						}
-					}
 				}
 			}
 
