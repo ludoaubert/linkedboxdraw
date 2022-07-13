@@ -63,7 +63,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			{.value=m_bottom, .rectdim=BOTTOM, .ri=ri}
 		};
 		for (SweepLineItem& item : items4)
-			sweep_line2[ RectDimDirection[item.dim] ].push_back(item);
+			sweep_line2[ RectDimDirection[item.rectdim] ].push_back(item);
 	}
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
