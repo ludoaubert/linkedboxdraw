@@ -14,12 +14,144 @@ using namespace std ;
 
 struct SweepLineItem
 {
-	int value;
-	RectDim dim;
+	int16_t &value;
+	RectDim rectdim;
 	int ri;
 
 	auto operator<=>(const SweepLineItem&) const = default;
 };
+
+/*
+          |
+          |
+          |
+--------------------->tr
+          |
+		  |
+		  V
+		sweep
+		
+		
+          |
+          |
+          |
+--------------------->sweep
+          |
+		  |
+		  V
+		 tr
+*/
+
+
+vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
+{
+//	FunctionTimer ft("compute_compact_frame_transform_");
+
+	vector<MyRect> rectangles = input_rectangles;
+	int n = rectangles.size();
+
+	vector<int> is_selected(n,0);
+	vector<SweepLineItem> sweep_line_storage;
+	vector<SweepLineItem*> sweep_line2[2];
+
+	for (int ri=0; ri < n; ri++)
+	{
+		const auto& [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rectangles[ri];
+		SweepLineItem items4[4]={
+			{.value=m_left, .rectdim=LEFT, .ri=ri},
+			{.value=m_right, .rectdim=RIGHT, .ri=ri},
+			{.value=m_top, .rectdim=TOP, .ri=ri},
+			{.value=m_bottom, .rectdim=BOTTOM, .ri=ri}
+		};
+		ranges::copy(items4, back_inserter(sweep_line_storage));
+	}
+	for (SweepLineItem& item : sweep_line_storage)
+		sweep_line2[ RectDimDirection[item.dim] ].push_back(&item);
+
+	const MyPoint translation2[2]={
+		{.x=+1, .y=0},
+		{.x=0, .y=+1}
+	};
+
+	for (Direction direction : {EAST_WEST, NORTH_SOUTH})
+	{
+//use the sweep_line that is not impacted by selected translation
+		Direction sweep_direction = Direction(1-direction);
+		
+		const auto [minCompactRectDim, maxCompactRectDim] : rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+		const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];		
+	
+		const MyPoint& translation = translation2[direction] ;
+
+		vector<SweepLineItem*>& sweep_line = sweep_line2[sweep_direction];
+		ranges::sort(sweep_line, [](SweepLineItem* a, SweepLineItem* b){return *a < *b;});
+			
+		while (true)
+		{
+			const MyRect frame = compute_frame(rectangles);
+
+			set<int> active_line;
+			
+			ranges::fill(is_selected, 0);
+			
+		//rectangles that we want to rake along
+			for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim]);}))
+			{
+				active_line.insert(ri);
+				is_selected[ri] = 1;
+			}
+
+			for (SweepLineItem* item : sweep_line)
+			{
+				auto& [value, rectdim, ri] = *item;
+				switch(rectdim)
+				{
+				case LEFT:
+				case TOP:
+					for (int rj : active_line)
+					{
+							if (is_selected[ri] != is_selected[rj] && 
+								range_intersect_strict(rectangles[ri][minSweepRectDim],rectangles[ri][maxSweepRectDim],
+													rectangles[rj][minSweepRectDim],rectangles[rj][maxSweepRectDim])
+							)
+							{
+								if (is_selected[ri]==0)
+								{
+									is_selected[ri]=1;
+								}
+								else
+								{
+									is_selected[rj]=1;
+								}
+							}
+					}
+					active_line.insert(ri);
+					break;
+				case RIGHT:
+				case BOTTOM:
+					active_line.erase(ri);
+					break;
+				}
+			}
+
+			//rectangles that hit the baseline
+			auto rg = views::iota(0, n) | views::filter([&](int ri){return frame[maxCompactRectDim]<rectangles[ri][maxCompactRectDim]);});
+
+			if ( rg.empty() == false )
+			{
+				break;
+			}
+			
+			for (int ri=0; ri < n; ri++)
+			{
+				if (is_selected[ri]==1)
+					rectangles[ri] += translation;
+			}
+		}
+	}
+
+	return rectangles - input_rectangles;
+}
 
 
 vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles)
@@ -60,54 +192,6 @@ vector<MyPoint> compute_compact_frame_transform(const vector<MyRect>& rectangles
 
 			const MyRect rake = rake4[rect_dim];
 			const MyRect baseline = rake4[2*dimension + (1-sens)];
-
-//TODO: choisir intelligement la direction du sweep
-			vector<int> is_selected(n,0);
-			vector<SweepLineItem> sweep_line_storage;
-			vector<SweepLineItem*> sweep_line;
-			set<int> active_line[2]; //1: selected
-			for (int ri=0; ri < n; ri++)
-			{
-                                const auto [m_left, m_right, m_top, m_bottom, i, no_sequence, selected] = rectangles[ri] + accumulated_transform[ri];
-				SweepLineItem items4[4]={
-					{.value=m_left, .dim=LEFT, .ri=ri},
-					{.value=m_right, .dim=RIGHT, .ri=ri},
-                                        {.value=m_top, .dim=TOP, .ri=ri},
-					{.value=m_bottom, .dim=BOTTOM, .ri=ri}
-				};
-				ranges::copy(items4, back_inserter(sweep_line_storage));
-			}
-			for (SweepLineItem& item : sweep_line_storage)
-				sweep_line.push_back(&item);
-			ranges::sort(sweep_line, [](SweepLineItem* a, SweepLineItem* b){return *a < *b;});
-			for (SweepLineItem* item : sweep_line)
-			{
-				auto& [value, dim, ri] = *item;
-				int b = is_selected[ri];
-				switch(dim)
-				{
-				case LEFT:
-                                	for (int rj : active_line[1-b])
-                                	{
-                                        	if (range_intersect_strict(sweep_line_storage[4*ri+TOP].value,
-                                                	                sweep_line_storage[4*ri+BOTTOM].value,
-									sweep_line_storage[4*rj+TOP].value,
-									sweep_line_storage[4*rj+BOTTOM].value))
-                                        	{
-                                                	active_line[0].erase(rj);
-                                                	active_line[1].insert(rj);
-                                                	is_selected[rj]=1;
-                                                	transform[rj] = translation;
-                                                	bool stop=false;
-                                        	}
-                                	}
-					active_line[b].insert(ri);
-					break;
-				case RIGHT:
-					active_line[b].erase(ri);
-					break;
-				}
-			}
 
 			//rectangles that we want to rake along
 			for (int ri : views::iota(0, n) | views::filter([&](int ri){return intersect(rake, rectangles[ri] + accumulated_transform[ri]);}))
@@ -514,7 +598,7 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyPoint> cft = compute_compact_frame_transform(rectangles) ;
+		vector<MyPoint> cft = compute_compact_frame_transform_(rectangles) ;
 		matw(rectangles) += cft;
 
 		vector<int> stress_line[2];

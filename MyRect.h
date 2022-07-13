@@ -112,6 +112,8 @@ enum RectDim
 
 const RectDim RectDims[4]={LEFT,RIGHT,TOP,BOTTOM} ;
 
+const Direction RectDimDirection[4]={EAST_WEST,EAST_WEST,NORTH_SOUTH,NORTH_SOUTH};
+
 
 struct RectDimRange{ RectDim min, max;};
 
