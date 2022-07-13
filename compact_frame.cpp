@@ -79,6 +79,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		while (true)
 		{
+			printf("looping\n");
 			const MyRect frame = compute_frame(rectangles);
 
 			ranges::fill(is_selected, 0);
@@ -90,6 +91,15 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				is_selected[ri] = 1;
 			}
 
+			auto rect_intersect_strict=[&](int ri, int rj){
+				return range_intersect_strict(
+					rectangles[ri][minCompactRectDim]+is_selected[ri],
+					rectangles[ri][maxCompactRectDim]+is_selected[ri],
+					rectangles[rj][minCompactRectDim]+is_selected[rj],
+					rectangles[rj][maxCompactRectDim]+is_selected[rj]
+				);
+			};
+
 			for (const SweepLineItem& item : sweep_line)
 			{
 				const auto& [value, rectdim, ri] = item;
@@ -97,16 +107,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				{
 				case LEFT:
 				case TOP:
+					printf("sweep reaching %d\n", ri);
 					assert(is_selected[ri] == 0);
 					for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
 								| views::filter([&](int rj){return is_selected[rj]==1;})
-								| views::filter([&](int rj){
-									return range_intersect_strict(rectangles[ri][minCompactRectDim],
-													rectangles[ri][maxCompactRectDim],
-													rectangles[rj][minCompactRectDim]+1,
-													rectangles[rj][maxCompactRectDim]+1);
-											}
-								)
+								| views::filter([&](int rj){return rect_intersect_strict(ri, rj);})
 								| views::take(1)
 					)
 					{
@@ -116,16 +121,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 					break;
 				case RIGHT:
 				case BOTTOM:
+					printf("sweep leaving %d\n", ri);
 					active_line[ri]=0;
                                         for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
                                                                 | views::filter([&](int rj){return is_selected[rj]!=is_selected[ri];})
-                                                                | views::filter([&](int rj){
-                                                                        return range_intersect_strict(rectangles[ri][minCompactRectDim]+is_selected[ri],
-                                                                                                        rectangles[ri][maxCompactRectDim]+is_selected[ri],
-                                                                                                        rectangles[rj][minCompactRectDim]+is_selected[rj],
-                                                                                                        rectangles[rj][maxCompactRectDim]+is_selected[rj]);
-                                                                                        }
-                                                                )
+                                                                | views::filter([&](int rj){return rect_intersect_strict(ri, rj);})
                                         )
                                         {
                                                 is_selected[ is_selected[ri]==0 ? ri : rj]=1;
