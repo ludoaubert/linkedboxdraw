@@ -420,10 +420,10 @@ int main()
 			{
 					vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
 											[&](const vector<MyRect>& tf){
-															const auto [width_, height_] = dimensions(compute_frame(input_rectangles + accumulated_transformation + tf));
-															int nb = n - ranges::count(tf, zero);
-															return make_tuple(width_, height_, nb);
-															 }
+												const auto [width_, height_] = dimensions(compute_frame(input_rectangles + accumulated_transformation + tf));
+												int nb = n - ranges::count(tf, zero);
+												return make_tuple(width_, height_, nb);
+											}
 										);
 					matw(accumulated_transformation) += transformation;
 			}
