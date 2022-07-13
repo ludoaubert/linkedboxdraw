@@ -214,26 +214,27 @@ int main()
 					}
 				}
 			}
-  //                      printf("holes.size()=%ld\n", holes.size());
+  //		printf("holes.size()=%ld\n", holes.size());
 
-                        ranges::sort(holes, {}, &RectHole::rec);
-                        vector<RectHole> holes_dedup;
-                        ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
+			ranges::sort(holes, {}, &RectHole::rec);
+			vector<RectHole> holes_dedup;
+			ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
 
 			holes.clear();
 
-                        for (int ri : views::iota(0,n))
-                        {
+//cross product
+			for (int ri : views::iota(0,n))
+			{
 				for (const auto& [ri_, rj, corner, direction, value, rec] : holes_dedup)
 				{
-                                	if (3*value >= width(input_rectangles[ri]))
-                                	{
-                                		holes.push_back({ri, rj, corner, direction, value, rec});
+					if (3*value >= width(input_rectangles[ri]))
+					{
+						holes.push_back({ri, rj, corner, direction, value, rec});
 					}
-                                }
-                        }
+				}
+			}
 
-//                        printf("holes_dedup.size()=%ld\n", holes_dedup.size());
+//			printf("holes_dedup.size()=%ld\n", holes_dedup.size());
 			return holes;
 		};
 
@@ -268,7 +269,7 @@ int main()
 
 			const auto& [ri, rj, rectCorner, dir, value, hrec] = rh;
 
-	        //printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
+		 //printf("ri=%d width(ri)=%d rj=%d corner=%s dir={.x=%.2f, .y=%.2f} value=%d\n", ri, width(input_rectangles[ri]), rj, RectCornerString[rectCorner], dir.x, dir.y, value);
 
 			int n=input_rectangles.size();
 			vector<MyRect> accumulated_transformation(n);
@@ -306,38 +307,38 @@ int main()
 			const auto [n1, n2] = dimensions(-dr);
 
 			auto tt = [&](int i)->TransformationType{
-                        	if (i < abs(n1))
-                                	return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
-                                else
-                                       	return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+							if (i < abs(n1))
+									return n1<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+								else
+										return n2<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
 			};
 
 			for (TransformationType transformationType : views::iota(0, abs(n1)+abs(n2)) | views::transform(tt))
 			{
-				vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
-										[&](const vector<MyRect>& tf){
-														const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
-														int nb = n - ranges::count(tf, zero);
-														return make_tuple(width_, height_, nb);
-														 }
-									);
-				matw(accumulated_transformation) += transformation;
+					vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
+											[&](const vector<MyRect>& tf){
+															const auto [width_, height_] = dimensions(compute_frame(input_rectangles + tf));
+															int nb = n - ranges::count(tf, zero);
+															return make_tuple(width_, height_, nb);
+															 }
+										);
+					matw(accumulated_transformation) += transformation;
 			}
 			return accumulated_transformation;
 		};
 
-                auto compute_ranking=[](int n, auto&& proj)->vector<int>{
-                        vector<int> indices(n), ranking(n);
-                        for (int ii=0; ii<n; ii++)
-                                indices[ii]=ii;
-                        ranges::sort(indices, {}, proj);
-                        for (int rk=0; rk<n; rk++)
-                        {
-                                int ii = indices[rk];
-                                ranking[ii]=rk;
-                        }
-                        return ranking;
-                };
+		auto compute_ranking=[](int n, auto&& proj)->vector<int>{
+				vector<int> indices(n), ranking(n);
+				for (int ii=0; ii<n; ii++)
+						indices[ii]=ii;
+				ranges::sort(indices, {}, proj);
+				for (int rk=0; rk<n; rk++)
+				{
+						int ii = indices[rk];
+						ranking[ii]=rk;
+				}
+				return ranking;
+		};
 
 		vector<DecisionTreeNode> decision_tree;
 
