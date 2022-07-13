@@ -388,19 +388,19 @@ printf("\n");
 			};
 
 			auto hole_potential=[&](int ii)->float{
-                                const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
-                                float potential=0;
-                                for (const auto [i, j] : edges)
-                                {
-                                        if (i != ri && j != ri)
-                                        {
-                                                const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
-                                                float d = rect_distance(r_i, r_j);
-                                                float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
-                                                if (d_ < d)
-                                                        potential += d - d_;
-                                        }
-                                }
+				const auto& [ri, rj, rectCorner, dir, value, hrec] = holes_[ii];
+				float potential=0;
+				for (const auto [i, j] : edges)
+				{
+						if (i != ri && j != ri)
+						{
+								const MyRect &r_h=input_rectangles[ri], &r_i=input_rectangles[i],&r_j=input_rectangles[j];
+								float d = rect_distance(r_i, r_j);
+								float d_ = rect_distance(r_i, r_h) + rect_distance(r_j, r_h);
+								if (d_ < d)
+										potential += d - d_;
+						}
+				}
 				return potential;
 			};
 
