@@ -3,7 +3,6 @@
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
 #include <vector>
-#include <set>
 #include <map>
 #include <ranges>
 #include <cstdint>
@@ -14,7 +13,7 @@ using namespace std ;
 
 struct SweepLineItem
 {
-	int16_t &value;
+	int16_t value;
 	RectDim rectdim;
 	int ri;
 
@@ -30,8 +29,8 @@ struct SweepLineItem
 		  |
 		  V
 		sweep
-		
-		
+
+
 		  |
 		  |
 		  |
@@ -51,13 +50,14 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	int n = rectangles.size();
 
 	vector<int> is_selected(n,0);
+	vector<int> active_line(n,0);
 	vector<SweepLineItem> sweep_line2[2];
 
 	for (int ri=0; ri < n; ri++)
-	{	
+	{
 		for (RectDim rectdim : {LEFT,RIGHT,TOP,BOTTOM})
 		{
-			sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});	
+			sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
 		}
 	}
 
@@ -67,28 +67,26 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	{
 //use the sweep_line that is not impacted by selected translation
 		Direction sweep_direction = Direction(1-direction);
-		
-		const auto [minCompactRectDim, maxCompactRectDim] : rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-		const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];		
-	
+
+		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+
 		const MyPoint& translation = translation2[direction] ;
 
 		ranges::sort(sweep_line2[sweep_direction]);
-		
+
 		const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
-			
+
 		while (true)
 		{
 			const MyRect frame = compute_frame(rectangles);
 
-			set<int> active_line;
-			
 			ranges::fill(is_selected, 0);
-			
+			ranges::fill(active_line, 0);
+
 		//rectangles that we want to rake along
-			for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim]);}))
+			for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim];}))
 			{
-				active_line.insert(ri);
 				is_selected[ri] = 1;
 			}
 
@@ -100,36 +98,50 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				case LEFT:
 				case TOP:
 					assert(is_selected[ri] == 0);
-					for (int rj : active_line | views::filter([](int rj){return is_selected[rj]==1;})
-											| views::filter([](int rj){ 
-												return range_intersect_strict(rectangles[ri][minCompactRectDim],
-																			rectangles[ri][maxCompactRectDim],
-																			rectangles[rj][minCompactRectDim]+1,
-																			rectangles[rj][maxCompactRectDim]+1);
-																	}
-												)
-											| views::take(1)
+					for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
+								| views::filter([&](int rj){return is_selected[rj]==1;})
+								| views::filter([&](int rj){
+									return range_intersect_strict(rectangles[ri][minCompactRectDim],
+													rectangles[ri][maxCompactRectDim],
+													rectangles[rj][minCompactRectDim]+1,
+													rectangles[rj][maxCompactRectDim]+1);
+											}
+								)
+								| views::take(1)
 					)
 					{
 						is_selected[ri]=1;
 					}
-					active_line.insert(ri);
+					active_line[ri]=1;
 					break;
 				case RIGHT:
 				case BOTTOM:
-					active_line.erase(ri);
+					active_line[ri]=0;
+                                        for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
+                                                                | views::filter([&](int rj){return is_selected[rj]!=is_selected[ri];})
+                                                                | views::filter([&](int rj){
+                                                                        return range_intersect_strict(rectangles[ri][minCompactRectDim]+is_selected[ri],
+                                                                                                        rectangles[ri][maxCompactRectDim]+is_selected[ri],
+                                                                                                        rectangles[rj][minCompactRectDim]+is_selected[rj],
+                                                                                                        rectangles[rj][maxCompactRectDim]+is_selected[rj]);
+                                                                                        }
+                                                                )
+                                        )
+                                        {
+                                                is_selected[ is_selected[ri]==0 ? ri : rj]=1;
+                                        }
 					break;
 				}
 			}
 
 			//rectangles that hit the baseline
-			auto rg = views::iota(0, n) | views::filter([&](int ri){return frame[maxCompactRectDim]<rectangles[ri][maxCompactRectDim]);});
+			auto rg = views::iota(0, n) | views::filter([&](int ri){return frame[maxCompactRectDim]<rectangles[ri][maxCompactRectDim];});
 
 			if ( rg.empty() == false )
 			{
 				break;
 			}
-			
+
 			for (int ri=0; ri < n; ri++)
 			{
 				if (is_selected[ri]==1)
@@ -138,7 +150,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		}
 	}
 
-	return rectangles - input_rectangles;
+	vector<MyRect> tf = rectangles - input_rectangles;
+	auto rg = tf | views::transform([](const MyRect& r){return MyPoint{r.m_left, r.m_top};});
+	vector<MyPoint> tf2(n);
+	ranges::copy(rg, &tf2[0]);
+	return tf2;
 }
 
 

@@ -280,6 +280,8 @@ inline MyRect operator+(const MyPoint& p, const MyRect& r)
 
 std::vector<MyRect> operator+(const std::vector<MyRect> m1, const std::vector<MyRect>& m2);
 
+std::vector<MyRect> operator-(const std::vector<MyRect> m1, const std::vector<MyRect>& m2);
+
 std::vector<MyRect> operator+(const std::vector<MyRect> m1, const std::vector<MyPoint>& m2);
 
 std::vector<MyRect> operator+(const std::vector<MyPoint> m1, const std::vector<MyRect>& m2);

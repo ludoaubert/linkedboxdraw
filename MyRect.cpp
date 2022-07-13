@@ -27,7 +27,7 @@ vector<MyPoint> operator+(const vector<MyPoint> m1, const vector<MyPoint>& m2)
 	{
 			m[i] = m1[i] + m2[i];
 	}
-	return m;	
+	return m;
 }
 
 
@@ -46,6 +46,17 @@ vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyRect>& m2)
 	return m;
 }
 
+vector<MyRect> operator-(const vector<MyRect> m1, const vector<MyRect>& m2)
+{
+        assert(m1.size() == m2.size());
+        int n = m1.size();
+        vector<MyRect> m(n);
+        for (int i=0; i < n; i++)
+        {
+                        m[i] = m1[i] - m2[i];
+        }
+        return m;
+}
 
 vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyPoint>& m2)
 {
@@ -56,7 +67,7 @@ vector<MyRect> operator+(const vector<MyRect> m1, const vector<MyPoint>& m2)
 	{
 			m[i] = m1[i] + m2[i];
 	}
-	return m;	
+	return m;
 }
 
 
