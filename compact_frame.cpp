@@ -51,8 +51,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	int n = rectangles.size();
 
 	vector<int> is_selected(n,0);
-	vector<SweepLineItem> sweep_line_storage;
-	vector<SweepLineItem*> sweep_line2[2];
+	vector<SweepLineItem> sweep_line2[2];
 
 	for (int ri=0; ri < n; ri++)
 	{
@@ -63,15 +62,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			{.value=m_top, .rectdim=TOP, .ri=ri},
 			{.value=m_bottom, .rectdim=BOTTOM, .ri=ri}
 		};
-		ranges::copy(items4, back_inserter(sweep_line_storage));
+		for (SweepLineItem& item : items4)
+			sweep_line2[ RectDimDirection[item.dim] ].push_back(item);
 	}
-	for (SweepLineItem& item : sweep_line_storage)
-		sweep_line2[ RectDimDirection[item.dim] ].push_back(&item);
 
-	const MyPoint translation2[2]={
-		{.x=+1, .y=0},
-		{.x=0, .y=+1}
-	};
+	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
 	for (Direction direction : {EAST_WEST, NORTH_SOUTH})
 	{
@@ -83,8 +78,9 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	
 		const MyPoint& translation = translation2[direction] ;
 
-		vector<SweepLineItem*>& sweep_line = sweep_line2[sweep_direction];
-		ranges::sort(sweep_line, [](SweepLineItem* a, SweepLineItem* b){return *a < *b;});
+		ranges::sort(sweep_line2[sweep_direction]);
+		
+		const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
 			
 		while (true)
 		{
@@ -101,31 +97,23 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				is_selected[ri] = 1;
 			}
 
-			for (SweepLineItem* item : sweep_line)
+			for (const SweepLineItem& item : sweep_line)
 			{
-				auto& [value, rectdim, ri] = *item;
+				const auto& [value, rectdim, ri] = item;
 				switch(rectdim)
 				{
 				case LEFT:
 				case TOP:
-					for (int rj : active_line)
+					assert(is_selected[ri] == 0);
+					for (int rj : active_line | views::filter([](int rj){return is_selected[rj]==1;})
+											| views::filter([](int rj){ return range_intersect_strict(rectangles[ri][minCompactRectDim],
+																									rectangles[ri][maxCompactRectDim],
+																									rectangles[rj][minCompactRectDim]+1,
+																									rectangles[rj][maxCompactRectDim]+1))
+											| views::take(1)
+					)
 					{
-							if (is_selected[ri] != is_selected[rj] && 
-								range_intersect_strict(rectangles[ri][minSweepRectDim]+is_selected[ri],
-													rectangles[ri][maxSweepRectDim]+is_selected[ri],
-													rectangles[rj][minSweepRectDim]+is_selected[rj],
-													rectangles[rj][maxSweepRectDim]+is_selected[rj])
-							)
-							{
-								if (is_selected[ri]==0)
-								{
-									is_selected[ri]=1;
-								}
-								else
-								{
-									is_selected[rj]=1;
-								}
-							}
+						is_selected[ri]=1;
 					}
 					active_line.insert(ri);
 					break;
