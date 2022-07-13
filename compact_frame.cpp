@@ -107,7 +107,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				{
 				case LEFT:
 				case TOP:
-					printf("sweep reaching %d\n", ri);
+					printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
 					assert(is_selected[ri] == 0);
 					for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
 								| views::filter([&](int rj){return is_selected[rj]==1;})
@@ -121,7 +121,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 					break;
 				case RIGHT:
 				case BOTTOM:
-					printf("sweep leaving %d\n", ri);
+					printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
 					active_line[ri]=0;
                                         for (int rj : active_line | views::filter([&](int rj){return active_line[rj]==1;})
                                                                 | views::filter([&](int rj){return is_selected[rj]!=is_selected[ri];})

@@ -112,6 +112,8 @@ enum RectDim
 
 const RectDim RectDims[4]={LEFT,RIGHT,TOP,BOTTOM} ;
 
+extern const char* RectDimString[4];
+
 const Direction RectDimDirection[4]={EAST_WEST,EAST_WEST,NORTH_SOUTH,NORTH_SOUTH};
 
 

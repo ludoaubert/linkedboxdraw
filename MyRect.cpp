@@ -30,6 +30,7 @@ vector<MyPoint> operator+(const vector<MyPoint> m1, const vector<MyPoint>& m2)
 	return m;
 }
 
+const char* RectDimString[4]={"LEFT","RIGHT","TOP", "BOTTOM"} ;
 
 const char* RectCornerString[4]={"TOP_LEFT", "BOTTOM_LEFT", "TOP_RIGHT", "BOTTOM_RIGHT"};
 
@@ -80,7 +81,7 @@ vector<MyRect> operator+(const vector<MyPoint> m1, const vector<MyRect>& m2)
 	{
 			m[i] = m1[i] + m2[i];
 	}
-	return m;	
+	return m;
 }
 
 
