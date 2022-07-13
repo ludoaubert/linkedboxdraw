@@ -305,37 +305,21 @@ int main()
 			};
 
 /*
-			auto ff=[&](const ST& st)->vector<MyRect> {
-
-				const auto& [initial_tf, tf] = st;
-
-				vector<MyRect> transformation(n);
-
-				transformation[ri] = initial_tf;
-
-				for (bool stop=false; stop==false; )
-				{
-					stop=true;
-					for (int i : views::iota(0,n) | views::filter([&](int i){return transformation[i]==zero;}))
-					{
-						for (int j : views::iota(0,n) | views::filter([&](int j){return i!=j && transformation[j]!=zero;}))
-						{
-							if (intersect_strict(input_rectangles[i] + accumulated_transformation[i] + transformation[i],
-												input_rectangles[j] + accumulated_transformation[j] + transformation[j]))
-							{
-								transformation[i] = tf;
-								stop=false;
-							}
-						}
-					}
-				}
-				return transformation;
-			};
-
-
 			vector<MyRect> rectangles = input_rectangles;
+			vector<int> is_selected(n,0);
+			vector<SweepLineItem> sweep_line2[2];
+
+			for (int ri=0; ri < n; ri++)
+			{	
+				for (RectDim rectdim : {LEFT,RIGHT,TOP,BOTTOM})
+				{
+					sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});	
+				}
+			}
+
 			for (Direction direction : {EAST_WEST, NORTH_SOUTH})
 			{
+		//use the sweep_line that is not impacted by selected translation
 				Direction sweep_direction = Direction(1-direction);
 				int n = dimensions(-dr)[dimension];
 				
@@ -349,6 +333,66 @@ int main()
 						}
 				};
 				
+				const auto [minCompactRectDim, maxCompactRectDim] : rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+				const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];		
+
+				ranges::sort(sweep_line2[sweep_direction]);
+				
+				const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
+				
+				auto ff=[&](const ST& st)->vector<MyRect> {
+
+					const auto& [initial_tf, tf] = st;
+
+					ranges::fill(is_selected, 0);
+					is_selected[ri]=1;
+					rectangles[ri] += initial_tf;
+					
+					const MyRect frame = compute_frame(rectangles);
+
+					set<int> active_line;
+
+					for (const SweepLineItem& item : sweep_line)
+					{
+						const auto& [value, rectdim, ri] = item;
+						switch(rectdim)
+						{
+						case LEFT:
+						case TOP:
+							assert(is_selected[ri] == 0);
+							for (int rj : active_line | views::filter([](int rj){return is_selected[rj]==1;})
+													| views::filter([](int rj){ 
+														return range_intersect_strict(rectangles[ri][minCompactRectDim],
+																					rectangles[ri][maxCompactRectDim],
+																					rectangles[rj][minCompactRectDim]+1,
+																					rectangles[rj][maxCompactRectDim]+1);
+																			}
+														)
+													| views::take(1)
+							)
+							{
+								is_selected[ri]=1;
+							}
+							active_line.insert(ri);
+							break;
+						case RIGHT:
+						case BOTTOM:
+							active_line.erase(ri);
+							break;
+						}
+					}
+					
+					for (int i=0; i<n; i++)
+					{
+						if (i != ri && is_selected[i]==true)
+							rectangles[i] += tf;
+					}
+
+					
+					return transformation;
+				};
+
+
 				for (TransformationType transformationType : views::iota(0, abs(n)) | views::transform(tt))
 				{
 						vector<MyRect> transformation = ranges::min(Transformations[transformationType] | views::transform(ff), {},
