@@ -111,8 +111,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 					for (int rj : active_line)
 					{
 							if (is_selected[ri] != is_selected[rj] && 
-								range_intersect_strict(rectangles[ri][minSweepRectDim],rectangles[ri][maxSweepRectDim],
-													rectangles[rj][minSweepRectDim],rectangles[rj][maxSweepRectDim])
+								range_intersect_strict(rectangles[ri][minSweepRectDim]+is_selected[ri],
+													rectangles[ri][maxSweepRectDim]+is_selected[ri],
+													rectangles[rj][minSweepRectDim]+is_selected[rj],
+													rectangles[rj][maxSweepRectDim]+is_selected[rj])
 							)
 							{
 								if (is_selected[ri]==0)
