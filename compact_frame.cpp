@@ -135,12 +135,18 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 			for (bool stop=false; stop==false; )
 			{
-				stop==true;
+				stop=true;
 				for (auto [ri, rj] : rect_links_dedup)
 				{
-					if (rectangles[ri][maxCompactRectDim]+is_selected[ri] > rectangles[rj][minCompactRectDim]+is_selected[rj])
+					if (is_selected[ri]==1 && is_selected[rj]==0 &&
+						rectangles[ri][maxCompactRectDim]+is_selected[ri] == rectangles[rj][minCompactRectDim]+is_selected[rj]+1)
 					{
+						printf("rectangles[%d][%s]+is_selected[%d]=%d + %d\n", ri, RectDimString[maxCompactRectDim], ri,
+							rectangles[ri][maxCompactRectDim], is_selected[ri]);
+						printf("rectangles[%d][%s]+is_selected[%d]=%d + %d\n", rj, RectDimString[minCompactRectDim], rj,
+                                                        rectangles[rj][minCompactRectDim], is_selected[rj]);
 						is_selected[rj]=1;
+						printf("is_selected[%d]=1\n", rj);
 						stop=false;
 					}
 				}
@@ -151,6 +157,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 			if ( rg.empty() == false )
 			{
+				printf("backline is hit. breaking out of loop\n");
 				break;
 			}
 
