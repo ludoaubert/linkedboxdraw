@@ -58,14 +58,6 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	vector<RectLink> rect_links2[2];
 	vector<SweepLineItem> sweep_line2[2];
 
-	for (int ri=0; ri < n; ri++)
-	{
-		for (RectDim rectdim : {LEFT,RIGHT,TOP,BOTTOM})
-		{
-			sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
-		}
-	}
-
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
@@ -73,8 +65,16 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 //use the sweep_line that is not impacted by selected translation
 		Direction sweep_direction = Direction(1-compact_direction);
 
-		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+                auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+                auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+
+        	for (int ri=0; ri < n; ri++)
+        	{
+                	for (RectDim rectdim : {minSweepRectDim, maxSweepRectDim})
+                	{
+                        	sweep_line2[sweep_direction].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
+                	}
+        	}
 
 		const MyPoint& translation = translation2[compact_direction] ;
 
