@@ -24,6 +24,11 @@ using namespace std;
 
 struct MyRect{int left,right,top,bottom;};
 
+struct MyEdge{
+	int i, j;
+	friend auto operator<=>(const MyEdge&, const MyEdge&) = default;
+};
+
 
 int main(){
 
@@ -90,4 +95,45 @@ int main(){
         printf("%d,", i);        
     }
     printf("\n");	
+	
+	vector<MyEdge> edges, forbidden_edges, allowed_edges;
+	edges.reserve(256);
+	forbidden_edges.reserve(256);
+	allowed_edges.reserve(256);
+	
+	for (int i=0; i+1 < n; i++)
+	{
+		edges.push_back({a[i], a[i+1]});
+	}
+	
+	for (int i=0; i+2 < n; i++)
+	{
+		forbidden_edges.push_back({a[i], a[i+2]});
+	}
+	
+	ranges::sort(edges);
+	auto ret1 = ranges::unique(edges);
+	edges.erase(ret1.begin(), ret1.end());
+
+	ranges::sort(forbidden_edges);
+	auto ret2 = ranges::unique(forbidden_edges);
+	forbidden_edges.erase(ret2.begin(), ret2.end());
+
+	ranges::set_difference(edges, forbidden_edges, back_inserter(allowed_edges));
+	
+	printf("edges:\n");
+	for (auto [i, j] : edges)
+	{
+		printf("%d => %d\n", i, j);
+	}
+	printf("forbidden_edges:\n");
+	for (auto [i, j] : forbidden_edges)
+	{
+		printf("%d => %d\n", i, j);
+	}
+	printf("allowed_edges:\n");
+	for (auto [i, j] : allowed_edges)
+	{
+		printf("%d => %d\n", i, j);
+	}
 }
