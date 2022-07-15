@@ -147,7 +147,7 @@ struct MyRect
 		}
 	}
 
-	int16_t operator[](RectDim rd) const
+	inline int16_t operator[](RectDim rd) const
 	{
 		switch(rd)
 		{
@@ -162,7 +162,7 @@ struct MyRect
 		}
 	}
 
-	int16_t& operator[](RectDim rd)
+	inline int16_t& operator[](RectDim rd)
 	{
 		switch(rd)
 		{
