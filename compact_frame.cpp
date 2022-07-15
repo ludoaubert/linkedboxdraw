@@ -50,12 +50,11 @@ struct RectLink
 
 vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
-//	FunctionTimer ft("compute_compact_frame_transform_");
+	FunctionTimer ft("compute_cft_");
 
 	vector<MyRect> rectangles = input_rectangles;
 	int n = rectangles.size();
 
-	vector<RectLink> rect_links2[2];
 	vector<SweepLineItem> sweep_line2[2];
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
@@ -65,25 +64,67 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 //use the sweep_line that is not impacted by selected translation
 		Direction sweep_direction = Direction(1-compact_direction);
 
-                auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-                auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
 
-        	for (int ri=0; ri < n; ri++)
-        	{
-                	for (RectDim rectdim : {minSweepRectDim, maxSweepRectDim})
-                	{
-                        	sweep_line2[sweep_direction].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
-                	}
-        	}
+		sweep_line2[sweep_direction].reserve(2*n);
+
+		for (int ri=0; ri < n; ri++)
+		{
+			for (RectDim rectdim : {minSweepRectDim, maxSweepRectDim})
+			{
+				sweep_line2[sweep_direction].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
+			}
+		}
 
 		const MyPoint& translation = translation2[compact_direction] ;
 
 		ranges::sort(sweep_line2[sweep_direction]);
 
 		const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
-		vector<RectLink>& rect_links = rect_links2[compact_direction];
 
-	        vector<int> active_line(n,0);
+	    int active_line[20];
+		int active_line_size=0;
+		
+		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];});
+		
+		auto erase=[&](int i){
+			int& lower = *ranges::lower_bound(span(active_line,active_line_size), i, cmp);
+			printf("lower = %d\n", lower);
+			int pos = distance(active_line, &lower);
+			printf("pos = %d\n", pos);
+			for (int ii=pos; ii<active_line; ii++)
+				swap(active_line[ii], active_line[ii+1]);
+			active_line_size -= 1;
+		};
+		
+		auto insert=[&](int i){
+			int& upper = *ranges::upper_bound(span(active_line,active_line_size), i, cmp);
+			printf("upper = %d\n", upper);
+			int pos = distance(active_line, &upper);
+			printf("pos = %d\n", pos);
+			for (int ii=active_line-1; ii>=pos; ii--)
+				swap(active_line[ii],active_line[ii+1]);
+			active_line_size += 1;
+			active_line[pos]=i;
+		};
+		
+		vector<RectLink> rect_links, forbidden_rect_links, allowed_rect_links;
+		rect_links.reserve(256);
+		forbidden_rect_links.reserve(256);
+		allowed_rect_links.reserve(256);
+		
+		auto push_rect_links = [&](){
+			for (int i=0; i+1 < active_line_size; i++)
+			{
+				rect_links.push_back({active_line[i], active_line[i+1]});
+			}
+	
+			for (int i=0; i+2 < active_line_size; i++)
+			{
+				forbidden_rect_links.push_back({active_line[i], active_line[i+2]});
+			}		
+		};
 
 		for (const SweepLineItem& item : sweep_line)
 		{
@@ -93,45 +134,135 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			case LEFT:
 			case TOP:
 				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
-				for (int rj : views::iota(0,n) | views::filter([&](int rj){return active_line[rj]==1;}))
-				{
-					MyRect &rect1 = rectangles[ri], &rect2 = rectangles[rj];
-					rect_links.push_back(rect1[minCompactRectDim] < rect2[minCompactRectDim] ? RectLink{ri,rj} : RectLink{rj,ri});
-				}
-				active_line[ri]=1;
+				insert(ri);
+				push_rect_links();
 				break;
 			case RIGHT:
 			case BOTTOM:
 				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
-				active_line[ri]=0;
-				for (int rj : views::iota(0,n) | views::filter([&](int rj){return active_line[rj]==1;}))
-				{
-                                        MyRect &rect1 = rectangles[ri], &rect2 = rectangles[rj];
-                                        rect_links.push_back(rect1[minCompactRectDim] < rect2[minCompactRectDim] ? RectLink{ri,rj} : RectLink{rj,ri});
-				}
+				erase(ri);
+				push_rect_links();
 				break;
 			}
 		}
-
-		vector<RectLink> rect_links_dedup;
+		
 		ranges::sort(rect_links);
-		printf("rect_links.size()=%ld\n", rect_links.size());
-		ranges::unique_copy(rect_links, back_inserter(rect_links_dedup));
-		rect_links.clear();
-                printf("rect_links_dedup.size()=%ld\n", rect_links_dedup.size());
+		auto ret1 = ranges::unique(rect_links);
+		rect_links.erase(ret1.begin(), ret1.end());
+
+		ranges::sort(forbidden_rect_links);
+		auto ret2 = ranges::unique(forbidden_rect_links);
+		forbidden_rect_links.erase(ret2.begin(), ret2.end());
+
+		ranges::set_difference(rect_links, forbidden_rect_links, back_inserter(allowed_rect_links));
+		
+		printf("rect_links:\n");
+		for (auto [i, j] : rect_links)
+		{
+			printf("%d => %d\n", i, j);
+		}
+		printf("forbidden_rect_links:\n");
+		for (auto [i, j] : forbidden_rect_links)
+		{
+			printf("%d => %d\n", i, j);
+		}
+		printf("allowed_rect_links:\n");
+		for (auto [i, j] : allowed_rect_links)
+		{
+			printf("%d => %d\n", i, j);
+		}
+		
+		vector<int> edge_partition={0,1,2,3,3,4,5};
+
+		auto adj_list=[&](int ri)->span<MyEdge>{
+			int i=edge_partition[ri], j=edge_partition[ri+1]; 
+			return span<MyEdge>(&edges[i], j-i);
+		};
+		
+		vector<TrCandidate> translation_candidates;
+		translation_candidates.reserve(256);
+
+		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
+			span<MyEdge> adj = adj_list(ri);
+			if (adj.empty())
+			{
+				int tr = frame[maxCompactRectDim] - rects[ri][maxCompactRectDim];
+				translation_candidates.push_back({o, ri, tr});
+				return tr;
+			}
+			int tr = ranges::min(adj | views::transform([&](const MyEdge e){
+						return rec_query_translation(o, e.j, rec_query_translation) + rects[e.j][minCompactRectDim]-rects[ri][maxCompactRectDim];
+					}
+				)
+			);
+			translation_candidates.push_back({o, ri, tr});
+			return tr;
+		};
+		
+		for (int o : views::iota(0,n) | views::filter([&](int i){return rects[i][minCompactRectDim]==frame[minCompactRectDim];}))
+		{
+			rec_query_translation(o, o, rec_query_translation);
+		}
+
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+		
+		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
+		printf("tr_min=%d\n", tr_min);
+		
+		vector<int> translations(n,-1);
+		
+		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
+		{
+			translations[o] = tr;
+		}
+		
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			tr = tr + min(translations[o], tr_min) - translations[o];
+		}
+		
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+		
+		for (auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return rects[trc.ri][maxCompactRectDim]==frame[maxCompactRectDim];}))
+		{
+			tr = 0;
+		}
+		
+		printf("after setting backline to zero:\n");
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+		
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			translations[ri]=tr;
+		}
+		
+		for (int ri=0; ri < n; ri++)
+		{
+			printf("translations[ri=%d]=%d\n",ri, translations[ri]);
+		}		
+
 		vector<int> is_selected(n,0);
 
-                while (true)
-                {
-                        printf("looping\n");
+		while (true)
+		{
+            printf("looping\n");
 			ranges::fill(is_selected,0);
 
-	                const MyRect frame = compute_frame(rectangles);
-                //rectangles that we want to rake along
-	                for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim];}))
-        	        {
-                	        is_selected[ri]=1;
-                	}
+			const MyRect frame = compute_frame(rectangles);
+		//rectangles that we want to rake along
+			for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim];}))
+			{
+					is_selected[ri]=1;
+			}
 
 			for (bool stop=false; stop==false; )
 			{
