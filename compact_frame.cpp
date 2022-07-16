@@ -217,7 +217,9 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		vector<TrCandidate> translation_candidates;
 		translation_candidates.reserve(256);
-
+                vector<MyPoint> translations(n);
+{
+        FunctionTimer ft("cft_rec_query_tr");
 		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
 			span<RectLink> adj = adj_list(ri);
 			if (adj.empty())
@@ -239,7 +241,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		{
 			rec_query_translation(o, o, rec_query_translation);
 		}
-
+}
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
 			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
@@ -248,16 +250,14 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
 		printf("tr_min=%d\n", tr_min);
 
-		vector<int> translations(n,-1);
-
 		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
 		{
-			translations[o] = tr;
+			translations[o][compact_direction] = tr;
 		}
 
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
-			tr = tr + min(translations[o], tr_min) - translations[o];
+			tr = tr + min<int>(translations[o][compact_direction], tr_min) - translations[o][compact_direction];
 		}
 
 		for (auto& [o, ri, tr] : translation_candidates)
@@ -278,64 +278,17 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
-			translations[ri]=tr;
+			translations[ri][compact_direction]=tr;
 		}
 
 		for (int ri=0; ri < n; ri++)
 		{
-			printf("translations[ri=%d]=%d\n",ri, translations[ri]);
+			printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]);
 		}
 
-		vector<int> is_selected(n,0);
-
-		while (true)
-		{
-            printf("looping\n");
-			ranges::fill(is_selected,0);
-
-			const MyRect frame = compute_frame(rectangles);
-		//rectangles that we want to rake along
-			for (int ri : views::iota(0, n) | views::filter([&](int ri){return frame[minCompactRectDim]==rectangles[ri][minCompactRectDim];}))
-			{
-					is_selected[ri]=1;
-			}
-
-			for (bool stop=false; stop==false; )
-			{
-				stop=true;
-				for (auto [ri, rj] : rect_links)
-				{
-					if (is_selected[ri]==1 && is_selected[rj]==0 &&
-						rectangles[ri][maxCompactRectDim]+is_selected[ri] == rectangles[rj][minCompactRectDim]+is_selected[rj]+1)
-					{
-						printf("rectangles[%d][%s]+is_selected[%d]=%d + %d\n", ri, RectDimString[maxCompactRectDim], ri,
-							rectangles[ri][maxCompactRectDim], is_selected[ri]);
-						printf("rectangles[%d][%s]+is_selected[%d]=%d + %d\n", rj, RectDimString[minCompactRectDim], rj,
-                                                        rectangles[rj][minCompactRectDim], is_selected[rj]);
-						is_selected[rj]=1;
-						printf("is_selected[%d]=1\n", rj);
-						stop=false;
-					}
-				}
-			}
-
-			//rectangles that hit the backline
-			auto rg = views::iota(0, n) | views::filter([&](int ri){return frame[maxCompactRectDim]<rectangles[ri][maxCompactRectDim]+is_selected[ri];});
-
-			if ( rg.empty() == false )
-			{
-				printf("backline is hit. breaking out of loop\n");
-				break;
-			}
-
-			for (int ri=0; ri < n; ri++)
-			{
-				if (is_selected[ri]==1)
-				{
-					printf("rectangles[%d] += {.x=%d, .y=%d}\n", ri, translation.x, translation.y);
-					rectangles[ri] += translation;
-				}
-			}
+                for (int ri=0; ri < n; ri++)
+                {
+			rectangles[ri] += translations[ri];
 		}
 	}
 
@@ -343,6 +296,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	auto rg = tf | views::transform([](const MyRect& r){return MyPoint{r.m_left, r.m_top};});
 	vector<MyPoint> tf2(n);
 	ranges::copy(rg, &tf2[0]);
+	printf("tf2={");
+	for (const auto& [x, y] : tf2)
+		printf("{%d, %d},", x, y);
+	printf("\n");
 	return tf2;
 }
 

@@ -43,6 +43,28 @@ struct MyPoint
 	int16_t x=0, y=0 ;
 	bool operator==(const MyPoint&) const = default;
 
+	int16_t& operator[](Direction direction)
+	{
+		switch(direction)
+		{
+		case EAST_WEST:
+			return x;
+		case NORTH_SOUTH:
+			return y;
+		}
+	}
+
+        int16_t operator[](Direction direction) const
+        {
+                switch(direction)
+                {
+                case EAST_WEST:
+                        return x;
+                case NORTH_SOUTH:
+                        return y;
+                }
+        }
+
         MyPoint& operator+=(const MyPoint& p)
         {
                 x += p.x;
