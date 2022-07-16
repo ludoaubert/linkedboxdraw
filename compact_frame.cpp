@@ -69,8 +69,6 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	vector<MyRect> rectangles = input_rectangles;
 	int n = rectangles.size();
 
-	vector<SweepLineItem> sweep_line2[2];
-
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
@@ -81,22 +79,25 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
-
-		sweep_line2[sweep_direction].reserve(2*n);
+        	vector<SweepLineItem> sweep_line;
+{
+        FunctionTimer ft("cft_fill_sweepline");
+		sweep_line.reserve(2*n);
 
 		for (int ri=0; ri < n; ri++)
 		{
 			for (RectDim rectdim : {minSweepRectDim, maxSweepRectDim})
 			{
-				sweep_line2[sweep_direction].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
+				sweep_line.push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
 			}
 		}
+}
 
 		const MyPoint& translation = translation2[compact_direction] ;
-
-		ranges::sort(sweep_line2[sweep_direction], CustomLess());
-
-		const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
+{
+        FunctionTimer ft("cft_sort_sweepline");
+		ranges::sort(sweep_line, CustomLess());
+}
 
 		int active_line[20];
 		int active_line_size=0;
@@ -105,9 +106,9 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto erase=[&](int i){
 			int& lower = *ranges::lower_bound(span(active_line,active_line_size), i, cmp);
-			printf("lower = %d\n", lower);
+			//printf("lower = %d\n", lower);
 			int pos = distance(active_line, &lower);
-			printf("pos = %d\n", pos);
+			//printf("pos = %d\n", pos);
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
@@ -115,9 +116,9 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto insert=[&](int i){
 			int& upper = *ranges::upper_bound(span(active_line,active_line_size), i, cmp);
-			printf("upper = %d\n", upper);
+			//printf("upper = %d\n", upper);
 			int pos = distance(active_line, &upper);
-			printf("pos = %d\n", pos);
+			//printf("pos = %d\n", pos);
 			for (int ii=active_line_size-1; ii>=pos; ii--)
 				swap(active_line[ii],active_line[ii+1]);
 			active_line_size += 1;
@@ -140,7 +141,8 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				forbidden_rect_links.push_back({active_line[i], active_line[i+2]});
 			}
 		};
-
+{
+        FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
 			const auto& [value, rectdim, ri] = item;
@@ -148,19 +150,21 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			{
 			case LEFT:
 			case TOP:
-				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
+				//printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
 				insert(ri);
 				push_rect_links();
 				break;
 			case RIGHT:
 			case BOTTOM:
-				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
+				//printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
 				erase(ri);
 				push_rect_links();
 				break;
 			}
 		}
-
+}
+{
+        FunctionTimer ft("cft_rectlinks");
 		ranges::sort(rect_links);
 		auto ret1 = ranges::unique(rect_links);
 		rect_links.erase(ret1.begin(), ret1.end());
@@ -170,7 +174,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		forbidden_rect_links.erase(ret2.begin(), ret2.end());
 
 		ranges::set_difference(rect_links, forbidden_rect_links, back_inserter(allowed_rect_links));
-
+}
 		printf("rect_links:\n");
 		for (auto [i, j] : rect_links)
 		{
@@ -188,6 +192,8 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		}
 
 		vector<int> edge_partition(n+1,0);
+{
+        FunctionTimer ft("cft_edge_part");
 		for (int pos=0, ii=0; ii<n; ii++)
 		{
 			int &start_pos = edge_partition[ii];
@@ -198,6 +204,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				end_pos = max(end_pos, pos+1);
 			}
 		}
+}
 		printf("edge_partition: ");
 		for (int pos : edge_partition)
 			printf("%d,", pos);

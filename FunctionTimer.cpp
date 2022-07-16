@@ -34,8 +34,8 @@ struct FunctionTimerImpl
         count--;
         high_resolution_clock::time_point t2 = high_resolution_clock::now();
         duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-        fprintf(log_file, "%.*s%s() took %f seconds.\n", count, "\t\t\t\t\t\t\t\t\t\t", m_func_name, time_span.count());
-        fflush(log_file);
+        printf("%.*s%s() took %f seconds.\n", count, "\t\t\t\t\t\t\t\t\t\t", m_func_name, time_span.count());
+        //fflush(log_file);
     }
 
     static int count ;
