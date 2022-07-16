@@ -89,6 +89,7 @@ struct DecisionTreeNode
 int main()
 {
 	FunctionTimer::MAX_NESTING=1;
+	FunctionTimer ft("holes");
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 

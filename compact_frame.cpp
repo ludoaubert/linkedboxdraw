@@ -64,7 +64,6 @@ struct TrCandidate{int o, ri, tr;};
 
 vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
-	FunctionTimer::MAX_NESTING=2;
 	FunctionTimer ft("compute_cft_");
 
 	vector<MyRect> rectangles = input_rectangles;
@@ -615,7 +614,7 @@ B				petit_poucet[e._j] = vj;
 
 void test_compact_frame()
 {
-	TestFunctionTimer ft("test_compact_frame");
+        FunctionTimer::MAX_NESTING=1;
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
 
@@ -826,7 +825,7 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
+		vector<MyPoint> translations = compute_compact_frame_transform(input_rectangles) ;
 
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
