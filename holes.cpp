@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "MyRect.h"
+#include "FunctionTimer.h"
 #include "compact_frame.h"
 using namespace std;
 
@@ -87,6 +88,7 @@ struct DecisionTreeNode
 
 int main()
 {
+	FunctionTimer::MAX_NESTING=1;
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
@@ -522,7 +524,7 @@ printf("\n");
 
 			auto rgr = keeper_holes | views::transform([&](const RectHole& rh)->vector<MyRect>{
 				vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, rh);
-				vector<MyPoint> tf = compute_compact_frame_transform(rectangles);
+				vector<MyPoint> tf = compute_compact_frame_transform_(rectangles);
 				matw(rectangles) += tf;
 				return rectangles;
 			});
@@ -676,7 +678,7 @@ printf("\n");
 			string buffer=print_html(rectangles2);
 			fprintf(f, "%s", buffer.c_str());
 			fclose(f);
-			vector<MyPoint> tf = compute_compact_frame_transform(rectangles2);
+			vector<MyPoint> tf = compute_compact_frame_transform_(rectangles2);
 			matw(rectangles2) += tf;
 			sprintf(file_name, "holes_compact_frame_%d.html", i);
 			f=fopen(file_name, "w");
