@@ -102,6 +102,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		int active_line[20];
 		int active_line_size=0;
 
+                vector<RectLink> rect_links, forbidden_rect_links, allowed_rect_links;
+                rect_links.reserve(256);
+                forbidden_rect_links.reserve(256);
+                allowed_rect_links.reserve(256);
+
 		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
 
 		auto erase=[&](int i){
@@ -131,24 +136,15 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				swap(active_line[ii],active_line[ii+1]);
 			active_line_size += 1;
 			active_line[pos]=i;
+
+			if (pos > 0)
+                        	rect_links.push_back({active_line[pos-1], active_line[pos]});
+			if (pos+1 < active_line_size)
+                                rect_links.push_back({active_line[pos], active_line[pos+1]});
+                        if (pos > 0 && pos+1 < active_line_size)
+				forbidden_rect_links.push_back({active_line[pos-1], active_line[pos+1]});
 		};
 
-		vector<RectLink> rect_links, forbidden_rect_links, allowed_rect_links;
-		rect_links.reserve(256);
-		forbidden_rect_links.reserve(256);
-		allowed_rect_links.reserve(256);
-
-		auto push_rect_links = [&](){
-			for (int i=0; i+1 < active_line_size; i++)
-			{
-				rect_links.push_back({active_line[i], active_line[i+1]});
-			}
-
-			for (int i=0; i+2 < active_line_size; i++)
-			{
-				forbidden_rect_links.push_back({active_line[i], active_line[i+2]});
-			}
-		};
 {
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
@@ -162,7 +158,6 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
 #endif
 				insert(ri);
-				push_rect_links();
 				break;
 			case RIGHT:
 			case BOTTOM:
@@ -170,22 +165,29 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
 #endif
 				erase(ri);
-				push_rect_links();
 				break;
 			}
 		}
 }
 {
         FunctionTimer ft("cft_rectlinks");
+{
+        FunctionTimer ft("cft_rectlinks_sort");
 		ranges::sort(rect_links);
+                ranges::sort(forbidden_rect_links);
+}
+{
+        FunctionTimer ft("cft_rectlinks_unique");
 		auto ret1 = ranges::unique(rect_links);
 		rect_links.erase(ret1.begin(), ret1.end());
 
-		ranges::sort(forbidden_rect_links);
 		auto ret2 = ranges::unique(forbidden_rect_links);
 		forbidden_rect_links.erase(ret2.begin(), ret2.end());
-
+}
+{
+        FunctionTimer ft("cft_rectlinks_setdiff");
 		ranges::set_difference(rect_links, forbidden_rect_links, back_inserter(allowed_rect_links));
+}
 }
 #ifdef _TRACE_
 		printf("rect_links:\n");
