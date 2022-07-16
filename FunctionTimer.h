@@ -13,8 +13,10 @@ struct FunctionTimer
 {
     FunctionTimer(const char *func_name);
     ~FunctionTimer();
-    
+
     FunctionTimerImpl *impl;
+
+    static int MAX_NESTING ;
 };
 
 

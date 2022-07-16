@@ -64,6 +64,7 @@ struct TrCandidate{int o, ri, tr;};
 
 vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
+	FunctionTimer::MAX_NESTING=2;
 	FunctionTimer ft("compute_cft_");
 
 	vector<MyRect> rectangles = input_rectangles;
