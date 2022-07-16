@@ -18,7 +18,18 @@ struct SweepLineItem
 	RectDim rectdim;
 	int ri;
 
-	auto operator<=>(const SweepLineItem&) const = default;
+	bool operator==(const SweepLineItem&) const = default;
+};
+
+struct CustomLess{
+	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b)
+	{
+		if (a.value != b.value)
+			return a.value < b.value;
+		if (a.rectdim != b.rectdim)
+			return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
+		return a.ri < b.ri;
+	}
 };
 
 /*
@@ -83,7 +94,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		const MyPoint& translation = translation2[compact_direction] ;
 
-		ranges::sort(sweep_line2[sweep_direction]);
+		ranges::sort(sweep_line2[sweep_direction], CustomLess());
 
 		const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
 
