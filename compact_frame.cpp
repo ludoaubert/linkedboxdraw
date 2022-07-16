@@ -176,11 +176,21 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			printf("%d => %d\n", i, j);
 		}
 
-		vector<int> edge_partition={0,1,2,3,3,4,5};
+		vector<int> edge_partition(allowed_rect_links.size()+1,0);
+		for (int pos=0; pos < allowed_rect_links.size(); pos++)
+		{
+			const auto& [i, j] = allowed_rect_links[pos];
+			int &end_pos = edge_partition[i+1];
+			end_pos = max(end_pos, pos+1);
+		}
+		printf("edge_partition: ");
+		for (int pos : edge_partition)
+			printf("%d,", pos);
+		printf("\n");
 
 		auto adj_list=[&](int ri)->span<RectLink>{
 			int i=edge_partition[ri], j=edge_partition[ri+1];
-			return span(&rect_links[i], j-i);
+			return span(&allowed_rect_links[i], j-i);
 		};
 
 		vector<TrCandidate> translation_candidates;
