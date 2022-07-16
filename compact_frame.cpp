@@ -556,7 +556,7 @@ void compute_stress_line(const vector<MyRect>& rectangles, vector<int> (&stress_
 			{
 				vector<int> vj;
 				ranges::set_union(petit_poucet[e._i], petit_poucet[e._j], std::back_inserter(vj));
-				petit_poucet[e._j] = vj;
+B				petit_poucet[e._j] = vj;
 
 				self(e._j);
 			}
@@ -605,6 +605,40 @@ void test_compact_frame()
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
 	const vector<TestContext> test_contexts={
+/*
+           +-------+
+           |       |
++------+   |   1   |   +------+
+|      |   |       |   |      |
+|  0   |   +-------+   |  2   |   +------+
+|      |               |      |   |      |
++------+               +------+   |  3   |
++------+   +-------+              |      |
+|      |   |       |              +------+
+|  4   |   |   5   |
+|      |   |       |
++------+   +-------+
+*/
+        {
+                .testid=0,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=150, .m_right=250, .m_top=0, .m_bottom=100},
+                        {.m_left=300, .m_right=400, .m_top=50, .m_bottom=150},
+                        {.m_left=450, .m_right=550, .m_top=100, .m_bottom=200},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
+                },
+                .edges = {},
+                .expected_rectangles = {//TODO: expect translations instead
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=150, .m_right=250, .m_top=0, .m_bottom=100},
+                        {.m_left=300, .m_right=400, .m_top=50, .m_bottom=150},
+                        {.m_left=450, .m_right=550, .m_top=100, .m_bottom=200},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
+                }
+        },
 
 	{
 		.testid=1,
