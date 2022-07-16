@@ -298,7 +298,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	ranges::copy(rg, &tf2[0]);
 	printf("tf2={");
 	for (const auto& [x, y] : tf2)
-		printf("{%d, %d},", x, y);
+		printf("{.x=%d, .y=%d},", x, y);
 	printf("\n");
 	return tf2;
 }
@@ -591,7 +591,7 @@ void test_compact_frame()
 {
 	TestFunctionTimer ft("test_compact_frame");
 
-	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
+	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
 
 	const vector<TestContext> test_contexts={
 /*
@@ -619,13 +619,13 @@ void test_compact_frame()
                         {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
                 },
                 .edges = {},
-                .expected_rectangles = {//TODO: expect translations instead
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=150, .m_right=250, .m_top=0, .m_bottom=100},
-                        {.m_left=300, .m_right=400, .m_top=50, .m_bottom=150},
-                        {.m_left=450, .m_right=550, .m_top=100, .m_bottom=200},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
+                .expected_translations = {
+			{.x=150, .y=0},
+			{.x=100, .y=50},
+			{.x=50, .y=0},
+			{.x=0, .y=0},
+			{.x=150, .y=0},
+			{.x=100, .y=0}
                 }
         },
 
@@ -658,17 +658,17 @@ void test_compact_frame()
 			{ .from=9, .to=9}
 		},
 
-		.expected_rectangles = {
-			{.m_left=209, .m_right=411, .m_top=352, .m_bottom=672},
-			{.m_left=495, .m_right=641, .m_top=0, .m_bottom=160},
-			{.m_left=0, .m_right=188, .m_top=224, .m_bottom=352},
-			{.m_left=641, .m_right=843, .m_top=464, .m_bottom=672},
-			{.m_left=641, .m_right=829, .m_top=144, .m_bottom=272},
-			{.m_left=-14, .m_right=209, .m_top=608, .m_bottom=720},
-			{.m_left=21, .m_right=209, .m_top=352, .m_bottom=480},
-			{.m_left=188, .m_right=390, .m_top=96, .m_bottom=352},
-			{.m_left=641, .m_right=836, .m_top=272, .m_bottom=464},
-			{.m_left=411, .m_right=641, .m_top=160, .m_bottom=672}
+		.expected_translations = {
+			{.x=0, .y=0},
+			{.x=0, .y=48},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=14, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=7, .y=0},
+			{.x=0, .y=48}
 		}
 	},
 	{
@@ -682,9 +682,9 @@ void test_compact_frame()
 			{.from=0,.to=1}
 		},
 
-		.expected_rectangles = {
-			{.m_left=0, .m_right=10, .m_top=10, .m_bottom=20},
-			{.m_left=0, .m_right=10, .m_top=20, .m_bottom=30}
+		.expected_translations = {
+			{.x=0, .y=10},
+			{.x=0, .y=0}
 		}
 	},
 	{
@@ -724,24 +724,45 @@ void test_compact_frame()
 			{.from=13,.to=14}
 		},
 
-		.expected_rectangles = {
-			{.m_left=396,.m_right=396+162,.m_top=10,.m_bottom=10+104},//8
-			{.m_left=320,.m_right=320+182,.m_top=330,.m_bottom=330+72},//9
-			{.m_left=453,.m_right=453+105,.m_top=218,.m_bottom=218+72},//10
-			{.m_left=598,.m_right=598+126,.m_top=10,.m_bottom=10+152},//21
-			{.m_left=598,.m_right=598+126,.m_top=202,.m_bottom=202+88},//24
-			{.m_left=750,.m_right=750+147,.m_top=346,.m_bottom=346+120},//25
-			{.m_left=273,.m_right=273+140,.m_top=154,.m_bottom=154+120},//26
-			{.m_left=542,.m_right=542+168,.m_top=330,.m_bottom=330+136},//27
-			{.m_left=335,.m_right=335+168,.m_top=506,.m_bottom=506+120},//28
-			{.m_left=556,.m_right=556+147,.m_top=506,.m_bottom=506+104},//30
-			{.m_left=764,.m_right=764+133,.m_top=186,.m_bottom=186+120},//32
-			{.m_left=743,.m_right=743+147,.m_top=506,.m_bottom=506+168},//44
-			{.m_left=93,.m_right=93+140,.m_top=153,.m_bottom=153+88},//48
-			{.m_left=10,.m_right=10+155,.m_top=281,.m_bottom=281+120},//52
-			{.m_left=11,.m_right=11+175,.m_top=441,.m_bottom=441+136}//53
+		.expected_translations = {
+			{.x=0, .y=0},
+			{.x=0, .y=48},
+			{.x=0, .y=-64},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=64},
+			{.x=0, .y=0},
+			{.x=0, .y=48},
+			{.x=0, .y=64},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=68, .y=0},
+			{.x=0, .y=0}
 		}
 	},
+/*
+      +-----------+          +----------+
+      |           |          |          |
+      |           |          |          |
+      |     0     |          |     4    |
+      |           |          |          |
+      |           |          |          |
++-----+-----+-----+----+-----+----+-----+
+|           |          |          |
+|           |          |          |
+|     1     |    2     |     5    |
+|           |          |          |
+|           |          |          |
++-----+-----+-----+----+----------+
+      |           |
+      |           |
+      |     3     |
+      |           |
+      |           |
+      +-----------+
+*/
 	{
 		.testid=4,
 		.input_rectangles = {
@@ -757,50 +778,43 @@ void test_compact_frame()
 			{.from=0,.to=1}
 		},
 
-		.expected_rectangles = {
-			{.m_left=20, .m_right=70, .m_top=0, .m_bottom=50},
-			{.m_left=0, .m_right=50, .m_top=50, .m_bottom=100},
-			{.m_left=50, .m_right=100, .m_top=50, .m_bottom=100},
-			{.m_left=20, .m_right=70, .m_top=100, .m_bottom=150},
-			{.m_left=120, .m_right=170, .m_top=0, .m_bottom=50},
-			{.m_left=100, .m_right=150, .m_top=50, .m_bottom=100}
+		.expected_translations = {
+			{.x=0, .y=0},
+			{.x=20, .y=0},
+			{.x=20, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=20, .y=0}
 		}
 	}
 	};
 
-	for (const auto& [testid, input_rectangles, edges, expected_rectangles] : test_contexts)
+	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
-		vector<MyRect> rectangles = input_rectangles;
-		int n = rectangles.size();
+		int n = input_rectangles.size();
 
-		int dm1 = dim_max(compute_frame(rectangles));
+		int dm1 = dim_max(compute_frame(input_rectangles));
 
-		for (int i=0; i < rectangles.size(); i++)
-			rectangles[i].i = i ;
 		vector<vector<MPD_Arc> > adjacency_list(n) ;
 		for (const Edge& e : edges)
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyPoint> cft = compute_compact_frame_transform_(rectangles) ;
-		matw(rectangles) += cft;
+		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
 
 		vector<int> stress_line[2];
-		compute_stress_line(rectangles, stress_line);
+		compute_stress_line(input_rectangles, stress_line);
 
-		int dm2 = dim_max(compute_frame(rectangles));
+		int dm2 = dim_max(compute_frame(input_rectangles + translations));
 
 		latuile_test_json_output(input_rectangles,
-					rectangles,
+					input_rectangles + translations,
 					edges,
-					expected_rectangles,
+					input_rectangles + expected_translations,
 					"compact_frame",
 					testid);
 
-		for (MyRect& r : rectangles)
-			r.i=-1;
-
-		bool bOK = rectangles == expected_rectangles;
+		bool bOK = translations == expected_translations;
         	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 		(bOK ? nbOK : nbKO)++;
