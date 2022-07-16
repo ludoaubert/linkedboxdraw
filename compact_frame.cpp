@@ -187,12 +187,16 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			printf("%d => %d\n", i, j);
 		}
 
-		vector<int> edge_partition(allowed_rect_links.size()+1,0);
-		for (int pos=0; pos < allowed_rect_links.size(); pos++)
+		vector<int> edge_partition(n+1,0);
+		for (int pos=0, ii=0; ii<n; ii++)
 		{
-			const auto& [i, j] = allowed_rect_links[pos];
-			int &end_pos = edge_partition[i+1];
-			end_pos = max(end_pos, pos+1);
+			int &start_pos = edge_partition[ii];
+			int &end_pos = edge_partition[ii+1];
+			end_pos = start_pos;
+			for ( ; pos < allowed_rect_links.size() && allowed_rect_links[pos].i==ii; pos++)
+			{
+				end_pos = max(end_pos, pos+1);
+			}
 		}
 		printf("edge_partition: ");
 		for (int pos : edge_partition)
