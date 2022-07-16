@@ -106,9 +106,13 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto erase=[&](int i){
 			int& lower = *ranges::lower_bound(span(active_line,active_line_size), i, cmp);
-			//printf("lower = %d\n", lower);
+#ifdef _TRACE_
+			printf("lower = %d\n", lower);
+#endif
 			int pos = distance(active_line, &lower);
-			//printf("pos = %d\n", pos);
+#ifdef _TRACE_
+			printf("pos = %d\n", pos);
+#endif
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
@@ -116,9 +120,13 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto insert=[&](int i){
 			int& upper = *ranges::upper_bound(span(active_line,active_line_size), i, cmp);
-			//printf("upper = %d\n", upper);
+#ifdef _TRACE_
+			printf("upper = %d\n", upper);
+#endif
 			int pos = distance(active_line, &upper);
-			//printf("pos = %d\n", pos);
+#ifdef _TRACE_
+			printf("pos = %d\n", pos);
+#endif
 			for (int ii=active_line_size-1; ii>=pos; ii--)
 				swap(active_line[ii],active_line[ii+1]);
 			active_line_size += 1;
@@ -150,13 +158,17 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			{
 			case LEFT:
 			case TOP:
-				//printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
+#ifdef _TRACE_
+				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
+#endif
 				insert(ri);
 				push_rect_links();
 				break;
 			case RIGHT:
 			case BOTTOM:
-				//printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
+#ifdef _TRACE_
+				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
+#endif
 				erase(ri);
 				push_rect_links();
 				break;
@@ -175,6 +187,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		ranges::set_difference(rect_links, forbidden_rect_links, back_inserter(allowed_rect_links));
 }
+#ifdef _TRACE_
 		printf("rect_links:\n");
 		for (auto [i, j] : rect_links)
 		{
@@ -190,7 +203,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		{
 			printf("%d => %d\n", i, j);
 		}
-
+#endif
 		vector<int> edge_partition(n+1,0);
 {
         FunctionTimer ft("cft_edge_part");
@@ -205,11 +218,12 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			}
 		}
 }
+#ifdef _TRACE_
 		printf("edge_partition: ");
 		for (int pos : edge_partition)
 			printf("%d,", pos);
 		printf("\n");
-
+#endif
 		auto adj_list=[&](int ri)->span<RectLink>{
 			int i=edge_partition[ri], j=edge_partition[ri+1];
 			return span(&allowed_rect_links[i], j-i);
@@ -242,14 +256,16 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			rec_query_translation(o, o, rec_query_translation);
 		}
 }
+#ifdef _TRACE_
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
 			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
 		}
-
+#endif
 		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
+#ifdef _TRACE_
 		printf("tr_min=%d\n", tr_min);
-
+#endif
 		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
 		{
 			translations[o][compact_direction] = tr;
@@ -259,33 +275,33 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		{
 			tr = tr + min<int>(translations[o][compact_direction], tr_min) - translations[o][compact_direction];
 		}
-
+#ifdef _TRACE_
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
 			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
 		}
-
+#endif
 		for (auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return rectangles[trc.ri][maxCompactRectDim]==frame[maxCompactRectDim];}))
 		{
 			tr = 0;
 		}
-
+#ifdef _TRACE_
 		printf("after setting backline to zero:\n");
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
 			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
 		}
-
+#endif
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
 			translations[ri][compact_direction]=tr;
 		}
-
+#ifdef _TRACE_
 		for (int ri=0; ri < n; ri++)
 		{
 			printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]);
 		}
-
+#endif
                 for (int ri=0; ri < n; ri++)
                 {
 			rectangles[ri] += translations[ri];
@@ -296,10 +312,12 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	auto rg = tf | views::transform([](const MyRect& r){return MyPoint{r.m_left, r.m_top};});
 	vector<MyPoint> tf2(n);
 	ranges::copy(rg, &tf2[0]);
+#ifdef _TRACE_
 	printf("tf2={");
 	for (const auto& [x, y] : tf2)
 		printf("{.x=%d, .y=%d},", x, y);
 	printf("\n");
+#endif
 	return tf2;
 }
 
