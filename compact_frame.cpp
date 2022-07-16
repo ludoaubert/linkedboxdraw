@@ -256,6 +256,8 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			rec_query_translation(o, o, rec_query_translation);
 		}
 }
+{
+        FunctionTimer ft("cft_comp_transl");
 #ifdef _TRACE_
 		for (auto& [o, ri, tr] : translation_candidates)
 		{
@@ -306,8 +308,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
                 {
 			rectangles[ri] += translations[ri];
 		}
+}
 	}
-
+{
+        FunctionTimer ft("cft_return_result");
 	vector<MyRect> tf = rectangles - input_rectangles;
 	auto rg = tf | views::transform([](const MyRect& r){return MyPoint{r.m_left, r.m_top};});
 	vector<MyPoint> tf2(n);
@@ -319,6 +323,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	printf("\n");
 #endif
 	return tf2;
+}
 }
 
 
