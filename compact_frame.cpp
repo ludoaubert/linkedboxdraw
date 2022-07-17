@@ -89,6 +89,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
+		ranges::fill(translations, MyPoint{0,0});
 		MyRect frame={
 			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
 			.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
@@ -215,6 +216,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 #endif
 {
         FunctionTimer ft("cft_edge_part");
+		edge_partition[0]=0;
 		for (int pos=0, ii=0; ii<n; ii++)
 		{
 			int &start_pos = edge_partition[ii];
