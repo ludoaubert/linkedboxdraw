@@ -821,7 +821,7 @@ for(int loop=0; loop<1000000; loop++)
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
 		int n = input_rectangles.size();
-
+#ifdef _TRACE_
 		int dm1 = dim_max(compute_frame(input_rectangles));
 
 		vector<vector<MPD_Arc> > adjacency_list(n) ;
@@ -829,6 +829,7 @@ for(int loop=0; loop<1000000; loop++)
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
+#endif
 		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
 #ifdef _TRACE_
 		vector<int> stress_line[2];
