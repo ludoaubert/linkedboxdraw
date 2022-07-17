@@ -68,30 +68,41 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 {
 	FunctionTimer ft("compute_cft_");
 
-	vector<MyRect> rectangles = input_rectangles;
-	int n = rectangles.size();
+	const int N=20;
+        int n = input_rectangles.size();
+
+	MyRect rectangles_buffer[N];
+	span rectangles(rectangles_buffer, n);
+	ranges::copy(input_rectangles, rectangles_buffer);
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
-		MyRect frame = compute_frame(rectangles);
+		MyRect frame={
+			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
+			.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
+			.m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
+			.m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+		};
+
 //use the sweep_line that is not impacted by selected translation
 		Direction sweep_direction = Direction(1-compact_direction);
 
 		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
-        	vector<SweepLineItem> sweep_line;
+
+		SweepLineItem sweep_line_buffer[2*N];
+		span sweep_line(sweep_line_buffer, 2*n);
+        	//vector<SweepLineItem> sweep_line;
 {
         FunctionTimer ft("cft_fill_sweepline");
-		sweep_line.reserve(2*n);
+		//sweep_line.reserve(2*n);
 
 		for (int ri=0; ri < n; ri++)
 		{
-			for (RectDim rectdim : {minSweepRectDim, maxSweepRectDim})
-			{
-				sweep_line.push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
-			}
+			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
@@ -101,18 +112,16 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		ranges::sort(sweep_line, CustomLess());
 }
 
-		int active_line[20];
+		int active_line[N];
 		int active_line_size=0;
 
-                vector<RectLink> rect_links, forbidden_rect_links, allowed_rect_links;
-                rect_links.reserve(256);
-                forbidden_rect_links.reserve(256);
-                allowed_rect_links.reserve(256);
+		RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+		int rect_links_size=0, forbidden_rect_links_size=0, allowed_rect_links_size=0;
 
 		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
 
 		auto erase=[&](int i){
-			int& lower = *ranges::lower_bound(span(active_line,active_line_size), i, cmp);
+			int& lower = *lower_bound(active_line,active_line+active_line_size, i, cmp);
 #ifdef _TRACE_
 			printf("lower = %d\n", lower);
 #endif
@@ -126,7 +135,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		};
 
 		auto insert=[&](int i){
-			int& upper = *ranges::upper_bound(span(active_line,active_line_size), i, cmp);
+			int& upper = *upper_bound(active_line,active_line+active_line_size, i, cmp);
 #ifdef _TRACE_
 			printf("upper = %d\n", upper);
 #endif
@@ -140,11 +149,11 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			active_line[pos]=i;
 
 			if (pos > 0)
-                        	rect_links.push_back({active_line[pos-1], active_line[pos]});
+                        	rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
 			if (pos+1 < active_line_size)
-                                rect_links.push_back({active_line[pos], active_line[pos+1]});
+                                rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
                         if (pos > 0 && pos+1 < active_line_size)
-				forbidden_rect_links.push_back({active_line[pos-1], active_line[pos+1]});
+				forbidden_rect_links_buffer[forbidden_rect_links_size++] = {active_line[pos-1], active_line[pos+1]};
 		};
 
 {
@@ -175,40 +184,33 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
         FunctionTimer ft("cft_rectlinks");
 {
         FunctionTimer ft("cft_rectlinks_sort");
-		ranges::sort(rect_links);
-                ranges::sort(forbidden_rect_links);
-}
-{
-        FunctionTimer ft("cft_rectlinks_unique");
-		auto ret1 = ranges::unique(rect_links);
-		rect_links.erase(ret1.begin(), ret1.end());
+		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
+                sort(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
 
-		auto ret2 = ranges::unique(forbidden_rect_links);
-		forbidden_rect_links.erase(ret2.begin(), ret2.end());
-}
-{
-        FunctionTimer ft("cft_rectlinks_setdiff");
-		ranges::set_difference(rect_links, forbidden_rect_links, back_inserter(allowed_rect_links));
+		auto end1 = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
+		auto end2 = unique(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
+		auto end3 = set_difference(rect_links_buffer, end1, forbidden_rect_links_buffer, end2, allowed_rect_links_buffer);
+		allowed_rect_links_size = distance(allowed_rect_links_buffer, end3);
 }
 }
 #ifdef _TRACE_
 		printf("rect_links:\n");
-		for (auto [i, j] : rect_links)
+		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
 		{
 			printf("%d => %d\n", i, j);
 		}
 		printf("forbidden_rect_links:\n");
-		for (auto [i, j] : forbidden_rect_links)
+		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
 		{
 			printf("%d => %d\n", i, j);
 		}
 		printf("allowed_rect_links:\n");
-		for (auto [i, j] : allowed_rect_links)
+		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 		{
 			printf("%d => %d\n", i, j);
 		}
 #endif
-		vector<int> edge_partition(n+1,0);
+		int edge_partition[N+1];
 {
         FunctionTimer ft("cft_edge_part");
 		for (int pos=0, ii=0; ii<n; ii++)
@@ -216,7 +218,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			int &start_pos = edge_partition[ii];
 			int &end_pos = edge_partition[ii+1];
 			end_pos = start_pos;
-			for ( ; pos < allowed_rect_links.size() && allowed_rect_links[pos].i==ii; pos++)
+			for ( ; pos < allowed_rect_links_size && allowed_rect_links_buffer[pos].i==ii; pos++)
 			{
 				end_pos = max(end_pos, pos+1);
 			}
@@ -224,18 +226,18 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 }
 #ifdef _TRACE_
 		printf("edge_partition: ");
-		for (int pos : edge_partition)
+		for (int pos : span(edge_partition,n+1))
 			printf("%d,", pos);
 		printf("\n");
 #endif
 		auto adj_list=[&](int ri)->span<RectLink>{
 			int i=edge_partition[ri], j=edge_partition[ri+1];
-			return span(&allowed_rect_links[i], j-i);
+			return span(&allowed_rect_links_buffer[i], j-i);
 		};
 
-		vector<TrCandidate> translation_candidates;
-		translation_candidates.reserve(256);
-                vector<MyPoint> translations(n);
+		TrCandidate translation_candidates_buffer[256];
+		int translation_candidates_size=0;
+                MyPoint translations[N];
 {
         FunctionTimer ft("cft_rec_query_tr");
 		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
@@ -243,7 +245,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			if (adj.empty())
 			{
 				int tr = frame[maxCompactRectDim] - rectangles[ri][maxCompactRectDim];
-				translation_candidates.push_back({o, ri, tr});
+				translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
 				return tr;
 			}
 			int tr = ranges::min(adj | views::transform([&](const RectLink& e){
@@ -251,7 +253,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 					}
 				)
 			);
-			translation_candidates.push_back({o, ri, tr});
+			translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
 			return tr;
 		};
 
@@ -260,6 +262,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			rec_query_translation(o, o, rec_query_translation);
 		}
 }
+	span translation_candidates(translation_candidates_buffer, translation_candidates_size);
 {
         FunctionTimer ft("cft_comp_transl");
 #ifdef _TRACE_
@@ -316,17 +319,20 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	}
 {
         FunctionTimer ft("cft_return_result");
-	vector<MyRect> tf = rectangles - input_rectangles;
-	auto rg = tf | views::transform([](const MyRect& r){return MyPoint{r.m_left, r.m_top};});
-	vector<MyPoint> tf2(n);
-	ranges::copy(rg, &tf2[0]);
+	vector<MyPoint> tf(n);
+	for (int i=0; i<n; i++)
+	{
+		MyRect r = rectangles[i] - input_rectangles[i];
+		tf[i] = {r.m_left, r.m_top};
+	}
+
 #ifdef _TRACE_
-	printf("tf2={");
-	for (const auto& [x, y] : tf2)
+	printf("tf={");
+	for (const auto& [x, y] : tf)
 		printf("{.x=%d, .y=%d},", x, y);
 	printf("\n");
 #endif
-	return tf2;
+	return tf;
 }
 }
 
