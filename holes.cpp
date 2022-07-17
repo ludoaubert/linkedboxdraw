@@ -689,6 +689,16 @@ printf("\n");
 			rectangles = rectangles2;
 		}
 
+		{
+			FILE *f=fopen("dtstats.csv", "w");
+			fprintf(f, "depth;maxdim;rect_distances;potential\n");
+			for (const auto& [parent_index, depth, rh, dim, rect_distances, potential] : decision_tree)
+			{
+				fprintf(f, "%d;%d;%.0f;%.0f\n", depth, max(dim.x, dim.y), rect_distances, potential);
+			}
+			fclose(f);
+		}
+
 //		vector<MyRect> rectangles = input_rectangles + compute_transformation(input_rectangles, holes[5]);
 		MyRect frame_ = compute_frame(rectangles);
 
