@@ -816,7 +816,7 @@ FunctionTimer ft("lulu");
 		}
 	}
 	};
-for(int loop=0; loop<100000; loop++)
+for(int loop=0; loop<1000000; loop++)
 {
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
