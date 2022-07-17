@@ -313,10 +313,10 @@ int main()
 			vector<SweepLineItem> sweep_line2[2];
 
 			for (int ri=0; ri < n; ri++)
-			{	
+			{
 				for (RectDim rectdim : {LEFT,RIGHT,TOP,BOTTOM})
 				{
-					sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});	
+					sweep_line2[ RectDimDirection[rectdim] ].push_back({.value=rectangles[ri][rectdim], .rectdim=rectdim, .ri=ri});
 				}
 			}
 
@@ -325,7 +325,7 @@ int main()
 		//use the sweep_line that is not impacted by selected translation
 				Direction sweep_direction = Direction(1-direction);
 				int n = dimensions(-dr)[dimension];
-				
+
 				auto tt = [&](int i)->TransformationType{
 						switch (direction)
 						{
@@ -335,14 +335,14 @@ int main()
 								return n<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
 						}
 				};
-				
+
 				const auto [minCompactRectDim, maxCompactRectDim] : rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-				const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];		
+				const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
 
 				ranges::sort(sweep_line2[sweep_direction]);
-				
+
 				const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
-				
+
 				auto ff=[&](const ST& st)->vector<MyRect> {
 
 					const auto& [initial_tf, tf] = st;
@@ -350,7 +350,7 @@ int main()
 					ranges::fill(is_selected, 0);
 					is_selected[ri]=1;
 					rectangles[ri] += initial_tf;
-					
+
 					const MyRect frame = compute_frame(rectangles);
 
 					set<int> active_line;
@@ -364,7 +364,7 @@ int main()
 						case TOP:
 							assert(is_selected[ri] == 0);
 							for (int rj : active_line | views::filter([](int rj){return is_selected[rj]==1;})
-													| views::filter([](int rj){ 
+													| views::filter([](int rj){
 														return range_intersect_strict(rectangles[ri][minCompactRectDim],
 																					rectangles[ri][maxCompactRectDim],
 																					rectangles[rj][minCompactRectDim]+1,
@@ -384,14 +384,14 @@ int main()
 							break;
 						}
 					}
-					
+
 					for (int i=0; i<n; i++)
 					{
 						if (i != ri && is_selected[i]==true)
 							rectangles[i] += tf;
 					}
 
-					
+
 					return transformation;
 				};
 
