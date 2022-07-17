@@ -310,7 +310,7 @@ int main()
 /*
 			vector<MyRect> rectangles = input_rectangles;
 			vector<int> is_selected(n,0);
-			vector<SweepLineItem> sweep_line2[2];
+			vector<SweepLineItem> sweep_line;
 
 			for (int ri=0; ri < n; ri++)
 			{
@@ -326,22 +326,20 @@ int main()
 				Direction sweep_direction = Direction(1-direction);
 				int n = dimensions(-dr)[dimension];
 
-				auto tt = [&](int i)->TransformationType{
-						switch (direction)
-						{
-						case EAST_WEST:
-								return n<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
-						case NORTH_SOUTH:
-								return n<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
-						}
-				};
+				TransformationType tt;
+
+				switch (direction)
+				{
+				case EAST_WEST:
+					tt = n<0 ? SQUEEZE_WIDTH : STRETCH_WIDTH;
+				case NORTH_SOUTH:
+					tt = n<0 ? SQUEEZE_HEIGHT : STRETCH_HEIGHT;
+				}
 
 				const auto [minCompactRectDim, maxCompactRectDim] : rectDimRanges[direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 				const auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
 
-				ranges::sort(sweep_line2[sweep_direction]);
-
-				const vector<SweepLineItem>& sweep_line = sweep_line2[sweep_direction];
+				ranges::sort(sweep_line);
 
 				auto ff=[&](const ST& st)->vector<MyRect> {
 
