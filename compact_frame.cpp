@@ -77,6 +77,16 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
+	SweepLineItem sweep_line_buffer[2*N];
+	span sweep_line(sweep_line_buffer, 2*n);
+
+	int active_line[N];
+	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+	int edge_partition[N+1];
+
+	TrCandidate translation_candidates_buffer[256];
+	MyPoint translations[N];
+
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
 		MyRect frame={
@@ -91,10 +101,6 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
-
-		SweepLineItem sweep_line_buffer[2*N];
-		span sweep_line(sweep_line_buffer, 2*n);
-        	//vector<SweepLineItem> sweep_line;
 {
         FunctionTimer ft("cft_fill_sweepline");
 		//sweep_line.reserve(2*n);
@@ -112,10 +118,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		ranges::sort(sweep_line, CustomLess());
 }
 
-		int active_line[N];
 		int active_line_size=0;
-
-		RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
 		int rect_links_size=0, forbidden_rect_links_size=0, allowed_rect_links_size=0;
 
 		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
@@ -210,7 +213,6 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			printf("%d => %d\n", i, j);
 		}
 #endif
-		int edge_partition[N+1];
 {
         FunctionTimer ft("cft_edge_part");
 		for (int pos=0, ii=0; ii<n; ii++)
@@ -235,9 +237,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			return span(&allowed_rect_links_buffer[i], j-i);
 		};
 
-		TrCandidate translation_candidates_buffer[256];
 		int translation_candidates_size=0;
-                MyPoint translations[N];
 {
         FunctionTimer ft("cft_rec_query_tr");
 		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
