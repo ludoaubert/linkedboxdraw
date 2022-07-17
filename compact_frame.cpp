@@ -11,6 +11,8 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
+//#define _TRACE_
+
 
 struct SweepLineItem
 {
@@ -615,6 +617,7 @@ B				petit_poucet[e._j] = vj;
 void test_compact_frame()
 {
         FunctionTimer::MAX_NESTING=1;
+FunctionTimer ft("lulu");
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
 
@@ -813,7 +816,8 @@ void test_compact_frame()
 		}
 	}
 	};
-
+for(int loop=0; loop<100000; loop++)
+{
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
 		int n = input_rectangles.size();
@@ -825,8 +829,8 @@ void test_compact_frame()
 		{
 			adjacency_list[e.from].push_back({e.from, e.to}) ;
 		}
-		vector<MyPoint> translations = compute_compact_frame_transform(input_rectangles) ;
-
+		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
+#ifdef _TRACE_
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
@@ -838,10 +842,13 @@ void test_compact_frame()
 					input_rectangles + expected_translations,
 					"compact_frame",
 					testid);
-
+#endif
 		bool bOK = translations == expected_translations;
+#ifdef _TRACE_
         	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
+#endif
 		(bOK ? nbOK : nbKO)++;
 	}
+}
 }
