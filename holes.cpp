@@ -305,9 +305,31 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			printf("%d,", pos);
 		printf("\n");
 #endif
+
+//TODO: use chunk_by C++23
+		RectLink in_rect_links_buffer[N];
+		int in_rect_links_size=0;
+{
+		FunctionTimer ft("cft_in_edges");
+		int int_edges_count[N];
+		ranges::fill(in_edges_count, 0);
+		for (const auto& [i, j] : allowed_rect_links_buffer | views::take(allowed_rect_links_size))
+			in_edges_count[j] += 1;
+		for (int ri : views::iota(0, n) | view::filter([&](int ri){return in_edges_count[ri]==0;}))
+			int_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+}
+
 		auto adj_list=[&](int ri)->span<RectLink>{
-			int i=edge_partition[ri], j=edge_partition[ri+1];
-			return span(&allowed_rect_links_buffer[i], j-i);
+			int i,j;
+			switch (ri)
+			{
+			case -INT16_MAX:
+				return span(int_rect_links_buffer, int_rect_links_size);
+			default:
+				i=edge_partition[ri];
+				j=edge_partition[ri+1];
+				return span(&allowed_rect_links_buffer[i], j-i);
+			}
 		};
 
 		int translation_candidates_size=0;
