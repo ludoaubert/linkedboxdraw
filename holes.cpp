@@ -155,7 +155,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
 	int edge_partition[N+1];
 
-	TrCandidate translation_candidates_buffer[256];
 	MyPoint translations[N];
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
@@ -334,86 +333,31 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		int translation_candidates_size=0;
 {
-        FunctionTimer ft("cft_rec_query_tr");
-		auto rec_query_translation=[&](int ri, auto&& rec_query_translation)->int{
-			span<RectLink> adj = adj_list(ri);
-			if (adj.empty())
+        FunctionTimer ft("cft_rec_push");
+		auto rec_push=[&](int ri, int tr, auto&& rec_push)->void{
+			for (const auto& [i, j] : adj_list(ri))
 			{
-				int tr = frame[maxCompactRectDim] - rectangles[ri][maxCompactRectDim];
-				translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
-				return tr;
+				int tr2=0;
+				if (ri == -INT16_MAX)
+					tr2=0;
+				else if (rectangles[ri][maxCompactRectDim] > rectangles[j][minCompactRectDim])
+					tr2 = rectangles[ri][maxCompactRectDim] - rectangles[j][minCompactRectDim];
+				
+				rec_push(e.j, tr+tr2, rec_push);
 			}
-			int tr = ranges::min(adj | views::transform([&](const RectLink& e){
-						return rec_query_translation(o, e.j, rec_query_translation) + rectangles[e.j][minCompactRectDim]-rectangles[ri][maxCompactRectDim];
-					}
-				)
-			);
-			translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
+			translations[ri][compact_direction] = tr ;
 			return tr;
 		};
 
-		for (int o : views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame[minCompactRectDim];}))
-		{
-			rec_query_translation(o, o, rec_query_translation);
-		}
+		rec_push(-INT16_MAX, 0, rec_push);
 }
-	span translation_candidates(translation_candidates_buffer, translation_candidates_size);
-{
-        FunctionTimer ft("cft_comp_transl");
-#ifdef _TRACE_
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
-#ifdef _TRACE_
-		printf("tr_min=%d\n", tr_min);
-#endif
-		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
-		{
-			translations[o][compact_direction] = tr;
-		}
 
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			tr = tr + min<int>(translations[o][compact_direction], tr_min) - translations[o][compact_direction];
-		}
-#ifdef _TRACE_
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		for (auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return rectangles[trc.ri][maxCompactRectDim]==frame[maxCompactRectDim];}))
-		{
-			tr = 0;
-		}
-#ifdef _TRACE_
-		printf("after setting backline to zero:\n");
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			translations[ri][compact_direction]=tr;
-		}
-#ifdef _TRACE_
 		for (int ri=0; ri < n; ri++)
 		{
-			printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]);
-		}
-#endif
-                for (int ri=0; ri < n; ri++)
-                {
 			rectangles[ri] += translations[ri];
 		}
-}
-	}
 {
-        FunctionTimer ft("cft_return_result");
+	FunctionTimer ft("cft_return_result");
 	vector<MyPoint> tf(n);
 	for (int i=0; i<n; i++)
 	{
