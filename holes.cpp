@@ -311,12 +311,12 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		int in_rect_links_size=0;
 {
 		FunctionTimer ft("cft_in_edges");
-		int int_edges_count[N];
-		ranges::fill(in_edges_count, 0);
+		int in_edge_count[N];
+		ranges::fill(in_edge_count, 0);
 		for (const auto& [i, j] : allowed_rect_links_buffer | views::take(allowed_rect_links_size))
-			in_edges_count[j] += 1;
-		for (int ri : views::iota(0, n) | view::filter([&](int ri){return in_edges_count[ri]==0;}))
-			int_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+			in_edge_count[j] += 1;
+		for (int ri : views::iota(0, n) | view::filter([&](int ri){return in_edge_count[ri]==0;}))
+			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
 }
 
 		auto adj_list=[&](int ri)->span<RectLink>{
@@ -324,7 +324,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			switch (ri)
 			{
 			case -INT16_MAX:
-				return span(int_rect_links_buffer, int_rect_links_size);
+				return span(in_rect_links_buffer, in_rect_links_size);
 			default:
 				i=edge_partition[ri];
 				j=edge_partition[ri+1];
@@ -335,7 +335,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		int translation_candidates_size=0;
 {
         FunctionTimer ft("cft_rec_query_tr");
-		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
+		auto rec_query_translation=[&](int ri, auto&& rec_query_translation)->int{
 			span<RectLink> adj = adj_list(ri);
 			if (adj.empty())
 			{
