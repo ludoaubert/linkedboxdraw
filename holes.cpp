@@ -530,7 +530,7 @@ int main()
 		},
 		.rect_hole = {
 			.ri=3, .rj=5, .corner=TOP_RIGHT, .direction={.x=1.0, .y=1.0}, .value=50,
-			.rec={.m_left=150, .m_right=200, .m_top=150, .m_bottom=200}
+			.rec={.m_left=200, .m_right=250, .m_top=150, .m_bottom=200}
 		},
 		.expected_translations={
 			{.x=0, .y=0},
