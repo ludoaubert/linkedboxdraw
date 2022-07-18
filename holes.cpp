@@ -137,7 +137,7 @@ struct TrCandidate{int o, ri, tr;};
 
 vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_rectangles)
 {
-	FunctionTimer ft("compute_cft_");
+	FunctionTimer ft("compute_fht_");
 
 	const int N=20;
 	int n = input_rectangles.size();
@@ -415,7 +415,7 @@ int main()
 	FunctionTimer::MAX_NESTING=1;
 	FunctionTimer ft("holes");
 	
-	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyRect> expected_transform;};
+	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyPoint> expected_translations;};
 	
 	const vector<SingleHoleTestContext> single_hole_test_contexts={
 /*
@@ -446,8 +446,13 @@ int main()
 						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=50,
 						.rec={.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
 				},
-				.expected_transform={
-					
+				.expected_translations={
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=50},
+					{.x=0, .y=0}
 				}
 		},
 /*
@@ -480,15 +485,70 @@ int main()
 						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=100,
 						.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
 				},
-				.expected_transform={
-					
+				.expected_translations={
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=-50},
+					{.x=0, .y=0}					
+				}
+		},
+/*
+       +-------+
+       |       |
++------+   1   |
+|      |       |
+|  0   +---+---+------+---+
+|      |       |      | 3 |
++------+   rh  |  2   +---+
+|      |       |      |
+|  4   +-------+------+
+|      |       |
++------+   5   |
+       |       |
+	   +-------+
+3 => rh
+*/	
+		{
+                .testid=2,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+                        {.m_left=200, .m_right=300, .m_top=100, .m_bottom=200},
+                        {.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
+                },
+				.rect_hole = {
+						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=100,
+						.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
+				},
+				.expected_translations={
+					{.x=0, .y=0},
+					{.x=-50, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=-50},
+					{.x=0, .y=0}					
 				}
 		}
 	};
 	
 	for (const auto& [testid, input_rectangles, rect_hole, expected_transform] : single_hole_test_contexts)
 	{
-		compute_fit_to_hole_transform_(input_rectangles, rect_hole);
+		const auto& [ri, rj, corner, direction, value, rec] = rect_hole;
+		int dm1 = dim_max(compute_frame(input_rectangles));
+		vector<MyRect> input_rectangles_ = input_rectangles;
+		input_rectangles_[ri] = rec;
+		vector<MyPoint> translation = compute_fit_to_hole_transform_(input_rectangles_);
+		int dm2 = dim_max(compute_frame(input_rectangles_ + translations));
+		bool bOK = translations == expected_translations;
+#ifdef _TRACE_
+        printf("fit_to_hole testid=%d : %s\n", testid, bOK ? "OK" : "KO");
+		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
+#endif
+		(bOK ? nbOK : nbKO)++;
 	}
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
