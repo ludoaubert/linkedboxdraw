@@ -10,6 +10,8 @@
 #include "compact_frame.h"
 using namespace std;
 
+#define _TRACE_
+
 struct RankingCap{
 	int n;
 	int RC1;
@@ -317,7 +319,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 #ifdef _TRACE_
 		printf("in_edges: ");
 		for (const auto [i, j] : span(in_rect_links_buffer, in_rect_links_size))
-			printf("%d", j);
+			printf("%d, ", j);
 		printf("\n");
 #endif
 }
