@@ -532,6 +532,43 @@ int main()
 					{.x=0, .y=-50},
 					{.x=0, .y=0}					
 				}
+		},
+/*
+       +-------+
+       |       |
++------+   1   +------+
+|      |       |      |
+|  0   +-------+  2   +------+
+|      |       |      |      |
++------+-------+---+--+  3   |
+|      |       |rh |  |      |
+|  4   |   5   +---+  +------+
+|      |       |
++------+-------+
+3 => rh
+*/	
+		{
+                .testid=3,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+                        {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
+                },
+				.rect_hole = {
+						.ri=3, .rj=5, corner=TOP_RIGHT, direction={x=1.0,y=1.0}, value=50,
+						.rec={.m_left=150, .m_right=200, .m_top=150, .m_bottom=200}
+				},
+				.expected_translations={
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0},
+					{.x=0, .y=0}
+				}
 		}
 	};
 	
