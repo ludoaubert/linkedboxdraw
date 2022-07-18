@@ -131,9 +131,6 @@ struct RectLink
         auto operator<=>(const RectLink&) const = default;
 };
 
-struct TrCandidate{int o, ri, tr;};
-
-
 
 vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_rectangles)
 {
