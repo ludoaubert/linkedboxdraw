@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <tuple>
+#include <span>
 #include <ranges>
 #include <stdio.h>
 #include <assert.h>
@@ -311,8 +312,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		ranges::fill(in_edge_count, 0);
 		for (const auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 			in_edge_count[j] += 1;
-		for (int ri : views::iota(0, n) | view::filter([&](int ri){return in_edge_count[ri]==0;}))
+		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
 			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+#ifdef _TRACE_
+		printf("in_edges: ");
+		for (const auto [i, j] : span(in_rect_links_buffer, in_rect_links_size))
+			printf("%d", j);
+		printf("\n");
+#endif
 }
 
 		auto adj_list=[&](int ri)->span<RectLink>{
@@ -338,11 +345,10 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					tr2=0;
 				else if (rectangles[ri][maxCompactRectDim] > rectangles[j][minCompactRectDim])
 					tr2 = rectangles[ri][maxCompactRectDim] - rectangles[j][minCompactRectDim];
-				
-				rec_push(e.j, tr+tr2, rec_push);
+
+				rec_push(j, tr+tr2, rec_push);
 			}
 			translations[ri][compact_direction] = tr ;
-			return tr;
 		};
 
 		rec_push(-INT16_MAX, 0, rec_push);
@@ -352,6 +358,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		{
 			rectangles[ri] += translations[ri];
 		}
+	}
 {
 	FunctionTimer ft("cft_return_result");
 	vector<MyPoint> tf(n);
@@ -376,9 +383,9 @@ int main()
 {
 	FunctionTimer::MAX_NESTING=1;
 	FunctionTimer ft("holes");
-	
+
 	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyPoint> expected_translations;};
-	
+
 	const vector<SingleHoleTestContext> single_hole_test_contexts={
 /*
        +-------+
@@ -393,30 +400,30 @@ int main()
 |      |       |
 +------+-------+
 3 => rh
-*/	
-		{
-                .testid=0,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
-                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
-                        {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
-                },
-				.rect_hole = {
-						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=50,
-						.rec={.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
-				},
-				.expected_translations={
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=50},
-					{.x=0, .y=0}
-				}
+*/
+	{
+		.testid=0,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+			{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+			{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+			{.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
+			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
+		.rect_hole = {
+			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=50,
+			.rec={.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
+		},
+		.expected_translations={
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=50},
+			{.x=0, .y=0}
+		}
+	},
 /*
        +-------+
        |       |
@@ -430,32 +437,32 @@ int main()
 |      |       |
 +------+   5   |
        |       |
-	   +-------+
+       +-------+
 3 => rh
-*/	
-		{
-                .testid=1,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
-                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
-                        {.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
-                },
-				.rect_hole = {
-						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=100,
-						.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
-				},
-				.expected_translations={
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=-50},
-					{.x=0, .y=0}					
-				}
+*/
+	{
+		.testid=1,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+			{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+			{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+			{.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
+			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
+		.rect_hole = {
+			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
+			.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
+		},
+		.expected_translations={
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=-50},
+			{.x=0, .y=0}
+		}
+	},
 /*
        +-------+
        |       |
@@ -469,32 +476,32 @@ int main()
 |      |       |
 +------+   5   |
        |       |
-	   +-------+
+       +-------+
 3 => rh
-*/	
-		{
-                .testid=2,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
-                        {.m_left=200, .m_right=300, .m_top=100, .m_bottom=200},
-                        {.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
-                },
-				.rect_hole = {
-						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=100,
-						.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
-				},
-				.expected_translations={
-					{.x=0, .y=0},
-					{.x=-50, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=-50},
-					{.x=0, .y=0}					
-				}
+*/
+	{
+		.testid=2,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+			{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+			{.m_left=200, .m_right=300, .m_top=100, .m_bottom=200},
+			{.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
+			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
+		.rect_hole = {
+			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
+			.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
+		},
+		.expected_translations={
+			{.x=0, .y=0},
+			{.x=-50, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=-50},
+			{.x=0, .y=0}
+		}
+	},
 /*
        +-------+
        |       |
@@ -508,48 +515,49 @@ int main()
 |      |       |
 +------+-------+
 3 => rh
-*/	
-		{
-                .testid=3,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
-                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
-                        {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
-                },
-				.rect_hole = {
-						.ri=3, .rj=5, corner=TOP_RIGHT, direction={x=1.0,y=1.0}, value=50,
-						.rec={.m_left=150, .m_right=200, .m_top=150, .m_bottom=200}
-				},
-				.expected_translations={
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0},
-					{.x=0, .y=0}
-				}
+*/
+	{
+		.testid=3,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+			{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+			{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+			{.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
+			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
+		},
+		.rect_hole = {
+			.ri=3, .rj=5, .corner=TOP_RIGHT, .direction={.x=1.0, .y=1.0}, .value=50,
+			.rec={.m_left=150, .m_right=200, .m_top=150, .m_bottom=200}
+		},
+		.expected_translations={
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0}
 		}
+	}
 	};
-	
-	for (const auto& [testid, input_rectangles, rect_hole, expected_transform] : single_hole_test_contexts)
+
+	for (const auto& [testid, input_rectangles, rect_hole, expected_translations] : single_hole_test_contexts)
 	{
 		const auto& [ri, rj, corner, direction, value, rec] = rect_hole;
 		int dm1 = dim_max(compute_frame(input_rectangles));
 		vector<MyRect> input_rectangles_ = input_rectangles;
 		MyRect& r = input_rectangles_[ri];
-		input_rectangles_[ri] += MyPoint{rec.m_left - r.m_left, rec.m_top - r.m_top};
-		vector<MyPoint> translation = compute_fit_to_hole_transform_(input_rectangles_);
+		r += MyPoint{rec.m_left - r.m_left, rec.m_top - r.m_top};
+		vector<MyPoint> translations = compute_fit_to_hole_transform_(input_rectangles_);
 		int dm2 = dim_max(compute_frame(input_rectangles_ + translations));
 		bool bOK = translations == expected_translations;
 #ifdef _TRACE_
         printf("fit_to_hole testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 #endif
-		(bOK ? nbOK : nbKO)++;
+//		(bOK ? nbOK : nbKO)++;
 	}
+return 0;
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
