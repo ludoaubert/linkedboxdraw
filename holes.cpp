@@ -540,7 +540,8 @@ int main()
 		const auto& [ri, rj, corner, direction, value, rec] = rect_hole;
 		int dm1 = dim_max(compute_frame(input_rectangles));
 		vector<MyRect> input_rectangles_ = input_rectangles;
-		input_rectangles_[ri] = rec;
+		MyRect& r = input_rectangles_[ri];
+		input_rectangles_[ri] += MyPoint{rec.m_left - r.m_left, rec.m_top - r.m_top};
 		vector<MyPoint> translation = compute_fit_to_hole_transform_(input_rectangles_);
 		int dm2 = dim_max(compute_frame(input_rectangles_ + translations));
 		bool bOK = translations == expected_translations;
