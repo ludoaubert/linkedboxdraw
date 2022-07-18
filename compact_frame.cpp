@@ -822,7 +822,41 @@ FunctionTimer ft("lulu");
 			{.x=0, .y=0},
 			{.x=20, .y=0}
 		}
-	}
+	},
+/*
+           +-------+
+           |       |
++------+   |   1   |   +------+
+|      |   |       |   |      |
+|  0   |   +-------+   |  2   |   +------+
+|      |               |      |   |      |
++------+               +------+   |  3   |
+  +------+ +-------+              |      |
+  |      | |       |              +------+
+  |  4   | |   5   |
+  |      | |       |
+  +------+ +-------+
+*/
+        {
+                .testid=5,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=150, .m_right=250, .m_top=0, .m_bottom=100},
+                        {.m_left=300, .m_right=400, .m_top=50, .m_bottom=150},
+                        {.m_left=450, .m_right=550, .m_top=100, .m_bottom=200},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
+                },
+                .edges = {},
+                .expected_translations = {
+			{.x=150, .y=0},
+			{.x=100, .y=50},
+			{.x=50, .y=0},
+			{.x=0, .y=0},
+			{.x=150, .y=0},
+			{.x=100, .y=0}
+                }
+        }
 	};
 for(int loop=0; loop<1000000; loop++)
 {
