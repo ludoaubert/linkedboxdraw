@@ -222,10 +222,10 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			active_line[pos]=i;
 
 			if (pos > 0)
-                        	rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
+				rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
 			if (pos+1 < active_line_size)
-                                rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
-                        if (pos > 0 && pos+1 < active_line_size)
+				rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
+			if (pos > 0 && pos+1 < active_line_size)
 				forbidden_rect_links_buffer[forbidden_rect_links_size++] = {active_line[pos-1], active_line[pos+1]};
 		};
 
