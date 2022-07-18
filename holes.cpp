@@ -331,7 +331,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 		};
 
-		int translation_candidates_size=0;
 {
         FunctionTimer ft("cft_rec_push");
 		auto rec_push=[&](int ri, int tr, auto&& rec_push)->void{
