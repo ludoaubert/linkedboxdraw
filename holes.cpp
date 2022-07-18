@@ -85,11 +85,411 @@ struct DecisionTreeNode
 	float potential;
 };
 
+struct SweepLineItem
+{
+	int16_t value;
+	RectDim rectdim;
+	int ri;
+
+	bool operator==(const SweepLineItem&) const = default;
+};
+
+struct CustomLess{
+	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b)
+	{
+		if (a.value != b.value)
+			return a.value < b.value;
+		if (a.rectdim != b.rectdim)
+			return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
+		return a.ri < b.ri;
+	}
+};
+/*
+		  |
+		  |
+		  |
+--------------------->tr
+		  |
+		  |
+		  V
+		sweep
+
+
+		  |
+		  |
+		  |
+--------------------->sweep
+		  |
+		  |
+		  V
+		 tr
+*/
+
+struct RectLink
+{
+        int i, j;
+        auto operator<=>(const RectLink&) const = default;
+};
+
+struct TrCandidate{int o, ri, tr;};
+
+
+
+vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_rectangles)
+{
+	FunctionTimer ft("compute_cft_");
+
+	const int N=20;
+	int n = input_rectangles.size();
+
+	MyRect rectangles_buffer[N];
+	span rectangles(rectangles_buffer, n);
+	ranges::copy(input_rectangles, rectangles_buffer);
+
+	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
+
+	SweepLineItem sweep_line_buffer[2*N];
+	span sweep_line(sweep_line_buffer, 2*n);
+
+	int active_line[N];
+	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+	int edge_partition[N+1];
+
+	TrCandidate translation_candidates_buffer[256];
+	MyPoint translations[N];
+
+	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
+	{
+		ranges::fill(translations, MyPoint{0,0});
+		MyRect frame={
+			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
+			.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
+			.m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
+			.m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+		};
+
+//use the sweep_line that is not impacted by selected translation
+		Direction sweep_direction = Direction(1-compact_direction);
+
+		auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[compact_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+		auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+{
+        FunctionTimer ft("cft_fill_sweepline");
+		//sweep_line.reserve(2*n);
+
+		for (int ri=0; ri < n; ri++)
+		{
+			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
+		}
+}
+
+		const MyPoint& translation = translation2[compact_direction] ;
+{
+        FunctionTimer ft("cft_sort_sweepline");
+		ranges::sort(sweep_line, CustomLess());
+}
+
+		int active_line_size=0;
+		int rect_links_size=0, forbidden_rect_links_size=0, allowed_rect_links_size=0;
+
+		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
+
+		auto erase=[&](int i){
+			int& lower = *lower_bound(active_line,active_line+active_line_size, i, cmp);
+#ifdef _TRACE_
+			printf("lower = %d\n", lower);
+#endif
+			int pos = distance(active_line, &lower);
+#ifdef _TRACE_
+			printf("pos = %d\n", pos);
+#endif
+			for (int ii=pos; ii<active_line_size; ii++)
+				swap(active_line[ii], active_line[ii+1]);
+			active_line_size -= 1;
+		};
+
+		auto insert=[&](int i){
+			int& upper = *upper_bound(active_line,active_line+active_line_size, i, cmp);
+#ifdef _TRACE_
+			printf("upper = %d\n", upper);
+#endif
+			int pos = distance(active_line, &upper);
+#ifdef _TRACE_
+			printf("pos = %d\n", pos);
+#endif
+			for (int ii=active_line_size-1; ii>=pos; ii--)
+				swap(active_line[ii],active_line[ii+1]);
+			active_line_size += 1;
+			active_line[pos]=i;
+
+			if (pos > 0)
+                        	rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
+			if (pos+1 < active_line_size)
+                                rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
+                        if (pos > 0 && pos+1 < active_line_size)
+				forbidden_rect_links_buffer[forbidden_rect_links_size++] = {active_line[pos-1], active_line[pos+1]};
+		};
+
+{
+        FunctionTimer ft("cft_sweep");
+		for (const SweepLineItem& item : sweep_line)
+		{
+			const auto& [value, rectdim, ri] = item;
+			switch(rectdim)
+			{
+			case LEFT:
+			case TOP:
+#ifdef _TRACE_
+				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
+#endif
+				insert(ri);
+				break;
+			case RIGHT:
+			case BOTTOM:
+#ifdef _TRACE_
+				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
+#endif
+				erase(ri);
+				break;
+			}
+		}
+}
+{
+        FunctionTimer ft("cft_rectlinks");
+{
+        FunctionTimer ft("cft_rectlinks_sort");
+		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
+                sort(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
+
+		auto end1 = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
+		auto end2 = unique(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
+		auto end3 = set_difference(rect_links_buffer, end1, forbidden_rect_links_buffer, end2, allowed_rect_links_buffer);
+		allowed_rect_links_size = distance(allowed_rect_links_buffer, end3);
+}
+}
+#ifdef _TRACE_
+		printf("rect_links:\n");
+		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
+		{
+			printf("%d => %d\n", i, j);
+		}
+		printf("forbidden_rect_links:\n");
+		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
+		{
+			printf("%d => %d\n", i, j);
+		}
+		printf("allowed_rect_links:\n");
+		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+		{
+			printf("%d => %d\n", i, j);
+		}
+#endif
+{
+        FunctionTimer ft("cft_edge_part");
+		edge_partition[0]=0;
+		for (int pos=0, ii=0; ii<n; ii++)
+		{
+			int &start_pos = edge_partition[ii];
+			int &end_pos = edge_partition[ii+1];
+			end_pos = start_pos;
+			for ( ; pos < allowed_rect_links_size && allowed_rect_links_buffer[pos].i==ii; pos++)
+			{
+				end_pos = max(end_pos, pos+1);
+			}
+		}
+}
+#ifdef _TRACE_
+		printf("edge_partition: ");
+		for (int pos : span(edge_partition,n+1))
+			printf("%d,", pos);
+		printf("\n");
+#endif
+		auto adj_list=[&](int ri)->span<RectLink>{
+			int i=edge_partition[ri], j=edge_partition[ri+1];
+			return span(&allowed_rect_links_buffer[i], j-i);
+		};
+
+		int translation_candidates_size=0;
+{
+        FunctionTimer ft("cft_rec_query_tr");
+		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
+			span<RectLink> adj = adj_list(ri);
+			if (adj.empty())
+			{
+				int tr = frame[maxCompactRectDim] - rectangles[ri][maxCompactRectDim];
+				translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
+				return tr;
+			}
+			int tr = ranges::min(adj | views::transform([&](const RectLink& e){
+						return rec_query_translation(o, e.j, rec_query_translation) + rectangles[e.j][minCompactRectDim]-rectangles[ri][maxCompactRectDim];
+					}
+				)
+			);
+			translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
+			return tr;
+		};
+
+		for (int o : views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame[minCompactRectDim];}))
+		{
+			rec_query_translation(o, o, rec_query_translation);
+		}
+}
+	span translation_candidates(translation_candidates_buffer, translation_candidates_size);
+{
+        FunctionTimer ft("cft_comp_transl");
+#ifdef _TRACE_
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+#endif
+		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
+#ifdef _TRACE_
+		printf("tr_min=%d\n", tr_min);
+#endif
+		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
+		{
+			translations[o][compact_direction] = tr;
+		}
+
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			tr = tr + min<int>(translations[o][compact_direction], tr_min) - translations[o][compact_direction];
+		}
+#ifdef _TRACE_
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+#endif
+		for (auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return rectangles[trc.ri][maxCompactRectDim]==frame[maxCompactRectDim];}))
+		{
+			tr = 0;
+		}
+#ifdef _TRACE_
+		printf("after setting backline to zero:\n");
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
+		}
+#endif
+		for (auto& [o, ri, tr] : translation_candidates)
+		{
+			translations[ri][compact_direction]=tr;
+		}
+#ifdef _TRACE_
+		for (int ri=0; ri < n; ri++)
+		{
+			printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]);
+		}
+#endif
+                for (int ri=0; ri < n; ri++)
+                {
+			rectangles[ri] += translations[ri];
+		}
+}
+	}
+{
+        FunctionTimer ft("cft_return_result");
+	vector<MyPoint> tf(n);
+	for (int i=0; i<n; i++)
+	{
+		MyRect r = rectangles[i] - input_rectangles[i];
+		tf[i] = {r.m_left, r.m_top};
+	}
+
+#ifdef _TRACE_
+	printf("tf={");
+	for (const auto& [x, y] : tf)
+		printf("{.x=%d, .y=%d},", x, y);
+	printf("\n");
+#endif
+	return tf;
+}
+}
+
 
 int main()
 {
 	FunctionTimer::MAX_NESTING=1;
 	FunctionTimer ft("holes");
+	
+	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyRect> expected_transform;};
+	
+	const vector<SingleHoleTestContext> single_hole_test_contexts={
+/*
+       +-------+
+       |       |
++------+   1   +------+
+|      |       |      |
+|  0   +---+---+  2   +------+
+|      |rh |   |      |      |
++------+---+---+------+  3   |
+|      |       |      |      |
+|  4   |   5   |      +------+
+|      |       |
++------+-------+
+3 => rh
+*/	
+		{
+                .testid=0,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+                        {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
+                },
+				.rect_hole = {
+						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=50,
+						.rec={.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
+				},
+				.expected_transform={
+					
+				}
+		},
+/*
+       +-------+
+       |       |
++------+   1   +------+
+|      |       |      |
+|  0   +---+---+  2   +---+
+|      |       |      | 3 |
++------+   rh  +------+---+
+|      |       |
+|  4   +-------+
+|      |       |
++------+   5   |
+       |       |
+	   +-------+
+3 => rh
+*/	
+		{
+                .testid=1,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+                        {.m_left=300, .m_right=350, .m_top=100, .m_bottom=150},
+                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+                        {.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
+                },
+				.rect_hole = {
+						.ri=3, .rj=1, corner=BOTTOM_LEFT, direction={x=1.0,y=1.0}, value=100,
+						.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
+				},
+				.expected_transform={
+					
+				}
+		}
+	};
+	
+	for (const auto& [testid, input_rectangles, rect_hole, expected_transform] : single_hole_test_contexts)
+	{
+		compute_fit_to_hole_transform_(input_rectangles, rect_hole);
+	}
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
 
