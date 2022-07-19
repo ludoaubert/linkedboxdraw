@@ -11,7 +11,13 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
-#define _TRACE_
+//#define _TRACE_
+
+#ifdef _TRACE_
+#  define D(x) x
+#else
+#  define D(x)
+#endif
 
 
 struct SweepLineItem
@@ -125,13 +131,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto erase=[&](int i){
 			int& lower = *lower_bound(active_line,active_line+active_line_size, i, cmp);
-#ifdef _TRACE_
-			printf("lower = %d\n", lower);
-#endif
-			int pos = distance(active_line, &lower);
-#ifdef _TRACE_
-			printf("pos = %d\n", pos);
-#endif
+                        int pos = distance(active_line, &lower);
+			D(printf("lower = %d\n", lower));
+			D(printf("pos = %d\n", pos));
+
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
@@ -139,13 +142,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		auto insert=[&](int i){
 			int& upper = *upper_bound(active_line,active_line+active_line_size, i, cmp);
-#ifdef _TRACE_
-			printf("upper = %d\n", upper);
-#endif
+			D(printf("upper = %d\n", upper));
 			int pos = distance(active_line, &upper);
-#ifdef _TRACE_
-			printf("pos = %d\n", pos);
-#endif
+			D(printf("pos = %d\n", pos));
+
 			for (int ii=active_line_size-1; ii>=pos; ii--)
 				swap(active_line[ii],active_line[ii+1]);
 			active_line_size += 1;
@@ -168,16 +168,12 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			{
 			case LEFT:
 			case TOP:
-#ifdef _TRACE_
-				printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]);
-#endif
+				D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
 				insert(ri);
 				break;
 			case RIGHT:
 			case BOTTOM:
-#ifdef _TRACE_
-				printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]);
-#endif
+				D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
 				erase(ri);
 				break;
 			}
@@ -197,20 +193,20 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 }
 }
 #ifdef _TRACE_
-		printf("rect_links:\n");
+		D(printf("rect_links:\n"));
 		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
 		{
-			printf("%d => %d\n", i, j);
+			D(printf("%d => %d\n", i, j));
 		}
 		printf("forbidden_rect_links:\n");
 		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
 		{
-			printf("%d => %d\n", i, j);
+			D(printf("%d => %d\n", i, j));
 		}
 		printf("allowed_rect_links:\n");
 		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 		{
-			printf("%d => %d\n", i, j);
+			D(printf("%d => %d\n", i, j));
 		}
 #endif
 {
@@ -228,10 +224,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		}
 }
 #ifdef _TRACE_
-		printf("edge_partition: ");
+		D(printf("edge_partition: "));
 		for (int pos : span(edge_partition,n+1))
-			printf("%d,", pos);
-		printf("\n");
+			D(printf("%d,", pos));
+		D(printf("\n"));
 #endif
 
 //TODO: use chunk_by C++23
@@ -244,10 +240,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
 			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
 #ifdef _TRACE_
-		printf("in_edges: ");
+		D(printf("in_edges: "));
 		for (const auto [i, j] : span(in_rect_links_buffer, in_rect_links_size))
-			printf("%d, ", j);
-		printf("\n");
+			D(printf("%d, ", j));
+		D(printf("\n"));
 #endif
 }
 
@@ -277,9 +273,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
                 compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
-#ifdef _TRACE_
-		printf("compact_dimension=%d tr=%d\n", compact_dimension, tr);
-#endif
+		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
 }
 {
         FunctionTimer ft("cft_push");
@@ -310,7 +304,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 #ifdef _TRACE_
 		for (int ri=0; ri < n; ri++)
 		{
-			printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]);
+			D(printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]));
 		}
 #endif
                 for (int ri=0; ri < n; ri++)
@@ -329,13 +323,13 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	}
 
 #ifdef _TRACE_
-	printf("tf={");
+	D(printf("tf={"));
 	for (int i=0; i<n; i++)
 	{
 		const auto& [x, y] = tf[i];
-		printf("{.i=%d, .x=%d, .y=%d},", i, x, y);
+		D(printf("{.i=%d, .x=%d, .y=%d},", i, x, y));
 	}
-	printf("}\n");
+	D(printf("}\n"));
 #endif
 	return tf;
 }
@@ -627,7 +621,8 @@ B				petit_poucet[e._j] = vj;
 
 void test_compact_frame()
 {
-        FunctionTimer::MAX_NESTING=1;
+        FunctionTimer::MAX_NESTING=0;
+	const int TEST_LOOP=1000000;
 FunctionTimer ft("lulu");
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
@@ -861,22 +856,22 @@ FunctionTimer ft("lulu");
                 }
         }
 	};
-//for(int loop=0; loop<1000000; loop++)
+for(int loop=0; loop<TEST_LOOP; loop++)
 {
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
 		int n = input_rectangles.size();
-#ifdef _TRACE_
-		int dm1 = dim_max(compute_frame(input_rectangles));
-
-		vector<vector<MPD_Arc> > adjacency_list(n) ;
-		for (const Edge& e : edges)
-		{
-			adjacency_list[e.from].push_back({e.from, e.to}) ;
-		}
-#endif
 		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
-#ifdef _TRACE_
+                bool bOK = translations == expected_translations;
+if constexpr (TEST_LOOP==1)
+{
+                int dm1 = dim_max(compute_frame(input_rectangles));
+
+                vector<vector<MPD_Arc> > adjacency_list(n) ;
+                for (const Edge& e : edges)
+                {
+                        adjacency_list[e.from].push_back({e.from, e.to}) ;
+                }
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
 
@@ -888,12 +883,10 @@ FunctionTimer ft("lulu");
 					input_rectangles + expected_translations,
 					"compact_frame",
 					testid);
-#endif
-		bool bOK = translations == expected_translations;
-#ifdef _TRACE_
+
         	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
-#endif
+}
 		(bOK ? nbOK : nbKO)++;
 	}
 }
