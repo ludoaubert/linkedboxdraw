@@ -11,7 +11,7 @@
 #include "latuile_test_json_output.h"
 using namespace std ;
 
-//#define _TRACE_
+#define _TRACE_
 
 
 struct SweepLineItem
@@ -61,8 +61,6 @@ struct RectLink
         auto operator<=>(const RectLink&) const = default;
 };
 
-struct TrCandidate{int o, ri, tr;};
-
 
 vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
@@ -82,9 +80,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 	int active_line[N];
 	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+	RectLink in_rect_links_buffer[N];
+	int in_edge_count[N];
 	int edge_partition[N+1];
 
-	TrCandidate translation_candidates_buffer[256];
 	MyPoint translations[N];
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
@@ -234,79 +233,79 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			printf("%d,", pos);
 		printf("\n");
 #endif
+
+//TODO: use chunk_by C++23
+		int in_rect_links_size=0;
+{
+		FunctionTimer ft("cft_in_edges");
+		ranges::fill(in_edge_count, 0);
+		for (const auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+			in_edge_count[j] += 1;
+		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
+			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+#ifdef _TRACE_
+		printf("in_edges: ");
+		for (const auto [i, j] : span(in_rect_links_buffer, in_rect_links_size))
+			printf("%d, ", j);
+		printf("\n");
+#endif
+}
+
 		auto adj_list=[&](int ri)->span<RectLink>{
-			int i=edge_partition[ri], j=edge_partition[ri+1];
+			int i=edge_partition[ri];
+			int j=edge_partition[ri+1];
 			return span(&allowed_rect_links_buffer[i], j-i);
 		};
-
-		int translation_candidates_size=0;
+		int compact_dimension=0;
+		int tr;
 {
-        FunctionTimer ft("cft_rec_query_tr");
-		auto rec_query_translation=[&](int o, int ri, auto&& rec_query_translation)->int{
-			span<RectLink> adj = adj_list(ri);
-			if (adj.empty())
-			{
-				int tr = frame[maxCompactRectDim] - rectangles[ri][maxCompactRectDim];
-				translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
-				return tr;
-			}
-			int tr = ranges::min(adj | views::transform([&](const RectLink& e){
-						return rec_query_translation(o, e.j, rec_query_translation) + rectangles[e.j][minCompactRectDim]-rectangles[ri][maxCompactRectDim];
-					}
-				)
-			);
-			translation_candidates_buffer[translation_candidates_size++] = {o, ri, tr};
-			return tr;
+        FunctionTimer ft("cft_query_compact_dim");
+                auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
+                        span<RectLink> adj = adj_list(ri);
+                        if (adj.empty())
+                        {
+                                return rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+                        }
+                        int tr = ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+                        return tr + rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+                };
+
+		auto query_compact_dimension=[&]()->int{
+			span adj(in_rect_links_buffer, in_rect_links_size);
+			return ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
 		};
 
-		for (int o : views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame[minCompactRectDim];}))
-		{
-			rec_query_translation(o, o, rec_query_translation);
-		}
+                compact_dimension = query_compact_dimension();
+		tr = dimensions(frame)[compact_direction] - compact_dimension;
+#ifdef _TRACE_
+		printf("compact_dimension=%d tr=%d\n", compact_dimension, tr);
+#endif
 }
-	span translation_candidates(translation_candidates_buffer, translation_candidates_size);
 {
-        FunctionTimer ft("cft_comp_transl");
-#ifdef _TRACE_
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		int tr_min = ranges::min( translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}) | views::transform(&TrCandidate::tr));
-#ifdef _TRACE_
-		printf("tr_min=%d\n", tr_min);
-#endif
-		for (const auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return trc.o==trc.ri;}))
-		{
-			translations[o][compact_direction] = tr;
-		}
+        FunctionTimer ft("cft_push");
+		auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
+			span<RectLink> adj = adj_list(ri);
+			translations[ri][compact_direction] = tri;
+			for (const RectLink& e : adj)
+			{
+				int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
+				if (trj > 0)
+					rec_push(e.j, trj, rec_push);
+			}
+		};
 
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			tr = tr + min<int>(translations[o][compact_direction], tr_min) - translations[o][compact_direction];
-		}
-#ifdef _TRACE_
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		for (auto& [o, ri, tr] : translation_candidates | views::filter([&](const TrCandidate& trc){return rectangles[trc.ri][maxCompactRectDim]==frame[maxCompactRectDim];}))
-		{
-			tr = 0;
-		}
-#ifdef _TRACE_
-		printf("after setting backline to zero:\n");
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			printf("o=%d ri=%d tr=%d\n", o, ri, tr);
-		}
-#endif
-		for (auto& [o, ri, tr] : translation_candidates)
-		{
-			translations[ri][compact_direction]=tr;
-		}
+		auto push=[&](int tr){
+                        span adj(in_rect_links_buffer, in_rect_links_size);
+			for (const RectLink& e : adj)
+			{
+				int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
+				rec_push(e.j, trj, rec_push);
+			}
+		};
+		push(tr);
+}
+
+{
 #ifdef _TRACE_
 		for (int ri=0; ri < n; ri++)
 		{
@@ -330,9 +329,12 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 #ifdef _TRACE_
 	printf("tf={");
-	for (const auto& [x, y] : tf)
-		printf("{.x=%d, .y=%d},", x, y);
-	printf("\n");
+	for (int i=0; i<n; i++)
+	{
+		const auto& [x, y] = tf[i];
+		printf("{.i=%d, .x=%d, .y=%d},", i, x, y);
+	}
+	printf("}\n");
 #endif
 	return tf;
 }
@@ -844,8 +846,8 @@ FunctionTimer ft("lulu");
                         {.m_left=150, .m_right=250, .m_top=0, .m_bottom=100},
                         {.m_left=300, .m_right=400, .m_top=50, .m_bottom=150},
                         {.m_left=450, .m_right=550, .m_top=100, .m_bottom=200},
-                        {.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
-                        {.m_left=150, .m_right=250, .m_top=150, .m_bottom=250}
+                        {.m_left=20, .m_right=120, .m_top=170, .m_bottom=270},
+                        {.m_left=150, .m_right=250, .m_top=170, .m_bottom=270}
                 },
                 .edges = {},
                 .expected_translations = {
@@ -858,7 +860,7 @@ FunctionTimer ft("lulu");
                 }
         }
 	};
-for(int loop=0; loop<1000000; loop++)
+//for(int loop=0; loop<1000000; loop++)
 {
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
