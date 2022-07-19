@@ -299,7 +299,8 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			for (const RectLink& e : adj)
 			{
 				int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
-				rec_push(e.j, trj, rec_push);
+				if (trj > 0)
+					rec_push(e.j, trj, rec_push);
 			}
 		};
 		push(tr);
@@ -701,7 +702,7 @@ FunctionTimer ft("lulu");
 			{.x=0, .y=48},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
-			{.x=14, .y=0},
+			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
@@ -764,20 +765,20 @@ FunctionTimer ft("lulu");
 
 		.expected_translations = {
 			{.x=0, .y=0},
-			{.x=0, .y=48},
-			{.x=0, .y=-64},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
-			{.x=0, .y=64},
 			{.x=0, .y=0},
-			{.x=0, .y=48},
-			{.x=0, .y=64},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
+			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=68, .y=0},
-			{.x=0, .y=0}
+			{.x=67, .y=0}
 		}
 	},
 /*
@@ -851,11 +852,11 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.x=150, .y=0},
-			{.x=100, .y=50},
-			{.x=50, .y=0},
+			{.x=150, .y=20},
+			{.x=100, .y=70},
+			{.x=50, .y=20},
 			{.x=0, .y=0},
-			{.x=150, .y=0},
+			{.x=130, .y=0},
 			{.x=100, .y=0}
                 }
         }
