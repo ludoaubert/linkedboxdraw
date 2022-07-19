@@ -624,6 +624,8 @@ void test_compact_frame()
         FunctionTimer::MAX_NESTING=0;
 	const int TEST_LOOP=1000000;
 //	const int TEST_LOOP=1;
+	D(static_assert(TEST_LOOP==1));
+
 FunctionTimer ft("lulu");
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
