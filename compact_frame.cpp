@@ -623,6 +623,7 @@ void test_compact_frame()
 {
         FunctionTimer::MAX_NESTING=0;
 	const int TEST_LOOP=1000000;
+//	const int TEST_LOOP=1;
 FunctionTimer ft("lulu");
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
@@ -701,7 +702,7 @@ FunctionTimer ft("lulu");
 			{.x=0, .y=0},
 			{.x=0, .y=0},
 			{.x=0, .y=0},
-			{.x=7, .y=0},
+			{.x=0, .y=0},
 			{.x=0, .y=48}
 		}
 	},
