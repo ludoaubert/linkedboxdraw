@@ -255,22 +255,22 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		int tr;
 {
         FunctionTimer ft("cft_query_compact_dim");
-                auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
-                        span<RectLink> adj = adj_list(ri);
-                        if (adj.empty())
-                        {
-                                return rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
-                        }
-                        int tr = ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
-                        return tr + rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
-                };
+		auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
+			span<RectLink> adj = adj_list(ri);
+			if (adj.empty())
+			{
+				return rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+			}
+			int tr = ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+			return tr + rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+		};
 
 		auto query_compact_dimension=[&]()->int{
 			span adj(in_rect_links_buffer, in_rect_links_size);
 			return ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
 		};
 
-                compact_dimension = query_compact_dimension();
+		compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
 		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
 }
@@ -288,7 +288,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		};
 
 		auto push=[&](int tr){
-                        span adj(in_rect_links_buffer, in_rect_links_size);
+			span adj(in_rect_links_buffer, in_rect_links_size);
 			for (const RectLink& e : adj)
 			{
 				int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
