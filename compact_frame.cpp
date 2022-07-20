@@ -22,22 +22,10 @@ using namespace std ;
 
 struct SweepLineItem
 {
-	int16_t value;
 	RectDim rectdim;
 	int ri;
 
 	bool operator==(const SweepLineItem&) const = default;
-};
-
-struct CustomLess{
-	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b)
-	{
-		if (a.value != b.value)
-			return a.value < b.value;
-		if (a.rectdim != b.rectdim)
-			return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
-		return a.ri < b.ri;
-	}
 };
 
 /*
@@ -113,15 +101,26 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		for (int ri=0; ri < n; ri++)
 		{
-			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
-			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri]={.rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
 		const MyPoint& translation = translation2[compact_direction] ;
 {
         FunctionTimer ft("cft_sort_sweepline");
-		ranges::sort(sweep_line, CustomLess());
+
+		auto CustomLess=[&](const SweepLineItem& a, const SweepLineItem& b)
+		{
+			int16_t avalue = rectangles[a.ri][a.rectdim], bvalue = rectangles[b.ri][b.rectdim];
+			if (avalue != bvalue)
+				return avalue < bvalue;
+			if (a.rectdim != b.rectdim)
+				return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
+			return a.ri < b.ri;
+		};
+
+		ranges::sort(sweep_line, CustomLess);
 }
 
 		int active_line_size=0;
@@ -163,7 +162,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
-			const auto& [value, rectdim, ri] = item;
+			const auto& [rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
