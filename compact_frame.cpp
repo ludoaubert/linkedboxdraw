@@ -623,7 +623,7 @@ B				petit_poucet[e._j] = vj;
 
 void test_compact_frame()
 {
-        FunctionTimer::MAX_NESTING=1;
+        FunctionTimer::MAX_NESTING=0;
 	const int TEST_LOOP_REPEAT=1000000;
 //	const int TEST_LOOP_REPEAT=1;
 	D(static_assert(TEST_LOOP_REPEAT==1));
@@ -864,9 +864,7 @@ FunctionTimer ft("lulu");
         }
 	};
 
-int nb=hc-1;
-vector<thread> workers;
-for (int id = 0; id < nb; id++) {
+int nb=hc;
 
 auto job=[&](){
 
@@ -905,8 +903,11 @@ if constexpr (TEST_LOOP_REPEAT==1)
 	}//for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 }//for(int loop=0; loop<TEST_LOOP_REPEAT; loop++)
 };//auto job=[&](int id){
+vector<thread> workers;
+for (int id = 0; id+1 < nb; id++) {
     workers.push_back(thread(job));
 }//for (int id = 0; id < nb; id++) {
 
+	job();	//main thread also running job.
 	ranges::for_each(workers, [](thread &t){t.join();});
 }
