@@ -28,6 +28,7 @@ struct FunctionTimerImpl
       m_func_name(func_name)
     {
         t1 = high_resolution_clock::now();
+	m_nesting_count = nesting_count;
         nesting_count++;
     }
 
@@ -36,12 +37,13 @@ struct FunctionTimerImpl
         nesting_count--;
         high_resolution_clock::time_point t2 = high_resolution_clock::now();
         duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-	if (nesting_count < FunctionTimer::MAX_NESTING)
+	if (m_nesting_count < FunctionTimer::MAX_NESTING)
         	printf("%s() took %f seconds.\n", m_func_name, time_span.count());
         //fflush(log_file);
     }
 
     static int nesting_count ;
+    int m_nesting_count;
     const char* m_func_name;
     high_resolution_clock::time_point t1;
 };

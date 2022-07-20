@@ -2,6 +2,7 @@
 #include "MyRect.h"
 #include "MPD_Arc.h"
 #include "FunctionTimer.h"
+#include <thread>
 #include <vector>
 #include <map>
 #include <span>
@@ -22,6 +23,7 @@ using namespace std ;
 
 struct SweepLineItem
 {
+	int value;
 	RectDim rectdim;
 	int ri;
 
@@ -48,6 +50,18 @@ struct SweepLineItem
 		  V
 		 tr
 */
+
+struct CustomLess
+{
+	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b) const
+	{
+		if (a.value != b.value)
+			return a.value < b.value;
+		if (a.rectdim != b.rectdim)
+			return a.rectdim > b.rectdim;   //RIGHT < LEFT and BOTTOM < TOP
+		return a.ri < b.ri;
+	}
+};
 
 struct RectLink
 {
@@ -101,26 +115,15 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 
 		for (int ri=0; ri < n; ri++)
 		{
-			sweep_line_buffer[2*ri]={.rectdim=minSweepRectDim, .ri=ri};
-			sweep_line_buffer[2*ri+1]={.rectdim=maxSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
 		const MyPoint& translation = translation2[compact_direction] ;
 {
         FunctionTimer ft("cft_sort_sweepline");
-
-		auto CustomLess=[&](const SweepLineItem& a, const SweepLineItem& b)
-		{
-			int16_t avalue = rectangles[a.ri][a.rectdim], bvalue = rectangles[b.ri][b.rectdim];
-			if (avalue != bvalue)
-				return avalue < bvalue;
-			if (a.rectdim != b.rectdim)
-				return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
-			return a.ri < b.ri;
-		};
-
-		ranges::sort(sweep_line, CustomLess);
+		ranges::sort(sweep_line, CustomLess());
 }
 
 		int active_line_size=0;
@@ -162,7 +165,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
-			const auto& [rectdim, ri] = item;
+			const auto& [value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -620,12 +623,14 @@ B				petit_poucet[e._j] = vj;
 
 void test_compact_frame()
 {
-        FunctionTimer::MAX_NESTING=0;
-	const int TEST_LOOP=1000000;
-//	const int TEST_LOOP=1;
-	D(static_assert(TEST_LOOP==1));
+        FunctionTimer::MAX_NESTING=1;
+	const int TEST_LOOP_REPEAT=1000000;
+//	const int TEST_LOOP_REPEAT=1;
+	D(static_assert(TEST_LOOP_REPEAT==1));
 
 FunctionTimer ft("lulu");
+	unsigned hc = thread::hardware_concurrency();
+	printf("hardware_concurrency=%d\n", hc);
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
 
@@ -858,14 +863,21 @@ FunctionTimer ft("lulu");
                 }
         }
 	};
-for(int loop=0; loop<TEST_LOOP; loop++)
+
+int nb=hc-1;
+vector<thread> workers;
+for (int id = 0; id < nb; id++) {
+
+auto job=[&](){
+
+for(int loop=0; loop<TEST_LOOP_REPEAT/nb; loop++)
 {
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
 		int n = input_rectangles.size();
 		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
                 bool bOK = translations == expected_translations;
-if constexpr (TEST_LOOP==1)
+if constexpr (TEST_LOOP_REPEAT==1)
 {
                 int dm1 = dim_max(compute_frame(input_rectangles));
 
@@ -886,10 +898,15 @@ if constexpr (TEST_LOOP==1)
 					"compact_frame",
 					testid);
 
-        	printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO");
-		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
-}
+        	D(printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO"));
+		D(printf("dim_max(frame) : %d => %d\n", dm1, dm2));
+}//if constexpr (TEST_LOOP_REPEAT==1)
 		(bOK ? nbOK : nbKO)++;
-	}
-}
+	}//for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
+}//for(int loop=0; loop<TEST_LOOP_REPEAT; loop++)
+};//auto job=[&](int id){
+    workers.push_back(thread(job));
+}//for (int id = 0; id < nb; id++) {
+
+	ranges::for_each(workers, [](thread &t){t.join();});
 }
