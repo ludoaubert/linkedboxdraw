@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <assert.h>
 #include "latuile_test_json_output.h"
+#include "thread_pool.h"
 using namespace std ;
 
 //#define _TRACE_
@@ -629,8 +630,6 @@ void test_compact_frame()
 	D(static_assert(TEST_LOOP_REPEAT==1));
 
 FunctionTimer ft("lulu");
-	unsigned hc = thread::hardware_concurrency();
-	printf("hardware_concurrency=%d\n", hc);
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
 
@@ -864,11 +863,12 @@ FunctionTimer ft("lulu");
         }
 	};
 
-int nb=hc;
+	unsigned hc = thread::hardware_concurrency();
+	printf("hardware_concurrency=%d\n", hc);
 
 auto job=[&](){
 
-for(int loop=0; loop<TEST_LOOP_REPEAT/nb; loop++)
+for(int loop=0; loop * hc < TEST_LOOP_REPEAT; loop++)
 {
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
@@ -903,11 +903,16 @@ if constexpr (TEST_LOOP_REPEAT==1)
 	}//for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 }//for(int loop=0; loop<TEST_LOOP_REPEAT; loop++)
 };//auto job=[&](int id){
-vector<thread> workers;
-for (int id = 0; id+1 < nb; id++) {
-    workers.push_back(thread(job));
-}//for (int id = 0; id < nb; id++) {
 
-	job();	//main thread also running job.
-	ranges::for_each(workers, [](thread &t){t.join();});
+    ThreadPool tp;
+
+    // queue work tasks
+    for (int i=0; i<hc; ++i)
+        tp.enqueue(job);
+
+    tp.waitFinished();
+    printf("tp.getProcessed(): %d\n", tp.getProcessed());
+
+    // destructor will close down thread pool
+    //return EXIT_SUCCESS;
 }
