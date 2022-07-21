@@ -13,7 +13,7 @@
 #include "thread_pool.h"
 using namespace std ;
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -70,6 +70,9 @@ struct RectLink
         auto operator<=>(const RectLink&) const = default;
 };
 
+enum LinkDirection {FORWARD_LINKS, REVERSE_LINKS};
+
+const char* LinkDirectionString[2]={"FORWARD_LINKS", "REVERSE_LINKS"};
 
 vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
@@ -93,11 +96,12 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 	int in_edge_count[N];
 	int edge_partition[N+1];
 
-	MyPoint translations[N];
+	MyPoint translations[2][N];	//[2] for {FORWARD_LINKS, REVERSE_LINKS}
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
-		ranges::fill(translations, MyPoint{0,0});
+		for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
+			ranges::fill(translations[link_direction], MyPoint{0,0});
 		MyRect frame={
 			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
 			.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
@@ -196,21 +200,30 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 }
 }
 #ifdef _TRACE_
-		D(printf("rect_links:\n"));
+		D(printf("rect_links:"));
 		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
 		{
-			D(printf("%d => %d\n", i, j));
+			D(printf("{%d => %d},", i, j));
 		}
-		printf("forbidden_rect_links:\n");
+		D(printf("\n"));
+		printf("forbidden_rect_links:");
 		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
 		{
-			D(printf("%d => %d\n", i, j));
+			D(printf("{%d => %d},", i, j));
 		}
-		printf("allowed_rect_links:\n");
+		D(printf("\n"));
+#endif
+for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
+{
+		if (is_sorted(allowed_rect_links_buffer, allowed_rect_links_buffer+allowed_rect_links_size)==false)
+			ranges::sort(allowed_rect_links_buffer, allowed_rect_links_buffer+allowed_rect_links_size);
+#ifdef _TRACE_
+		D(printf("allowed_rect_links:"));
 		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 		{
-			D(printf("%d => %d\n", i, j));
+			D(printf("{%d => %d},", i, j));
 		}
+		D(printf("\n"));
 #endif
 {
         FunctionTimer ft("cft_edge_part");
@@ -263,10 +276,10 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 			span<RectLink> adj = adj_list(ri);
 			if (adj.empty())
 			{
-				return rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+				return dimensions(rectangles[ri])[compact_direction];
 			}
 			int tr = ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
-			return tr + rectangles[ri][maxCompactRectDim] - rectangles[ri][minCompactRectDim];
+			return tr + dimensions(rectangles[ri])[compact_direction];
 		};
 
 		auto query_compact_dimension=[&]()->int{
@@ -282,7 +295,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
         FunctionTimer ft("cft_push");
 		auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
 			span<RectLink> adj = adj_list(ri);
-			translations[ri][compact_direction] = tri;
+			translations[link_direction][ri][compact_direction] = tri;
 			for (const RectLink& e : adj)
 			{
 				int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
@@ -302,20 +315,27 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		};
 		push(tr);
 }
-
 {
 #ifdef _TRACE_
+		D(printf("translations[%s]={", LinkDirectionString[link_direction]));
 		for (int ri=0; ri < n; ri++)
 		{
-			D(printf("translations[ri=%d]=%d\n",ri, translations[ri][compact_direction]));
+			int tr = translations[link_direction][ri][compact_direction];
+			if (tr != 0)
+				D(printf("{ri=%d, tr=%d},",ri, tr));
 		}
+		D(printf("}\n"));
 #endif
                 for (int ri=0; ri < n; ri++)
                 {
-			rectangles[ri] += translations[ri];
+			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
-	}
+for (auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+	swap(i, j);
+swap(minCompactRectDim, maxCompactRectDim);
+}//for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
+	}//for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 {
         FunctionTimer ft("cft_return_result");
 	vector<MyPoint> tf(n);
@@ -624,9 +644,9 @@ B				petit_poucet[e._j] = vj;
 
 void test_compact_frame()
 {
-        FunctionTimer::MAX_NESTING=0;
-	const int TEST_LOOP_REPEAT=1000000;
-//	const int TEST_LOOP_REPEAT=1;
+        FunctionTimer::MAX_NESTING=2;
+//	const int TEST_LOOP_REPEAT=1000000;
+	const int TEST_LOOP_REPEAT=1;
 	D(static_assert(TEST_LOOP_REPEAT==1));
 
 FunctionTimer ft("lulu");
@@ -863,7 +883,7 @@ FunctionTimer ft("lulu");
         }
 	};
 
-	unsigned hc = thread::hardware_concurrency();
+	unsigned hc = 1;// thread::hardware_concurrency();
 	printf("hardware_concurrency=%d\n", hc);
 
 auto job=[&](){
