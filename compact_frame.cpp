@@ -213,6 +213,7 @@ vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rec
 		}
 		D(printf("\n"));
 #endif
+int sign=1;
 for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 {
 		if (is_sorted(allowed_rect_links_buffer, allowed_rect_links_buffer+allowed_rect_links_size)==false)
@@ -298,7 +299,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 			translations[link_direction][ri][compact_direction] = tri;
 			for (const RectLink& e : adj)
 			{
-				int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
+				int trj = tri - sign*(rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
 				if (trj > 0)
 					rec_push(e.j, trj, rec_push);
 			}
@@ -308,7 +309,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 			span adj(in_rect_links_buffer, in_rect_links_size);
 			for (const RectLink& e : adj)
 			{
-				int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
+				int trj = tr - sign*(rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
 				if (trj > 0)
 					rec_push(e.j, trj, rec_push);
 			}
@@ -335,6 +336,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 for (auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 	swap(i, j);
 swap(minCompactRectDim, maxCompactRectDim);
+sign=-1;
 }//for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 	}//for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 {
