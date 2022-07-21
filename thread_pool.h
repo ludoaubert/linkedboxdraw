@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <functional>
+#include <chrono>
 
 
 class ThreadPool
@@ -29,6 +30,7 @@ private:
     std::atomic_uint processed;
     unsigned int busy;
     bool stop;
+    std::chrono::time_point<std::chrono::steady_clock> start;
 
     void thread_proc();
 };

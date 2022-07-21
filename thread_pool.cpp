@@ -4,6 +4,7 @@
 #include <random>
 #include <stdio.h>
 using namespace std;
+using namespace std::chrono;
 
 
 ThreadPool::ThreadPool(unsigned int n)
@@ -11,6 +12,8 @@ ThreadPool::ThreadPool(unsigned int n)
     , processed()
     , stop()
 {
+    start = steady_clock::now();
+
     for (unsigned int i=0; i<n; ++i)
         workers.emplace_back(bind(&ThreadPool::thread_proc, this));
 }
@@ -26,6 +29,10 @@ ThreadPool::~ThreadPool()
     // all threads terminate, then we're done.
     for (auto& t : workers)
         t.join();
+
+    time_point<steady_clock> end = steady_clock::now();
+    duration<double> diff = end - start;
+    printf("Threadpool lifetime: %lf sec\n", diff.count());
 }
 
 void ThreadPool::thread_proc()
