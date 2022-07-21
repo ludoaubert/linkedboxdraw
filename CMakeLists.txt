@@ -8,7 +8,7 @@ SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
 add_executable(bombix bombix-origine.cpp)
 add_executable(bombix-experimental bombix-origine-experimental.cpp)
 
-set (SOURCES holes.cpp MyRect.cpp compact_frame.cpp FunctionTimer.cpp latuile_test_json_output.cpp)
+set (SOURCES holes.cpp MyRect.cpp compact_frame.cpp FunctionTimer.cpp latuile_test_json_output.cpp thread_pool.cpp)
 add_executable(holes ${SOURCES})
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)

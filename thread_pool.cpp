@@ -1,6 +1,8 @@
 #include "thread_pool.h"
 #include <functional>
 #include <mutex>
+#include <random>
+#include <stdio.h>
 using namespace std;
 
 
@@ -93,7 +95,7 @@ int test_thread_pool()
             tp.enqueue(work_proc);
 
         tp.waitFinished();
-        cout << tp.getProcessed() << '\n';
+        printf("tp.getProcessed(): %d\n", tp.getProcessed());
     }
 
     // destructor will close down thread pool
