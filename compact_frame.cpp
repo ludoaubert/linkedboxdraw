@@ -296,7 +296,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
         FunctionTimer ft("cft_push");
 		auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
 			span<RectLink> adj = adj_list(ri);
-			translations[link_direction][ri][compact_direction] = tri;
+			translations[link_direction][ri][compact_direction] = sign * tri;
 			for (const RectLink& e : adj)
 			{
 				int trj = tri - sign*(rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
@@ -329,7 +329,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 #endif
                 for (int ri=0; ri < n; ri++)
                 {
-			rectangles[ri] += translations[FORWARD_LINKS][ri];
+//			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
 //in the mirror, links are reversed
