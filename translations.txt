@@ -1,0 +1,24 @@
+translations[FORWARD_LINKS]={{ri=0, tr=150},{ri=1, tr=100},{ri=2, tr=50},{ri=4, tr=150},{ri=5, tr=100},}
+translations[REVERSE_LINKS]={{ri=1, tr=-50},{ri=2, tr=-100},{ri=3, tr=-150},}
+translations[FORWARD_LINKS]={{ri=1, tr=50},}
+translations[REVERSE_LINKS]={{ri=0, tr=-50},{ri=4, tr=-50},{ri=5, tr=-50},}
+translations[FORWARD_LINKS]={}
+translations[REVERSE_LINKS]={}
+translations[FORWARD_LINKS]={{ri=1, tr=48},{ri=9, tr=48},}
+translations[REVERSE_LINKS]={{ri=5, tr=-48},}
+translations[FORWARD_LINKS]={}
+translations[REVERSE_LINKS]={}
+translations[FORWARD_LINKS]={{ri=0, tr=10},}
+translations[REVERSE_LINKS]={{ri=1, tr=-10},}
+translations[FORWARD_LINKS]={{ri=13, tr=68},{ri=14, tr=67},}
+translations[REVERSE_LINKS]={{ri=0, tr=-68},{ri=1, tr=-54},{ri=2, tr=-68},{ri=3, tr=-68},{ri=4, tr=-68},{ri=5, tr=-68},{ri=6, tr=-68},{ri=7, tr=-54},{ri=8, tr=-48},{ri=9, tr=-61},{ri=10, tr=-68},{ri=11, tr=-61},{ri=12, tr=-68},}
+translations[FORWARD_LINKS]={}
+translations[REVERSE_LINKS]={}
+translations[FORWARD_LINKS]={{ri=1, tr=20},{ri=2, tr=20},{ri=5, tr=20},}
+translations[REVERSE_LINKS]={{ri=4, tr=-20},}
+translations[FORWARD_LINKS]={}
+translations[REVERSE_LINKS]={}
+translations[FORWARD_LINKS]={{ri=0, tr=150},{ri=1, tr=100},{ri=2, tr=50},{ri=4, tr=130},{ri=5, tr=100},}
+translations[REVERSE_LINKS]={{ri=1, tr=-50},{ri=2, tr=-100},{ri=3, tr=-150},}
+translations[FORWARD_LINKS]={{ri=0, tr=20},{ri=1, tr=70},{ri=2, tr=20},}
+translations[REVERSE_LINKS]={{ri=0, tr=-50},{ri=4, tr=-70},{ri=5, tr=-70},}
