@@ -331,6 +331,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
+//in the mirror, links are reversed
 for (auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 	swap(i, j);
 swap(minCompactRectDim, maxCompactRectDim);
