@@ -93,12 +93,11 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 	int in_edge_count[N];
 	int edge_partition[N+1];
 
-	MyPoint translations[2][N];	//[2] for {FORWARD_LINKS, REVERSE_LINKS}
+	MyPoint translations[N];
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
-		for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
-			ranges::fill(translations[link_direction], MyPoint{0,0});
+		ranges::fill(translations, MyPoint{0,0});
 		MyRect frame={
 			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
 			.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
@@ -182,20 +181,12 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 }
 {
         FunctionTimer ft("cft_rectlinks");
-{
-        FunctionTimer ft("cft_rectlinks_sort");
 		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
 
 		auto end = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
 		rect_links_size = distance(rect_links_buffer, end);
 }
-}
 
-int sign=1;
-for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
-{
-		if (is_sorted(rect_links_buffer, rect_links_buffer+rect_links_size)==false)
-			ranges::sort(rect_links_buffer, rect_links_buffer+rect_links_size);
 #ifdef _TRACE_
 		D(printf("rect_links:"));
 		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
@@ -269,16 +260,16 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
 		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
-		rect_translations.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, -1, tr});
+		rect_translations.push_back({QUERY_COMPACT_DIMENSION, compact_direction, -1, tr});
 }
 {
         FunctionTimer ft("cft_push");
 		auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
 			span<RectLink> adj = adj_list(ri);
-			translations[link_direction][ri][compact_direction] = sign * tri;
+			translations[ri][compact_direction] = tri;
 			for (const RectLink& e : adj)
 			{
-				int trj = tri - sign*(rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
+				int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
 				if (trj > 0)
 					rec_push(e.j, trj, rec_push);
 			}
@@ -288,7 +279,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 			span adj(in_rect_links_buffer, in_rect_links_size);
 			for (const RectLink& e : adj)
 			{
-				int trj = tr - sign*(rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
+				int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
 				if (trj > 0)
 					rec_push(e.j, trj, rec_push);
 			}
@@ -297,10 +288,10 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 }
 {
 #ifdef _TRACE_
-		D(printf("translations[%s]={", LinkDirectionString[link_direction]));
+		D(printf("translations={"));
 		for (int ri=0; ri < n; ri++)
 		{
-			int tr = translations[link_direction][ri][compact_direction];
+			int tr = translations[ri][compact_direction];
 			if (tr != 0)
 				D(printf("{ri=%d, tr=%d},",ri, tr));
 		}
@@ -308,28 +299,22 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 #endif
                 for (int ri=0; ri < n; ri++)
                 {
-			int value = translations[FORWARD_LINKS][ri][compact_direction];
+			int value = translations[ri][compact_direction];
 			if (value != 0)
-				rect_translations.push_back({COMPACT_FRAME, compact_direction, link_direction, ri, value});
+				rect_translations.push_back({COMPACT_FRAME, compact_direction, ri, value});
 //			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
-//in the mirror, links are reversed
-for (auto& [i, j] : span(rect_links_buffer, rect_links_size))
-	swap(i, j);
-swap(minCompactRectDim, maxCompactRectDim);
-sign=-1;
-}//for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 	}//for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 {
         FunctionTimer ft("cft_return_result");
 
 #ifdef _TRACE_
-	D(printf("rect_translations={"));
-	for (const auto [algorithm, compact_direction, link_direction, ri, value] : rect_translations)
+	D(printf("rect_translations={\n"));
+	for (const auto [algorithm, compact_direction, ri, value] : rect_translations)
 	{
-		printf("{.algorithm=%s, .compact_direction=%s, .link_direction=%s, .ri=%d, .value=%d},\n", AlgorithmString[algorithm],
-			DirectionString[compact_direction], LinkDirectionString[link_direction], ri, value);
+		printf("{.algorithm=%s, .compact_direction=%s, .ri=%d, .value=%d},\n", AlgorithmString[algorithm],
+			DirectionString[compact_direction], ri, value);
 	}
 	D(printf("}\n"));
 #endif
@@ -659,13 +644,13 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=-1, .value=150},
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=150},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .value=150},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=100},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=50},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .value=150},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=100}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=0, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=100},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=50},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=4, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=100}
                 }
         },
 
@@ -699,10 +684,10 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=48},
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=48},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .value=48},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .value=48}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=1, .value=48},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=9, .value=48}
 		}
 	},
 	{
@@ -717,9 +702,9 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=10},
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=10},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .value=10}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=0, .value=10}
 		}
 	},
 	{
@@ -760,10 +745,10 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=-1, .value=68},
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=68},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=13, .value=68},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=14, .value=67}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=13, .value=68},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=14, .value=67}
 		}
 	},
 /*
@@ -803,9 +788,9 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=20},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=20},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=20}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=20}
 		}
 	},
 /*
@@ -834,15 +819,15 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .value=150},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=100},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=50},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .value=130},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=100},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=0, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=100},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=50},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=4, .value=130},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=100},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .value=20},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .value=70},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=2, .value=20}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=0, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=1, .value=70},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=2, .value=20}
                 }
         }
 	};

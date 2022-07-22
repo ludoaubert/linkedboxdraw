@@ -20,10 +20,6 @@ using namespace std ;
 
 const char* DirectionString[2]={"EAST_WEST", "NORTH_SOUTH"};
 
-
-const char* LinkDirectionString[2]={"FORWARD_LINKS", "REVERSE_LINKS"};
-
-
 const char* AlgorithmString[3]={"QUERY_COMPACT_DIMENSION","COMPACT_FRAME","FIT_HOLE"};
 
 

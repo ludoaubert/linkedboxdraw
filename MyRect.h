@@ -17,10 +17,6 @@
 #include <assert.h>
 
 
-enum LinkDirection {FORWARD_LINKS, REVERSE_LINKS};
-
-extern const char* LinkDirectionString[2];
-
 enum Algorithm
 {
 	QUERY_COMPACT_DIMENSION,
@@ -129,7 +125,6 @@ struct RectTranslation
 {
 	Algorithm algorithm;
 	Direction compact_direction;
-	LinkDirection link_direction;	
 	int ri;
 	int value;
 
