@@ -84,13 +84,11 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 	span rectangles(rectangles_buffer, n);
 	ranges::copy(input_rectangles, rectangles_buffer);
 
-	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
-
 	SweepLineItem sweep_line_buffer[2*N];
 	span sweep_line(sweep_line_buffer, 2*n);
 
 	int active_line[N];
-	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+	RectLink rect_links_buffer[256];
 	RectLink in_rect_links_buffer[N];
 	int in_edge_count[N];
 	int edge_partition[N+1];
@@ -124,14 +122,13 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 		}
 }
 
-		const MyPoint& translation = translation2[compact_direction] ;
 {
         FunctionTimer ft("cft_sort_sweepline");
 		ranges::sort(sweep_line, CustomLess());
 }
 
 		int active_line_size=0;
-		int rect_links_size=0, forbidden_rect_links_size=0, allowed_rect_links_size=0;
+		int rect_links_size=0;
 
 		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
 
@@ -161,8 +158,6 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
                         	rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
 			if (pos+1 < active_line_size)
                                 rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
-                        if (pos > 0 && pos+1 < active_line_size)
-				forbidden_rect_links_buffer[forbidden_rect_links_size++] = {active_line[pos-1], active_line[pos+1]};
 		};
 
 {
@@ -190,36 +185,20 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 {
         FunctionTimer ft("cft_rectlinks_sort");
 		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
-                sort(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
 
-		auto end1 = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
-		auto end2 = unique(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
-		auto end3 = set_difference(rect_links_buffer, end1, forbidden_rect_links_buffer, end2, allowed_rect_links_buffer);
-		allowed_rect_links_size = distance(allowed_rect_links_buffer, end3);
+		auto end = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
+		rect_links_size = distance(rect_links_buffer, end);
 }
 }
-#ifdef _TRACE_
-		D(printf("rect_links:"));
-		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
-		{
-			D(printf("{%d => %d},", i, j));
-		}
-		D(printf("\n"));
-		printf("forbidden_rect_links:");
-		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
-		{
-			D(printf("{%d => %d},", i, j));
-		}
-		D(printf("\n"));
-#endif
+
 int sign=1;
 for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 {
-		if (is_sorted(allowed_rect_links_buffer, allowed_rect_links_buffer+allowed_rect_links_size)==false)
-			ranges::sort(allowed_rect_links_buffer, allowed_rect_links_buffer+allowed_rect_links_size);
+		if (is_sorted(rect_links_buffer, rect_links_buffer+rect_links_size)==false)
+			ranges::sort(rect_links_buffer, rect_links_buffer+rect_links_size);
 #ifdef _TRACE_
-		D(printf("allowed_rect_links:"));
-		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+		D(printf("rect_links:"));
+		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
 		{
 			D(printf("{%d => %d},", i, j));
 		}
@@ -233,7 +212,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 			int &start_pos = edge_partition[ii];
 			int &end_pos = edge_partition[ii+1];
 			end_pos = start_pos;
-			for ( ; pos < allowed_rect_links_size && allowed_rect_links_buffer[pos].i==ii; pos++)
+			for ( ; pos < rect_links_size && rect_links_buffer[pos].i==ii; pos++)
 			{
 				end_pos = max(end_pos, pos+1);
 			}
@@ -251,7 +230,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 {
 		FunctionTimer ft("cft_in_edges");
 		ranges::fill(in_edge_count, 0);
-		for (const auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+		for (const auto& [i, j] : span(rect_links_buffer, rect_links_size))
 			in_edge_count[j] += 1;
 		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
 			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
@@ -266,7 +245,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		auto adj_list=[&](int ri)->span<RectLink>{
 			int i=edge_partition[ri];
 			int j=edge_partition[ri+1];
-			return span(&allowed_rect_links_buffer[i], j-i);
+			return span(&rect_links_buffer[i], j-i);
 		};
 		int compact_dimension=0;
 		int tr;
@@ -336,7 +315,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		}
 }
 //in the mirror, links are reversed
-for (auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+for (auto& [i, j] : span(rect_links_buffer, rect_links_size))
 	swap(i, j);
 swap(minCompactRectDim, maxCompactRectDim);
 sign=-1;
