@@ -17,6 +17,19 @@
 #include <assert.h>
 
 
+enum LinkDirection {FORWARD_LINKS, REVERSE_LINKS};
+
+extern const char* LinkDirectionString[2];
+
+enum Algorithm
+{
+	COMPACT_FRAME,
+	FIT_HOLE
+};
+
+extern const char* AlgorithmString[2];
+
+
 enum Direction
 {
 	EAST_WEST,
@@ -31,6 +44,7 @@ enum Sens
 };
 
 const Direction directions[2] = { EAST_WEST, NORTH_SOUTH };
+
 
 const int CHAR_RECT_HEIGHT = 16 ;
 
@@ -106,6 +120,16 @@ inline MyPoint operator*(int16_t value, const MyPoint& p)
 }
 
 std::vector<MyPoint> operator+(const std::vector<MyPoint> m1, const std::vector<MyPoint>& m2);
+
+
+struct RectTranslation
+{
+	Algorithm algorithm;
+	Direction compact_direction;
+	LinkDirection link_direction;	
+	int ri;
+	MyPoint by;
+} ;
 
 
 enum RectCorner

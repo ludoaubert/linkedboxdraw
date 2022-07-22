@@ -18,6 +18,12 @@
 using namespace std ;
 
 
+const char* LinkDirectionString[2]={"FORWARD_LINKS", "REVERSE_LINKS"};
+
+
+const char* AlgorithmString[2]={"COMPACT_FRAME","FIT_HOLE"};
+
+
 vector<MyPoint> operator+(const vector<MyPoint> m1, const vector<MyPoint>& m2)
 {
 	assert(m1.size() == m2.size());

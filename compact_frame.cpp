@@ -70,13 +70,12 @@ struct RectLink
         auto operator<=>(const RectLink&) const = default;
 };
 
-enum LinkDirection {FORWARD_LINKS, REVERSE_LINKS};
 
-const char* LinkDirectionString[2]={"FORWARD_LINKS", "REVERSE_LINKS"};
-
-vector<MyPoint> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
+vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& input_rectangles)
 {
 	FunctionTimer ft("compute_cft_");
+
+	vector<RectTranslation> rect_translations;
 
 	const int N=20;
         int n = input_rectangles.size();
@@ -329,6 +328,14 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 #endif
                 for (int ri=0; ri < n; ri++)
                 {
+			const auto& [x, y] = translations[FORWARD_LINKS][ri];
+			if (x != 0 && y != 0)
+				rect_translation.push_back({
+					COMPACT_FRAME,
+					compact_direction,
+					link_direction,
+					{x, y}
+			});
 //			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
@@ -654,7 +661,7 @@ void test_compact_frame()
 
 FunctionTimer ft("lulu");
 
-	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyPoint> expected_translations; };
+	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<RectTranslation> expected_translations; };
 
 	const vector<TestContext> test_contexts={
 /*
@@ -683,12 +690,11 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.x=150, .y=0},
-			{.x=100, .y=50},
-			{.x=50, .y=0},
-			{.x=0, .y=0},
-			{.x=150, .y=0},
-			{.x=100, .y=0}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=150, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=100, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=50, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .by={.x=150, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=100, .y=0}}
                 }
         },
 
@@ -722,16 +728,8 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.x=0, .y=0},
-			{.x=0, .y=48},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=48}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=0, .y=48}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NOTRH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .by={.x=0, .y=48}
 		}
 	},
 	{
@@ -746,8 +744,7 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.x=0, .y=10},
-			{.x=0, .y=0}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=0, .y=10}},
 		}
 	},
 	{
@@ -788,21 +785,8 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=68, .y=0},
-			{.x=67, .y=0}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=13, .by={.x=68, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=14, .by={.x=67, .y=0}}
 		}
 	},
 /*
@@ -842,12 +826,9 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.x=0, .y=0},
-			{.x=20, .y=0},
-			{.x=20, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=20, .y=0}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=20, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=20, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=20, .y=0}}
 		}
 	},
 /*
@@ -876,12 +857,15 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.x=150, .y=20},
-			{.x=100, .y=70},
-			{.x=50, .y=20},
-			{.x=0, .y=0},
-			{.x=130, .y=0},
-			{.x=100, .y=0}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=150, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=100, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=50, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .by={.x=130, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=100, .y=0}},
+
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=0, .y=20}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=0, .y=70}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=0, .y=20}}
                 }
         }
 	};
@@ -896,7 +880,7 @@ for(int loop=0; loop * hc < TEST_LOOP_REPEAT; loop++)
 	for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
 	{
 		int n = input_rectangles.size();
-		vector<MyPoint> translations = compute_compact_frame_transform_(input_rectangles) ;
+		vector<RectTranslation> translations = compute_compact_frame_transform_(input_rectangles) ;
                 bool bOK = translations == expected_translations;
 if constexpr (TEST_LOOP_REPEAT==1)
 {
