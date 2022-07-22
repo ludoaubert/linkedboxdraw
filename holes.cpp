@@ -148,7 +148,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	span sweep_line(sweep_line_buffer, 2*n);
 
 	int active_line[N];
-	RectLink rect_links_buffer[256], forbidden_rect_links_buffer[256], allowed_rect_links_buffer[256];
+	RectLink rect_links_buffer[256];
 	RectLink in_rect_links_buffer[N];
 	int in_edge_count[N];
 	int edge_partition[N+1];
@@ -197,7 +197,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 
 		int active_line_size=0;
-		int rect_links_size=0, forbidden_rect_links_size=0, allowed_rect_links_size=0;
+		int rect_links_size=0;
 
 		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
 
@@ -227,8 +227,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
 			if (pos+1 < active_line_size)
 				rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
-			if (pos > 0 && pos+1 < active_line_size)
-				forbidden_rect_links_buffer[forbidden_rect_links_size++] = {active_line[pos-1], active_line[pos+1]};
 		};
 
 {
@@ -256,27 +254,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
         FunctionTimer ft("cft_rectlinks_sort");
 		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
-                sort(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
 
-		auto end1 = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
-		auto end2 = unique(forbidden_rect_links_buffer, forbidden_rect_links_buffer + forbidden_rect_links_size);
-		auto end3 = set_difference(rect_links_buffer, end1, forbidden_rect_links_buffer, end2, allowed_rect_links_buffer);
-		allowed_rect_links_size = distance(allowed_rect_links_buffer, end3);
+		auto end = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
+		rect_links_size = distance(rect_links_buffer, end);
 }
 }
 #ifdef _TRACE_
 		D(printf("rect_links:\n"));
 		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
-		{
-			D(printf("%d => %d\n", i, j));
-		}
-		D(printf("forbidden_rect_links:\n"));
-		for (auto [i, j] : span(forbidden_rect_links_buffer, forbidden_rect_links_size))
-		{
-			D(printf("%d => %d\n", i, j));
-		}
-		D(printf("allowed_rect_links:\n"));
-		for (auto [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
 		{
 			D(printf("%d => %d\n", i, j));
 		}
@@ -289,7 +274,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			int &start_pos = edge_partition[ii];
 			int &end_pos = edge_partition[ii+1];
 			end_pos = start_pos;
-			for ( ; pos < allowed_rect_links_size && allowed_rect_links_buffer[pos].i==ii; pos++)
+			for ( ; pos < rect_links_size && rect_links_buffer[pos].i==ii; pos++)
 			{
 				end_pos = max(end_pos, pos+1);
 			}
@@ -307,7 +292,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
 		FunctionTimer ft("cft_in_edges");
 		ranges::fill(in_edge_count, 0);
-		for (const auto& [i, j] : span(allowed_rect_links_buffer, allowed_rect_links_size))
+		for (const auto& [i, j] : span(rect_links_buffer, rect_links_size))
 			in_edge_count[j] += 1;
 		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
 			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
@@ -322,7 +307,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		auto adj_list=[&](int ri)->span<RectLink>{
 			int i=edge_partition[ri];
 			int j=edge_partition[ri+1];
-			return span(&allowed_rect_links_buffer[i], j-i);
+			return span(&rect_links_buffer[i], j-i);
 		};
 
 {
@@ -339,7 +324,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 			translations[ri][compact_direction] = tr ;
 		};
-		
+
 		auto push_hole=[&](){
 			span adj(in_rect_links_buffer, in_rect_links_size);
 			for (const RectLink& e : adj)
