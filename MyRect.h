@@ -28,7 +28,7 @@ enum Algorithm
 	FIT_HOLE
 };
 
-extern const char* AlgorithmString[2];
+extern const char* AlgorithmString[3];
 
 
 enum Direction
@@ -37,6 +37,8 @@ enum Direction
 	NORTH_SOUTH,
 	NR_DIRECTIONS
 };
+
+extern const char* DirectionString[2];
 
 enum Sens
 {

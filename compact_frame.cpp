@@ -290,7 +290,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
 		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
-		rect_translation.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, -1, tr});
+		rect_translations.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, -1, tr});
 }
 {
         FunctionTimer ft("cft_push");
@@ -331,7 +331,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
                 {
 			int value = translations[FORWARD_LINKS][ri][compact_direction];
 			if (value != 0)
-				rect_translation.push_back({COMPACT_FRAME, compact_direction, link_direction, value});
+				rect_translations.push_back({COMPACT_FRAME, compact_direction, link_direction, ri, value});
 //			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
@@ -344,23 +344,17 @@ sign=-1;
 	}//for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 {
         FunctionTimer ft("cft_return_result");
-	vector<MyPoint> tf(n);
-	for (int i=0; i<n; i++)
-	{
-		MyRect r = rectangles[i] - input_rectangles[i];
-		tf[i] = {r.m_left, r.m_top};
-	}
 
 #ifdef _TRACE_
-	D(printf("tf={"));
-	for (int i=0; i<n; i++)
+	D(printf("rect_translations={"));
+	for (const auto [algorithm, compact_direction, link_direction, ri, value] : rect_translations)
 	{
-		const auto& [x, y] = tf[i];
-		D(printf("{.i=%d, .x=%d, .y=%d},", i, x, y));
+		printf("{.algorithm=%s, .compact_direction=%s, .link_direction=%s, .ri=%d, .value=%d},\n", AlgorithmString[algorithm],
+			DirectionString[compact_direction], LinkDirectionString[link_direction], ri, value);
 	}
 	D(printf("}\n"));
 #endif
-	return tf;
+	return rect_translations;
 }
 }
 
@@ -729,7 +723,7 @@ FunctionTimer ft("lulu");
 			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=48},
 
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .value=48},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NOTRH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .value=48}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .value=48}
 		}
 	},
 	{
@@ -746,7 +740,7 @@ FunctionTimer ft("lulu");
 		.expected_translations = {
 			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=10},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=0, .y=10}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .value=10}
 		}
 	},
 	{
@@ -897,7 +891,7 @@ if constexpr (TEST_LOOP_REPEAT==1)
                 }
 		vector<int> stress_line[2];
 		compute_stress_line(input_rectangles, stress_line);
-
+/*
 		int dm2 = dim_max(compute_frame(input_rectangles + translations));
 
 		latuile_test_json_output(input_rectangles,
@@ -909,6 +903,7 @@ if constexpr (TEST_LOOP_REPEAT==1)
 
         	D(printf("compact_frame testid=%d : %s\n", testid, bOK ? "OK" : "KO"));
 		D(printf("dim_max(frame) : %d => %d\n", dm1, dm2));
+*/
 }//if constexpr (TEST_LOOP_REPEAT==1)
 		(bOK ? nbOK : nbKO)++;
 	}//for (const auto& [testid, input_rectangles, edges, expected_translations] : test_contexts)
