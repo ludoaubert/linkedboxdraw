@@ -290,6 +290,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
 		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
+		rect_translation.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, tr});
 }
 {
         FunctionTimer ft("cft_push");
@@ -328,14 +329,9 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 #endif
                 for (int ri=0; ri < n; ri++)
                 {
-			const auto& [x, y] = translations[FORWARD_LINKS][ri];
-			if (x != 0 && y != 0)
-				rect_translation.push_back({
-					COMPACT_FRAME,
-					compact_direction,
-					link_direction,
-					{x, y}
-			});
+			int value = translations[FORWARD_LINKS][ri][compact_direction];
+			if (value != 0)
+				rect_translation.push_back({COMPACT_FRAME, compact_direction, link_direction, value});
 //			rectangles[ri] += translations[FORWARD_LINKS][ri];
 		}
 }
@@ -690,11 +686,13 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=150, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=100, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=50, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .by={.x=150, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=100, .y=0}}
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=-1, .value=150},
+
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=100},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=50},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=100}
                 }
         },
 
@@ -728,8 +726,10 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=0, .y=48}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NOTRH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .by={.x=0, .y=48}
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=48},
+
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .value=48},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NOTRH_SOUTH, .link_direction=FORWARD_LINKS, .ri=9, .value=48}
 		}
 	},
 	{
@@ -744,6 +744,8 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=-1, .value=10},
+
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=0, .y=10}},
 		}
 	},
@@ -785,8 +787,10 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=13, .by={.x=68, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=14, .by={.x=67, .y=0}}
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=-1, .value=68},
+
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=13, .value=68},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=14, .value=67}
 		}
 	},
 /*
@@ -826,9 +830,9 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=20, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=20, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=20, .y=0}}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=20}
 		}
 	},
 /*
@@ -857,15 +861,15 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=150, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=100, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=50, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .by={.x=130, .y=0}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .by={.x=100, .y=0}},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=0, .value=150},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=1, .value=100},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=2, .value=50},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=4, .value=130},
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .link_direction=FORWARD_LINKS, .ri=5, .value=100},
 
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .by={.x=0, .y=20}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .by={.x=0, .y=70}},
-			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=2, .by={.x=0, .y=20}}
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=0, .value=20},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=1, .value=70},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .link_direction=FORWARD_LINKS, .ri=2, .value=20}
                 }
         }
 	};

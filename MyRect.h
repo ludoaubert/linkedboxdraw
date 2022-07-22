@@ -23,6 +23,7 @@ extern const char* LinkDirectionString[2];
 
 enum Algorithm
 {
+	QUERY_COMPACT_DIMENSION,
 	COMPACT_FRAME,
 	FIT_HOLE
 };
@@ -128,7 +129,9 @@ struct RectTranslation
 	Direction compact_direction;
 	LinkDirection link_direction;	
 	int ri;
-	MyPoint by;
+	int value;
+
+	bool operator==(const RectTranslation&) const = default;
 } ;
 
 
