@@ -650,7 +650,10 @@ FunctionTimer ft("lulu");
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=100},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=50},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=4, .value=150},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=100}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=100},
+
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=50},
+			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=1, .value=50}
                 }
         },
 
@@ -684,6 +687,8 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=0},
+
 			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=48},
 
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=1, .value=48},
@@ -702,6 +707,7 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=0},
 			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=10},
 
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=0, .value=10}
@@ -748,7 +754,9 @@ FunctionTimer ft("lulu");
 			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=68},
 
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=13, .value=68},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=14, .value=67}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=14, .value=67},
+
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=0}
 		}
 	},
 /*
@@ -788,9 +796,13 @@ FunctionTimer ft("lulu");
 		},
 
 		.expected_translations = {
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=20},
+
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=20},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=20},
-			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=20}
+			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=20},
+
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=0}
 		}
 	},
 /*
@@ -819,11 +831,15 @@ FunctionTimer ft("lulu");
                 },
                 .edges = {},
                 .expected_translations = {
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=EAST_WEST, .ri=-1, .value=150},
+
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=0, .value=150},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=1, .value=100},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=2, .value=50},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=4, .value=130},
 			{.algorithm=COMPACT_FRAME, .compact_direction=EAST_WEST, .ri=5, .value=100},
+
+			{.algorithm=QUERY_COMPACT_DIMENSION, .compact_direction=NORTH_SOUTH, .ri=-1, .value=70},
 
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=0, .value=20},
 			{.algorithm=COMPACT_FRAME, .compact_direction=NORTH_SOUTH, .ri=1, .value=70},
