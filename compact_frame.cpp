@@ -290,7 +290,7 @@ for (LinkDirection link_direction : {FORWARD_LINKS, REVERSE_LINKS})
 		compact_dimension = query_compact_dimension();
 		tr = dimensions(frame)[compact_direction] - compact_dimension;
 		D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
-		rect_translation.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, tr});
+		rect_translation.push_back({QUERY_COMPACT_DIMENSION, compact_direction, link_direction, -1, tr});
 }
 {
         FunctionTimer ft("cft_push");
