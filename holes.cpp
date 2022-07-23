@@ -3,6 +3,7 @@
 #include <tuple>
 #include <span>
 #include <ranges>
+#include <optional>
 #include <stdio.h>
 #include <assert.h>
 #include "MyRect.h"
@@ -127,7 +128,7 @@ struct SweepLineItem
 struct RectLink
 {
         int i, j;
-	int min_sweep_value=-1, max_sweep_value=INT16_MAX;
+	int min_sweep_value, max_sweep_value=INT16_MAX;
         auto operator<=>(const RectLink&) const = default;
 };
 
@@ -135,6 +136,25 @@ struct ActiveLineItem
 {
 	int i;
 	RectLink* links[2]={0,0};
+};
+
+struct ActiveLineItemPOD
+{
+	int i;
+	optional<RectLink> links[2];
+};
+
+struct ActiveLineTableItem
+{
+	SweepLineItem sweep_line_item;
+	ActiveLineItemPOD active_line[20];
+	int active_line_size;
+};
+
+ActiveLineTableItem item={
+	.sweep_line_item={.rectdim=TOP, .ri=7},
+	.active_line={{.i=3, .links={nullopt, optional<RectLink>{{.i=2, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}},
+	.active_line_size=1
 };
 
 
