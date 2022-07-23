@@ -259,6 +259,13 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 		};
 
+		auto print_active_line=[&](){
+			printf("active_line={");
+			for (auto& [i, links] : span(active_line, active_line_size))
+				printf("%d,",i);
+			printf("}\n");
+		};
+
 {
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
@@ -269,12 +276,20 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			case LEFT:
 			case TOP:
 				D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
+				printf("before insert\n");
+				print_active_line();
 				insert(ri, rectangles[ri][rectdim]);
+                                printf("after insert\n");
+                                print_active_line();
 				break;
 			case RIGHT:
 			case BOTTOM:
 				D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
+				printf("before erase\n");
+				print_active_line();
 				erase(ri, rectangles[ri][rectdim]);
+                                printf("after erase\n");
+                                print_active_line();
 				break;
 			}
 		}
@@ -550,7 +565,37 @@ int main()
 			{.x=0, .y=0},
 			{.x=0, .y=0}
 		}
-	}
+	},
+
+/*
+       +---+
+       |rh |
++------+---+   +------+
+|      |       |      |
+|  0   +       +  1   +------+
+|      |       |      |      |
++------+       +------+  2   |
+                      |      |
+                      +------+
+2 => rh
+*/
+        {
+                .testid=0,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+                        {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200}
+                },
+                .rect_hole = {
+                        .ri=2, .rj=0, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,
+                        .rec={.m_left=100, .m_right=200, .m_top=0, .m_bottom=100}
+                },
+                .expected_translations={
+                        {.x=0, .y=0},
+                        {.x=0, .y=0},
+                        {.x=0, .y=0}
+                }
+        }
 	};
 
 	for (const auto& [testid, input_rectangles, rect_hole, expected_translations] : single_hole_test_contexts)
