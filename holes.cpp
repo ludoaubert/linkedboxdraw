@@ -225,6 +225,17 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
+
+			if (pos > 0 && pos < active_line_size)
+			{
+                                rect_links_buffer[rect_links_size++] = {.i=active_line[pos-1].i, .j=active_line[pos].i, .min_sweep_value=sweep_value};
+
+                                if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+                                        rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+                                if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+                                        rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+                                active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
+			}
 		};
 
 		auto insert=[&](int i, int sweep_value){
@@ -251,6 +262,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			if (pos+1 < active_line_size)
 			{
 				rect_links_buffer[rect_links_size++] = {.i=active_line[pos].i, .j=active_line[pos+1].i, .min_sweep_value=sweep_value};
+
 				if (RectLink *rl=active_line[pos].links[1]; rl!=0)
                                         rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
                                 if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
@@ -260,9 +272,22 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		};
 
 		auto print_active_line=[&](){
-			printf("active_line={");
+			printf("active_line[%d]={", active_line_size);
 			for (auto& [i, links] : span(active_line, active_line_size))
-				printf("%d,",i);
+			{
+				printf(".i=%d, .links={",i);
+				for (RectLink* prl : links)
+				{
+					if (prl == 0)
+						printf("Null,");
+					else
+					{
+						printf("{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
+							prl->i, prl->j, prl->min_sweep_value, prl->max_sweep_value);
+					}
+				}
+				printf("},");
+			}
 			printf("}\n");
 		};
 
@@ -580,7 +605,7 @@ int main()
 2 => rh
 */
         {
-                .testid=0,
+                .testid=4,
                 .input_rectangles = {
                         {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
                         {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
