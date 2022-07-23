@@ -620,6 +620,40 @@ int main()
                         {.x=0, .y=0},
                         {.x=0, .y=0}
                 }
+        },
+
+/*
++------+       +------+------+
+|      |       |      |      |
+|      |       |      |  2   |
+|      |       |      |      |
+|      |       |      +------+
+|      +---+   |      |
+|      |rh |   |      |
+|  0   +---+   |  1   |
+|      |       |      |
+|      |       |      |
+|      |       |      |
+|      |       |      |
++------+       +------+
+2 => rh
+*/
+        {
+                .testid=5,
+                .input_rectangles = {
+                        {.m_left=0, .m_right=100, .m_top=0, .m_bottom=700},
+                        {.m_left=200, .m_right=300, .m_top=0, .m_bottom=700},
+                        {.m_left=300, .m_right=400, .m_top=0, .m_bottom=100}
+                },
+                .rect_hole = {
+                        .ri=2, .rj=0, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,//this line is wrong but not used
+                        .rec={.m_left=100, .m_right=150, .m_top=300, .m_bottom=350}
+                },
+                .expected_translations={
+                        {.x=0, .y=0},
+                        {.x=0, .y=0},
+                        {.x=0, .y=0}
+                }
         }
 	};
 
