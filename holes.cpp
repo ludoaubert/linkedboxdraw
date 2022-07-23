@@ -282,8 +282,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 						printf("Null,");
 					else
 					{
-						printf("{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
-							prl->i, prl->j, prl->min_sweep_value, prl->max_sweep_value);
+						printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},",
+							prl->i, prl->j, RectDimString[minSweepRectDim], prl->min_sweep_value,
+									RectDimString[maxSweepRectDim], prl->max_sweep_value);
 					}
 				}
 				printf("},");
@@ -320,20 +321,15 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		}
 }
 {
-        FunctionTimer ft("cft_rectlinks");
-{
         FunctionTimer ft("cft_rectlinks_sort");
 		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
-
-		auto end = unique(rect_links_buffer, rect_links_buffer + rect_links_size);
-		rect_links_size = distance(rect_links_buffer, end);
-}
 }
 #ifdef _TRACE_
 		D(printf("rect_links:\n"));
 		for (const auto& [i, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
 		{
-			D(printf("{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},\n", i, j, min_sweep_value, max_sweep_value));
+			D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
+				RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
 		}
 #endif
 {
