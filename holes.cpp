@@ -147,13 +147,16 @@ struct ActiveLineItemPOD
 struct ActiveLineTableItem
 {
 	SweepLineItem sweep_line_item;
+	int pos;
 	ActiveLineItemPOD active_line[20];
 	int active_line_size;
 };
 
 ActiveLineTableItem item={
 	.sweep_line_item={.rectdim=TOP, .ri=7},
-	.active_line={{.i=3, .links={nullopt, optional<RectLink>{{.i=2, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}},
+	.active_line={
+		{.i=3, .links={nullopt, optional<RectLink>{{.i=2, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
+	},
 	.active_line_size=1
 };
 
@@ -173,6 +176,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 	SweepLineItem sweep_line_buffer[2*N];
 	span sweep_line(sweep_line_buffer, 2*n);
+
+	vector<ActiveLineTableItem> active_line_table;
+	active_line_table.reserve(2*N);
 
 	ActiveLineItem active_line[N];
 	RectLink rect_links_buffer[256];
@@ -256,6 +262,27 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                                         rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
                                 active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
 			}
+
+			ActiveLineTableItem item={
+        			.sweep_line_item={.rectdim=maxCompactRectDim, .ri=i},
+				.pos=pos,
+				.active_line={},
+				.active_line_size=0
+			};
+
+			for (auto& [i, links] : span(active_line, active_line_size))
+			{
+				ActiveLineItemPOD active_line_item;
+				active_line_item.i = i;
+				for (int LEG : {0,1})
+				{
+					RectLink* lk = links[LEG];
+					active_line_item.links[LEG]=
+						lk==0 ? nullopt : optional<RectLink>{{.i=lk->i, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
+				}
+				item.active_line[item.active_line_size++]=active_line_item;
+			}
+			active_line_table.push_back(item);
 		};
 
 		auto insert=[&](int i, int sweep_value){
@@ -289,6 +316,27 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                                         rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
 				active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
 			}
+
+                        ActiveLineTableItem item={
+                                .sweep_line_item={.rectdim=minCompactRectDim, .ri=i},
+                                .pos=pos,
+                                .active_line={},
+                                .active_line_size=0
+                        };
+
+                        for (auto& [i, links] : span(active_line, active_line_size))
+                        {
+                                ActiveLineItemPOD active_line_item;
+                                active_line_item.i = i;
+                                for (int LEG : {0,1})
+                                {
+                                        RectLink* lk = links[LEG];
+                                        active_line_item.links[LEG]=
+                                                lk==0 ? nullopt : optional<RectLink>{{.i=lk->i, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
+                                }
+                                item.active_line[item.active_line_size++]=active_line_item;
+                        }
+                        active_line_table.push_back(item);
 		};
 
 		auto print_active_line=[&](){
