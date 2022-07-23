@@ -127,7 +127,14 @@ struct SweepLineItem
 struct RectLink
 {
         int i, j;
+	int min_sweep_value=-1, max_sweep_value=INT16_MAX;
         auto operator<=>(const RectLink&) const = default;
+};
+
+struct ActiveLineItem
+{
+	int i;
+	RectLink* links[2]={0,0};
 };
 
 
@@ -147,7 +154,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	SweepLineItem sweep_line_buffer[2*N];
 	span sweep_line(sweep_line_buffer, 2*n);
 
-	int active_line[N];
+	ActiveLineItem active_line[N];
 	RectLink rect_links_buffer[256];
 	RectLink in_rect_links_buffer[N];
 	int in_edge_count[N];
@@ -199,34 +206,52 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		int active_line_size=0;
 		int rect_links_size=0;
 
-		auto cmp=[&](int i, int j){return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];};
+		auto cmp=[&](int i, int j){
+			return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];
+		};
 
-		auto erase=[&](int i){
-			int& lower = *lower_bound(active_line,active_line+active_line_size, i, cmp);
-			D(printf("lower = %d\n", lower));
+		auto erase=[&](int i, int sweep_value){
+			ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
+			D(printf("lower = %d\n", lower.i));
 			int pos = distance(active_line, &lower);
 			D(printf("pos = %d\n", pos));
+
+			for (RectLink* rl : active_line[pos].links)
+			{
+				if (rl != 0)
+					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+			}
 
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
 		};
 
-		auto insert=[&](int i){
-			int& upper = *upper_bound(active_line,active_line+active_line_size, i, cmp);
-			D(printf("upper = %d\n", upper));
+		auto insert=[&](int i, int sweep_value){
+			ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
+			D(printf("upper = %d\n", upper.i));
 			int pos = distance(active_line, &upper);
 			D(printf("pos = %d\n", pos));
 
 			for (int ii=active_line_size-1; ii>=pos; ii--)
 				swap(active_line[ii],active_line[ii+1]);
 			active_line_size += 1;
-			active_line[pos]=i;
+			active_line[pos].i=i;
 
 			if (pos > 0)
-				rect_links_buffer[rect_links_size++] = {active_line[pos-1], active_line[pos]};
+			{
+				rect_links_buffer[rect_links_size++] = {.i=active_line[pos-1].i, .j=active_line[pos].i, .min_sweep_value=sweep_value};
+				if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+				active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
+			}
 			if (pos+1 < active_line_size)
-				rect_links_buffer[rect_links_size++] = {active_line[pos], active_line[pos+1]};
+			{
+				rect_links_buffer[rect_links_size++] = {.i=active_line[pos].i, .j=active_line[pos+1].i, .min_sweep_value=sweep_value};
+				if (RectLink *rl=active_line[pos].links[1]; rl!=0)
+                                        rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+				active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
+			}
 		};
 
 {
@@ -239,12 +264,12 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			case LEFT:
 			case TOP:
 				D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
-				insert(ri);
+				insert(ri, rectangles[ri][rectdim]);
 				break;
 			case RIGHT:
 			case BOTTOM:
 				D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
-				erase(ri);
+				erase(ri, rectangles[ri][rectdim]);
 				break;
 			}
 		}
@@ -261,9 +286,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 #ifdef _TRACE_
 		D(printf("rect_links:\n"));
-		for (auto [i, j] : span(rect_links_buffer, rect_links_size))
+		for (const auto& [i, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
 		{
-			D(printf("%d => %d\n", i, j));
+			D(printf("{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},\n", i, j, min_sweep_value, max_sweep_value));
 		}
 #endif
 {
@@ -292,14 +317,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
 		FunctionTimer ft("cft_in_edges");
 		ranges::fill(in_edge_count, 0);
-		for (const auto& [i, j] : span(rect_links_buffer, rect_links_size))
-			in_edge_count[j] += 1;
+		for (const RectLink& rl : span(rect_links_buffer, rect_links_size))
+			in_edge_count[rl.j] += 1;
 		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
 			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
 #ifdef _TRACE_
 		D(printf("in_edges: "));
-		for (const auto [i, j] : span(in_rect_links_buffer, in_rect_links_size))
-			D(printf("%d, ", j));
+		for (const RectLink& rl : span(in_rect_links_buffer, in_rect_links_size))
+			D(printf("%d, ", rl.j));
 		D(printf("\n"));
 #endif
 }
@@ -313,14 +338,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
         FunctionTimer ft("cft_rec_push");
 		auto rec_push_hole=[&](int ri, int tr, auto&& rec_push_hole)->void{
-			for (const auto& [i, j] : adj_list(ri))
+			for (const RectLink& rl : adj_list(ri))
 			{
-				int tr2= rectangles[ri][maxCompactRectDim] - rectangles[j][minCompactRectDim];
+				int tr2= rectangles[ri][maxCompactRectDim] - rectangles[rl.j][minCompactRectDim];
 
 				if (tr2 < 0)
 					tr2 = 0;
 
-				rec_push_hole(j, tr+tr2, rec_push_hole);
+				rec_push_hole(rl.j, tr+tr2, rec_push_hole);
 			}
 			translations[ri][compact_direction] = tr ;
 		};
