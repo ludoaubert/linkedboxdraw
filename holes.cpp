@@ -97,6 +97,7 @@ struct DecisionTreeNode
 
 struct SweepLineItem
 {
+	int value;
 	RectDim rectdim;
 	int ri;
 
@@ -124,6 +125,18 @@ struct SweepLineItem
 		  V
 		 tr
 */
+
+struct CustomLess
+{
+	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b) const
+	{
+		if (a.value != b.value)
+			return a.value < b.value;
+		if (a.rectdim != b.rectdim)
+			return a.rectdim > b.rectdim;   //RIGHT < LEFT and BOTTOM < TOP
+		return a.ri < b.ri;
+	}
+};
 
 struct RectLink
 {
@@ -209,24 +222,15 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		for (int ri=0; ri < n; ri++)
 		{
-			sweep_line_buffer[2*ri]={.rectdim=minSweepRectDim, .ri=ri};
-			sweep_line_buffer[2*ri+1]={.rectdim=maxSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
 		const MyPoint& translation = translation2[compact_direction] ;
 {
         FunctionTimer ft("cft_sort_sweepline");
-		auto CustomLess=[&](const SweepLineItem& a, const SweepLineItem& b)
-		{
-			int16_t avalue = rectangles[a.ri][a.rectdim], bvalue = rectangles[b.ri][b.rectdim];
-			if (avalue != bvalue)
-				return avalue < bvalue;
-			if (a.rectdim != b.rectdim)
-				return a.rectdim > b.rectdim;	//RIGHT < LEFT and BOTTOM < TOP
-			return a.ri < b.ri;
-		};
-		ranges::sort(sweep_line, CustomLess);
+		ranges::sort(sweep_line, CustomLess());
 }
 
 		int active_line_size=0;
@@ -264,7 +268,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
 			ActiveLineTableItem item={
-        			.sweep_line_item={.rectdim=maxSweepRectDim, .ri=i},
+        			.sweep_line_item={.value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
 				.pos=pos,
 				.active_line={},
 				.active_line_size=0
@@ -317,7 +321,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
                         ActiveLineTableItem item={
-                                .sweep_line_item={.rectdim=minSweepRectDim, .ri=i},
+                                .sweep_line_item={.value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
                                 .pos=pos,
                                 .active_line={},
                                 .active_line_size=0
@@ -365,7 +369,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
-			const auto& [rectdim, ri] = item;
+			const auto& [value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -395,9 +399,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                         char buffer[1000];
                         int bp=0;
 
-			auto [rectdim, ri] = sweep_line_item;
+			auto [value, rectdim, ri] = sweep_line_item;
 			bp += sprintf(buffer + bp, "{\n");
-				bp += sprintf(buffer + bp, ".sweep_line_item={.rectdim=%s, .ri=%d},\n", RectDimString[rectdim], ri);
+				bp += sprintf(buffer + bp, ".sweep_line_item={.value=%d, .rectdim=%s, .ri=%d},\n", value, RectDimString[rectdim], ri);
 				bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
                         	bp += sprintf(buffer + bp, ".active_line={", active_line_size);
 					for (const auto& [i, links] : span(active_line, active_line_size))
@@ -771,9 +775,24 @@ int main()
 #endif
 //		(bOK ? nbOK : nbKO)++;
 	}
+
+/*
+       +-------+
+       |       |
++------+   1   +------+
+|      |       |      |
+|  0   +---+---+  2   +------+
+|      |rh |   |      |      |
++------+---+---+------+  3   |
+|      |       |      |      |
+|  4   |   5   |      +------+
+|      |       |
++------+-------+
+3 => rh
+*/
 const vector<ActiveLineTableItem> active_line_table={
 {
-.sweep_line_item={.rectdim=TOP, .ri=1},
+.sweep_line_item={.value=0, .rectdim=TOP, .ri=1},
 .pos=0,
 .active_line={
         {.i=1, .links={nullopt,nullopt}}
@@ -781,7 +800,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.rectdim=TOP, .ri=0},
+.sweep_line_item={.value=50, .rectdim=TOP, .ri=0},
 .pos=0,
 .active_line={
         {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
@@ -790,7 +809,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.rectdim=TOP, .ri=2},
+.sweep_line_item={.value=50, .rectdim=TOP, .ri=2},
 .pos=2,
 .active_line={
         {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
@@ -800,7 +819,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=1},
+.sweep_line_item={.value=100, .rectdim=BOTTOM, .ri=1},
 .pos=1,
 .active_line={
         {.i=0, .links={nullopt,{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -809,7 +828,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.rectdim=TOP, .ri=3},
+.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
 .pos=1,
 .active_line={
         {.i=0, .links={nullopt,{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -819,7 +838,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=0},
+.sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=0},
 .pos=0,
 .active_line={
         {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -828,7 +847,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=2},
+.sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=2},
 .pos=1,
 .active_line={
         {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
@@ -836,7 +855,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.rectdim=TOP, .ri=4},
+.sweep_line_item={.value=150, .rectdim=TOP, .ri=4},
 .pos=0,
 .active_line={
         {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
@@ -845,7 +864,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.rectdim=TOP, .ri=5},
+.sweep_line_item={.value=150, .rectdim=TOP, .ri=5},
 .pos=2,
 .active_line={
         {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
@@ -855,7 +874,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=3},
+.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
 .pos=1,
 .active_line={
         {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
@@ -864,7 +883,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=4},
+.sweep_line_item={.value=250, .rectdim=BOTTOM, .ri=4},
 .pos=0,
 .active_line={
         {.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
@@ -872,7 +891,7 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.rectdim=BOTTOM, .ri=5},
+.sweep_line_item={.value=250, .rectdim=BOTTOM, .ri=5},
 .pos=0,
 .active_line={},
 .active_line_size=0
