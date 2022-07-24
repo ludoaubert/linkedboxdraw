@@ -402,7 +402,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                         	bp += sprintf(buffer + bp, ".active_line={", active_line_size);
 					for (const auto& [i, links] : span(active_line, active_line_size))
                         		{
-                                		bp += sprintf(buffer + bp, "{.i=%d, .links={",i);
+                                		bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={",i);
                                 		for (optional<RectLink> rl : links)
                                 		{
                                         		if (rl)
@@ -415,7 +415,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                                 		}
                                 		bp += sprintf(buffer + --bp, "}},");
                         		}
-                        	bp += sprintf(buffer + --bp, "},\n");
+                        	bp += sprintf(buffer + --bp, "\n},\n");
 				bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
 			bp += sprintf(buffer + bp, "},\n");
                         buffer[bp]=0;
@@ -775,67 +775,100 @@ const vector<ActiveLineTableItem> active_line_table={
 {
 .sweep_line_item={.rectdim=TOP, .ri=1},
 .pos=0,
-.active_line={{.i=1, .links={nullopt,nullopt}}},
+.active_line={
+        {.i=1, .links={nullopt,nullopt}}
+},
 .active_line_size=1
 },
 {
 .sweep_line_item={.rectdim=TOP, .ri=0},
 .pos=0,
-.active_line={{.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=2
 },
 {
 .sweep_line_item={.rectdim=TOP, .ri=2},
 .pos=2,
-.active_line={{.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=3
 },
 {
 .sweep_line_item={.rectdim=BOTTOM, .ri=1},
 .pos=1,
-.active_line={{.i=0, .links={nullopt,{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=0, .links={nullopt,{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=2
 },
 {
 .sweep_line_item={.rectdim=TOP, .ri=3},
 .pos=1,
-.active_line={{.i=0, .links={nullopt,{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=0, .links={nullopt,{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=3
 },
 {
 .sweep_line_item={.rectdim=BOTTOM, .ri=0},
 .pos=0,
-.active_line={{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=2
 },
 {
 .sweep_line_item={.rectdim=BOTTOM, .ri=2},
 .pos=1,
-.active_line={{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}},
+.active_line={
+        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
+},
 .active_line_size=1
 },
 {
 .sweep_line_item={.rectdim=TOP, .ri=4},
 .pos=0,
-.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}},
+.active_line={
+        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
+},
 .active_line_size=2
 },
 {
 .sweep_line_item={.rectdim=TOP, .ri=5},
 .pos=2,
-.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=5, .links={{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=5, .links={{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=3
 },
 {
 .sweep_line_item={.rectdim=BOTTOM, .ri=3},
 .pos=1,
-.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},{.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}},
+.active_line={
+        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
+        {.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}
+},
 .active_line_size=2
 },
 {
 .sweep_line_item={.rectdim=BOTTOM, .ri=4},
 .pos=0,
-.active_line={{.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}},
+.active_line={
+        {.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
+},
 .active_line_size=1
 },
 {
