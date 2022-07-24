@@ -177,9 +177,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	SweepLineItem sweep_line_buffer[2*N];
 	span sweep_line(sweep_line_buffer, 2*n);
 
-	vector<ActiveLineTableItem> active_line_table;
-	active_line_table.reserve(2*N);
-
 	ActiveLineItem active_line[N];
 	RectLink rect_links_buffer[256];
 	RectLink in_rect_links_buffer[N];
@@ -190,6 +187,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
+        	vector<ActiveLineTableItem> active_line_table;
+        	active_line_table.reserve(2*N);
+
 		ranges::fill(translations, MyPoint{0,0});
 		MyRect frame={
 			.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
@@ -264,7 +264,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
 			ActiveLineTableItem item={
-        			.sweep_line_item={.rectdim=maxCompactRectDim, .ri=i},
+        			.sweep_line_item={.rectdim=maxSweepRectDim, .ri=i},
 				.pos=pos,
 				.active_line={},
 				.active_line_size=0
@@ -272,8 +272,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				ActiveLineItemPOD active_line_item;
-				active_line_item.i = i;
+				ActiveLineItemPOD active_line_item={.i=i};
 				for (int LEG : {0,1})
 				{
 					RectLink* lk = links[LEG];
@@ -318,7 +317,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
                         ActiveLineTableItem item={
-                                .sweep_line_item={.rectdim=minCompactRectDim, .ri=i},
+                                .sweep_line_item={.rectdim=minSweepRectDim, .ri=i},
                                 .pos=pos,
                                 .active_line={},
                                 .active_line_size=0
@@ -326,8 +325,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
                         for (auto& [i, links] : span(active_line, active_line_size))
                         {
-                                ActiveLineItemPOD active_line_item;
-                                active_line_item.i = i;
+                                ActiveLineItemPOD active_line_item={.i=i};
                                 for (int LEG : {0,1})
                                 {
                                         RectLink* lk = links[LEG];
@@ -340,24 +338,27 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		};
 
 		auto print_active_line=[&](){
-			printf("active_line[%d]={", active_line_size);
+			char buffer[5000];
+			int pos=0;
+			pos += sprintf(buffer + pos, ".active_line={", active_line_size);
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				printf(".i=%d, .links={",i);
+				pos += sprintf(buffer + pos, "{.i=%d, .links={",i);
 				for (RectLink* prl : links)
 				{
 					if (prl == 0)
-						printf("Null,");
+						pos += sprintf(buffer+pos,"nullopt,");
 					else
 					{
-						printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},",
-							prl->i, prl->j, RectDimString[minSweepRectDim], prl->min_sweep_value,
-									RectDimString[maxSweepRectDim], prl->max_sweep_value);
+						pos += sprintf(buffer + pos, "{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
+							prl->i, prl->j, prl->min_sweep_value, prl->max_sweep_value);
 					}
 				}
-				printf("},");
+				pos += sprintf(buffer + --pos, "},");
 			}
-			printf("}\n");
+			pos += sprintf(buffer + --pos, "}\n");
+			buffer[pos]=0;
+			printf("%s", buffer);
 		};
 
 {
@@ -371,7 +372,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			case TOP:
 				D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
 				printf("before insert\n");
-				print_active_line();
+//				print_active_line();
 				insert(ri, rectangles[ri][rectdim]);
                                 printf("after insert\n");
                                 print_active_line();
@@ -380,7 +381,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			case BOTTOM:
 				D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
 				printf("before erase\n");
-				print_active_line();
+//				print_active_line();
 				erase(ri, rectangles[ri][rectdim]);
                                 printf("after erase\n");
                                 print_active_line();
@@ -388,6 +389,39 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 		}
 }
+//TODO: C++23 reflexion ?
+		for (const auto& [sweep_line_item, pos, active_line, active_line_size] : active_line_table)
+		{
+                        char buffer[1000];
+                        int bp=0;
+
+			auto [rectdim, ri] = sweep_line_item;
+			bp += sprintf(buffer + bp, "{\n");
+				bp += sprintf(buffer + bp, ".sweep_line_item={.rectdim=%s, .ri=%d},\n", RectDimString[rectdim], ri);
+				bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
+                        	bp += sprintf(buffer + bp, ".active_line={", active_line_size);
+					for (const auto& [i, links] : span(active_line, active_line_size))
+                        		{
+                                		bp += sprintf(buffer + bp, "{.i=%d, .links={",i);
+                                		for (optional<RectLink> rl : links)
+                                		{
+                                        		if (rl)
+							{
+								const auto& [i, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
+                                                		bp += sprintf(buffer + bp, "{{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},", i, j, min_sweep_value, max_sweep_value);
+							}
+							else
+                                                		bp += sprintf(buffer + bp,"nullopt,");
+                                		}
+                                		bp += sprintf(buffer + --bp, "}},");
+                        		}
+                        	bp += sprintf(buffer + --bp, "},\n");
+				bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
+			bp += sprintf(buffer + bp, "},\n");
+                        buffer[bp]=0;
+                        printf("%s", buffer);
+		}
+
 {
         FunctionTimer ft("cft_rectlinks_sort");
 		sort(rect_links_buffer, rect_links_buffer + rect_links_size);
@@ -737,6 +771,81 @@ int main()
 #endif
 //		(bOK ? nbOK : nbKO)++;
 	}
+const vector<ActiveLineTableItem> active_line_table={
+{
+.sweep_line_item={.rectdim=TOP, .ri=1},
+.pos=0,
+.active_line={{.i=1, .links={nullopt,nullopt}}},
+.active_line_size=1
+},
+{
+.sweep_line_item={.rectdim=TOP, .ri=0},
+.pos=0,
+.active_line={{.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=2
+},
+{
+.sweep_line_item={.rectdim=TOP, .ri=2},
+.pos=2,
+.active_line={{.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=3
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=1},
+.pos=1,
+.active_line={{.i=0, .links={nullopt,{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=2
+},
+{
+.sweep_line_item={.rectdim=TOP, .ri=3},
+.pos=1,
+.active_line={{.i=0, .links={nullopt,{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=3
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=0},
+.pos=0,
+.active_line={{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},{.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=2
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=2},
+.pos=1,
+.active_line={{.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}},
+.active_line_size=1
+},
+{
+.sweep_line_item={.rectdim=TOP, .ri=4},
+.pos=0,
+.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}},
+.active_line_size=2
+},
+{
+.sweep_line_item={.rectdim=TOP, .ri=5},
+.pos=2,
+.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},{.i=5, .links={{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=3
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=3},
+.pos=1,
+.active_line={{.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},{.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}},
+.active_line_size=2
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=4},
+.pos=0,
+.active_line={{.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}},
+.active_line_size=1
+},
+{
+.sweep_line_item={.rectdim=BOTTOM, .ri=5},
+.pos=0,
+.active_line={},
+.active_line_size=0
+}
+};
+
 return 0;
 
 	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<Edge> edges; vector<MyRect> expected_rectangles; };
