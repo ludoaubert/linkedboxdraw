@@ -19,6 +19,36 @@ using namespace std;
 #  define D(x)
 #endif
 
+// should be replaced by views::set_union() when it become available.
+
+template <typename Range, typename F>
+void set_union(const Range& a, const Range& b, F&& f)
+{
+	for (int i=0, j=0; i<a.size() || j<b.size();)
+	{
+		if (i < a.size() && j<b.size())
+		{
+			if (a[i] < b[j])
+			{
+				f(a[i++]);
+			}
+			else if (a[i] > b[j])
+			{
+				f(b[j++]);
+			}
+		}
+		else if (i < a.size())
+		{
+			f(a[i++]);
+		}
+		else if (j < b.size())
+		{
+			f(b[j++]);
+		}
+	}    
+}
+
+
 struct RankingCap{
 	int n;
 	int RC1;
