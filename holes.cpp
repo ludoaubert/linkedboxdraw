@@ -30,20 +30,20 @@ void set_union(const Range& a, const Range& b, F&& f)
 		{
 			if (a[i] < b[j])
 			{
-				f(a[i++]);
+				f(&a[i++], 0);
 			}
 			else if (a[i] > b[j])
 			{
-				f(b[j++]);
+				f(0, &b[j++]);
 			}
 		}
 		else if (i < a.size())
 		{
-			f(a[i++]);
+			f(&a[i++], 0);
 		}
 		else if (j < b.size())
 		{
-			f(b[j++]);
+			f(0, &b[j++]);
 		}
 	}    
 }
@@ -819,6 +819,30 @@ int main()
 |      |       |
 +------+-------+
 3 => rh
+
+.input_rectangles = {
+	{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+	{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
+	{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+	{.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
+	{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
+	{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
+}
+
+{
+{
+.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
+.pos=0,
+.active_line={
+        {.i=3, .links={nullopt,nullopt}}
+},
+{
+.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
+.pos=0,
+.active_line={
+        {}
+}
+}
 */
 const vector<ActiveLineTableItem> active_line_table={
 {
@@ -927,6 +951,32 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=0
 }
 };
+
+set_union(active_line_table, {
+{
+.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
+.pos=0,
+.active_line={
+        {.i=3, .links={nullopt,nullopt}}
+},
+{
+.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
+.pos=0,
+.active_line={
+        {}
+}
+}, [](ActiveLineTableItem* alt_item1, ActiveLineTableItem* alt_item2)
+{
+	if (alt_item1)
+	{
+		const [sweep_line_item, pos, active_line, active_line_size] = * alt_item1;
+		
+	}
+	if (alt_item2)
+	{
+		const [sweep_line_item, pos, active_line, active_line_size] = * alt_item2;
+	}
+});
 
 return 0;
 
