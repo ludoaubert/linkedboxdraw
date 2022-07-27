@@ -21,8 +21,8 @@ using namespace std;
 
 // should be replaced by views::set_union() when it becomes available.
 
-template <typename Range, typename F, typename Prj>
-void set_union(const Range& a, const Range& b, F&& f)
+template <typename Range, typename F>
+void set_union(Range& a, Range& b, F&& f)
 {
 	for (int i=0, j=0; i<a.size() || j<b.size();)
 	{
@@ -30,59 +30,27 @@ void set_union(const Range& a, const Range& b, F&& f)
 		{
 			if (a[i] < b[j])
 			{
-				f(i, j, &a[i++], 0);
+				f(&a[i++], 0);
 			}
 			else if (a[i] > b[j])
 			{
-				f(i, j, 0, &b[j++]);
+				f(0, &b[j++]);
 			}
 			else
 			{
-				f(i, j, 0, &a[i++]);
-				f(i, j, 0, &b[j++]);				
+				f(&a[i++], 0);
+				f(0, &b[j++]);
 			}
 		}
 		else if (i < a.size())
 		{
-			f(i, j, &a[i++], 0);
+			f(&a[i++], 0);
 		}
 		else if (j < b.size())
 		{
-			f(i, j, 0, &b[j++]);
+			f(0, &b[j++]);
 		}
-	}    
-}
-
-template <typename Range, typename F, typename Prj>
-void set_union(const Range& a, const Range& b, Prj&& prj, F&& f)
-{
-	for (int i=0, j=0; i<a.size() || j<b.size();)
-	{
-		if (i < a.size() && j<b.size())
-		{
-			if (prj(a[i]) < prj(b[j]))
-			{
-				f(i, j, &a[i++], 0);
-			}
-			else if (prj(a[i]) > prj(b[j]))
-			{
-				f(i, j, 0, &b[j++]);
-			}
-			else
-			{
-				f(i, j, 0, &a[i++]);
-				f(i, j, 0, &b[j++]);				
-			}
-		}
-		else if (i < a.size())
-		{
-			f(i, j, &a[i++], 0);
-		}
-		else if (j < b.size())
-		{
-			f(i, j, 0, &b[j++]);
-		}
-	}    
+	}
 }
 
 
@@ -168,7 +136,7 @@ struct SweepLineItem
 	RectDim rectdim;
 	int ri;
 
-	bool operator==(const SweepLineItem&) const = default;
+	auto operator<=>(const SweepLineItem&) const = default;
 };
 
 
@@ -222,8 +190,8 @@ struct ActiveLineItemPOD
 {
 	int i;
 	optional<RectLink> links[2];
-	
-	auto operator<=>(const ActiveLineItemPOD&) const = default;
+
+        auto operator<=>(const ActiveLineItemPOD&) const = default;
 };
 
 struct ActiveLineTableItem
@@ -232,6 +200,8 @@ struct ActiveLineTableItem
 	int pos;
 	ActiveLineItemPOD active_line[20];
 	int active_line_size;
+
+        auto operator<=>(const ActiveLineTableItem&) const = default;
 };
 
 ActiveLineTableItem item={
@@ -858,16 +828,21 @@ int main()
 |      |       |
 +------+-------+
 3 => rh
+*/
 
-.input_rectangles = {
+const vector<MyRect> input_rectangles1 = {
 	{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
 	{.m_left=100, .m_right=200, .m_top=0, .m_bottom=100},
 	{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
 	{.m_left=300, .m_right=400, .m_top=100, .m_bottom=200},
 	{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 	{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
-}
+};
 
+const vector<MyRect> input_rectangles2 = {
+        {.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
+};
+/*
 {
 {
 .sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
@@ -883,7 +858,7 @@ int main()
 }
 }
 */
-const vector<ActiveLineTableItem> active_line_table={
+vector<ActiveLineTableItem> active_line_table={
 {
 .sweep_line_item={.value=0, .rectdim=TOP, .ri=1},
 .pos=0,
@@ -990,101 +965,102 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=0
 }
 };
-/*
-Sliding Window in C++23 ranges stl:
-slide(N) is very similar to chunk except its subranges are overlapping and all have length exactly N. 
-views::iota(0,10) | views::slide(4) yields [[0,1,2,3],[1,2,3,4],[2,3,4,5],[3,4,5,6],[4,5,6,7],[5,6,7,8],[6,7,8,9]]. 
-Note that slide(2) is similar to adjacent, except that the latter yields a range of tuples (i.e. having compile-time size)
- whereas here we have a range of ranges (still having runtime size). range-v3 calls this sliding, which has a different tense
- from the other two, so we change it to slide here.
-*/
-ActiveLineTableItem *active_line_table_item1=0, *active_line_table_item2=0, active_line_table_item;
-RectLink rect_links_buffer[256];
-int rect_links_size=0;
 
-set_union(active_line_table, {
+vector<ActiveLineTableItem> active_line_table2={
 {
 .sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
 .pos=0,
 .active_line={
         {.i=3, .links={nullopt,nullopt}}
 },
+.active_line_size=1
+},
 {
 .sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
 .pos=0,
 .active_line={
         {}
+},
+.active_line_size=0
 }
-/*
-struct ActiveLineItemPOD{	int i;	optional<RectLink> links[2];};
-struct ActiveLineTableItem{	SweepLineItem sweep_line_item;	int pos;	ActiveLineItemPOD active_line[20];	int active_line_size;};
-*/
-}, [](int i, int j, ActiveLineTableItem* active_line_table_item1_, ActiveLineTableItem* active_line_table_item2_)
+};
+
+ActiveLineTableItem *active_line_table_item1=0, *active_line_table_item2=0, active_line_table_item;
+RectLink rect_links_buffer[256];
+int rect_links_size=0;
+ActiveLineItem active_line[20*20];
+int active_line_size=0;
+RectDim minCompactRectDim=TOP;
+
+set_union(active_line_table, active_line_table2,
+[&](ActiveLineTableItem* active_line_table_item1_, ActiveLineTableItem* active_line_table_item2_)
 {
 	ActiveLineItemPOD (&active_line)[20] = active_line_table_item.active_line;
 	int& active_line_size = active_line_table_item.active_line_size;
-	
+
 	ActiveLineItemPOD active_line_item;
 	int pos=-1;
 	RectDim rectdim;
-	
+
 	if (active_line_table_item1_)
 	{
 		active_line_table_item1 = active_line_table_item1_;
-		rectdim = active_line_table_item1_.sweep_line_item.rectdim;
+		rectdim = active_line_table_item1_->sweep_line_item.rectdim;
 	}
 	if (active_line_table_item2_)
 	{
 		active_line_table_item2 = active_line_table_item2_;
-		rectdim = active_line_table_item2_.sweep_line_item.rectdim;
+		rectdim = active_line_table_item2_->sweep_line_item.rectdim;
 	}
-	
+
 	if (active_line_table_item1!=0 && active_line_table_item2!=0)
 	{
-		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
-		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
+		const auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		const auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
 		span r1(active_line1, active_line_size1);
 		span r2(active_line2, active_line_size2);
 		auto cmp=[&](int i, int j){
-			return rectangles1[i][minCompactRectDim]<rectangles2[j][minCompactRectDim];
+			return input_rectangles1[i][minCompactRectDim]<input_rectangles2[j][minCompactRectDim];
 		};
-		
-		set_union(r1, r2, cmp,[&](int ii, int jj, ActiveLineItemPOD* active_line_item1, ActiveLineItemPOD* active_line_item2){
 
-			if (pos==-1 && active_line_item1 == &active_line1[pos1])
-			{
-				active_line_item = *active_line_item;
-				pos = ii + jj;
-			}
-			else if (pos==-1 && active_line_item2 == &active_line2[pos2])
-			{
-				active_line_item = *active_line_item2;
-				pos = ii + jj;
-			}
-		});
+		if (cmp(active_line1[pos1].i, active_line2[pos2].i))
+		{
+			active_line_item = active_line1[pos1];
+			auto upper = std::upper_bound(active_line2, active_line2 + active_line_size2, active_line_item);
+			int d = distance(active_line2, upper);
+			pos = pos1 + d;
+		}
+		else
+		{
+			active_line_item = active_line2[pos2];
+                        auto upper = std::upper_bound(active_line1, active_line1 + active_line_size1, active_line_item);
+                        int d = distance(active_line1, upper);
+                        pos = pos1 + d;
+		}
+
 	}
 	else if (active_line_table_item1!=0)
 	{
-		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		const auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
 		active_line_item = active_line1[pos1];
 		pos = pos1;
 	}
 	else if (active_line_table_item2!=0)
 	{
-		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
+		const auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
 		active_line_item = active_line2[pos2];
 		pos = pos2;
 	}
-	
 
 	switch (rectdim)
 	{
 	case LEFT:
 	case TOP:
-		active_line[pos]=active_line_item;
+		//TODO
 		break;
 	case RIGHT:
 	case BOTTOM:
+		//TODO
 		break;
 	}
 });
