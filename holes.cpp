@@ -21,7 +21,7 @@ using namespace std;
 
 // should be replaced by views::set_union() when it becomes available.
 
-template <typename Range, typename F>
+template <typename Range, typename F, typename Prj>
 void set_union(const Range& a, const Range& b, F&& f)
 {
 	for (int i=0, j=0; i<a.size() || j<b.size();)
@@ -35,6 +35,43 @@ void set_union(const Range& a, const Range& b, F&& f)
 			else if (a[i] > b[j])
 			{
 				f(i, j, 0, &b[j++]);
+			}
+			else
+			{
+				f(i, j, 0, &a[i++]);
+				f(i, j, 0, &b[j++]);				
+			}
+		}
+		else if (i < a.size())
+		{
+			f(i, j, &a[i++], 0);
+		}
+		else if (j < b.size())
+		{
+			f(i, j, 0, &b[j++]);
+		}
+	}    
+}
+
+template <typename Range, typename F, typename Prj>
+void set_union(const Range& a, const Range& b, Prj&& prj, F&& f)
+{
+	for (int i=0, j=0; i<a.size() || j<b.size();)
+	{
+		if (i < a.size() && j<b.size())
+		{
+			if (prj(a[i]) < prj(b[j]))
+			{
+				f(i, j, &a[i++], 0);
+			}
+			else if (prj(a[i]) > prj(b[j]))
+			{
+				f(i, j, 0, &b[j++]);
+			}
+			else
+			{
+				f(i, j, 0, &a[i++]);
+				f(i, j, 0, &b[j++]);				
 			}
 		}
 		else if (i < a.size())
@@ -170,9 +207,9 @@ struct CustomLess
 
 struct RectLink
 {
-        int i, j;
+	int i, j;
 	int min_sweep_value, max_sweep_value=INT16_MAX;
-        auto operator<=>(const RectLink&) const = default;
+	auto operator<=>(const RectLink&) const = default;
 };
 
 struct ActiveLineItem
@@ -185,6 +222,8 @@ struct ActiveLineItemPOD
 {
 	int i;
 	optional<RectLink> links[2];
+	
+	auto operator<=>(const ActiveLineItemPOD&) const = default;
 };
 
 struct ActiveLineTableItem
@@ -959,7 +998,10 @@ Note that slide(2) is similar to adjacent, except that the latter yields a range
  whereas here we have a range of ranges (still having runtime size). range-v3 calls this sliding, which has a different tense
  from the other two, so we change it to slide here.
 */
-ActiveLineTableItem *alt_item1=0, *alt_item2=0;
+ActiveLineTableItem *active_line_table_item1=0, *active_line_table_item2=0, active_line_table_item;
+RectLink rect_links_buffer[256];
+int rect_links_size=0;
+
 set_union(active_line_table, {
 {
 .sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
@@ -977,61 +1019,73 @@ set_union(active_line_table, {
 struct ActiveLineItemPOD{	int i;	optional<RectLink> links[2];};
 struct ActiveLineTableItem{	SweepLineItem sweep_line_item;	int pos;	ActiveLineItemPOD active_line[20];	int active_line_size;};
 */
-}, [](int i, int j, ActiveLineTableItem* alt_item1_, ActiveLineTableItem* alt_item2_)
+}, [](int i, int j, ActiveLineTableItem* active_line_table_item1_, ActiveLineTableItem* active_line_table_item2_)
 {
-	ActiveLineItemPOD* slide[3]={0,0,0};
-	if (alt_item1)
+	ActiveLineItemPOD (&active_line)[20] = active_line_table_item.active_line;
+	int& active_line_size = active_line_table_item.active_line_size;
+	
+	ActiveLineItemPOD active_line_item;
+	int pos=-1;
+	RectDim rectdim;
+	
+	if (active_line_table_item1_)
 	{
-		alt_item1 = alt_item1_;
+		active_line_table_item1 = active_line_table_item1_;
+		rectdim = active_line_table_item1_.sweep_line_item.rectdim;
 	}
-	if (alt_item2)
+	if (active_line_table_item2_)
 	{
-		alt_item2 = alt_item2_;
+		active_line_table_item2 = active_line_table_item2_;
+		rectdim = active_line_table_item2_.sweep_line_item.rectdim;
 	}
 	
-	if (alt_item1!=0 && alt_item2!=0)
+	if (active_line_table_item1!=0 && active_line_table_item2!=0)
 	{
-		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * alt_item1;
-		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * alt_item2;
+		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
 		span r1(active_line1, active_line_size1);
 		span r2(active_line2, active_line_size2);
-		set_union(r1, r2, [&](int ii, int jj, ActiveLineItemPOD* ali1, ActiveLineItemPOD* ali2){
-			ActiveLineItemPOD* ali = ali1 != 0 ? ali1 : ali2 ;
-			if (ali1 && pos1 == ii)
-				slide[1] = ali1;
-			else if (ali2 && pos2 == jj)
-				slide[1] = ali2;
-			else
+		auto cmp=[&](int i, int j){
+			return rectangles1[i][minCompactRectDim]<rectangles2[j][minCompactRectDim];
+		};
+		
+		set_union(r1, r2, cmp,[&](int ii, int jj, ActiveLineItemPOD* active_line_item1, ActiveLineItemPOD* active_line_item2){
+
+			if (pos==-1 && active_line_item1 == &active_line1[pos1])
 			{
-				if (slide[1]==0)
-					slide[0] = ali;
-				else if (slide[1]!=0 && slide[2]==0)
-					slide[2] = ali;
+				active_line_item = *active_line_item;
+				pos = ii + jj;
+			}
+			else if (pos==-1 && active_line_item2 == &active_line2[pos2])
+			{
+				active_line_item = *active_line_item2;
+				pos = ii + jj;
 			}
 		});
 	}
-	else if (alt_item1!=0)
+	else if (active_line_table_item1!=0)
 	{
-		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * alt_item1;
-		if (pos1 > 0)
-			slide[0] = active_line2[pos1-1];
-		slide[1] = active_line1[pos1];
-		if (pos1+1 < active_line_size1)
-			slide[2] = active_line1[pos1+1];
+		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		active_line_item = active_line1[pos1];
+		pos = pos1;
 	}
-	else if (alt_item2!=0)
+	else if (active_line_table_item2!=0)
 	{
-		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * alt_item2;
-		if (pos2 > 0)
-			slide[0] = active_line2[pos2-1];
-		slide[1] = active_line2[pos2];
-		if (pos2+1 < active_line_size2)
-			slide[2] = active_line2[pos2+1];
+		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
+		active_line_item = active_line2[pos2];
+		pos = pos2;
 	}
 	
-	if (slide[2] != 0)
+
+	switch (rectdim)
 	{
-	//creer les RectLink. beware that slide[0] and slide[2] could be zeros.
+	case LEFT:
+	case TOP:
+		active_line[pos]=active_line_item;
+		break;
+	case RIGHT:
+	case BOTTOM:
+		break;
 	}
 });
 
