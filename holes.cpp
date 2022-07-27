@@ -996,7 +996,7 @@ struct ActiveLineTableItem{	SweepLineItem sweep_line_item;	int pos;	ActiveLineIt
 		span r1(active_line1, active_line_size1);
 		span r2(active_line2, active_line_size2);
 		set_union(r1, r2, [&](int ii, int jj, ActiveLineItemPOD* ali1, ActiveLineItemPOD* ali2){
-			ActiveLinePOD* ali = ali1 != 0 ? ali1 : ali2 ;
+			ActiveLineItemPOD* ali = ali1 != 0 ? ali1 : ali2 ;
 			if (ali1 && pos1 == ii)
 				slide[1] = ali1;
 			else if (ali2 && pos2 == jj)
@@ -1008,19 +1008,30 @@ struct ActiveLineTableItem{	SweepLineItem sweep_line_item;	int pos;	ActiveLineIt
 				else if (slide[1]!=0 && slide[2]==0)
 					slide[2] = ali;
 			}
-			if (slide[2] != 0)
-			{
-			//creer les RectLink
-			}
 		});
 	}
 	else if (alt_item1!=0)
 	{
-		
+		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * alt_item1;
+		if (pos1 > 0)
+			slide[0] = active_line2[pos1-1];
+		slide[1] = active_line1[pos1];
+		if (pos1+1 < active_line_size1)
+			slide[2] = active_line1[pos1+1];
 	}
 	else if (alt_item2!=0)
 	{
-		
+		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * alt_item2;
+		if (pos2 > 0)
+			slide[0] = active_line2[pos2-1];
+		slide[1] = active_line2[pos2];
+		if (pos2+1 < active_line_size2)
+			slide[2] = active_line2[pos2+1];
+	}
+	
+	if (slide[2] != 0)
+	{
+	//creer les RectLink. beware that slide[0] and slide[2] could be zeros.
 	}
 });
 
