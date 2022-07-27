@@ -988,18 +988,12 @@ vector<ActiveLineTableItem> active_line_table2={
 ActiveLineTableItem *active_line_table_item1=0, *active_line_table_item2=0, active_line_table_item;
 RectLink rect_links_buffer[256];
 int rect_links_size=0;
-ActiveLineItem active_line[20*20];
-int active_line_size=0;
 RectDim minCompactRectDim=TOP;
 
 set_union(active_line_table, active_line_table2,
 [&](ActiveLineTableItem* active_line_table_item1_, ActiveLineTableItem* active_line_table_item2_)
 {
-	ActiveLineItemPOD (&active_line)[20] = active_line_table_item.active_line;
-	int& active_line_size = active_line_table_item.active_line_size;
-
-	ActiveLineItemPOD active_line_item;
-	int pos=-1;
+	ActiveLineItemPOD* slide[3]={0,0,0};
 	RectDim rectdim;
 
 	if (active_line_table_item1_)
@@ -1015,41 +1009,77 @@ set_union(active_line_table, active_line_table2,
 
 	if (active_line_table_item1!=0 && active_line_table_item2!=0)
 	{
-		const auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
-		const auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
+		auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
 		span r1(active_line1, active_line_size1);
 		span r2(active_line2, active_line_size2);
 		auto cmp=[&](int i, int j){
-			return input_rectangles1[i][minCompactRectDim]<input_rectangles2[j][minCompactRectDim];
+			return input_rectangles1[i][minCompactRectDim] < input_rectangles2[j][minCompactRectDim];
+		};
+		auto next=[&]()->ActiveLineItemPOD*{
+			if (pos1+1 >= active_line_size1 && pos2+1 >= active_line_size2)
+				return 0;
+			else if (pos1+1 >= active_line_size1)
+				return &active_line2[pos2+1];
+			else if (pos2+1 >= active_line_size2)
+				return &active_line1[pos1+1];
+			else if (cmp(active_line1[pos1+1].i, active_line2[pos2+1].i))
+				return &active_line1[pos1+1];
+			else
+				return &active_line2[pos2+1];
 		};
 
-		if (cmp(active_line1[pos1].i, active_line2[pos2].i))
+		if (active_line_size1 == 0 && active_line_size2==0)
 		{
-			active_line_item = active_line1[pos1];
-			auto upper = std::upper_bound(active_line2, active_line2 + active_line_size2, active_line_item);
-			int d = distance(active_line2, upper);
-			pos = pos1 + d;
+
+		}
+		else if (active_line_size1 == 0)
+		{
+                        slide[1] = & active_line2[pos2];
+			if (0 < pos2)
+				slide[0] = & active_line2[pos2-1];
+			if (pos2+1 < active_line_size2)
+				slide[2] = &active_line2[pos2+1];
+		}
+		else if (active_line_size2 == 0)
+		{
+                        slide[1] = & active_line1[pos1];
+                        if (0 < pos1)
+                                slide[0] = & active_line1[pos1-1];
+                        if (pos1+1 < active_line_size1)
+                                slide[2] = &active_line1[pos1+1];
+		}
+		else if (cmp(active_line1[pos1].i, active_line2[pos2].i))
+		{
+			slide[0] = & active_line1[pos1];
+			slide[1] = & active_line2[pos2];
+			slide[2] = next();
 		}
 		else
 		{
-			active_line_item = active_line2[pos2];
-                        auto upper = std::upper_bound(active_line1, active_line1 + active_line_size1, active_line_item);
-                        int d = distance(active_line1, upper);
-                        pos = pos1 + d;
+                        slide[0] = & active_line2[pos2];
+                        slide[1] = & active_line1[pos1];
+			slide[2] = next();
 		}
 
 	}
 	else if (active_line_table_item1!=0)
 	{
-		const auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
-		active_line_item = active_line1[pos1];
-		pos = pos1;
+		auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
+		slide[1] = & active_line1[pos1];
+		if (0 < pos1)
+			slide[0] = & active_line1[pos1-1];
+		if (pos1+1 < active_line_size1)
+			slide[2] = &active_line1[pos1+1];
 	}
 	else if (active_line_table_item2!=0)
 	{
-		const auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
-		active_line_item = active_line2[pos2];
-		pos = pos2;
+		auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
+		slide[1] = & active_line2[pos2];
+		if (0 < pos2)
+			slide[0] = & active_line2[pos2-1];
+		if (pos2+1 < active_line_size2)
+			slide[2] = &active_line2[pos2+1];
 	}
 
 	switch (rectdim)
