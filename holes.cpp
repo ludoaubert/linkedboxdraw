@@ -30,20 +30,20 @@ void set_union(const Range& a, const Range& b, F&& f)
 		{
 			if (a[i] < b[j])
 			{
-				f(&a[i++], 0);
+				f(i, j, &a[i++], 0);
 			}
 			else if (a[i] > b[j])
 			{
-				f(0, &b[j++]);
+				f(i, j, 0, &b[j++]);
 			}
 		}
 		else if (i < a.size())
 		{
-			f(&a[i++], 0);
+			f(i, j, &a[i++], 0);
 		}
 		else if (j < b.size())
 		{
-			f(0, &b[j++]);
+			f(i, j, 0, &b[j++]);
 		}
 	}    
 }
@@ -951,7 +951,15 @@ const vector<ActiveLineTableItem> active_line_table={
 .active_line_size=0
 }
 };
-
+/*
+Sliding Window in C++23 ranges stl:
+slide(N) is very similar to chunk except its subranges are overlapping and all have length exactly N. 
+views::iota(0,10) | views::slide(4) yields [[0,1,2,3],[1,2,3,4],[2,3,4,5],[3,4,5,6],[4,5,6,7],[5,6,7,8],[6,7,8,9]]. 
+Note that slide(2) is similar to adjacent, except that the latter yields a range of tuples (i.e. having compile-time size)
+ whereas here we have a range of ranges (still having runtime size). range-v3 calls this sliding, which has a different tense
+ from the other two, so we change it to slide here.
+*/
+ActiveLineTableItem *alt_item1=0, *alt_item2=0;
 set_union(active_line_table, {
 {
 .sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
@@ -965,16 +973,54 @@ set_union(active_line_table, {
 .active_line={
         {}
 }
-}, [](ActiveLineTableItem* alt_item1, ActiveLineTableItem* alt_item2)
+/*
+struct ActiveLineItemPOD{	int i;	optional<RectLink> links[2];};
+struct ActiveLineTableItem{	SweepLineItem sweep_line_item;	int pos;	ActiveLineItemPOD active_line[20];	int active_line_size;};
+*/
+}, [](int i, int j, ActiveLineTableItem* alt_item1_, ActiveLineTableItem* alt_item2_)
 {
+	ActiveLineItemPOD* slide[3]={0,0,0};
 	if (alt_item1)
 	{
-		const [sweep_line_item, pos, active_line, active_line_size] = * alt_item1;
-		
+		alt_item1 = alt_item1_;
 	}
 	if (alt_item2)
 	{
-		const [sweep_line_item, pos, active_line, active_line_size] = * alt_item2;
+		alt_item2 = alt_item2_;
+	}
+	
+	if (alt_item1!=0 && alt_item2!=0)
+	{
+		const [sweep_line_item1, pos1, active_line1, active_line_size1] = * alt_item1;
+		const [sweep_line_item2, pos2, active_line2, active_line_size2] = * alt_item2;
+		span r1(active_line1, active_line_size1);
+		span r2(active_line2, active_line_size2);
+		set_union(r1, r2, [&](int ii, int jj, ActiveLineItemPOD* ali1, ActiveLineItemPOD* ali2){
+			ActiveLinePOD* ali = ali1 != 0 ? ali1 : ali2 ;
+			if (ali1 && pos1 == ii)
+				slide[1] = ali1;
+			else if (ali2 && pos2 == jj)
+				slide[1] = ali2;
+			else
+			{
+				if (slide[1]==0)
+					slide[0] = ali;
+				else if (slide[1]!=0 && slide[2]==0)
+					slide[2] = ali;
+			}
+			if (slide[2] != 0)
+			{
+			//creer les RectLink
+			}
+		});
+	}
+	else if (alt_item1!=0)
+	{
+		
+	}
+	else if (alt_item2!=0)
+	{
+		
 	}
 });
 
