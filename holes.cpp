@@ -19,7 +19,7 @@ using namespace std;
 #  define D(x)
 #endif
 
-// should be replaced by views::set_union() when it become available.
+// should be replaced by views::set_union() when it becomes available.
 
 template <typename Range, typename F>
 void set_union(const Range& a, const Range& b, F&& f)
@@ -426,34 +426,34 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 //TODO: C++23 reflexion ?
 		for (const auto& [sweep_line_item, pos, active_line, active_line_size] : active_line_table)
 		{
-                        char buffer[1000];
-                        int bp=0;
+			char buffer[1000];
+			int bp=0;
 
 			auto [value, rectdim, ri] = sweep_line_item;
 			bp += sprintf(buffer + bp, "{\n");
-				bp += sprintf(buffer + bp, ".sweep_line_item={.value=%d, .rectdim=%s, .ri=%d},\n", value, RectDimString[rectdim], ri);
-				bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
-                        	bp += sprintf(buffer + bp, ".active_line={", active_line_size);
-					for (const auto& [i, links] : span(active_line, active_line_size))
-                        		{
-                                		bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={",i);
-                                		for (optional<RectLink> rl : links)
-                                		{
-                                        		if (rl)
-							{
-								const auto& [i, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
-                                                		bp += sprintf(buffer + bp, "{{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},", i, j, min_sweep_value, max_sweep_value);
-							}
-							else
-                                                		bp += sprintf(buffer + bp,"nullopt,");
-                                		}
-                                		bp += sprintf(buffer + --bp, "}},");
-                        		}
-                        	bp += sprintf(buffer + --bp, "\n},\n");
-				bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
+			bp += sprintf(buffer + bp, ".sweep_line_item={.value=%d, .rectdim=%s, .ri=%d},\n", value, RectDimString[rectdim], ri);
+			bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
+			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
+			for (const auto& [i, links] : span(active_line, active_line_size))
+			{
+				bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={",i);
+				for (optional<RectLink> rl : links)
+				{
+					if (rl)
+					{
+						const auto& [i, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
+						bp += sprintf(buffer + bp, "{{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},", i, j, min_sweep_value, max_sweep_value);
+					}
+					else
+						bp += sprintf(buffer + bp,"nullopt,");
+				}
+				bp += sprintf(buffer + --bp, "}},");
+			}
+			bp += sprintf(buffer + --bp, "\n},\n");
+			bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
 			bp += sprintf(buffer + bp, "},\n");
-                        buffer[bp]=0;
-                        printf("%s", buffer);
+			buffer[bp]=0;
+			printf("%s", buffer);
 		}
 
 {
