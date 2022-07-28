@@ -383,38 +383,37 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					.min_sweep_value=sweep_value};
 
 				if (RectLink *rl=active_line[pos].links[1]; rl!=0)
-                                        rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-                                if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
-                                        rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+				if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
+					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
 				active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
 			}
 
-                        ActiveLineTableItem item={
-                                .sweep_line_item={.value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
-                                .pos=pos,
-                                .active_line={},
-                                .active_line_size=0
-                        };
+			ActiveLineTableItem item={
+				.sweep_line_item={.value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
+				.pos=pos,
+				.active_line={},
+				.active_line_size=0
+			};
 
-                        for (auto& [i, links] : span(active_line, active_line_size))
-                        {
-                                ActiveLineItemPOD active_line_item={.i=i};
-                                for (int LEG : {0,1})
-                                {
-                                        RectLink* lk = links[LEG];
-                                        active_line_item.links[LEG]=
-                                                lk==0 ? nullopt : optional<RectLink>{{
-													.LEG_i=LEFT_LEG,
-													.i=lk->i,
-													.LEG_j=LEFT_LEG,
-													.j=lk->j,
-													.min_sweep_value=lk->min_sweep_value,
-													.max_sweep_value=lk->max_sweep_value
-												}};
-                                }
-                                item.active_line[item.active_line_size++]=active_line_item;
-                        }
-                        active_line_table.push_back(item);
+			for (auto& [i, links] : span(active_line, active_line_size))
+			{
+				ActiveLineItemPOD active_line_item={.i=i};
+				for (int LEG : {0,1})
+				{
+					RectLink* lk = links[LEG];
+					active_line_item.links[LEG] = lk==0 ? nullopt : optional<RectLink>{{
+						.LEG_i=LEFT_LEG,
+						.i=lk->i,
+						.LEG_j=LEFT_LEG,
+						.j=lk->j,
+						.min_sweep_value=lk->min_sweep_value,
+						.max_sweep_value=lk->max_sweep_value
+					}};
+				}
+				item.active_line[item.active_line_size++]=active_line_item;
+			}
+			active_line_table.push_back(item);
 		};
 
 		auto print_active_line=[&](){
