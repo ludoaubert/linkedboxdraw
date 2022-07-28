@@ -35,20 +35,24 @@ void set_union(Range& a, Range& b, F&& f)
 {	
 	for (int i=0, j=0; i<a.size() || j<b.size();)
 	{
+		auto lag=[](Range&r ,int k){
+			return k-1>=0 && k-1<r.size() ? &r[k-1] : 0;
+		};
+		
 		if (i < a.size() && j<b.size())
 		{
 			if (a[i] < b[j])
 			{
-				f(&a[i++], 0, LEFT_LEG);
+				f(&a[i++], lag(b,j), LEFT_LEG);
 			}
 			else if (a[i] > b[j])
 			{
-				f(&b[j++], 0, RIGHT_LEG);
+				f(&b[j++], lag(a,i), RIGHT_LEG);
 			}
 			else
 			{
-				f(&a[i++], 0, LEFT_LEG);
-				f(&b[j++], 0, RIGHT_LEG);
+				f(&a[i++], lag(b,j), LEFT_LEG);
+				f(&b[j++], lag(a,i), RIGHT_LEG);
 			}
 		}
 		else if (i < a.size())
