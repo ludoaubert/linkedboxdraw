@@ -19,36 +19,45 @@ using namespace std;
 #  define D(x)
 #endif
 
+
+enum LEG
+{
+	LEFT_LEG,
+	RIGHT_LEG
+};
+
+const char* LegString[2]={"LEFT_LEG", "RIGHT_LEG"};
+
 // should be replaced by views::set_union() when it becomes available.
 
 template <typename Range, typename F>
 void set_union(Range& a, Range& b, F&& f)
-{
+{	
 	for (int i=0, j=0; i<a.size() || j<b.size();)
 	{
 		if (i < a.size() && j<b.size())
 		{
 			if (a[i] < b[j])
 			{
-				f(&a[i++], 0);
+				f(&a[i++], 0, LEFT_LEG);
 			}
 			else if (a[i] > b[j])
 			{
-				f(0, &b[j++]);
+				f(&b[j++], 0, RIGHT_LEG);
 			}
 			else
 			{
-				f(&a[i++], 0);
-				f(0, &b[j++]);
+				f(&a[i++], 0, LEFT_LEG);
+				f(&b[j++], 0, RIGHT_LEG);
 			}
 		}
 		else if (i < a.size())
 		{
-			f(&a[i++], 0);
+			f(&a[i++], 0, LEFT_LEG);
 		}
 		else if (j < b.size())
 		{
-			f(0, &b[j++]);
+			f(&b[j++], 0, RIGHT_LEG);
 		}
 	}
 }
@@ -173,9 +182,13 @@ struct CustomLess
 	}
 };
 
+
 struct RectLink
 {
-	int i, j;
+	LEG LEG_i;
+	int i;
+	LEG LEG_j;
+	int j;
 	int min_sweep_value, max_sweep_value=INT16_MAX;
 	auto operator<=>(const RectLink&) const = default;
 };
@@ -191,7 +204,7 @@ struct ActiveLineItemPOD
 	int i;
 	optional<RectLink> links[2];
 
-        auto operator<=>(const ActiveLineItemPOD&) const = default;
+	auto operator<=>(const ActiveLineItemPOD&) const = default;
 };
 
 struct ActiveLineTableItem
@@ -207,7 +220,7 @@ struct ActiveLineTableItem
 ActiveLineTableItem item={
 	.sweep_line_item={.rectdim=TOP, .ri=7},
 	.active_line={
-		{.i=3, .links={nullopt, optional<RectLink>{{.i=2, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
+		{.i=3, .links={nullopt, optional<RectLink>{{.LEG_i=LEFT_LEG, .i=2, .LEG_j=LEFT_LEG, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
 	},
 	.active_line_size=1
 };
@@ -239,8 +252,8 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
-        	vector<ActiveLineTableItem> active_line_table;
-        	active_line_table.reserve(2*N);
+        vector<ActiveLineTableItem> active_line_table;
+        active_line_table.reserve(2*N);
 
 		ranges::fill(translations, MyPoint{0,0});
 		MyRect frame={
@@ -297,17 +310,23 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			if (pos > 0 && pos < active_line_size)
 			{
-                                rect_links_buffer[rect_links_size++] = {.i=active_line[pos-1].i, .j=active_line[pos].i, .min_sweep_value=sweep_value};
+				rect_links_buffer[rect_links_size++] = {
+					.LEG_i = LEFT_LEG,
+					.i=active_line[pos-1].i,
+					.LEG_j = LEFT_LEG,
+					.j=active_line[pos].i,
+					.min_sweep_value=sweep_value
+				};
 
-                                if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-                                        rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-                                if (RectLink *rl=active_line[pos].links[0]; rl!=0)
-                                        rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-                                active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
+				if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+				if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+				active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
 			}
 
 			ActiveLineTableItem item={
-        			.sweep_line_item={.value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
+				.sweep_line_item={.value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
 				.pos=pos,
 				.active_line={},
 				.active_line_size=0
@@ -340,7 +359,13 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			if (pos > 0)
 			{
-				rect_links_buffer[rect_links_size++] = {.i=active_line[pos-1].i, .j=active_line[pos].i, .min_sweep_value=sweep_value};
+				rect_links_buffer[rect_links_size++] = {
+					.LEG_i = LEFT_LEG,
+					.i=active_line[pos-1].i,
+					.LEG_j = LEFT_LEG,
+					.j=active_line[pos].i,
+					.min_sweep_value=sweep_value
+				};
 
 				if (RectLink *rl=active_line[pos].links[0]; rl!=0)
 					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
@@ -350,7 +375,12 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 			if (pos+1 < active_line_size)
 			{
-				rect_links_buffer[rect_links_size++] = {.i=active_line[pos].i, .j=active_line[pos+1].i, .min_sweep_value=sweep_value};
+				rect_links_buffer[rect_links_size++] = {
+					.LEG_i=LEFT_LEG,
+					.i=active_line[pos].i,
+					.LEG_j=LEFT_LEG,
+					.j=active_line[pos+1].i,
+					.min_sweep_value=sweep_value};
 
 				if (RectLink *rl=active_line[pos].links[1]; rl!=0)
                                         rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
@@ -373,7 +403,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
                                 {
                                         RectLink* lk = links[LEG];
                                         active_line_item.links[LEG]=
-                                                lk==0 ? nullopt : optional<RectLink>{{.i=lk->i, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
+                                                lk==0 ? nullopt : optional<RectLink>{{
+													.LEG_i=LEFT_LEG,
+													.i=lk->i,
+													.LEG_j=LEFT_LEG,
+													.j=lk->j,
+													.min_sweep_value=lk->min_sweep_value,
+													.max_sweep_value=lk->max_sweep_value
+												}};
                                 }
                                 item.active_line[item.active_line_size++]=active_line_item;
                         }
@@ -450,8 +487,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				{
 					if (rl)
 					{
-						const auto& [i, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
-						bp += sprintf(buffer + bp, "{{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},", i, j, min_sweep_value, max_sweep_value);
+						const auto& [LEG_i, i, LEG_j, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
+						bp += sprintf(buffer + bp, "{{.LEG_i=%s, .i=%d, .LEG_j=%s .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},",
+							LegString[LEG_i], i, LegString[LEG_j], j, min_sweep_value, max_sweep_value);
 					}
 					else
 						bp += sprintf(buffer + bp,"nullopt,");
@@ -471,9 +509,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 #ifdef _TRACE_
 		D(printf("rect_links:\n"));
-		for (const auto& [i, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
+		for (const auto& [LEG_i, i, LEG_j, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
 		{
-			D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
+			D(printf("{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .%s=%d, .%s=%d},\n", LegString[LEG_i], i, LegString[LEG_j], j,
 				RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
 		}
 #endif
@@ -985,104 +1023,60 @@ vector<ActiveLineTableItem> active_line_table2={
 }
 };
 
-ActiveLineTableItem *active_line_table_item1=0, *active_line_table_item2=0, active_line_table_item;
 RectLink rect_links_buffer[256];
 int rect_links_size=0;
 RectDim minCompactRectDim=TOP;
 
 set_union(active_line_table, active_line_table2,
-[&](ActiveLineTableItem* active_line_table_item1_, ActiveLineTableItem* active_line_table_item2_)
+[&](ActiveLineTableItem* main_active_line_table_item, ActiveLineTableItem* optional_active_line_table_item, LEG active_LEG)
 {
+	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
+	
 	ActiveLineItemPOD* slide[3]={0,0,0};
-	RectDim rectdim;
+	
+	slide[1] = & active_line[pos];
 
-	if (active_line_table_item1_)
+	if (optional_active_line_table_item == 0)
 	{
-		active_line_table_item1 = active_line_table_item1_;
-		rectdim = active_line_table_item1_->sweep_line_item.rectdim;
+		if (0 < pos)
+			slide[0] = & active_line[pos-1];
+		if (pos2+1 < active_line_size)
+			slide[2] = &active_line[pos+1];
 	}
-	if (active_line_table_item2_)
-	{
+	else
+	{ 
+		auto& [other_sweep_line_item, other_pos, other_active_line, other_active_line_size] = * optional_main_active_line_table_item;
+		span r(other_active_line, other_active_line_size);
+		ActiveLineItemPOD *lower = ranges::lower_bound(
+			r, 
+			rectangles[active_LEG][active_line[pos].i][minCompactRectDim],
+			{},
+			[](ActiveLineItemPOD* ali){return rectangles[1-active_LEG][ali->i][minCompactRectDim]});
+		if (lower==ranges::end(r) && pos+1 >= active_line_size)
+		{
+			slide[2] = 0;
+		}
+		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
+		{
+			slide[2] = lower;
+		}
+		else if (lower==ranges::end(r) && pos+1 < active_line_size)
+		{
+			slide[2] = &active_line[pos+1];
+		}
+		else
+		{
+			if ( rectangles[1-active_LEG][lower->i][minCompactRectDim] < rectangles[active_LEG][ active_line[pos+1].i ][minCompactRectDim])
+				slide[2] = lower;
+			else
+				slide[2] = & active_line[pos+1];
+		}
+		
 		active_line_table_item2 = active_line_table_item2_;
 		rectdim = active_line_table_item2_->sweep_line_item.rectdim;
 	}
 
-	if (active_line_table_item1!=0 && active_line_table_item2!=0)
-	{
-		auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
-		auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
-		span r1(active_line1, active_line_size1);
-		span r2(active_line2, active_line_size2);
-		auto cmp=[&](int i, int j){
-			return input_rectangles1[i][minCompactRectDim] < input_rectangles2[j][minCompactRectDim];
-		};
-		auto next=[&]()->ActiveLineItemPOD*{
-			if (pos1+1 >= active_line_size1 && pos2+1 >= active_line_size2)
-				return 0;
-			else if (pos1+1 >= active_line_size1)
-				return &active_line2[pos2+1];
-			else if (pos2+1 >= active_line_size2)
-				return &active_line1[pos1+1];
-			else if (cmp(active_line1[pos1+1].i, active_line2[pos2+1].i))
-				return &active_line1[pos1+1];
-			else
-				return &active_line2[pos2+1];
-		};
-
-		if (active_line_size1 == 0 && active_line_size2==0)
-		{
-
-		}
-		else if (active_line_size1 == 0)
-		{
-                        slide[1] = & active_line2[pos2];
-			if (0 < pos2)
-				slide[0] = & active_line2[pos2-1];
-			if (pos2+1 < active_line_size2)
-				slide[2] = &active_line2[pos2+1];
-		}
-		else if (active_line_size2 == 0)
-		{
-                        slide[1] = & active_line1[pos1];
-                        if (0 < pos1)
-                                slide[0] = & active_line1[pos1-1];
-                        if (pos1+1 < active_line_size1)
-                                slide[2] = &active_line1[pos1+1];
-		}
-		else if (cmp(active_line1[pos1].i, active_line2[pos2].i))
-		{
-			slide[0] = & active_line1[pos1];
-			slide[1] = & active_line2[pos2];
-			slide[2] = next();
-		}
-		else
-		{
-                        slide[0] = & active_line2[pos2];
-                        slide[1] = & active_line1[pos1];
-			slide[2] = next();
-		}
-
-	}
-	else if (active_line_table_item1!=0)
-	{
-		auto& [sweep_line_item1, pos1, active_line1, active_line_size1] = * active_line_table_item1;
-		slide[1] = & active_line1[pos1];
-		if (0 < pos1)
-			slide[0] = & active_line1[pos1-1];
-		if (pos1+1 < active_line_size1)
-			slide[2] = &active_line1[pos1+1];
-	}
-	else if (active_line_table_item2!=0)
-	{
-		auto& [sweep_line_item2, pos2, active_line2, active_line_size2] = * active_line_table_item2;
-		slide[1] = & active_line2[pos2];
-		if (0 < pos2)
-			slide[0] = & active_line2[pos2-1];
-		if (pos2+1 < active_line_size2)
-			slide[2] = &active_line2[pos2+1];
-	}
-
-	switch (rectdim)
+	switch (sweep_line_item.rectdim)
 	{
 	case LEFT:
 	case TOP:
