@@ -203,9 +203,19 @@ struct ActiveLineItem
 	RectLink* links[2]={0,0};
 };
 
+RectLink shared_link_buffer[100];
+int index_available=0;
+
+struct SharedLinks
+{
+	RectLink &left_link, &right_link;
+};
+
+
 struct ActiveLineItemPOD
 {
 	int i;
+	ShareLinks shared_links;
 	optional<RectLink> links[2];
 
 	auto operator<=>(const ActiveLineItemPOD&) const = default;
@@ -253,6 +263,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	int edge_partition[N+1];
 
 	MyPoint translations[N];
+	
+	vector<SharedLinks> shared_links_array;
+	for (int i=0; i < n; i++)
+	{
+		RectLink &left_link = shared_link_buffer[index_available++];
+		RectLink &right_link = shared_link_buffer[index_available++];
+		shared_links_array.push_back({left_link, right_link});
+	}
 
 	for (Direction compact_direction : {EAST_WEST, NORTH_SOUTH})
 	{
@@ -288,7 +306,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
         FunctionTimer ft("cft_sort_sweepline");
 		ranges::sort(sweep_line, CustomLess());
 }
-
 		int active_line_size=0;
 		int rect_links_size=0;
 
@@ -338,7 +355,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				ActiveLineItemPOD active_line_item={.i=i};
+				ActiveLineItemPOD active_line_item={.i=i, .shared_links=shared_links_array[i]};
 				for (int LEG : {0,1})
 				{
 					RectLink* lk = links[LEG];
