@@ -31,8 +31,8 @@ const char* LegString[2]={"LEFT_LEG", "RIGHT_LEG"};
 
 // should be replaced by views::set_union() when it becomes available.
 
-template <typename Range, typename F>
-void set_union(Range& a, Range& b, F&& f)
+template <typename Range, typename Cmp, typename F>
+void set_union(Range& a, Range& b, Cmp&& cmp, F&& f)
 {
 	for (int i=0, j=0; i<a.size() || j<b.size();)
 	{
@@ -42,11 +42,11 @@ void set_union(Range& a, Range& b, F&& f)
 
 		if (i < a.size() && j<b.size())
 		{
-			if (a[i] < b[j])
+			if (cmp(a[i], b[j]))
 			{
 				f(&a[i++], lag(b,j), LEFT_LEG);
 			}
-			else if (a[i] > b[j])
+			else if (cmp(b[j], a[i]))
 			{
 				f(&b[j++], lag(a,i), RIGHT_LEG);
 			}
@@ -1056,7 +1056,12 @@ RectLink rect_links_buffer[256];
 int rect_links_size=0;
 RectDim minCompactRectDim=TOP;
 
+auto cmp=[](const ActiveLineTableItem& a, const ActiveLineTableItem& b){
+	return a.sweep_line_item < b.sweep_line_item;
+};
+
 set_union(active_line_table, active_line_table2,
+cmp,
 [&](ActiveLineTableItem* main_active_line_table_item, ActiveLineTableItem* optional_active_line_table_item, LEG active_LEG)
 {
 	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
