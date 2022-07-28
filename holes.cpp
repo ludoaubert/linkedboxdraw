@@ -218,7 +218,7 @@ struct ActiveLineTableItem
 	ActiveLineItemPOD active_line[20];
 	int active_line_size;
 
-        auto operator<=>(const ActiveLineTableItem&) const = default;
+	auto operator<=>(const ActiveLineTableItem&) const = default;
 };
 
 ActiveLineTableItem item={
@@ -343,7 +343,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				{
 					RectLink* lk = links[LEG];
 					active_line_item.links[LEG]=
-						lk==0 ? nullopt : optional<RectLink>{{.i=lk->i, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
+						lk==0 ? nullopt : optional<RectLink>{{.LEG_i=LEFT_LEG, .i=lk->i, .LEG_j=LEFT_LEG, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
 				}
 				item.active_line[item.active_line_size++]=active_line_item;
 			}
@@ -433,8 +433,8 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 						pos += sprintf(buffer+pos,"nullopt,");
 					else
 					{
-						pos += sprintf(buffer + pos, "{.i=%d, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
-							prl->i, prl->j, prl->min_sweep_value, prl->max_sweep_value);
+						pos += sprintf(buffer + pos, "{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
+							LegString[prl->LEG_i], prl->i, LegString[prl->LEG_j], prl->j, prl->min_sweep_value, prl->max_sweep_value);
 					}
 				}
 				pos += sprintf(buffer + --pos, "},");
@@ -912,8 +912,8 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=50, .rectdim=TOP, .ri=0},
 .pos=0,
 .active_line={
-        {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=2
 },
@@ -921,9 +921,9 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=50, .rectdim=TOP, .ri=2},
 .pos=2,
 .active_line={
-        {.i=0, .links={nullopt,{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=1, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.i=1, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=3
 },
@@ -931,8 +931,8 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=100, .rectdim=BOTTOM, .ri=1},
 .pos=1,
 .active_line={
-        {.i=0, .links={nullopt,{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.i=0, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=2
 },
@@ -940,9 +940,9 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
 .pos=1,
 .active_line={
-        {.i=0, .links={nullopt,{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=3
 },
@@ -950,8 +950,8 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=0},
 .pos=0,
 .active_line={
-        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=2
 },
@@ -959,7 +959,7 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=2},
 .pos=1,
 .active_line={
-        {.i=3, .links={{{.i=0, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
 },
 .active_line_size=1
 },
@@ -967,8 +967,8 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=150, .rectdim=TOP, .ri=4},
 .pos=0,
 .active_line={
-        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
+        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
 },
 .active_line_size=2
 },
@@ -976,9 +976,9 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=150, .rectdim=TOP, .ri=5},
 .pos=2,
 .active_line={
-        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.i=4, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=5, .links={{{.i=3, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}
+        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},
+        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=3
 },
@@ -986,8 +986,8 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
 .pos=1,
 .active_line={
-        {.i=4, .links={{{.i=0, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
-        {.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}
+        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
+        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}
 },
 .active_line_size=2
 },
@@ -995,7 +995,7 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.value=250, .rectdim=BOTTOM, .ri=4},
 .pos=0,
 .active_line={
-        {.i=5, .links={{{.i=4, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
+        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
 },
 .active_line_size=1
 },
