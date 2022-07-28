@@ -5,6 +5,7 @@
 #include <ranges>
 #include <optional>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include "MyRect.h"
 #include "FunctionTimer.h"
@@ -32,13 +33,13 @@ const char* LegString[2]={"LEFT_LEG", "RIGHT_LEG"};
 
 template <typename Range, typename F>
 void set_union(Range& a, Range& b, F&& f)
-{	
+{
 	for (int i=0, j=0; i<a.size() || j<b.size();)
 	{
 		auto lag=[](Range&r ,int k){
 			return k-1>=0 && k-1<r.size() ? &r[k-1] : 0;
 		};
-		
+
 		if (i < a.size() && j<b.size())
 		{
 			if (a[i] < b[j])
@@ -208,14 +209,19 @@ int index_available=0;
 
 struct SharedLinks
 {
-	RectLink &left_link, &right_link;
+	static RectLink none;
+	RectLink &left_link=none, &right_link=none;
+
+        auto operator<=>(const SharedLinks&) const = default;
 };
+
+RectLink SharedLinks::none;
 
 
 struct ActiveLineItemPOD
 {
 	int i;
-	ShareLinks shared_links;
+	SharedLinks shared_links;
 	optional<RectLink> links[2];
 
 	auto operator<=>(const ActiveLineItemPOD&) const = default;
@@ -234,7 +240,7 @@ struct ActiveLineTableItem
 ActiveLineTableItem item={
 	.sweep_line_item={.rectdim=TOP, .ri=7},
 	.active_line={
-		{.i=3, .links={nullopt, optional<RectLink>{{.LEG_i=LEFT_LEG, .i=2, .LEG_j=LEFT_LEG, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
+		{.i=3, .shared_links={.left_link=shared_link_buffer[index_available++], .right_link=shared_link_buffer[index_available++]}, .links={nullopt, optional<RectLink>{{.LEG_i=LEFT_LEG, .i=2, .LEG_j=LEFT_LEG, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
 	},
 	.active_line_size=1
 };
@@ -263,7 +269,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	int edge_partition[N+1];
 
 	MyPoint translations[N];
-	
+
 	vector<SharedLinks> shared_links_array;
 	for (int i=0; i < n; i++)
 	{
@@ -362,7 +368,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					active_line_item.links[LEG]=
 						lk==0 ? nullopt : optional<RectLink>{{.LEG_i=LEFT_LEG, .i=lk->i, .LEG_j=LEFT_LEG, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
 				}
-				item.active_line[item.active_line_size++]=active_line_item;
+				memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
 			}
 			active_line_table.push_back(item);
 		};
@@ -432,7 +438,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 						.max_sweep_value=lk->max_sweep_value
 					}};
 				}
-				item.active_line[item.active_line_size++]=active_line_item;
+                                memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
 			}
 			active_line_table.push_back(item);
 		};
@@ -500,7 +506,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			bp += sprintf(buffer + bp, ".sweep_line_item={.value=%d, .rectdim=%s, .ri=%d},\n", value, RectDimString[rectdim], ri);
 			bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
 			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
-			for (const auto& [i, links] : span(active_line, active_line_size))
+			for (const auto& [i, shared_links, links] : span(active_line, active_line_size))
 			{
 				bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={",i);
 				for (optional<RectLink> rl : links)
@@ -564,7 +570,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		for (const RectLink& rl : span(rect_links_buffer, rect_links_size))
 			in_edge_count[rl.j] += 1;
 		for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
-			in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+			in_rect_links_buffer[in_rect_links_size++] = {LEFT_LEG, -INT16_MAX, LEFT_LEG, ri};
 #ifdef _TRACE_
 		D(printf("in_edges: "));
 		for (const RectLink& rl : span(in_rect_links_buffer, in_rect_links_size))
@@ -900,6 +906,9 @@ const vector<MyRect> input_rectangles1 = {
 const vector<MyRect> input_rectangles2 = {
         {.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
 };
+
+const vector<MyRect> rectangles2[2] = { input_rectangles1, input_rectangles2 };
+
 /*
 {
 {
@@ -1051,34 +1060,34 @@ set_union(active_line_table, active_line_table2,
 [&](ActiveLineTableItem* main_active_line_table_item, ActiveLineTableItem* optional_active_line_table_item, LEG active_LEG)
 {
 	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
-	
+
 	ActiveLineItemPOD* slide[3]={0,0,0};
-	
+
 	slide[1] = & active_line[pos];
 
 	if (optional_active_line_table_item == 0) [[likely]]
 	{
 		if (0 < pos)
 			slide[0] = & active_line[pos-1];
-		if (pos2+1 < active_line_size)
+		if (pos+1 < active_line_size)
 			slide[2] = &active_line[pos+1];
 	}
 	else
-	{ 
-		auto& [other_sweep_line_item, other_pos, other_active_line, other_active_line_size] = * optional_main_active_line_table_item;
+	{
+		auto& [other_sweep_line_item, other_pos, other_active_line, other_active_line_size] = * optional_active_line_table_item;
 		span r(other_active_line, other_active_line_size);
-		ActiveLineItemPOD *lower = ranges::lower_bound(
-			r, 
-			rectangles[active_LEG][active_line[pos].i][minCompactRectDim],
+		auto lower = ranges::lower_bound(
+			r,
+			rectangles2[active_LEG][active_line[pos].i][minCompactRectDim],
 			{},
-			[](ActiveLineItemPOD* ali){return rectangles[1-active_LEG][ali->i][minCompactRectDim]});
+			[&](ActiveLineItemPOD& ali){return rectangles2[1-active_LEG][ali.i][minCompactRectDim];});
 		if (lower==ranges::end(r) && pos+1 >= active_line_size)
 		{
 			slide[2] = 0;
 		}
 		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
 		{
-			slide[2] = lower;
+			slide[2] = &*lower;
 		}
 		else if (lower==ranges::end(r) && pos+1 < active_line_size)
 		{
@@ -1086,8 +1095,8 @@ set_union(active_line_table, active_line_table2,
 		}
 		else
 		{
-			if ( rectangles[1-active_LEG][lower->i][minCompactRectDim] < rectangles[active_LEG][ active_line[pos+1].i ][minCompactRectDim])
-				slide[2] = lower;
+			if ( rectangles2[1-active_LEG][lower->i][minCompactRectDim] < rectangles2[active_LEG][ active_line[pos+1].i ][minCompactRectDim])
+				slide[2] = &*lower;
 			else
 				slide[2] = & active_line[pos+1];
 		}
@@ -1096,11 +1105,11 @@ In a sorted container, the last element that is less than or equivalent to x, is
 Thus you can call std::upper_bound, and decrement the returned iterator once. (Before decrementing, you must of course check that it is not the begin iterator;
 if it is, then there are no elements that are less than or equivalent to x.)
 */
-		ActiveLineItemPOD *upper = ranges::upper_bound(
-			r, 
-			rectangles[active_LEG][active_line[pos].i][minCompactRectDim],
+		auto upper = ranges::upper_bound(
+			r,
+			rectangles2[active_LEG][active_line[pos].i][minCompactRectDim],
 			{},
-			[](ActiveLineItemPOD* ali){return rectangles[1-active_LEG][ali->i][minCompactRectDim]});
+			[&](ActiveLineItemPOD& ali){return rectangles2[1-active_LEG][ali.i][minCompactRectDim];});
 		if (upper > ranges::begin(r))
 			upper--;
 		else
@@ -1112,7 +1121,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		}
 		else if (upper!=ranges::end(r) && pos-1 < 0)
 		{
-			slide[2] = upper;
+			slide[2] = &*upper;
 		}
 		else if (upper==ranges::end(r) && pos-1 >= 0)
 		{
@@ -1120,14 +1129,16 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		}
 		else
 		{
-			if ( rectangles[1-active_LEG][upper->i][minCompactRectDim] > rectangles[active_LEG][ active_line[pos-1].i ][minCompactRectDim])
-				slide[2] = upper;
+			if ( rectangles2[1-active_LEG][upper->i][minCompactRectDim] > rectangles2[active_LEG][ active_line[pos-1].i ][minCompactRectDim])
+				slide[2] = &*upper;
 			else
 				slide[2] = & active_line[pos-1];
 		}
 	}
 
-	switch (sweep_line_item.rectdim)
+        const auto& [sweep_value, rectdim, ri] = sweep_line_item;
+
+	switch (rectdim)
 	{
 	case LEFT:
 	case TOP:
@@ -1138,14 +1149,14 @@ if it is, then there are no elements that are less than or equivalent to x.)
 				.i=active_line[pos-1].i,
 				.LEG_j = LEFT_LEG,
 				.j=active_line[pos].i,
-				.min_sweep_value=sweep_value
+				.min_sweep_value = sweep_value
 			};
 
-			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
+			if (RectLink &rl=active_line[pos].shared_links.left_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value,rl.max_sweep_value);
+			if (RectLink &rl=active_line[pos-1].shared_links.right_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value,rl.max_sweep_value);
+//			active_line[pos].shared_links.left_link = active_line[pos-1].shared_links.right_link = & rect_links_buffer[rect_links_size - 1];
 		}
 		if (pos+1 < active_line_size)
 		{
@@ -1156,24 +1167,24 @@ if it is, then there are no elements that are less than or equivalent to x.)
 				.j=active_line[pos+1].i,
 				.min_sweep_value=sweep_value};
 
-			if (RectLink *rl=active_line[pos].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-			active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
+			if (RectLink &rl=active_line[pos].shared_links.right_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value, rl.max_sweep_value);
+			if (RectLink &rl=active_line[pos+1].shared_links.left_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value, rl.max_sweep_value);
+//			active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
 		}
 		break;
 	case RIGHT:
 	case BOTTOM:
-		for (RectLink* rl : active_line[pos].links)
+		for (RectLink* rl : {&active_line[pos].shared_links.left_link, &active_line[pos].shared_links.right_link})
 		{
 			if (rl != 0)
 				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
 		}
 
-		for (int ii=pos; ii<active_line_size; ii++)
-			swap(active_line[ii], active_line[ii+1]);
-		active_line_size -= 1;
+//		for (int ii=pos; ii<active_line_size; ii++)
+//			swap(active_line[ii], active_line[ii+1]);
+//		active_line_size -= 1;
 
 		if (pos > 0 && pos < active_line_size)
 		{
@@ -1185,11 +1196,11 @@ if it is, then there are no elements that are less than or equivalent to x.)
 				.min_sweep_value=sweep_value
 			};
 
-			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
+			if (RectLink &rl=active_line[pos-1].shared_links.left_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value,rl.max_sweep_value);
+			if (RectLink &rl=active_line[pos].shared_links.right_link; &rl != &SharedLinks::none)
+				rl.max_sweep_value = min(sweep_value,rl.max_sweep_value);
+//			active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
 		}
 		break;
 	}
