@@ -1036,7 +1036,7 @@ set_union(active_line_table, active_line_table2,
 	
 	slide[1] = & active_line[pos];
 
-	if (optional_active_line_table_item == 0)
+	if (optional_active_line_table_item == 0) [[likely]]
 	{
 		if (0 < pos)
 			slide[0] = & active_line[pos-1];
@@ -1071,9 +1071,40 @@ set_union(active_line_table, active_line_table2,
 			else
 				slide[2] = & active_line[pos+1];
 		}
-		
-		active_line_table_item2 = active_line_table_item2_;
-		rectdim = active_line_table_item2_->sweep_line_item.rectdim;
+/*
+In a sorted container, the last element that is less than or equivalent to x, is the element before the first element that is greater than x.
+Thus you can call std::upper_bound, and decrement the returned iterator once. (Before decrementing, you must of course check that it is not the begin iterator;
+if it is, then there are no elements that are less than or equivalent to x.)
+*/
+		ActiveLineItemPOD *upper = ranges::upper_bound(
+			r, 
+			rectangles[active_LEG][active_line[pos].i][minCompactRectDim],
+			{},
+			[](ActiveLineItemPOD* ali){return rectangles[1-active_LEG][ali->i][minCompactRectDim]});
+		if (upper > ranges::begin(r))
+			upper--;
+		else
+			upper = ranges::end(r);
+
+		if (upper==ranges::end(r) && pos-1 < 0)
+		{
+			slide[2] = 0;
+		}
+		else if (upper!=ranges::end(r) && pos-1 < 0)
+		{
+			slide[2] = upper;
+		}
+		else if (upper==ranges::end(r) && pos-1 >= 0)
+		{
+			slide[2] = &active_line[pos-1];
+		}
+		else
+		{
+			if ( rectangles[1-active_LEG][upper->i][minCompactRectDim] > rectangles[active_LEG][ active_line[pos-1].i ][minCompactRectDim])
+				slide[2] = upper;
+			else
+				slide[2] = & active_line[pos-1];
+		}
 	}
 
 	switch (sweep_line_item.rectdim)
