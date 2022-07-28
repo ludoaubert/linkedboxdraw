@@ -1110,11 +1110,66 @@ if it is, then there are no elements that are less than or equivalent to x.)
 	{
 	case LEFT:
 	case TOP:
-		//TODO
+		if (pos > 0)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.LEG_i = LEFT_LEG,
+				.i=active_line[pos-1].i,
+				.LEG_j = LEFT_LEG,
+				.j=active_line[pos].i,
+				.min_sweep_value=sweep_value
+			};
+
+			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
+		}
+		if (pos+1 < active_line_size)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.LEG_i=LEFT_LEG,
+				.i=active_line[pos].i,
+				.LEG_j=LEFT_LEG,
+				.j=active_line[pos+1].i,
+				.min_sweep_value=sweep_value};
+
+			if (RectLink *rl=active_line[pos].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+			active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
+		}
 		break;
 	case RIGHT:
 	case BOTTOM:
-		//TODO
+		for (RectLink* rl : active_line[pos].links)
+		{
+			if (rl != 0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+		}
+
+		for (int ii=pos; ii<active_line_size; ii++)
+			swap(active_line[ii], active_line[ii+1]);
+		active_line_size -= 1;
+
+		if (pos > 0 && pos < active_line_size)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.LEG_i = LEFT_LEG,
+				.i=active_line[pos-1].i,
+				.LEG_j = LEFT_LEG,
+				.j=active_line[pos].i,
+				.min_sweep_value=sweep_value
+			};
+
+			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
+		}
 		break;
 	}
 });
