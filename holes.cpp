@@ -1045,13 +1045,14 @@ vector<ActiveLineTableItem> active_line_table2={
 
 RectLink active_links_buffer[2][20];
 RectLink rect_links_buffer[40];
+int rect_links_size=0;
 RectDim minCompactRectDim=TOP;
 
 for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 {
 	for (int i=0; i<rectangles2[Leg]->size(); i++)
 	{
-		RectLink& rl = active_links_buffer[LEG][i];
+		RectLink& rl = active_links_buffer[Leg][i];
 		rl.i=i;
 		rl.LEG_i = Leg;
 	}
@@ -1104,7 +1105,7 @@ cmp,
 		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
 		{
 			next = &*lower;
-			next_LEG = 1 - active_LEG;
+			next_LEG = LEG(1 - active_LEG);
 		}
 		else if (lower==ranges::end(r) && pos+1 < active_line_size)
 		{
@@ -1116,7 +1117,7 @@ cmp,
 			if ( (*rectangles2[1-active_LEG])[lower->i][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
 			{
 				next = &*lower;
-				next_LEG = 1 - active_LEG;
+				next_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
@@ -1146,7 +1147,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		else if (upper!=ranges::end(r) && pos-1 < 0)
 		{
 			previous = &*upper;
-			previous_LEG = 1 - active_LEG;
+			previous_LEG = LEG(1 - active_LEG);
 		}
 		else if (upper==ranges::end(r) && pos-1 >= 0)
 		{
@@ -1158,7 +1159,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 			if ( (*rectangles2[1-active_LEG])[upper->i][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
 			{
 				previous = &*upper;
-				previous_LEG = 1 - active_LEG;
+				previous_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
@@ -1211,21 +1212,21 @@ if it is, then there are no elements that are less than or equivalent to x.)
 			rl.min_sweep_value = INT16_MAX;
 			rl.max_sweep_value = INT16_MAX;
 		}
-		
+
 		if (RectLink& rl = active_links_buffer[current_LEG][current->i]; rl.min_sweep_value != INT16_MAX)
 		{
 			rl.max_sweep_value = sweep_value;
 			rect_links_buffer[rect_links_size++] = rl;
 			rl.j = -1;
 			rl.min_sweep_value = INT16_MAX;
-			rl.max_sweep_value = INT16_MAX;		
+			rl.max_sweep_value = INT16_MAX;
 		}
-		
+
 		break;
 	}
 });
 
-for (const auto& [] : span(rect_links_buffer, rect_links_size))
+for (const auto& [LEG_i, i, LEG_j, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
 {
 	printf("{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}\n", LegString[LEG_i], i, LegString[LEG_j], j, min_sweep_value, max_sweep_value);
 }
