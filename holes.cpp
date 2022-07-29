@@ -1043,7 +1043,7 @@ vector<ActiveLineTableItem> active_line_table2={
 }
 };
 
-RectLink active_links_buffer[40];
+RectLink active_links_buffer[2][20];
 RectLink rect_links_buffer[40];
 RectDim minCompactRectDim=TOP;
 
@@ -1051,7 +1051,7 @@ for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 {
 	for (int i=0; i<rectangles2[Leg]->size(); i++)
 	{
-		RectLink& rl = active_links_buffer[i];
+		RectLink& rl = active_links_buffer[LEG][i];
 		rl.i=i;
 		rl.LEG_i = Leg;
 	}
