@@ -922,7 +922,7 @@ const vector<MyRect>* rectangles2[2] = { &input_rectangles1, &input_rectangles2 
 .sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
 .pos=0,
 .active_line={
-        {.i=3, .shared_links=shared_links_array[3], .links={nullopt,nullopt}}
+        {.i=3, .shared_links=shared_links_array[3 + 20*RIGHT_LEG], .links={nullopt,nullopt}}
 },
 {
 .sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
@@ -1045,7 +1045,7 @@ vector<ActiveLineTableItem> active_line_table2={
 .sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
 .pos=0,
 .active_line={
-        {.i=3, .shared_links=shared_links_array[3], .links={nullopt,nullopt}}
+        {.i=3, .shared_links=shared_links_array[3 + 20*RIGHT_LEG], .links={nullopt,nullopt}}
 },
 .active_line_size=1
 },
