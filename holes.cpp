@@ -403,8 +403,8 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 				if (RectLink *rl=active_line[pos].links[0]; rl!=0)
 					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-                                if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-                                        rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+				if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
 				active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
 			}
 			if (pos+1 < active_line_size)
