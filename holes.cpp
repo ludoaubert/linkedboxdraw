@@ -212,7 +212,7 @@ struct SharedLinks
 	static RectLink none;
 	RectLink &left_link=none, &right_link=none;
 
-        auto operator<=>(const SharedLinks&) const = default;
+	auto operator<=>(const SharedLinks&) const = default;
 };
 
 RectLink SharedLinks::none;
@@ -366,7 +366,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				{
 					RectLink* lk = links[LEG];
 					active_line_item.links[LEG]=
-						lk==0 ? nullopt : optional<RectLink>{{.LEG_i=LEFT_LEG, .i=lk->i, .LEG_j=LEFT_LEG, .j=lk->j, .min_sweep_value=lk->min_sweep_value, .max_sweep_value=lk->max_sweep_value}};
+						lk==0 ? nullopt : optional<RectLink>{{
+							.LEG_i=LEFT_LEG,
+							.i=lk->i,
+							.LEG_j=LEFT_LEG,
+							.j=lk->j,
+							.min_sweep_value=lk->min_sweep_value,
+							.max_sweep_value=lk->max_sweep_value
+						}};
 				}
 				memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
 			}
@@ -425,7 +432,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				ActiveLineItemPOD active_line_item={.i=i};
+				ActiveLineItemPOD active_line_item={.i=i .shared_links=shared_links_array[i]};
 				for (int LEG : {0,1})
 				{
 					RectLink* lk = links[LEG];
@@ -438,7 +445,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 						.max_sweep_value=lk->max_sweep_value
 					}};
 				}
-                                memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
+				memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
 			}
 			active_line_table.push_back(item);
 		};
@@ -449,7 +456,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			pos += sprintf(buffer + pos, ".active_line={", active_line_size);
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				pos += sprintf(buffer + pos, "{.i=%d, .links={",i);
+				pos += sprintf(buffer + pos, "{.i=%d, .shared_links=shared_links_array[%d], .links={", i, i);
 				for (RectLink* prl : links)
 				{
 					if (prl == 0)
@@ -508,7 +515,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
 			for (const auto& [i, shared_links, links] : span(active_line, active_line_size))
 			{
-				bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={",i);
+				bp += sprintf(buffer + bp, "\n\t{.i=%d, .shared_links=shared_links_array[%d], .links={", i, i);
 				for (optional<RectLink> rl : links)
 				{
 					if (rl)
@@ -907,7 +914,7 @@ const vector<MyRect> input_rectangles2 = {
         {.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
 };
 
-const vector<MyRect> rectangles2[2] = { input_rectangles1, input_rectangles2 };
+const vector<MyRect>* rectangles2[2] = { &input_rectangles1, &input_rectangles2 };
 
 /*
 {
@@ -1083,9 +1090,9 @@ cmp,
 		span r(other_active_line, other_active_line_size);
 		auto lower = ranges::lower_bound(
 			r,
-			rectangles2[active_LEG][active_line[pos].i][minCompactRectDim],
+			(*rectangles2[active_LEG])[active_line[pos].i][minCompactRectDim],
 			{},
-			[&](ActiveLineItemPOD& ali){return rectangles2[1-active_LEG][ali.i][minCompactRectDim];});
+			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
 		if (lower==ranges::end(r) && pos+1 >= active_line_size)
 		{
 			slide[2] = 0;
@@ -1100,7 +1107,7 @@ cmp,
 		}
 		else
 		{
-			if ( rectangles2[1-active_LEG][lower->i][minCompactRectDim] < rectangles2[active_LEG][ active_line[pos+1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[lower->i][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
 				slide[2] = &*lower;
 			else
 				slide[2] = & active_line[pos+1];
@@ -1112,9 +1119,9 @@ if it is, then there are no elements that are less than or equivalent to x.)
 */
 		auto upper = ranges::upper_bound(
 			r,
-			rectangles2[active_LEG][active_line[pos].i][minCompactRectDim],
+			(*rectangles2[active_LEG])[active_line[pos].i][minCompactRectDim],
 			{},
-			[&](ActiveLineItemPOD& ali){return rectangles2[1-active_LEG][ali.i][minCompactRectDim];});
+			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
 		if (upper > ranges::begin(r))
 			upper--;
 		else
@@ -1134,7 +1141,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		}
 		else
 		{
-			if ( rectangles2[1-active_LEG][upper->i][minCompactRectDim] > rectangles2[active_LEG][ active_line[pos-1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[upper->i][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
 				slide[2] = &*upper;
 			else
 				slide[2] = & active_line[pos-1];
