@@ -1043,8 +1043,19 @@ vector<ActiveLineTableItem> active_line_table2={
 }
 };
 
+RectLink active_links_buffer[40];
 RectLink rect_links_buffer[40];
 RectDim minCompactRectDim=TOP;
+
+for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
+{
+	for (int i=0; i<rectangles2[Leg]->size(); i++)
+	{
+		RectLink& rl = active_links_buffer[i];
+		rl.i=i;
+		rl.LEG_i = Leg;
+	}
+}
 
 auto cmp=[](const ActiveLineTableItem& a, const ActiveLineTableItem& b){
 	return a.sweep_line_item < b.sweep_line_item;
@@ -1140,7 +1151,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 	case TOP:
 		if (previous != 0)
 		{
-			RectLink& rl = share_links_buffer[previous->i];
+			RectLink& rl = active_links_buffer[previous->i];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
@@ -1153,7 +1164,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		}
 		if (next != 0)
 		{
-			RectLink& rl = shared_links_buffer[current->i];
+			RectLink& rl = active_links_buffer[current->i];
 			rl.i = current->i;
 			rl.LEG_i=LEFT_LEG;//TODO
 			rl.j = next->i;
@@ -1165,7 +1176,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 	case BOTTOM:
 		if (previous != 0)
 		{
-			RectLink& rl = share_links_buffer[previous->i];
+			RectLink& rl = active_links_buffer[previous->i];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
@@ -1177,7 +1188,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 			rl.max_sweep_value = INT16_MAX;
 		}
 		
-		if (RectLink& rl = share_links_buffer[current->i]; rl.min_sweep_value != INT16_MAX)
+		if (RectLink& rl = active_links_buffer[current->i]; rl.min_sweep_value != INT16_MAX)
 		{
 			rl.max_sweep_value = sweep_value;
 			rect_links_buffer[rect_links_size++] = rl;
