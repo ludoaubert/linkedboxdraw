@@ -1068,16 +1068,25 @@ cmp,
 	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
 
 	ActiveLineItemPOD* slide[3]={0,0,0};
+	LEG leg_slide[3];
 	auto& [previous, current, next] = slide;
+	auto& [previous_LEG, current_LEG, next_LEG] = leg_slide;
 
 	current = & active_line[pos];
+	current_LEG = active_LEG;
 
 	if (optional_active_line_table_item == 0) [[likely]]
 	{
 		if (0 < pos)
+		{
 			previous = & active_line[pos-1];
+			previous_LEG = active_LEG;
+		}
 		if (pos+1 < active_line_size)
+		{
 			next = &active_line[pos+1];
+			next_LEG = active_LEG;
+		}
 	}
 	else
 	{
@@ -1095,17 +1104,25 @@ cmp,
 		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
 		{
 			next = &*lower;
+			next_LEG = 1 - active_LEG;
 		}
 		else if (lower==ranges::end(r) && pos+1 < active_line_size)
 		{
 			next = &active_line[pos+1];
+			next_LEG = active_LEG;
 		}
 		else
 		{
 			if ( (*rectangles2[1-active_LEG])[lower->i][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
+			{
 				next = &*lower;
+				next_LEG = 1 - active_LEG;
+			}
 			else
+			{
 				next = & active_line[pos+1];
+				next_LEG = active_LEG;
+			}
 		}
 /*
 In a sorted container, the last element that is less than or equivalent to x, is the element before the first element that is greater than x.
@@ -1129,17 +1146,25 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		else if (upper!=ranges::end(r) && pos-1 < 0)
 		{
 			previous = &*upper;
+			previous_LEG = 1 - active_LEG;
 		}
 		else if (upper==ranges::end(r) && pos-1 >= 0)
 		{
 			previous = &active_line[pos-1];
+			previous_LEG = active_LEG;
 		}
 		else
 		{
 			if ( (*rectangles2[1-active_LEG])[upper->i][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
+			{
 				previous = &*upper;
+				previous_LEG = 1 - active_LEG;
+			}
 			else
+			{
 				previous = & active_line[pos-1];
+				previous_LEG = active_LEG;
+			}
 		}
 	}
 
@@ -1151,24 +1176,24 @@ if it is, then there are no elements that are less than or equivalent to x.)
 	case TOP:
 		if (previous != 0)
 		{
-			RectLink& rl = active_links_buffer[previous->i];
+			RectLink& rl = active_links_buffer[previous_LEG][previous->i];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
 				rect_links_buffer[rect_links_size++] = rl;
 			}
 			rl.j = current->i;
-			rl.LEG_j = LEFT_LEG;//TODO
+			rl.LEG_j = current_LEG;
 			rl.min_sweep_value = sweep_value;
 			rl.max_sweep_value = INT16_MAX;
 		}
 		if (next != 0)
 		{
-			RectLink& rl = active_links_buffer[current->i];
+			RectLink& rl = active_links_buffer[current_LEG][current->i];
 			rl.i = current->i;
-			rl.LEG_i=LEFT_LEG;//TODO
+			rl.LEG_i=current_LEG;
 			rl.j = next->i;
-			rl.LEG_j = LEFT_LEG;//TODO
+			rl.LEG_j = next_LEG;
 			rl.min_sweep_value = sweep_value;
 		}
 		break;
@@ -1176,24 +1201,22 @@ if it is, then there are no elements that are less than or equivalent to x.)
 	case BOTTOM:
 		if (previous != 0)
 		{
-			RectLink& rl = active_links_buffer[previous->i];
+			RectLink& rl = active_links_buffer[previous_LEG][previous->i];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
 				rect_links_buffer[rect_links_size++] = rl;
 			}
 			rl.j = -1;
-			rl.LEG_j = LEFT_LEG;//TODO
 			rl.min_sweep_value = INT16_MAX;
 			rl.max_sweep_value = INT16_MAX;
 		}
 		
-		if (RectLink& rl = active_links_buffer[current->i]; rl.min_sweep_value != INT16_MAX)
+		if (RectLink& rl = active_links_buffer[current_LEG][current->i]; rl.min_sweep_value != INT16_MAX)
 		{
 			rl.max_sweep_value = sweep_value;
 			rect_links_buffer[rect_links_size++] = rl;
 			rl.j = -1;
-			rl.LEG_j = LEFT_LEG;//TODO
 			rl.min_sweep_value = INT16_MAX;
 			rl.max_sweep_value = INT16_MAX;		
 		}
@@ -1201,6 +1224,11 @@ if it is, then there are no elements that are less than or equivalent to x.)
 		break;
 	}
 });
+
+for (const auto& [] : span(rect_links_buffer, rect_links_size))
+{
+	printf("{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}\n", LegString[LEG_i], i, LegString[LEG_j], j, min_sweep_value, max_sweep_value);
+}
 
 return 0;
 
