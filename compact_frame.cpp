@@ -24,7 +24,7 @@ using namespace std ;
 
 struct SweepLineItem
 {
-	int value;
+	int sweep_value;
 	RectDim rectdim;
 	int ri;
 
@@ -56,8 +56,8 @@ struct CustomLess
 {
 	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b) const
 	{
-		if (a.value != b.value)
-			return a.value < b.value;
+		if (a.sweep_value != b.sweep_value)
+			return a.sweep_value < b.sweep_value;
 		if (a.rectdim != b.rectdim)
 			return a.rectdim > b.rectdim;   //RIGHT < LEFT and BOTTOM < TOP
 		return a.ri < b.ri;
@@ -116,8 +116,8 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
 
 		for (int ri=0; ri < n; ri++)
 		{
-			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
-			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri]={.sweep_value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.sweep_value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
@@ -163,7 +163,7 @@ vector<RectTranslation> compute_compact_frame_transform_(const vector<MyRect>& i
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
-			const auto& [value, rectdim, ri] = item;
+			const auto& [sweep_value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:

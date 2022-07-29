@@ -146,7 +146,7 @@ struct DecisionTreeNode
 
 struct SweepLineItem
 {
-	int value;
+	int sweep_value;
 	RectDim rectdim;
 	int ri;
 
@@ -179,8 +179,8 @@ struct CustomLess
 {
 	inline bool operator()(const SweepLineItem& a, const SweepLineItem& b) const
 	{
-		if (a.value != b.value)
-			return a.value < b.value;
+		if (a.sweep_value != b.sweep_value)
+			return a.sweep_value < b.sweep_value;
 		if (a.rectdim != b.rectdim)
 			return a.rectdim > b.rectdim;   //RIGHT < LEFT and BOTTOM < TOP
 		return a.ri < b.ri;
@@ -302,8 +302,8 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		for (int ri=0; ri < n; ri++)
 		{
-			sweep_line_buffer[2*ri]={.value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
-			sweep_line_buffer[2*ri+1]={.value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri]={.sweep_value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+			sweep_line_buffer[2*ri+1]={.sweep_value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 		}
 }
 
@@ -353,7 +353,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
 			ActiveLineTableItem item={
-				.sweep_line_item={.value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
+				.sweep_line_item={.sweep_value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
 				.pos=pos,
 				.active_line={},
 				.active_line_size=0
@@ -417,7 +417,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
 			ActiveLineTableItem item={
-				.sweep_line_item={.value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
+				.sweep_line_item={.sweep_value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
 				.pos=pos,
 				.active_line={},
 				.active_line_size=0
@@ -471,7 +471,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
         FunctionTimer ft("cft_sweep");
 		for (const SweepLineItem& item : sweep_line)
 		{
-			const auto& [value, rectdim, ri] = item;
+			const auto& [sweep_value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -501,9 +501,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			char buffer[1000];
 			int bp=0;
 
-			auto [value, rectdim, ri] = sweep_line_item;
+			auto [sweep_value, rectdim, ri] = sweep_line_item;
 			bp += sprintf(buffer + bp, "{\n");
-			bp += sprintf(buffer + bp, ".sweep_line_item={.value=%d, .rectdim=%s, .ri=%d},\n", value, RectDimString[rectdim], ri);
+			bp += sprintf(buffer + bp, ".sweep_line_item={.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri);
 			bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
 			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
 			for (const auto& [i, shared_links, links] : span(active_line, active_line_size))
@@ -912,13 +912,13 @@ const vector<MyRect> rectangles2[2] = { input_rectangles1, input_rectangles2 };
 /*
 {
 {
-.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
+.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
 .pos=0,
 .active_line={
         {.i=3, .links={nullopt,nullopt}}
 },
 {
-.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
+.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
 .pos=0,
 .active_line={
         {}
@@ -927,7 +927,7 @@ const vector<MyRect> rectangles2[2] = { input_rectangles1, input_rectangles2 };
 */
 vector<ActiveLineTableItem> active_line_table={
 {
-.sweep_line_item={.value=0, .rectdim=TOP, .ri=1},
+.sweep_line_item={.sweep_value=0, .rectdim=TOP, .ri=1},
 .pos=0,
 .active_line={
         {.i=1, .links={nullopt,nullopt}}
@@ -935,7 +935,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.value=50, .rectdim=TOP, .ri=0},
+.sweep_line_item={.sweep_value=50, .rectdim=TOP, .ri=0},
 .pos=0,
 .active_line={
         {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
@@ -944,7 +944,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.value=50, .rectdim=TOP, .ri=2},
+.sweep_line_item={.sweep_value=50, .rectdim=TOP, .ri=2},
 .pos=2,
 .active_line={
         {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
@@ -954,7 +954,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.value=100, .rectdim=BOTTOM, .ri=1},
+.sweep_line_item={.sweep_value=100, .rectdim=BOTTOM, .ri=1},
 .pos=1,
 .active_line={
         {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -963,7 +963,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
+.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
 .pos=1,
 .active_line={
         {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -973,7 +973,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=0},
+.sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=0},
 .pos=0,
 .active_line={
         {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
@@ -982,7 +982,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.value=150, .rectdim=BOTTOM, .ri=2},
+.sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=2},
 .pos=1,
 .active_line={
         {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
@@ -990,7 +990,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.value=150, .rectdim=TOP, .ri=4},
+.sweep_line_item={.sweep_value=150, .rectdim=TOP, .ri=4},
 .pos=0,
 .active_line={
         {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
@@ -999,7 +999,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.value=150, .rectdim=TOP, .ri=5},
+.sweep_line_item={.sweep_value=150, .rectdim=TOP, .ri=5},
 .pos=2,
 .active_line={
         {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
@@ -1009,7 +1009,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=3
 },
 {
-.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
+.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
 .pos=1,
 .active_line={
         {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
@@ -1018,7 +1018,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=2
 },
 {
-.sweep_line_item={.value=250, .rectdim=BOTTOM, .ri=4},
+.sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=4},
 .pos=0,
 .active_line={
         {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
@@ -1026,7 +1026,7 @@ vector<ActiveLineTableItem> active_line_table={
 .active_line_size=1
 },
 {
-.sweep_line_item={.value=250, .rectdim=BOTTOM, .ri=5},
+.sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=5},
 .pos=0,
 .active_line={},
 .active_line_size=0
@@ -1035,7 +1035,7 @@ vector<ActiveLineTableItem> active_line_table={
 
 vector<ActiveLineTableItem> active_line_table2={
 {
-.sweep_line_item={.value=100, .rectdim=TOP, .ri=3},
+.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
 .pos=0,
 .active_line={
         {.i=3, .links={nullopt,nullopt}}
@@ -1043,7 +1043,7 @@ vector<ActiveLineTableItem> active_line_table2={
 .active_line_size=1
 },
 {
-.sweep_line_item={.value=200, .rectdim=BOTTOM, .ri=3},
+.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
 .pos=0,
 .active_line={
         {}
@@ -1477,7 +1477,7 @@ return 0;
 
 					for (const SweepLineItem& item : sweep_line)
 					{
-						const auto& [value, rectdim, ri] = item;
+						const auto& [sweep_value, rectdim, ri] = item;
 						switch(rectdim)
 						{
 						case LEFT:
