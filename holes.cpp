@@ -198,6 +198,10 @@ struct RectLink
 	auto operator<=>(const RectLink&) const = default;
 };
 
+/*
+links[0] ------>
+links[1] <------
+*/
 struct ActiveLineItem
 {
 	int i;
