@@ -1055,6 +1055,7 @@ for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 		RectLink& rl = active_links_buffer[Leg][i];
 		rl.i=i;
 		rl.LEG_i = Leg;
+		rl.min_sweep_value = rl.max_sweep_value = INT16_MAX;
 	}
 }
 
@@ -1068,24 +1069,24 @@ cmp,
 {
 	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
 
-	ActiveLineItemPOD* slide[3]={0,0,0};
+	int slide[3]={-1,-1,-1};
 	LEG leg_slide[3];
 	auto& [previous, current, next] = slide;
 	auto& [previous_LEG, current_LEG, next_LEG] = leg_slide;
 
-	current = & active_line[pos];
+	current = active_line[pos].i;
 	current_LEG = active_LEG;
 
-	if (optional_active_line_table_item == 0) [[likely]]
+	if (optional_active_line_table_item == 0)
 	{
 		if (0 < pos)
 		{
-			previous = & active_line[pos-1];
+			previous = active_line[pos-1].i;
 			previous_LEG = active_LEG;
 		}
 		if (pos+1 < active_line_size)
 		{
-			next = &active_line[pos+1];
+			next = active_line[pos+1].i;
 			next_LEG = active_LEG;
 		}
 	}
@@ -1100,28 +1101,28 @@ cmp,
 			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
 		if (lower==ranges::end(r) && pos+1 >= active_line_size)
 		{
-			next = 0;
+			next = -1;
 		}
 		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
 		{
-			next = &*lower;
+			next = lower->i;
 			next_LEG = LEG(1 - active_LEG);
 		}
 		else if (lower==ranges::end(r) && pos+1 < active_line_size)
 		{
-			next = &active_line[pos+1];
+			next = active_line[pos+1].i;
 			next_LEG = active_LEG;
 		}
 		else
 		{
 			if ( (*rectangles2[1-active_LEG])[lower->i][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
 			{
-				next = &*lower;
+				next = lower->i;
 				next_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
-				next = & active_line[pos+1];
+				next = active_line[pos+1].i;
 				next_LEG = active_LEG;
 			}
 		}
@@ -1142,67 +1143,72 @@ if it is, then there are no elements that are less than or equivalent to x.)
 
 		if (upper==ranges::end(r) && pos-1 < 0)
 		{
-			previous = 0;
+			previous = -1;
 		}
 		else if (upper!=ranges::end(r) && pos-1 < 0)
 		{
-			previous = &*upper;
+			previous = upper->i;
 			previous_LEG = LEG(1 - active_LEG);
 		}
 		else if (upper==ranges::end(r) && pos-1 >= 0)
 		{
-			previous = &active_line[pos-1];
+			previous = active_line[pos-1].i;
 			previous_LEG = active_LEG;
 		}
 		else
 		{
 			if ( (*rectangles2[1-active_LEG])[upper->i][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
 			{
-				previous = &*upper;
+				previous = upper->i;
 				previous_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
-				previous = & active_line[pos-1];
+				previous = active_line[pos-1].i;
 				previous_LEG = active_LEG;
 			}
 		}
 	}
 
-	const auto& [sweep_value, rectdim, ri] = sweep_line_item;
+        const auto& [sweep_value, rectdim, ri] = sweep_line_item;
+
+	printf("%s ", RectDimString[rectdim]);
+
+	printf("{.previous={.i=%d, .LEG=%s} .current={.i=%d, .LEG=%s}, .next={.i=%d, .LEG=%s}}\n",
+		previous, LegString[previous_LEG], current, LegString[current_LEG], next, LegString[next_LEG]);
 
 	switch (rectdim)
 	{
 	case LEFT:
 	case TOP:
-		if (previous != 0)
+		if (previous != -1)
 		{
-			RectLink& rl = active_links_buffer[previous_LEG][previous->i];
+			RectLink& rl = active_links_buffer[previous_LEG][previous];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
 				rect_links_buffer[rect_links_size++] = rl;
 			}
-			rl.j = current->i;
+			rl.j = current;
 			rl.LEG_j = current_LEG;
 			rl.min_sweep_value = sweep_value;
 			rl.max_sweep_value = INT16_MAX;
 		}
-		if (next != 0)
+		if (next != -1)
 		{
-			RectLink& rl = active_links_buffer[current_LEG][current->i];
-			rl.i = current->i;
+			RectLink& rl = active_links_buffer[current_LEG][current];
+			rl.i = current;
 			rl.LEG_i=current_LEG;
-			rl.j = next->i;
+			rl.j = next;
 			rl.LEG_j = next_LEG;
 			rl.min_sweep_value = sweep_value;
 		}
 		break;
 	case RIGHT:
 	case BOTTOM:
-		if (previous != 0)
+		if (previous != -1)
 		{
-			RectLink& rl = active_links_buffer[previous_LEG][previous->i];
+			RectLink& rl = active_links_buffer[previous_LEG][previous];
 			if (rl.min_sweep_value != INT16_MAX)
 			{
 				rl.max_sweep_value = sweep_value;
@@ -1213,7 +1219,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 			rl.max_sweep_value = INT16_MAX;
 		}
 
-		if (RectLink& rl = active_links_buffer[current_LEG][current->i]; rl.min_sweep_value != INT16_MAX)
+		if (RectLink& rl = active_links_buffer[current_LEG][current]; rl.min_sweep_value != INT16_MAX)
 		{
 			rl.max_sweep_value = sweep_value;
 			rect_links_buffer[rect_links_size++] = rl;
