@@ -868,7 +868,7 @@ vector<ActiveLineTableItem> active_line_table={
 	{.active_line={ 2, 3},.active_line_size=2},
 	{.active_line={ 3},.active_line_size=1},
 	{.active_line={ 4, 3},.active_line_size=2},
-	{.active_line={ 4, 3, 5},.active_line_size=3},
+	{.active_line={ 4, 5, 3},.active_line_size=3},
 	{.active_line={ 4, 5},.active_line_size=2},
 	{.active_line={ 5},.active_line_size=1},
 	{.active_line={},.active_line_size=0}
