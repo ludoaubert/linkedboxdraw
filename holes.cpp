@@ -146,9 +146,11 @@ struct DecisionTreeNode
 
 struct SweepLineItem
 {
+	int id;
 	int sweep_value;
 	RectDim rectdim;
 	int ri;
+	int pos;
 
 	auto operator<=>(const SweepLineItem&) const = default;
 };
@@ -211,29 +213,14 @@ struct ActiveLineItem
 RectLink shared_link_buffer[100];
 
 
-struct ActiveLineItemPOD
-{
-	int i;
-	optional<RectLink> links[2];
-
-	auto operator<=>(const ActiveLineItemPOD&) const = default;
-};
-
 struct ActiveLineTableItem
 {
-	SweepLineItem sweep_line_item;
-	int pos;
-	ActiveLineItemPOD active_line[20];
+	int active_line[20];
 	int active_line_size;
-
-	auto operator<=>(const ActiveLineTableItem&) const = default;
 };
 
 ActiveLineTableItem item={
-	.sweep_line_item={.rectdim=TOP, .ri=7},
-	.active_line={
-		{.i=3, .links={nullopt, optional<RectLink>{{.LEG_i=LEFT_LEG, .i=2, .LEG_j=LEFT_LEG, .j=4, .min_sweep_value=34, .max_sweep_value=INT16_MAX}}}}
-	},
+	.active_line={3},
 	.active_line_size=1
 };
 
@@ -295,6 +282,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
         FunctionTimer ft("cft_sort_sweepline");
 		ranges::sort(sweep_line, CustomLess());
+
+		for (int i=0; i < sweep_line.size(); i++)
+			sweep_line[i].id = i;
 }
 		int active_line_size=0;
 		int rect_links_size=0;
@@ -303,10 +293,13 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];
 		};
 
-		auto erase=[&](int i, int sweep_value){
+		auto erase=[&](SweepLineItem& sweep_line_item){
+
+			auto& [id, sweep_value, rectdim, i, pos] = sweep_line_item;
+
 			ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("lower = %d\n", lower.i));
-			int pos = distance(active_line, &lower);
+			pos = distance(active_line, &lower);
 			D(printf("pos = %d\n", pos));
 
 			for (RectLink* rl : active_line[pos].links)
@@ -314,33 +307,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				if (rl != 0)
 					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
 			}
-
-                        ActiveLineTableItem item={
-                                .sweep_line_item={.sweep_value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
-                                .pos=pos,
-                                .active_line={},
-                                .active_line_size=0
-                        };
-
-                        for (auto& [i, links] : span(active_line, active_line_size))
-                        {
-                                ActiveLineItemPOD active_line_item={.i=i};
-                                for (int LEG : {0,1})
-                                {
-                                        RectLink* lk = links[LEG];
-                                        active_line_item.links[LEG]=
-                                                lk==0 ? nullopt : optional<RectLink>{{
-                                                        .LEG_i=LEFT_LEG,
-                                                        .i=lk->i,
-                                                        .LEG_j=LEFT_LEG,
-                                                        .j=lk->j,
-                                                        .min_sweep_value=lk->min_sweep_value,
-                                                        .max_sweep_value=lk->max_sweep_value
-                                                }};
-                                }
-                                memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
-                        }
-                        active_line_table.push_back(item);
 
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
@@ -362,12 +328,26 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
 				active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
 			}
+
+                        ActiveLineTableItem item={
+                                .active_line={},
+                                .active_line_size=0
+                        };
+
+                        for (auto& [i, links] : span(active_line, active_line_size))
+                        {
+				item.active_line[item.active_line_size++] = i;
+                        }
+                        active_line_table.push_back(item);
 		};
 
-		auto insert=[&](int i, int sweep_value){
+		auto insert=[&](SweepLineItem& sweep_line_item){
+
+			auto& [id, sweep_value, rectdim, i, pos] = sweep_line_item;
+
 			ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("upper = %d\n", upper.i));
-			int pos = distance(active_line, &upper);
+			pos = distance(active_line, &upper);
 			D(printf("pos = %d\n", pos));
 
 			for (int ii=active_line_size-1; ii>=pos; ii--)
@@ -408,28 +388,13 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 
 			ActiveLineTableItem item={
-				.sweep_line_item={.sweep_value=sweep_value, .rectdim=minSweepRectDim, .ri=i},
-				.pos=pos,
 				.active_line={},
 				.active_line_size=0
 			};
 
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				ActiveLineItemPOD active_line_item={.i=i};
-				for (int LEG : {0,1})
-				{
-					RectLink* lk = links[LEG];
-					active_line_item.links[LEG] = lk==0 ? nullopt : optional<RectLink>{{
-						.LEG_i=LEFT_LEG,
-						.i=lk->i,
-						.LEG_j=LEFT_LEG,
-						.j=lk->j,
-						.min_sweep_value=lk->min_sweep_value,
-						.max_sweep_value=lk->max_sweep_value
-					}};
-				}
-				memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
+				item.active_line[item.active_line_size++]=i;
 			}
 			active_line_table.push_back(item);
 		};
@@ -440,18 +405,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			pos += sprintf(buffer + pos, ".active_line={", active_line_size);
 			for (auto& [i, links] : span(active_line, active_line_size))
 			{
-				pos += sprintf(buffer + pos, "{.i=%d, .links={", i, i);
-				for (RectLink* prl : links)
-				{
-					if (prl == 0)
-						pos += sprintf(buffer+pos,"nullopt,");
-					else
-					{
-						pos += sprintf(buffer + pos, "{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d},",
-							LegString[prl->LEG_i], prl->i, LegString[prl->LEG_j], prl->j, prl->min_sweep_value, prl->max_sweep_value);
-					}
-				}
-				pos += sprintf(buffer + --pos, "},");
+				pos += sprintf(buffer + pos, " %d,", i);
 			}
 			pos += sprintf(buffer + --pos, "}\n");
 			buffer[pos]=0;
@@ -460,9 +414,9 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 {
         FunctionTimer ft("cft_sweep");
-		for (const SweepLineItem& item : sweep_line)
+		for (SweepLineItem& item : sweep_line)
 		{
-			const auto& [sweep_value, rectdim, ri] = item;
+			const auto& [id, sweep_value, rectdim, ri, pos] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -470,7 +424,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
 				printf("before insert\n");
 //				print_active_line();
-				insert(ri, rectangles[ri][rectdim]);
+				insert(item);
                                 printf("after insert\n");
                                 print_active_line();
 				break;
@@ -479,41 +433,32 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
 				printf("before erase\n");
 //				print_active_line();
-				erase(ri, rectangles[ri][rectdim]);
+				erase(item);
                                 printf("after erase\n");
                                 print_active_line();
 				break;
 			}
 		}
+
+		for (const auto [id, sweep_value, rectdim, ri, pos] : sweep_line)
+		{
+			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d, .pos=%d}\n",
+				id, sweep_value, RectDimString[rectdim], ri, pos);
+		}
 }
 //TODO: C++23 reflexion ?
-		for (const auto& [sweep_line_item, pos, active_line, active_line_size] : active_line_table)
+		for (const auto& [active_line, active_line_size] : active_line_table)
 		{
 			char buffer[1000];
 			int bp=0;
 
-			auto [sweep_value, rectdim, ri] = sweep_line_item;
 			bp += sprintf(buffer + bp, "{\n");
-			bp += sprintf(buffer + bp, ".sweep_line_item={.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri);
-			bp += sprintf(buffer + bp, ".pos=%d,\n", pos);
 			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
-			for (const auto& [i, links] : span(active_line, active_line_size))
+			for (int i : span(active_line, active_line_size))
 			{
-				bp += sprintf(buffer + bp, "\n\t{.i=%d, .links={", i, i);
-				for (optional<RectLink> rl : links)
-				{
-					if (rl)
-					{
-						const auto& [LEG_i, i, LEG_j, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
-						bp += sprintf(buffer + bp, "{{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},",
-							LegString[LEG_i], i, LegString[LEG_j], j, min_sweep_value, max_sweep_value);
-					}
-					else
-						bp += sprintf(buffer + bp,"nullopt,");
-				}
-				bp += sprintf(buffer + --bp, "}},");
+				bp += sprintf(buffer + bp, " %d,", i);
 			}
-			bp += sprintf(buffer + --bp, "\n},\n");
+			bp += sprintf(buffer + --bp, "},\n");
 			bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
 			bp += sprintf(buffer + bp, "},\n");
 			buffer[bp]=0;
@@ -916,139 +861,101 @@ const vector<MyRect>* rectangles2[2] = { &input_rectangles1, &input_rectangles2 
 }
 }
 */
-vector<ActiveLineTableItem> active_line_table={
-{
-.sweep_line_item={.sweep_value=0, .rectdim=TOP, .ri=1},
-.pos=0,
-.active_line={
-        {.i=1, .links={nullopt,nullopt}}
-},
-.active_line_size=1
-},
-{
-.sweep_line_item={.sweep_value=50, .rectdim=TOP, .ri=0},
-.pos=0,
-.active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
-},
-.active_line_size=2
-},
-{
-.sweep_line_item={.sweep_value=50, .rectdim=TOP, .ri=2},
-.pos=2,
-.active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=32767}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=100, .rectdim=BOTTOM, .ri=1},
-.pos=1,
-.active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}}}},
-        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=100}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=100}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
-.pos=1,
-.active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=0},
-.pos=0,
-.active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}}}},
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=2},
-.pos=1,
-.active_line={
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}},nullopt}}
-},
-.active_line_size=2
-},
-{
-.sweep_line_item={.sweep_value=150, .rectdim=TOP, .ri=4},
-.pos=0,
-.active_line={
-        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
-},
-.active_line_size=2
-},
-{
-.sweep_line_item={.sweep_value=150, .rectdim=TOP, .ri=5},
-.pos=2,
-.active_line={
-        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=32767}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=32767}}}},
-        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=32767}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
-.pos=1,
-.active_line={
-        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=200}}}},
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=200}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=200}}}},
-        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=200}},nullopt}}
-},
-.active_line_size=3
-},
-{
-.sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=4},
-.pos=0,
-.active_line={
-        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}}}},
-        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
-},
-.active_line_size=2
-},
-{
-.sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=5},
-.pos=0,
-.active_line={
-        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
-},
-.active_line_size=1
-}
+vector<SweepLineItem> sweep_line={
+{.id=0, .sweep_value=0, .rectdim=TOP, .ri=1, .pos=0},
+{.id=1, .sweep_value=50, .rectdim=TOP, .ri=0, .pos=0},
+{.id=2, .sweep_value=50, .rectdim=TOP, .ri=2, .pos=2},
+{.id=3, .sweep_value=100, .rectdim=BOTTOM, .ri=1, .pos=1},
+{.id=4, .sweep_value=100, .rectdim=TOP, .ri=3, .pos=1},
+{.id=5, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0},
+{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=1},
+{.id=7, .sweep_value=150, .rectdim=TOP, .ri=4, .pos=0},
+{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=2},
+{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=1},
+{.id=10, .sweep_value=250, .rectdim=BOTTOM, .ri=4, .pos=0},
+{.id=11, .sweep_value=250, .rectdim=BOTTOM, .ri=5, .pos=0}
 };
 
-vector<ActiveLineTableItem> active_line_table2={
+vector<ActiveLineTableItem> active_line_table={
 {
-.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=0},
-.pos=0,
-.active_line={
-        {.i=0, .links={nullopt,nullopt}}
+.active_line={},
+.active_line_size=0
 },
+{
+.active_line={ 1},
 .active_line_size=1
 },
 {
-.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=0},
-.pos=0,
-.active_line={
-        {}
+.active_line={ 0, 1},
+.active_line_size=2
 },
+{
+.active_line={ 0, 1, 2},
+.active_line_size=3
+},
+{
+.active_line={ 0, 2},
+.active_line_size=2
+},
+{
+.active_line={ 0, 3, 2},
+.active_line_size=3
+},
+{
+.active_line={ 3, 2},
+.active_line_size=2
+},
+{
+.active_line={ 3},
+.active_line_size=1
+},
+{
+.active_line={ 4, 3},
+.active_line_size=2
+},
+{
+.active_line={ 4, 3, 5},
+.active_line_size=3
+},
+{
+.active_line={ 4, 5},
+.active_line_size=2
+},
+{
+.active_line={ 5},
+.active_line_size=1
+},
+{
+.active_line={},
 .active_line_size=0
 }
 };
+
+
+vector<SweepLineItem> sweep_line2={
+{.id=0, .sweep_value=100, .rectdim=TOP, .ri=0, .pos=0},
+{.id=1, .sweep_value=200, .rectdim=BOTTOM, .ri=0, .pos=0}
+};
+
+
+vector<ActiveLineTableItem> active_line_table2={
+{
+.active_line={},
+.active_line_size=0
+},
+{
+.active_line={0},
+.active_line_size=1
+},
+
+{
+.active_line={},
+.active_line_size=0
+}
+
+};
+
+vector<ActiveLineTableItem>* active_line_table_tab[2]={&active_line_table, &active_line_table2};
 
 RectLink active_links_buffer[2][20];
 RectLink rect_links_buffer[40];
@@ -1066,40 +973,45 @@ for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 	}
 }
 
-auto cmp=[](const ActiveLineTableItem& a, const ActiveLineTableItem& b){
-	return CustomLess()(a.sweep_line_item, b.sweep_line_item);
+auto cmp=[](const SweepLineItem& a, const SweepLineItem& b){
+	return CustomLess()(a, b);
 };
 
-set_union(active_line_table, active_line_table2,
+set_union(sweep_line, sweep_line2,
 cmp,
-[&](ActiveLineTableItem* main_active_line_table_item, ActiveLineTableItem* optional_active_line_table_item, LEG active_LEG)
+[&](SweepLineItem* main_sweep_line_item, SweepLineItem* optional_sweep_line_item, LEG active_LEG)
 {
-	auto& [sweep_line_item, pos, active_line, active_line_size] = * main_active_line_table_item;
+	auto& [id, sweep_value, ri, rectdim, pos] = *main_sweep_line_item;
+
+	ActiveLineTableItem* main_active_line_table_item = &(*active_line_table_tab[active_LEG])[main_sweep_line_item->id];
+	ActiveLineTableItem* optional_active_line_table_item = (optional_sweep_line_item==0) ? 0 : &(*active_line_table_tab[1-active_LEG])[optional_sweep_line_item->id];
+
+	auto& [active_line, active_line_size] = * main_active_line_table_item;
 
 	int slide[3]={-1,-1,-1};
 	LEG leg_slide[3];
 	auto& [previous, current, next] = slide;
 	auto& [previous_LEG, current_LEG, next_LEG] = leg_slide;
 
-	current = active_line[pos].i;
+	current = active_line[pos];
 	current_LEG = active_LEG;
 
 	if (optional_active_line_table_item == 0)
 	{
 		if (0 < pos)
 		{
-			previous = active_line[pos-1].i;
+			previous = active_line[pos-1];
 			previous_LEG = active_LEG;
 		}
 		if (pos+1 < active_line_size)
 		{
-			next = active_line[pos+1].i;
+			next = active_line[pos+1];
 			next_LEG = active_LEG;
 		}
 	}
 	else
 	{
-		auto& [other_sweep_line_item, other_pos, other_active_line, other_active_line_size] = * optional_active_line_table_item;
+		auto& [other_active_line, other_active_line_size] = * optional_active_line_table_item;
 
 		int value = (*rectangles2[active_LEG])[current][minCompactRectDim];
 
@@ -1108,7 +1020,7 @@ cmp,
 		printf("other_active_line_size=%d\n", other_active_line_size);
 		printf("minCompactRectDim=%s\n", RectDimString[minCompactRectDim]);
 
-		while (0 <= j-1  && (*rectangles2[1-active_LEG])[other_active_line[j-1].i][minCompactRectDim] > value)
+		while (0 <= j-1  && (*rectangles2[1-active_LEG])[ other_active_line[j-1] ][minCompactRectDim] > value)
 			j--;
 
 		if (j == other_active_line_size && pos+1 >= active_line_size)
@@ -1117,30 +1029,30 @@ cmp,
 		}
 		else if (j != other_active_line_size && pos+1 >= active_line_size)
 		{
-			next = other_active_line[j].i;
+			next = other_active_line[j];
 			next_LEG = LEG(1 - active_LEG);
 		}
 		else if (j == other_active_line_size && pos+1 < active_line_size)
 		{
-			next = active_line[pos+1].i;
+			next = active_line[pos+1];
 			next_LEG = active_LEG;
 		}
 		else
 		{
-			if ( (*rectangles2[1-active_LEG])[ other_active_line[j].i ][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[ other_active_line[j] ][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1] ][minCompactRectDim])
 			{
-				next = other_active_line[j].i;
+				next = other_active_line[j];
 				next_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
-				next = active_line[pos+1].i;
+				next = active_line[pos+1];
 				next_LEG = active_LEG;
 			}
 		}
 
 		j=-1;
-		while (j+1 < other_active_line_size && (*rectangles2[1-active_LEG])[other_active_line[j+1].i][minCompactRectDim] < value)
+		while (j+1 < other_active_line_size && (*rectangles2[1-active_LEG])[other_active_line[j+1]][minCompactRectDim] < value)
                         j++;
 
 		if (j == -1 && pos-1 < 0)
@@ -1149,30 +1061,28 @@ cmp,
 		}
 		else if (j != -1 && pos-1 < 0)
 		{
-			previous = other_active_line[j].i;
+			previous = other_active_line[j];
 			previous_LEG = LEG(1 - active_LEG);
 		}
 		else if (j == -1 && pos-1 >= 0)
 		{
-			previous = active_line[pos-1].i;
+			previous = active_line[pos-1];
 			previous_LEG = active_LEG;
 		}
 		else
 		{
-			if ( (*rectangles2[1-active_LEG])[ other_active_line[j].i ][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[ other_active_line[j] ][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1] ][minCompactRectDim])
 			{
-				previous = other_active_line[j].i;
+				previous = other_active_line[j];
 				previous_LEG = LEG(1 - active_LEG);
 			}
 			else
 			{
-				previous = active_line[pos-1].i;
+				previous = active_line[pos-1];
 				previous_LEG = active_LEG;
 			}
 		}
 	}
-
-        const auto& [sweep_value, rectdim, ri] = sweep_line_item;
 
 	printf("%s ", RectDimString[rectdim]);
 
