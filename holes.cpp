@@ -315,6 +315,33 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
 			}
 
+                        ActiveLineTableItem item={
+                                .sweep_line_item={.sweep_value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
+                                .pos=pos,
+                                .active_line={},
+                                .active_line_size=0
+                        };
+
+                        for (auto& [i, links] : span(active_line, active_line_size))
+                        {
+                                ActiveLineItemPOD active_line_item={.i=i};
+                                for (int LEG : {0,1})
+                                {
+                                        RectLink* lk = links[LEG];
+                                        active_line_item.links[LEG]=
+                                                lk==0 ? nullopt : optional<RectLink>{{
+                                                        .LEG_i=LEFT_LEG,
+                                                        .i=lk->i,
+                                                        .LEG_j=LEFT_LEG,
+                                                        .j=lk->j,
+                                                        .min_sweep_value=lk->min_sweep_value,
+                                                        .max_sweep_value=lk->max_sweep_value
+                                                }};
+                                }
+                                memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
+                        }
+                        active_line_table.push_back(item);
+
 			for (int ii=pos; ii<active_line_size; ii++)
 				swap(active_line[ii], active_line[ii+1]);
 			active_line_size -= 1;
@@ -335,33 +362,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
 				active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
 			}
-
-			ActiveLineTableItem item={
-				.sweep_line_item={.sweep_value=sweep_value, .rectdim=maxSweepRectDim, .ri=i},
-				.pos=pos,
-				.active_line={},
-				.active_line_size=0
-			};
-
-			for (auto& [i, links] : span(active_line, active_line_size))
-			{
-				ActiveLineItemPOD active_line_item={.i=i};
-				for (int LEG : {0,1})
-				{
-					RectLink* lk = links[LEG];
-					active_line_item.links[LEG]=
-						lk==0 ? nullopt : optional<RectLink>{{
-							.LEG_i=LEFT_LEG,
-							.i=lk->i,
-							.LEG_j=LEFT_LEG,
-							.j=lk->j,
-							.min_sweep_value=lk->min_sweep_value,
-							.max_sweep_value=lk->max_sweep_value
-						}};
-				}
-				memcpy ( &item.active_line[item.active_line_size++], &active_line_item, sizeof(ActiveLineItemPOD));
-			}
-			active_line_table.push_back(item);
 		};
 
 		auto insert=[&](int i, int sweep_value){
@@ -505,7 +505,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 					if (rl)
 					{
 						const auto& [LEG_i, i, LEG_j, j, min_sweep_value, max_sweep_value] = rl.value();//double curly braces: outer braces for optional<>
-						bp += sprintf(buffer + bp, "{{.LEG_i=%s, .i=%d, .LEG_j=%s .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},",
+						bp += sprintf(buffer + bp, "{{.LEG_i=%s, .i=%d, .LEG_j=%s, .j=%d, .min_sweep_value=%d, .max_sweep_value=%d}},",
 							LegString[LEG_i], i, LegString[LEG_j], j, min_sweep_value, max_sweep_value);
 					}
 					else
@@ -948,10 +948,11 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.sweep_value=100, .rectdim=BOTTOM, .ri=1},
 .pos=1,
 .active_line={
-        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
-        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}}}},
+        {.i=1, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=100}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=1, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=50, .max_sweep_value=100}},nullopt}}
 },
-.active_line_size=2
+.active_line_size=3
 },
 {
 .sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
@@ -967,18 +968,20 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=0},
 .pos=0,
 .active_line={
+        {.i=0, .links={nullopt,{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}}}},
         {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}}}},
         {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=32767}},nullopt}}
 },
-.active_line_size=2
+.active_line_size=3
 },
 {
 .sweep_line_item={.sweep_value=150, .rectdim=BOTTOM, .ri=2},
 .pos=1,
 .active_line={
-        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}}
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=100, .max_sweep_value=150}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}}}},
+        {.i=2, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=2, .min_sweep_value=100, .max_sweep_value=150}},nullopt}}
 },
-.active_line_size=1
+.active_line_size=2
 },
 {
 .sweep_line_item={.sweep_value=150, .rectdim=TOP, .ri=4},
@@ -1003,24 +1006,28 @@ vector<ActiveLineTableItem> active_line_table={
 .sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
 .pos=1,
 .active_line={
-        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=32767}}}},
-        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=32767}},nullopt}}
+        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=200}}}},
+        {.i=3, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=3, .min_sweep_value=150, .max_sweep_value=200}},{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=200}}}},
+        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=3, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=150, .max_sweep_value=200}},nullopt}}
 },
-.active_line_size=2
+.active_line_size=3
 },
 {
 .sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=4},
 .pos=0,
 .active_line={
+        {.i=4, .links={{{.LEG_i=LEFT_LEG, .i=0, .LEG_j=LEFT_LEG, .j=1, .min_sweep_value=50, .max_sweep_value=100}},{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}}}},
         {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
 },
-.active_line_size=1
+.active_line_size=2
 },
 {
 .sweep_line_item={.sweep_value=250, .rectdim=BOTTOM, .ri=5},
 .pos=0,
-.active_line={},
-.active_line_size=0
+.active_line={
+        {.i=5, .links={{{.LEG_i=LEFT_LEG, .i=4, .LEG_j=LEFT_LEG, .j=5, .min_sweep_value=200, .max_sweep_value=250}},nullopt}}
+},
+.active_line_size=1
 }
 };
 
