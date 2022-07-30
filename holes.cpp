@@ -844,46 +844,46 @@ const vector<MyRect> input_rectangles2 = {
 const vector<MyRect>* rectangles2[2] = { &input_rectangles1, &input_rectangles2 };
 
 vector<SweepLineItem> sweep_line={
-{.id=0, .sweep_value=0, .rectdim=TOP, .ri=1, .pos=0},
-{.id=1, .sweep_value=50, .rectdim=TOP, .ri=0, .pos=0},
-{.id=2, .sweep_value=50, .rectdim=TOP, .ri=2, .pos=2},
-{.id=3, .sweep_value=100, .rectdim=BOTTOM, .ri=1, .pos=1},
-{.id=4, .sweep_value=100, .rectdim=TOP, .ri=3, .pos=1},
-{.id=5, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0},
-{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=1},
-{.id=7, .sweep_value=150, .rectdim=TOP, .ri=4, .pos=0},
-{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=2},
-{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=1},
-{.id=10, .sweep_value=250, .rectdim=BOTTOM, .ri=4, .pos=0},
-{.id=11, .sweep_value=250, .rectdim=BOTTOM, .ri=5, .pos=0}
+	{.id=0, .sweep_value=0, .rectdim=TOP, .ri=1, .pos=0},
+	{.id=1, .sweep_value=50, .rectdim=TOP, .ri=0, .pos=0},
+	{.id=2, .sweep_value=50, .rectdim=TOP, .ri=2, .pos=2},
+	{.id=3, .sweep_value=100, .rectdim=BOTTOM, .ri=1, .pos=1},
+	{.id=4, .sweep_value=100, .rectdim=TOP, .ri=3, .pos=1},
+	{.id=5, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0},
+	{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=1},
+	{.id=7, .sweep_value=150, .rectdim=TOP, .ri=4, .pos=0},
+	{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=2},
+	{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=1},
+	{.id=10, .sweep_value=250, .rectdim=BOTTOM, .ri=4, .pos=0},
+	{.id=11, .sweep_value=250, .rectdim=BOTTOM, .ri=5, .pos=0}
 };
 
 vector<ActiveLineTableItem> active_line_table={
-{.active_line={}, .active_line_size=0},
-{.active_line={ 1},.active_line_size=1},
-{.active_line={ 0, 1},.active_line_size=2},
-{.active_line={ 0, 1, 2},.active_line_size=3},
-{.active_line={ 0, 2},.active_line_size=2},
-{.active_line={ 0, 3, 2},.active_line_size=3},
-{.active_line={ 3, 2},.active_line_size=2},
-{.active_line={ 3},.active_line_size=1},
-{.active_line={ 4, 3},.active_line_size=2},
-{.active_line={ 4, 3, 5},.active_line_size=3},
-{.active_line={ 4, 5},.active_line_size=2},
-{.active_line={ 5},.active_line_size=1},
-{.active_line={},.active_line_size=0}
+	{.active_line={}, .active_line_size=0},
+	{.active_line={ 1},.active_line_size=1},
+	{.active_line={ 0, 1},.active_line_size=2},
+	{.active_line={ 0, 1, 2},.active_line_size=3},
+	{.active_line={ 0, 2},.active_line_size=2},
+	{.active_line={ 0, 3, 2},.active_line_size=3},
+	{.active_line={ 3, 2},.active_line_size=2},
+	{.active_line={ 3},.active_line_size=1},
+	{.active_line={ 4, 3},.active_line_size=2},
+	{.active_line={ 4, 3, 5},.active_line_size=3},
+	{.active_line={ 4, 5},.active_line_size=2},
+	{.active_line={ 5},.active_line_size=1},
+	{.active_line={},.active_line_size=0}
 };
 
 
 vector<SweepLineItem> sweep_line2={
-{.id=0, .sweep_value=100, .rectdim=TOP, .ri=0, .pos=0},
-{.id=1, .sweep_value=200, .rectdim=BOTTOM, .ri=0, .pos=0}
+	{.id=0, .sweep_value=100, .rectdim=TOP, .ri=0, .pos=0},
+	{.id=1, .sweep_value=200, .rectdim=BOTTOM, .ri=0, .pos=0}
 };
 
 vector<ActiveLineTableItem> active_line_table2={
-{.active_line={},.active_line_size=0},
-{.active_line={0},.active_line_size=1},
-{.active_line={},.active_line_size=0}
+	{.active_line={},.active_line_size=0},
+	{.active_line={0},.active_line_size=1},
+	{.active_line={},.active_line_size=0}
 };
 
 vector<ActiveLineTableItem>* active_line_table_tab[2]={&active_line_table, &active_line_table2};
@@ -913,6 +913,9 @@ cmp,
 [&](SweepLineItem* main_sweep_line_item, SweepLineItem* optional_sweep_line_item, LEG active_LEG)
 {
 	auto& [id, sweep_value, ri, rectdim, pos] = *main_sweep_line_item;
+
+	printf("{.id=%d, .sweep_value=%d, .ri=%d, .recdim=%s, .pos=%d}\n",
+		id, sweep_value, ri, RectDimString[rectdim], pos);
 
 	ActiveLineTableItem* main_active_line_table_item = &(*active_line_table_tab[active_LEG])[main_sweep_line_item->id];
 	ActiveLineTableItem* optional_active_line_table_item = (optional_sweep_line_item==0) ? 0 : &(*active_line_table_tab[1-active_LEG])[optional_sweep_line_item->id];
