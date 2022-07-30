@@ -845,22 +845,6 @@ const vector<MyRect> input_rectangles2 = {
 
 const vector<MyRect>* rectangles2[2] = { &input_rectangles1, &input_rectangles2 };
 
-/*
-{
-{
-.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
-.pos=0,
-.active_line={
-        {.i=3, .links={nullopt,nullopt}}
-},
-{
-.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
-.pos=0,
-.active_line={
-        {}
-}
-}
-*/
 vector<SweepLineItem> sweep_line={
 {.id=0, .sweep_value=0, .rectdim=TOP, .ri=1, .pos=0},
 {.id=1, .sweep_value=50, .rectdim=TOP, .ri=0, .pos=0},
