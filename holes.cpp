@@ -1093,31 +1093,32 @@ cmp,
 	else
 	{
 		auto& [other_sweep_line_item, other_pos, other_active_line, other_active_line_size] = * optional_active_line_table_item;
-		span r(other_active_line, other_active_line_size);
-		auto lower = ranges::lower_bound(
-			r,
-			(*rectangles2[active_LEG])[current][minCompactRectDim],
-			{},
-			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
-		if (lower==ranges::end(r) && pos+1 >= active_line_size)
+
+		int value = (*rectangles2[active_LEG])[current][minCompactRectDim];
+
+		int j = other_active_line_size;
+		while (0 <= j-1  && (*rectangles2[1-active_LEG])[other_active_line[j-1].i][minCompactRectDim] >= value)
+			j--;
+
+		if (j == other_active_line_size && pos+1 >= active_line_size)
 		{
 			next = -1;
 		}
-		else if (lower!=ranges::end(r) && pos+1 >= active_line_size)
+		else if (j != other_active_line_size && pos+1 >= active_line_size)
 		{
-			next = lower->i;
+			next = other_active_line[j].i;
 			next_LEG = LEG(1 - active_LEG);
 		}
-		else if (lower==ranges::end(r) && pos+1 < active_line_size)
+		else if (j == other_active_line_size && pos+1 < active_line_size)
 		{
 			next = active_line[pos+1].i;
 			next_LEG = active_LEG;
 		}
 		else
 		{
-			if ( (*rectangles2[1-active_LEG])[lower->i][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[ other_active_line[j].i ][minCompactRectDim] < (*rectangles2[active_LEG])[ active_line[pos+1].i ][minCompactRectDim])
 			{
-				next = lower->i;
+				next = other_active_line[j].i;
 				next_LEG = LEG(1 - active_LEG);
 			}
 			else
@@ -1126,40 +1127,30 @@ cmp,
 				next_LEG = active_LEG;
 			}
 		}
-/*
-In a sorted container, the last element that is less than or equivalent to x, is the element before the first element that is greater than x.
-Thus you can call std::upper_bound, and decrement the returned iterator once. (Before decrementing, you must of course check that it is not the begin iterator;
-if it is, then there are no elements that are less than or equivalent to x.)
-*/
-		auto upper = ranges::upper_bound(
-			r,
-			(*rectangles2[active_LEG])[current][minCompactRectDim],
-			{},
-			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
-		if (upper > ranges::begin(r))
-			upper--;
-		else
-			upper = ranges::end(r);
 
-		if (upper==ranges::end(r) && pos-1 < 0)
+		j=-1;
+		while (j+1 < other_active_line_size && (*rectangles2[1-active_LEG])[other_active_line[j+1].i][minCompactRectDim] < value)
+                        j++;
+
+		if (j == -1 && pos-1 < 0)
 		{
 			previous = -1;
 		}
-		else if (upper!=ranges::end(r) && pos-1 < 0)
+		else if (j != -1 && pos-1 < 0)
 		{
-			previous = upper->i;
+			previous = other_active_line[j].i;
 			previous_LEG = LEG(1 - active_LEG);
 		}
-		else if (upper==ranges::end(r) && pos-1 >= 0)
+		else if (j == -1 && pos-1 >= 0)
 		{
 			previous = active_line[pos-1].i;
 			previous_LEG = active_LEG;
 		}
 		else
 		{
-			if ( (*rectangles2[1-active_LEG])[upper->i][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
+			if ( (*rectangles2[1-active_LEG])[ other_active_line[j].i ][minCompactRectDim] > (*rectangles2[active_LEG])[ active_line[pos-1].i ][minCompactRectDim])
 			{
-				previous = upper->i;
+				previous = other_active_line[j].i;
 				previous_LEG = LEG(1 - active_LEG);
 			}
 			else
