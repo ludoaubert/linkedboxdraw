@@ -877,7 +877,7 @@ vector<ActiveLineTableItem> active_line_table={
 
 vector<SweepLineItem> sweep_line2={
 	{.id=0, .sweep_value=100, .rectdim=TOP, .ri=0, .pos=0},
-	{.id=1, .sweep_value=200, .rectdim=BOTTOM, .ri=0, .pos=0}
+	{.id=1, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0}
 };
 
 vector<ActiveLineTableItem> active_line_table2={
