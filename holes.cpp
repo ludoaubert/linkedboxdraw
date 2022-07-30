@@ -880,22 +880,10 @@ vector<SweepLineItem> sweep_line2={
 {.id=1, .sweep_value=200, .rectdim=BOTTOM, .ri=0, .pos=0}
 };
 
-
 vector<ActiveLineTableItem> active_line_table2={
-{
-.active_line={},
-.active_line_size=0
-},
-{
-.active_line={0},
-.active_line_size=1
-},
-
-{
-.active_line={},
-.active_line_size=0
-}
-
+{.active_line={},.active_line_size=0},
+{.active_line={0},.active_line_size=1},
+{.active_line={},.active_line_size=0}
 };
 
 vector<ActiveLineTableItem>* active_line_table_tab[2]={&active_line_table, &active_line_table2};
