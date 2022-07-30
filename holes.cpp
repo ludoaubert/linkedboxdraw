@@ -912,25 +912,22 @@ set_union(sweep_line, sweep_line2,
 cmp,
 [&](SweepLineItem* main_sweep_line_item, SweepLineItem* optional_sweep_line_item, LEG active_LEG)
 {
-	auto& [id, sweep_value, ri, rectdim, pos] = *main_sweep_line_item;
+	auto& [id, sweep_value, rectdim, ri, pos] = *main_sweep_line_item;
 
-	printf("{.id=%d, .sweep_value=%d, .ri=%d, .recdim=%s, .pos=%d}\n",
-		id, sweep_value, ri, RectDimString[rectdim], pos);
+	printf("{.id=%d, .sweep_value=%d, .recdim=%s, .ri=%d, .pos=%d}\n",
+		id, sweep_value, RectDimString[rectdim], ri, pos);
 
-	ActiveLineTableItem* main_active_line_table_item = &(*active_line_table_tab[active_LEG])[main_sweep_line_item->id];
-	ActiveLineTableItem* optional_active_line_table_item = (optional_sweep_line_item==0) ? 0 : &(*active_line_table_tab[1-active_LEG])[optional_sweep_line_item->id];
-
-	auto& [active_line, active_line_size] = * main_active_line_table_item;
+	auto& [active_line, active_line_size] = (*active_line_table_tab[active_LEG])[(rectdim==LEFT || rectdim==TOP) ? id+1 : id];
 
 	int slide[3]={-1,-1,-1};
 	LEG leg_slide[3];
 	auto& [previous, current, next] = slide;
 	auto& [previous_LEG, current_LEG, next_LEG] = leg_slide;
 
-	current = active_line[pos];
+	current = ri;
 	current_LEG = active_LEG;
 
-	if (optional_active_line_table_item == 0)
+	if (optional_sweep_line_item == 0)
 	{
 		if (0 < pos)
 		{
@@ -945,7 +942,8 @@ cmp,
 	}
 	else
 	{
-		auto& [other_active_line, other_active_line_size] = * optional_active_line_table_item;
+	        auto& [id_, sweep_value_, rectdim_, ri_, pos_] = *optional_sweep_line_item;
+		auto& [other_active_line, other_active_line_size] = (*active_line_table_tab[1-active_LEG])[(rectdim_==LEFT || rectdim_==TOP) ? id_+1 : id_];
 
 		int value = (*rectangles2[active_LEG])[current][minCompactRectDim];
 
