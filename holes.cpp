@@ -442,7 +442,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		for (const auto [id, sweep_value, rectdim, ri, pos] : sweep_line)
 		{
-			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d, .pos=%d}\n",
+			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d, .pos=%d},\n",
 				id, sweep_value, RectDimString[rectdim], ri, pos);
 		}
 }
@@ -452,15 +452,13 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			char buffer[1000];
 			int bp=0;
 
-			bp += sprintf(buffer + bp, "{\n");
-			bp += sprintf(buffer + bp, ".active_line={", active_line_size);
+			bp += sprintf(buffer + bp, "{.active_line={", active_line_size);
 			for (int i : span(active_line, active_line_size))
 			{
 				bp += sprintf(buffer + bp, " %d,", i);
 			}
-			bp += sprintf(buffer + --bp, "},\n");
-			bp += sprintf(buffer + bp, ".active_line_size=%d\n", active_line_size);
-			bp += sprintf(buffer + bp, "},\n");
+			bp += sprintf(buffer + --bp, "},");
+			bp += sprintf(buffer + bp, ".active_line_size=%d},\n", active_line_size);
 			buffer[bp]=0;
 			printf("%s", buffer);
 		}
@@ -861,58 +859,19 @@ vector<SweepLineItem> sweep_line={
 };
 
 vector<ActiveLineTableItem> active_line_table={
-{
-.active_line={},
-.active_line_size=0
-},
-{
-.active_line={ 1},
-.active_line_size=1
-},
-{
-.active_line={ 0, 1},
-.active_line_size=2
-},
-{
-.active_line={ 0, 1, 2},
-.active_line_size=3
-},
-{
-.active_line={ 0, 2},
-.active_line_size=2
-},
-{
-.active_line={ 0, 3, 2},
-.active_line_size=3
-},
-{
-.active_line={ 3, 2},
-.active_line_size=2
-},
-{
-.active_line={ 3},
-.active_line_size=1
-},
-{
-.active_line={ 4, 3},
-.active_line_size=2
-},
-{
-.active_line={ 4, 3, 5},
-.active_line_size=3
-},
-{
-.active_line={ 4, 5},
-.active_line_size=2
-},
-{
-.active_line={ 5},
-.active_line_size=1
-},
-{
-.active_line={},
-.active_line_size=0
-}
+{.active_line={}, .active_line_size=0},
+{.active_line={ 1},.active_line_size=1},
+{.active_line={ 0, 1},.active_line_size=2},
+{.active_line={ 0, 1, 2},.active_line_size=3},
+{.active_line={ 0, 2},.active_line_size=2},
+{.active_line={ 0, 3, 2},.active_line_size=3},
+{.active_line={ 3, 2},.active_line_size=2},
+{.active_line={ 3},.active_line_size=1},
+{.active_line={ 4, 3},.active_line_size=2},
+{.active_line={ 4, 3, 5},.active_line_size=3},
+{.active_line={ 4, 5},.active_line_size=2},
+{.active_line={ 5},.active_line_size=1},
+{.active_line={},.active_line_size=0}
 };
 
 
