@@ -848,9 +848,9 @@ vector<SweepLineItem> sweep_line={
 	{.id=1, .sweep_value=50, .rectdim=TOP, .ri=0, .pos=0},
 	{.id=2, .sweep_value=50, .rectdim=TOP, .ri=2, .pos=2},
 	{.id=3, .sweep_value=100, .rectdim=BOTTOM, .ri=1, .pos=1},
-	{.id=4, .sweep_value=100, .rectdim=TOP, .ri=3, .pos=1},
+	{.id=4, .sweep_value=100, .rectdim=TOP, .ri=3, .pos=2},
 	{.id=5, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0},
-	{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=1},
+	{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=0},
 	{.id=7, .sweep_value=150, .rectdim=TOP, .ri=4, .pos=0},
 	{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=2},
 	{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=1},
@@ -864,7 +864,7 @@ vector<ActiveLineTableItem> active_line_table={
 	{.active_line={ 0, 1},.active_line_size=2},
 	{.active_line={ 0, 1, 2},.active_line_size=3},
 	{.active_line={ 0, 2},.active_line_size=2},
-	{.active_line={ 0, 3, 2},.active_line_size=3},
+	{.active_line={ 0, 2, 3},.active_line_size=3},
 	{.active_line={ 3, 2},.active_line_size=2},
 	{.active_line={ 3},.active_line_size=1},
 	{.active_line={ 4, 3},.active_line_size=2},
@@ -943,17 +943,21 @@ cmp,
 	else
 	{
 	        auto& [id_, sweep_value_, rectdim_, ri_, pos_] = *optional_sweep_line_item;
-		auto& [other_active_line, other_active_line_size] = (*active_line_table_tab[1-active_LEG])[(rectdim_==LEFT || rectdim_==TOP) ? id_+1 : id_];
+		auto& [other_active_line, other_active_line_size] = (*active_line_table_tab[1-active_LEG])[id_+1];
 
 		int value = (*rectangles2[active_LEG])[current][minCompactRectDim];
 
 		int j = other_active_line_size;
 
+		printf("active_line_size=%d\n", active_line_size);
 		printf("other_active_line_size=%d\n", other_active_line_size);
 		printf("minCompactRectDim=%s\n", RectDimString[minCompactRectDim]);
 
 		while (0 <= j-1  && (*rectangles2[1-active_LEG])[ other_active_line[j-1] ][minCompactRectDim] > value)
 			j--;
+
+		printf("pos=%d\n", pos);
+		printf("j=%d\n", j);
 
 		if (j == other_active_line_size && pos+1 >= active_line_size)
 		{
