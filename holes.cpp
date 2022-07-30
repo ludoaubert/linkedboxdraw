@@ -852,8 +852,8 @@ vector<SweepLineItem> sweep_line={
 	{.id=5, .sweep_value=150, .rectdim=BOTTOM, .ri=0, .pos=0},
 	{.id=6, .sweep_value=150, .rectdim=BOTTOM, .ri=2, .pos=0},
 	{.id=7, .sweep_value=150, .rectdim=TOP, .ri=4, .pos=0},
-	{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=2},
-	{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=1},
+	{.id=8, .sweep_value=150, .rectdim=TOP, .ri=5, .pos=1},
+	{.id=9, .sweep_value=200, .rectdim=BOTTOM, .ri=3, .pos=2},
 	{.id=10, .sweep_value=250, .rectdim=BOTTOM, .ri=4, .pos=0},
 	{.id=11, .sweep_value=250, .rectdim=BOTTOM, .ri=5, .pos=0}
 };
@@ -1045,6 +1045,11 @@ cmp,
 		if (next != -1)
 		{
 			RectLink& rl = active_links_buffer[current_LEG][current];
+                        if (rl.min_sweep_value != INT16_MAX)
+                        {
+                                rl.max_sweep_value = sweep_value;
+                                rect_links_buffer[rect_links_size++] = rl;
+                        }
 			rl.i = current;
 			rl.LEG_i=current_LEG;
 			rl.j = next;
