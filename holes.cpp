@@ -1026,15 +1026,15 @@ vector<ActiveLineTableItem> active_line_table={
 
 vector<ActiveLineTableItem> active_line_table2={
 {
-.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=3},
+.sweep_line_item={.sweep_value=100, .rectdim=TOP, .ri=0},
 .pos=0,
 .active_line={
-        {.i=3, .links={nullopt,nullopt}}
+        {.i=0, .links={nullopt,nullopt}}
 },
 .active_line_size=1
 },
 {
-.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=3},
+.sweep_line_item={.sweep_value=200, .rectdim=BOTTOM, .ri=0},
 .pos=0,
 .active_line={
         {}
@@ -1046,7 +1046,7 @@ vector<ActiveLineTableItem> active_line_table2={
 RectLink active_links_buffer[2][20];
 RectLink rect_links_buffer[40];
 int rect_links_size=0;
-RectDim minCompactRectDim=TOP;
+RectDim minCompactRectDim=LEFT;
 
 for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 {
@@ -1060,7 +1060,7 @@ for (LEG Leg : {LEFT_LEG, RIGHT_LEG})
 }
 
 auto cmp=[](const ActiveLineTableItem& a, const ActiveLineTableItem& b){
-	return a.sweep_line_item < b.sweep_line_item;
+	return CustomLess()(a.sweep_line_item, b.sweep_line_item);
 };
 
 set_union(active_line_table, active_line_table2,
@@ -1097,7 +1097,11 @@ cmp,
 		int value = (*rectangles2[active_LEG])[current][minCompactRectDim];
 
 		int j = other_active_line_size;
-		while (0 <= j-1  && (*rectangles2[1-active_LEG])[other_active_line[j-1].i][minCompactRectDim] >= value)
+
+		printf("other_active_line_size=%d\n", other_active_line_size);
+		printf("minCompactRectDim=%s\n", RectDimString[minCompactRectDim]);
+
+		while (0 <= j-1  && (*rectangles2[1-active_LEG])[other_active_line[j-1].i][minCompactRectDim] > value)
 			j--;
 
 		if (j == other_active_line_size && pos+1 >= active_line_size)
