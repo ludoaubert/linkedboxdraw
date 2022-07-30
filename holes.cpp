@@ -1096,7 +1096,7 @@ cmp,
 		span r(other_active_line, other_active_line_size);
 		auto lower = ranges::lower_bound(
 			r,
-			(*rectangles2[active_LEG])[active_line[pos].i][minCompactRectDim],
+			(*rectangles2[active_LEG])[current][minCompactRectDim],
 			{},
 			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
 		if (lower==ranges::end(r) && pos+1 >= active_line_size)
@@ -1133,7 +1133,7 @@ if it is, then there are no elements that are less than or equivalent to x.)
 */
 		auto upper = ranges::upper_bound(
 			r,
-			(*rectangles2[active_LEG])[active_line[pos].i][minCompactRectDim],
+			(*rectangles2[active_LEG])[current][minCompactRectDim],
 			{},
 			[&](ActiveLineItemPOD& ali){return (*rectangles2[1-active_LEG])[ali.i][minCompactRectDim];});
 		if (upper > ranges::begin(r))
