@@ -9,14 +9,14 @@ int main(int argc, char* argv[])
 {
 	int n=18;	//18 rectangles
 //generate all subsets containing p=3 rectangles
-	int p=3;
+	const int p=3;
 	auto rg = views::iota(0, pow(n,p)) | views::transform([&](int number){
-		array<int, 3> a;
-		for (int i=0; i<3; i++)
+		array<int, p> a;
+		for (int i=0; i<p; i++)
 			a[i] = (number / (int)pow(n,i)) % n;
 		return a;
-	}) | views::filter([](const array<int, 3>& a){
-		for (int i=0; i+1 < a.size(); i++)
+	}) | views::filter([](const array<int, p>& a){
+		for (int i=0; i+1 < p; i++)
 		{
 			if (a[i] >= a[i+1])
 				return false;
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 		return true;
 	});
 
-	for (const array<int, 3>& a : rg)
+	for (const array<int, p>& a : rg)
 	{
 		printf("[%d, %d, %d]\n", a[0], a[1], a[2]);
 	}
