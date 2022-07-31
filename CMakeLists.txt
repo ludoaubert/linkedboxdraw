@@ -11,6 +11,9 @@ add_executable(bombix-experimental bombix-origine-experimental.cpp)
 set (SOURCES holes.cpp MyRect.cpp compact_frame.cpp FunctionTimer.cpp latuile_test_json_output.cpp thread_pool.cpp)
 add_executable(holes ${SOURCES})
 
+set (SOURCES rect_union.cpp)
+add_executable(rect_union ${SOURCES})
+
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 #include_directories(/usr/include/eigen3)
