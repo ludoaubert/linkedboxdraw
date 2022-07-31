@@ -29,5 +29,9 @@ int main(int argc, char* argv[])
 		printf("[%d, %d, %d]\n", a[0], a[1], a[2]);
 	}
 
+	printf("size:%ld\n", distance(rg.begin(), rg.end()));
+
+// size = 816
+// n! / p! / (n-p)! = 18!/3!/15! = 18*17*16/6 = 3*17*16 = 816
 	return 0;
 }
