@@ -31,10 +31,9 @@ logique vers l'espace topologique.
  il va falloir mapper le graphe logique vers le graphe topologique, et il va falloir trier les liens obtenus.
  Cela pour chaque match, ce qui promet d'etre couteux.
  
- Autre idee: pour chaque trou, garder de coté la liste de ses voisins.
- Un trou qui n'a aucun voisin interessant peut ne plus etre listé.
- Cela revient au meme. On va etre obligé de trier les listes de voisins lors des matchs.
- Ou alors peut-on les precalculer ?
+ En fait cela va etre couteux pour les liens intra echantillon {i,j,k} cad les liens i=>j, i=>k,...
+ mais beaucoup moins couteux pour les liens entre l'echantillon et le reste des rectangles (pas besoin de trier,
+ le referentiel est le meme et le tri est déjà fait).
  
  Individual rejection: si on prend un echantillon {i,j,k} matché sur {ti,tj,tk}, et que i est connecté à l tandis que
  ti n'est pas connecté à l, alors le match peut être rejeté directement. Idem pour j et k, ce qui fait que cela peut
