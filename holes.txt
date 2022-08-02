@@ -24,4 +24,5 @@
 logique vers l'espace topologique.
 10) pour un ensemble {i,j,k} de rectangles selectionnés, pour chaque matching avec un ensemble de trous,
  il va falloir mapper le graphe logique vers le graphe topologique, et il va falloir trier les liens obtenus.
+ Cela pour chaque match, ce qui promet d'etre couteux.
  
