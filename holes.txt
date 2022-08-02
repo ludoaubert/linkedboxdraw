@@ -1,3 +1,5 @@
+Faut-il utiliser des graphes bi-directionnels ?
+
 1) prendre les données des rectangles de test
  vector<MyRect> rectangles
  le graphe logique est une donnée immuable.
