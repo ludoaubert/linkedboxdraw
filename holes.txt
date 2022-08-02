@@ -3,7 +3,10 @@ Faut-il utiliser des graphes bi-directionnels ?
 1) prendre les données des rectangles de test
  vector<MyRect> rectangles
  le graphe logique est une donnée immuable.
- le graphe topologique egalement.
+ le graphe topologique egalement. le graphe topologique contient les trous et les rectangles. Il contient donc entre autre l'information
+ de a quels rectangles sont connectes topologiquement les trous et les rectangles (info utile pour la rejection
+ upfront des matchs).
+ De plus les rectangles deviennent eux meme des trous selon les echantillons selectionnés.
  tous les deux sont filtrable.
  le graphe topologique contient une information de distance. On ne garde les liens que si la distance est inférieure
  a un seuil.
