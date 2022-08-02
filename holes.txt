@@ -1,0 +1,20 @@
+1) prendre les données des rectangles de test
+ vector<MyRect> rectangles
+2) calculer les trous, ne garder que les trous d'une certaine taille
+ vector<MyRect> holes;
+3) pour un ensemble {i,j,k} de rectangles selectionés comme déplacables, cet
+ ensemble devient un autre ensemble de trous. Un ensemble qui ne change pas,
+ et un ensemble qui change. L'ensemble des trous est donc constitué de 2 sous
+ ensembles.
+4) pour adresser un trou, il faut donc utiliser un doublet (Leg, i) (?)
+5) vector<MyRect>* holes2[2] = {&holes, &rectangles}
+6) calculer le graphe topologiques pour holes et tout les rectangles (un seul graphe)
+ struct Edge{int LEG_i, i, LEG_j, j}
+ vector<Edge> edges
+ On pourra filtrer le graphe topologique
+7) il faut aussi utiliser le graphe logique.
+8) pour un ensemble {i,j,k} de rectangles selectionés comme déplacables, il faut selectionner
+ le sous graphe logique correspondant.
+9) chaque rectangle etant mappé sur une trou, le sous graphe logique doit être mappé depuis l'espace
+logique vers l'espace topologique.
+ 
