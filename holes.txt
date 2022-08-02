@@ -1,5 +1,10 @@
 1) prendre les données des rectangles de test
  vector<MyRect> rectangles
+ le graphe logique est une donnée immuable.
+ le graphe topologique egalement.
+ tous les deux sont filtrable.
+ le graphe topologique contient une information de distance. On ne garde les liens que si la distance est inférieure
+ a un seuil.
 2) calculer les trous, ne garder que les trous d'une certaine taille
  vector<MyRect> holes;
 3) pour un ensemble {i,j,k} de rectangles selectionés comme déplacables, cet
@@ -17,4 +22,6 @@
  le sous graphe logique correspondant.
 9) chaque rectangle etant mappé sur une trou, le sous graphe logique doit être mappé depuis l'espace
 logique vers l'espace topologique.
+10) pour un ensemble {i,j,k} de rectangles selectionnés, pour chaque matching avec un ensemble de trous,
+ il va falloir mapper le graphe logique vers le graphe topologique, et il va falloir trier les liens obtenus.
  
