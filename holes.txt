@@ -33,5 +33,6 @@ logique vers l'espace topologique.
  
  Individual rejection: si on prend un echantillon {i,j,k} matché sur {ti,tj,tk}, et que i est connecté à l tandis que
  ti n'est pas connecté à l, alors le match peut être rejeté directement. Idem pour j et k, ce qui fait que cela peut
- permettre de filtrer de nombreux matchs.
+ permettre de filtrer de nombreux matchs. Il faut peut-etre distinguer les liens intra echantillon (qui doivent etre mappés)
+ et les liens entre l'echantillon et les autres rectangles.
  
