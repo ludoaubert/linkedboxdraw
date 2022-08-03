@@ -48,11 +48,7 @@ struct DecisionTreeNode
 {
 	int parent_index=-1;
 	int depth;
-	RectHole rh;
-//KPIs:
-	MyPoint dim;
-	float rect_distances;
-	float potential;
+	int i_rect, i_emplacement;
 };
 
 
@@ -74,21 +70,36 @@ const vector<MyRect> input_rectangles = {
 	{.m_left=120-RECT_BORDER+FRAME_BORDER, .m_right=120+175+RECT_BORDER+FRAME_BORDER, .m_top=441-RECT_BORDER+FRAME_BORDER, .m_bottom=441+136+RECT_BORDER+FRAME_BORDER}//53
 };
 
+//bi directional edges
 vector<LogicalEdge> logical_edges = {
 	{.from=0,.to=3},
 	{.from=1,.to=7},
 	{.from=2,.to=7},
+//	{.from=3,.to=0},
 	{.from=3,.to=4},
+//	{.from=4,.to=3},
 	{.from=4,.to=7},
 	{.from=5,.to=7},
 	{.from=6,.to=7},
+//	{.from=6,.to=12},
+//	{.from=7,.to=1},
+//	{.from=7,.to=2},
+//	{.from=7,.to=4},
+//	{.from=7,.to=5},
+//	{.from=7,.to=6},
+//	{.from=7,.to=8},
+//	{.from=7,.to=9},
+//	{.from=7,.to=10},
 	{.from=7,.to=11},
 	{.from=8,.to=7},
 	{.from=9,.to=7},
 	{.from=10,.to=7},
+//	{.from=11,.to=7},
 	{.from=12,.to=6},
+//	{.from=12,.to=13},
 	{.from=13,.to=12},
-	{.from=13,.to=14}
+	{.from=13,.to=14},
+//	{.from=14,.to=13}
 };
 
 
@@ -345,10 +356,33 @@ int main()
 	for (int i=0; i < recmap.size(); i++)
 		recmap[i] = i;
 	
+/*
+struct DecisionTreeNode
+{
+	int parent_index=-1;
+	int depth;
+	int i_rect, i_emplacement;
+};
+*/
+	
 	vector<DecisionTreeNode> decision_tree;
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
 		
+		for (int i=0; i < input_rectangles.size(); i++)
+		{
+			bool deja_vu=false;
+			for (int pos=parent_index; pos != -1; parent_index = decision_tree[pos].parent_index)
+				if (decision_tree[pos].i_rect == i)
+					deja_vu=true;
+			if (deja_vu)
+				continue;
+
+			for (int j=0; j < emplacements.size(); j++)
+			{
+				
+			}
+		}
 	};
 	
 	build_decision_tree(-1, build_decision_tree);
