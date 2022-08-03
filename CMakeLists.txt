@@ -14,6 +14,9 @@ add_executable(holes ${SOURCES})
 set (SOURCES rect_union.cpp)
 add_executable(rect_union ${SOURCES})
 
+set (SOURCES holes2.cpp)
+add_executable(holes2 ${SOURCES})
+
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 #include_directories(/usr/include/eigen3)
