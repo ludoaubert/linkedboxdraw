@@ -42,6 +42,19 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 
 struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
+//	lightweight node
+
+struct DecisionTreeNode
+{
+	int parent_index=-1;
+	int depth;
+	RectHole rh;
+//KPIs:
+	MyPoint dim;
+	float rect_distances;
+	float potential;
+};
+
 
 const vector<MyRect> input_rectangles = {
 	{.m_left=396-RECT_BORDER+FRAME_BORDER, .m_right=396+162+RECT_BORDER+FRAME_BORDER, .m_top=10-RECT_BORDER+FRAME_BORDER, .m_bottom=10+104+RECT_BORDER+FRAME_BORDER},//8
@@ -242,6 +255,24 @@ int main()
 	}
 	
 	ranges::sort(topological_graph);
+	
+	vector<int> edge_partition(emplacements.size()+1);
+	edge_partition[0]=0;
+	for (int pos=0, ii=0; ii<n; ii++)
+	{
+		int &start_pos = edge_partition[ii];
+		int &end_pos = edge_partition[ii+1];
+		end_pos = start_pos;
+		for ( ; pos < topological_graph.size() && topological_graph[pos].i==ii; pos++)
+		{
+			end_pos = max(end_pos, pos+1);
+		}
+	}
+
+	printf("edge_partition: ");
+	for (int pos : edge_partition)
+		printf("%d,", pos);
+	printf("\n");
 
 	return 0;
 }
