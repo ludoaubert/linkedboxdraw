@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <deque>
 #include <algorithm>
 #include <stdio.h>
 #include "MyRect.h"
@@ -44,11 +45,22 @@ struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int valu
 
 //	lightweight node
 
+struct RectMap
+{
+	int i_rect, i_emplacement;
+};
+
 struct DecisionTreeNode
 {
 	int parent_index=-1;
 	int depth;
-	int i_rect, i_emplacement;
+	RectMap recmap;
+};
+
+enum EtatEmplacement
+{
+	LIBRE,
+	OCCUPE
 };
 
 
@@ -310,20 +322,20 @@ int main()
 	for (const RectHole &rh : holes)
 		emplacements.push_back(rh.rec);
 	
-	vector<TopologicalEdge> topological_graph;
+	vector<TopologicalEdge> topological_edges;
 	for (int i=0; i < emplacements.size(); i++)
 	{
 		for (int j=0; j < emplacements.size(); j++)
 		{
 			int dist = rect_distance(emplacements[i], emplacements[j]);
 			if (dist < 20)
-				topological_graph.push_back({.from=i, .to=j, .distance=dist});
+				topological_edges.push_back({.from=i, .to=j, .distance=dist});
 		}
 	}
 	
-	ranges::sort(topological_graph);
+	ranges::sort(topological_edges);
 	
-	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_graph);
+	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_edges);
 
 	printf("topological_edge_partition: ");
 	for (int pos : topological_edge_partition)
@@ -357,13 +369,20 @@ int main()
 		recmap[i] = i;
 	
 /*
+struct RectMap
+{
+	int i_emplacement_source, i_emplacement_destination;
+}
+
 struct DecisionTreeNode
 {
 	int parent_index=-1;
 	int depth;
-	int i_rect, i_emplacement;
+	RectMap recmap;
 };
 */
+	vector<EtatEmplacement> etat_emplacement(emplacements.size());
+	vector<int> mapping(input_rectangles.size());
 	
 	vector<DecisionTreeNode> decision_tree;
 
@@ -371,21 +390,96 @@ struct DecisionTreeNode
 		
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
-			bool deja_vu=false;
-			for (int pos=parent_index; pos != -1; parent_index = decision_tree[pos].parent_index)
-				if (decision_tree[pos].i_rect == i)
-					deja_vu=true;
-			if (deja_vu)
+// par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
+			ranges::fill(etat_emplacements, LIBRE);
+			for (int ii=0; ii < input_rectangles.size(); ii++)
+				etat_emplacement[ii] = OCCUPE;	
+
+			deque<RectMap> chemin;
+			
+			for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
+			{
+				chemin.push_front( decision_tree[pos].recmap );
+			}
+			
+			int depth = chemin_size();
+			if (depth > 5)
+				continue;
+			
+			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
+			{
+				etat_emplacement[i_emplacement_source] = LIBRE;
+				etat_emplacement[i_emplacement_destination] = OCCUPE;
+			}
+			
+			for (int i=0; i<input_rectangles.size(); i++)
+				mapping[i]=i;
+			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
+			{
+				mapping[i_emplacement_source] = i_emplacement_destination;
+			}				
+			
+//on ne mappe pas 2 fois un meme emplacement
+			if (mapping[i] != i)
 				continue;
 
 			for (int j=0; j < emplacements.size(); j++)
 			{
+				if (j == i)
+					continue;
+
+				if (etat_emplacement[j] == OCCUPE)
+					continue;
+
+// l'emplacement j est-il topologiquement lié au rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
+				int start_pos1 = logical_edge_partition[i];
+				int end_pos1 = logical_edge_partition[i+1];
+			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
+				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
+// si connected_component[i]==cmax alors i ne doit pas etre deplacé.
+							views::filter([&](const LogicalEdge& e){return connected_component[e.j] == cmax;}) |
+							views::transform([](const LogicalEdge& e){return e.j});
 				
+				int start_pos2 = topological_edge_partition[j];
+				int end_pos2 = topological_edge_partition[j+1];
+			//les rectangles auxquels j est topologiquement lié et que l'on ne peut pas deplacer:
+				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
+							views::filter([&](const TopologicalEdge& e){return e.j < input_rectangles.size();})
+							views::filter([&](const TopologicalEdge& e){return connected_component[e.j] == cmax;}) |
+							views::transform([](const TopologicalEdge& e){return e.j;});
+							
+				if (ranges::includes(rg2, rg1)==false)
+					continue;
+				
+			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
+			// en ne gardant que les liens de i {e dont e.j a deja ete mappé}
+				auto rg3 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
+							views::filter([&](const LogicalEdge& e){return mapping[e.j]!=j;}) |
+							views::transform([&](const LogicalEdge& e){return TopologicalEdge{.i=mapping[e.i], .j=mapping[e.j], .distance=0};});
+							
+				auto rg4 = span(&topological_edges[start_pos2], end_pos2 - start_pos2);
+			//rg4 est triée, mais pas rg3;
+				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
+				if (it == ranges::end(rg3))
+					continue;
+				
+				decision_tree.push_back({
+					.parent_index=parent_index,
+					.depth=depth,
+					.recmap={
+						.i_emplacement_source=i,
+						.i_emplacement_destination=j
+					}
+				});
+				
+				build_decision_tree(decision_tree.size()-1, build_decision_tree);
 			}
 		}
 	};
 	
 	build_decision_tree(-1, build_decision_tree);
+	
+	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
 	return 0;
 }
