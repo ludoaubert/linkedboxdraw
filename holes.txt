@@ -44,3 +44,11 @@ logique vers l'espace topologique.
 13) Lors d'un match, il vaut mieux requeter les liens un par un car dès qu'un lien n'est pas present on passe au suivant.
  C'est la facon la plus rapide de filtrer beaucoup de matchs, en evitant le tri des liens.
  
+Apres reflexion: reprendre holes.cpp
+La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
+Ces données ne bougent pas.
+Les rectangles sont mappés sur ces emplacements, via un simple tableau.
+On ne deplace pas tous les rectangles, mais seulement la liste de ceux qui ne sont pas stables
+(on coupe les liens du graphe logique qui sont trop long dans le graphe topologique (ou absent du graphe
+topologique) et on prend la liste des rectangles qui se sont détachés.
+ 
