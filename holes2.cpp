@@ -74,7 +74,7 @@ const vector<MyRect> input_rectangles = {
 	{.m_left=120-RECT_BORDER+FRAME_BORDER, .m_right=120+175+RECT_BORDER+FRAME_BORDER, .m_top=441-RECT_BORDER+FRAME_BORDER, .m_bottom=441+136+RECT_BORDER+FRAME_BORDER}//53
 };
 
-vector<LogicalEdge> edges = {
+vector<LogicalEdge> logical_edges = {
 	{.from=0,.to=3},
 	{.from=1,.to=7},
 	{.from=2,.to=7},
@@ -163,6 +163,25 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 };
 
 
+template <typename EdgeType>
+vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
+{
+	vector<int> edge_partition(n+1);
+	edge_partition[0]=0;
+	for (int pos=0, ii=0; ii<n; ii++)
+	{
+		int &start_pos = edge_partition[ii];
+		int &end_pos = edge_partition[ii+1];
+		end_pos = start_pos;
+		for ( ; pos < edges.size() && edges[pos].i==ii; pos++)
+		{
+			end_pos = max(end_pos, pos+1);
+		}
+	}
+	return edge_partition;
+}
+
+
 string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>& holes)
 {
 	int n = input_rectangles.size();
@@ -180,8 +199,8 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 //TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
 		vector<int> contacts;
 		ranges::set_union(
-			edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
-			edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
+			logical_edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
+			logical_edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
 			std::back_inserter(contacts)
 		);
 		for (int ri : contacts)
@@ -221,6 +240,43 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 	return buffer;
 }
 
+
+bool filter(const LogicalEdge& e){
+	
+	int dist = rect_distance(input_rectangles[e.i], input_rectangles[e.j]);
+	return dist <= 20;
+};
+
+template <typename F>
+vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
+										const vector<TopologicalEdge>& logical_edges,
+										const vector<int>& logical_edge_partition)
+{	
+	vector<int> connected_component(input_rectangles.size(), -1);
+	
+	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
+		connected_component[i] = c;
+		int start_pos = logical_edge_partition[i];
+		int end_pos = logical_edge_partition[i+1];
+		for (int pos=start_pos; pos < end_pos; pos++)
+		{
+			const LogicalEdge& e = logical_edges[pos];
+			
+			int dist = rect_distance(input_rectangles[i], input_rectangles[j]);
+			
+			if (connected_components[e.j] == -1 && filter(e))
+				rec_compute_connected_components(e.j, c, rec_compute_connected_components);
+		}
+	};
+	
+	int c=0;
+	while (auto it=ranges::find(connected_component, -1) != end(connected_component))
+	{
+		int i = ranges::distance(begin(connected_component), it);
+		rec_compute_connected_components(i, c++, rec_compute_connected_components); 
+	}
+}
+
 int main()
 {
 	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
@@ -256,23 +312,46 @@ int main()
 	
 	ranges::sort(topological_graph);
 	
-	vector<int> edge_partition(emplacements.size()+1);
-	edge_partition[0]=0;
-	for (int pos=0, ii=0; ii<n; ii++)
-	{
-		int &start_pos = edge_partition[ii];
-		int &end_pos = edge_partition[ii+1];
-		end_pos = start_pos;
-		for ( ; pos < topological_graph.size() && topological_graph[pos].i==ii; pos++)
-		{
-			end_pos = max(end_pos, pos+1);
-		}
-	}
+	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_graph);
 
-	printf("edge_partition: ");
-	for (int pos : edge_partition)
-		printf("%d,", pos);
+	printf("topological_edge_partition: ");
+	for (int pos : topological_edge_partition)
+		printf("%d, ", pos);
 	printf("\n");
+	
+	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges); 
+	
+	printf("logical_edge_partition: ");
+	for (int pos : logical_edge_partition)
+		printf("%d, ", pos);
+	printf("\n");
+	
+	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges, logical_edge_partition);
+
+	printf("connected_component: ");
+	for (int c : connected_component)
+		printf("%d, ", c);
+	printf("\n");
+
+	int nb = ranges::max(connected_component);
+	vector<int> cc_size(nb, 0);
+	for (int c : connected_component)
+		cc_size[c]++;
+	auto it = ranges::max_element(cc_size);
+	int cmax = ranges::distance(begin(cc_size), it);
+// si connected_component[i]==cmax alors i ne doit pas etre deplacé.
+
+	vector<int> recmap(input_rectangles.size());
+	for (int i=0; i < recmap.size(); i++)
+		recmap[i] = i;
+	
+	vector<DecisionTreeNode> decision_tree;
+
+	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+		
+	};
+	
+	build_decision_tree(-1, build_decision_tree);
 
 	return 0;
 }
