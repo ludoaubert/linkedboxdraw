@@ -1,15 +1,27 @@
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <stdio.h>
 #include "MyRect.h"
 using namespace std;
 
 
-struct Edge {
+struct LogicalEdge {
 	int from;
 	int to;
 
-	friend auto operator<=>(const Edge&, const Edge&) = default;
+	friend auto operator<=>(const LogicalEdge&, const LogicalEdge&) = default;
 };
+
+
+struct TopologicalEdge {
+	int from;
+	int to;
+	int distance;
+	
+	friend auto operator<=>(const TopologicalEdge&, const TopologicalEdge&) = default;
+};
+
 
 struct MyVector
 {
@@ -49,7 +61,7 @@ const vector<MyRect> input_rectangles = {
 	{.m_left=120-RECT_BORDER+FRAME_BORDER, .m_right=120+175+RECT_BORDER+FRAME_BORDER, .m_top=441-RECT_BORDER+FRAME_BORDER, .m_bottom=441+136+RECT_BORDER+FRAME_BORDER}//53
 };
 
-vector<Edge> edges = {
+vector<LogicalEdge> edges = {
 	{.from=0,.to=3},
 	{.from=1,.to=7},
 	{.from=2,.to=7},
@@ -69,6 +81,13 @@ vector<Edge> edges = {
 
 vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 {
+	MyRect frame={
+		.m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
+		.m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
+		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
+		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
+	};
+	
 	int n = input_rectangles.size();
 	const float k = 1.0f;
 
@@ -202,6 +221,27 @@ int main()
 	string buffer=print_html(input_rectangles, holes);
 	fprintf(f, "%s", buffer.c_str());
 	fclose(f);
+	
+//La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
+
+	vector<MyRect> emplacements;
+	for (const MyRect &r : input_rectangles)
+		emplacements.push_back(r);
+	for (const RectHole &rh : holes)
+		emplacements.push_back(rh.rec);
+	
+	vector<TopologicalEdge> topological_graph;
+	for (int i=0; i < emplacements.size(); i++)
+	{
+		for (int j=0; j < emplacements.size(); j++)
+		{
+			int dist = rect_distance(emplacements[i], emplacements[j]);
+			if (dist < 20)
+				topological_graph.push_back({.from=i, .to=j, .distance=dist});
+		}
+	}
+	
+	ranges::sort(topological_graph);
 
 	return 0;
 }
