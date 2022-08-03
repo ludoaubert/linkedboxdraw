@@ -210,7 +210,7 @@ vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
 string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>& holes)
 {
 	int n = input_rectangles.size();
-	char buffer[10*1000];
+	char *buffer=new char[1000*1000];
 	int pos=0;
 
         MyRect frame={
@@ -269,7 +269,9 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 
 	pos += sprintf(buffer+pos, "</svg>\n</html>");
 	buffer[pos]=0;
-	return buffer;
+	string result = buffer;
+	delete [] buffer;
+	return result;
 }
 
 
