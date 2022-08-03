@@ -2,6 +2,8 @@
 #include <string>
 #include <deque>
 #include <algorithm>
+#include <ranges>
+#include <span>
 #include <stdio.h>
 #include "MyRect.h"
 using namespace std;
@@ -19,7 +21,7 @@ struct TopologicalEdge {
 	int from;
 	int to;
 	int distance;
-	
+
 	friend auto operator<=>(const TopologicalEdge&, const TopologicalEdge&) = default;
 };
 
@@ -47,7 +49,7 @@ struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int valu
 
 struct RectMap
 {
-	int i_rect, i_emplacement;
+	int i_emplacement_source, i_emplacement_destination;
 };
 
 struct DecisionTreeNode
@@ -87,31 +89,31 @@ vector<LogicalEdge> logical_edges = {
 	{.from=0,.to=3},
 	{.from=1,.to=7},
 	{.from=2,.to=7},
-//	{.from=3,.to=0},
+	{.from=3,.to=0},
 	{.from=3,.to=4},
-//	{.from=4,.to=3},
+	{.from=4,.to=3},
 	{.from=4,.to=7},
 	{.from=5,.to=7},
 	{.from=6,.to=7},
-//	{.from=6,.to=12},
-//	{.from=7,.to=1},
-//	{.from=7,.to=2},
-//	{.from=7,.to=4},
-//	{.from=7,.to=5},
-//	{.from=7,.to=6},
-//	{.from=7,.to=8},
-//	{.from=7,.to=9},
-//	{.from=7,.to=10},
+	{.from=6,.to=12},
+	{.from=7,.to=1},
+	{.from=7,.to=2},
+	{.from=7,.to=4},
+	{.from=7,.to=5},
+	{.from=7,.to=6},
+	{.from=7,.to=8},
+	{.from=7,.to=9},
+	{.from=7,.to=10},
 	{.from=7,.to=11},
 	{.from=8,.to=7},
 	{.from=9,.to=7},
 	{.from=10,.to=7},
-//	{.from=11,.to=7},
+	{.from=11,.to=7},
 	{.from=12,.to=6},
-//	{.from=12,.to=13},
+	{.from=12,.to=13},
 	{.from=13,.to=12},
 	{.from=13,.to=14},
-//	{.from=14,.to=13}
+	{.from=14,.to=13}
 };
 
 
@@ -123,7 +125,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
 		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
 	};
-	
+
 	int n = input_rectangles.size();
 	const float k = 1.0f;
 
@@ -196,7 +198,7 @@ vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
 		int &start_pos = edge_partition[ii];
 		int &end_pos = edge_partition[ii+1];
 		end_pos = start_pos;
-		for ( ; pos < edges.size() && edges[pos].i==ii; pos++)
+		for ( ; pos < edges.size() && edges[pos].from==ii; pos++)
 		{
 			end_pos = max(end_pos, pos+1);
 		}
@@ -211,29 +213,36 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 	char buffer[10*1000];
 	int pos=0;
 
+        MyRect frame={
+                .m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
+                .m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
+                .m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
+                .m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
+        };
+
 	pos+= sprintf(buffer+pos, "<html>\n<body>\n");
 	pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
-	for (const MyRect& r : input_rectangles)
+	for (int ri=0; ri < input_rectangles.size(); ri++)
 	{
-		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",r.m_left, r.m_top, width(r), height(r));
-		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", r.m_left, r.m_top, r.i);
+		const MyRect& r = input_rectangles[ri];
+		const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] = r;
+		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",m_left, m_top, width(r), height(r));
+		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", m_left, m_top, ri);
 
 		int dy = 0;
 //TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
-		vector<int> contacts;
-		ranges::set_union(
-			logical_edges | views::filter([&](const Edge& e){return e.from==r.i;}) | views::transform(&Edge::to),
-			logical_edges | views::filter([&](const Edge& e){return e.to==r.i;}) | views::transform(&Edge::from),
-			std::back_inserter(contacts)
-		);
-		for (int ri : contacts)
+		auto contacts = logical_edges |
+			views::filter([&](const LogicalEdge& e){return e.from==ri;}) |
+			views::transform(&LogicalEdge::to);
+
+		for (int rj : contacts)
 		{
 			dy += 14;
-			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", r.m_left + 8, r.m_top + dy, ri);
+			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", m_left + 8, m_top + dy, rj);
 		}
 
 		dy = 0;
-		for (int ri : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, /*input_*/rectangles[rj]);}))
+		for (int rj : views::iota(0, n) | views::filter([&](int rj){return r.i != rj && edge_overlap(r, input_rectangles[rj]);}))
 		{
 			dy += 14;
 			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, ri);
@@ -242,20 +251,20 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 
 	for (int hi=0; hi < holes.size() && hi < 15; hi++)
 	{
-			const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
+		const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
 
-			fprintf(f, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
-							rec.m_left, rec.m_top, width(rec), height(rec));
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
+		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+					rec.m_left, rec.m_top, width(rec), height(rec));
+		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
 
-			int dy = 0;
-			for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-			{
-							dy += 14;
-							fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
-			}
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
-			fprintf(f, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
+		int dy = 0;
+		for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+		{
+			dy += 14;
+			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
+		}
+		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
+		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
 	}
 
 	pos += sprintf(buffer+pos, "</svg>\n</html>");
@@ -265,18 +274,18 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 
 
 bool filter(const LogicalEdge& e){
-	
-	int dist = rect_distance(input_rectangles[e.i], input_rectangles[e.j]);
+
+	int dist = rect_distance(input_rectangles[e.from], input_rectangles[e.to]);
 	return dist <= 20;
 };
 
-template <typename F>
+
 vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
-										const vector<TopologicalEdge>& logical_edges,
-										const vector<int>& logical_edge_partition)
-{	
+					const vector<LogicalEdge>& logical_edges,
+					const vector<int>& logical_edge_partition)
+{
 	vector<int> connected_component(input_rectangles.size(), -1);
-	
+
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
 		int start_pos = logical_edge_partition[i];
@@ -284,20 +293,21 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 		for (int pos=start_pos; pos < end_pos; pos++)
 		{
 			const LogicalEdge& e = logical_edges[pos];
-			
-			int dist = rect_distance(input_rectangles[i], input_rectangles[j]);
-			
-			if (connected_components[e.j] == -1 && filter(e))
-				rec_compute_connected_components(e.j, c, rec_compute_connected_components);
+			if (connected_component[e.to] == -1 && filter(e))
+				rec_compute_connected_components(e.to, c, rec_compute_connected_components);
 		}
 	};
-	
+
 	int c=0;
-	while (auto it=ranges::find(connected_component, -1) != end(connected_component))
+	while (true)
 	{
+		auto it=ranges::find(connected_component, -1);
+		if (it == end(connected_component))
+			break;
 		int i = ranges::distance(begin(connected_component), it);
-		rec_compute_connected_components(i, c++, rec_compute_connected_components); 
+		rec_compute_connected_components(i, c++, rec_compute_connected_components);
 	}
+	return connected_component;
 }
 
 int main()
@@ -313,7 +323,7 @@ int main()
 	string buffer=print_html(input_rectangles, holes);
 	fprintf(f, "%s", buffer.c_str());
 	fclose(f);
-	
+
 //La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
 
 	vector<MyRect> emplacements;
@@ -321,7 +331,7 @@ int main()
 		emplacements.push_back(r);
 	for (const RectHole &rh : holes)
 		emplacements.push_back(rh.rec);
-	
+
 	vector<TopologicalEdge> topological_edges;
 	for (int i=0; i < emplacements.size(); i++)
 	{
@@ -332,23 +342,23 @@ int main()
 				topological_edges.push_back({.from=i, .to=j, .distance=dist});
 		}
 	}
-	
+
 	ranges::sort(topological_edges);
-	
+
 	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_edges);
 
 	printf("topological_edge_partition: ");
 	for (int pos : topological_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-	
-	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges); 
-	
+
+	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges);
+
 	printf("logical_edge_partition: ");
 	for (int pos : logical_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-	
+
 	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges, logical_edge_partition);
 
 	printf("connected_component: ");
@@ -367,58 +377,45 @@ int main()
 	vector<int> recmap(input_rectangles.size());
 	for (int i=0; i < recmap.size(); i++)
 		recmap[i] = i;
-	
-/*
-struct RectMap
-{
-	int i_emplacement_source, i_emplacement_destination;
-}
 
-struct DecisionTreeNode
-{
-	int parent_index=-1;
-	int depth;
-	RectMap recmap;
-};
-*/
 	vector<EtatEmplacement> etat_emplacement(emplacements.size());
 	vector<int> mapping(input_rectangles.size());
-	
+
 	vector<DecisionTreeNode> decision_tree;
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
-		
+
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
-			ranges::fill(etat_emplacements, LIBRE);
+			ranges::fill(etat_emplacement, LIBRE);
 			for (int ii=0; ii < input_rectangles.size(); ii++)
-				etat_emplacement[ii] = OCCUPE;	
+				etat_emplacement[ii] = OCCUPE;
 
 			deque<RectMap> chemin;
-			
+
 			for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
 			{
 				chemin.push_front( decision_tree[pos].recmap );
 			}
-			
-			int depth = chemin_size();
+
+			int depth = chemin.size();
 			if (depth > 5)
 				continue;
-			
+
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
 			{
 				etat_emplacement[i_emplacement_source] = LIBRE;
 				etat_emplacement[i_emplacement_destination] = OCCUPE;
 			}
-			
+
 			for (int i=0; i<input_rectangles.size(); i++)
 				mapping[i]=i;
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
 			{
 				mapping[i_emplacement_source] = i_emplacement_destination;
-			}				
-			
+			}
+
 //on ne mappe pas 2 fois un meme emplacement
 			if (mapping[i] != i)
 				continue;
@@ -437,32 +434,32 @@ struct DecisionTreeNode
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
 				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-							views::filter([&](const LogicalEdge& e){return connected_component[e.j] == cmax;}) |
-							views::transform([](const LogicalEdge& e){return e.j});
-				
+					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
+					views::transform([](const LogicalEdge& e){return e.to;});
+
 				int start_pos2 = topological_edge_partition[j];
 				int end_pos2 = topological_edge_partition[j+1];
 			//les rectangles auxquels j est topologiquement lié et que l'on ne peut pas deplacer:
 				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
-							views::filter([&](const TopologicalEdge& e){return e.j < input_rectangles.size();})
-							views::filter([&](const TopologicalEdge& e){return connected_component[e.j] == cmax;}) |
-							views::transform([](const TopologicalEdge& e){return e.j;});
-							
+					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
+					views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
+					views::transform([](const TopologicalEdge& e){return e.to;});
+
 				if (ranges::includes(rg2, rg1)==false)
 					continue;
-				
+
 			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
 			// en ne gardant que les liens de i {e dont e.j a deja ete mappé}
 				auto rg3 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
-							views::filter([&](const LogicalEdge& e){return mapping[e.j]!=j;}) |
-							views::transform([&](const LogicalEdge& e){return TopologicalEdge{.i=mapping[e.i], .j=mapping[e.j], .distance=0};});
-							
+					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=j;}) |
+					views::transform([&](const LogicalEdge& e){return TopologicalEdge{.from=mapping[e.from], .to=mapping[e.to], .distance=0};});
+
 				auto rg4 = span(&topological_edges[start_pos2], end_pos2 - start_pos2);
 			//rg4 est triée, mais pas rg3;
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
 				if (it == ranges::end(rg3))
 					continue;
-				
+
 				decision_tree.push_back({
 					.parent_index=parent_index,
 					.depth=depth,
@@ -471,14 +468,14 @@ struct DecisionTreeNode
 						.i_emplacement_destination=j
 					}
 				});
-				
+
 				build_decision_tree(decision_tree.size()-1, build_decision_tree);
 			}
 		}
 	};
-	
+
 	build_decision_tree(-1, build_decision_tree);
-	
+
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
 	return 0;
