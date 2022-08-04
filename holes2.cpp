@@ -390,6 +390,13 @@ int main()
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 			printf("i=%d\n", i);
+			
+			if (connected_component[i] == cmax)
+			{
+				printf("connected_component[%d] == %d. skipping %d\n", i, cmax, i);
+				continue;
+			}
+			
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
 			ranges::fill(etat_emplacement, LIBRE);
 			for (int ii=0; ii < input_rectangles.size(); ii++)
