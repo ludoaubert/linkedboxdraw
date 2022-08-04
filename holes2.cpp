@@ -482,16 +482,18 @@ int main()
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
 				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=e.to || connected_component[e.to] == cmax;}) |
-					views::transform([](const LogicalEdge& e){return mapping[e.to];});
+					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) ;
 
 				int start_pos2 = topological_edge_partition[j];
 				int end_pos2 = topological_edge_partition[j+1];
 			//les rectangles auxquels j est topologiquement lié:
 				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
-					//views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
-					//views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
+					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
+					views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
+					
+				assert(ranges::is_sorted(rg1));
+				assert(ranges::is_sorted(rg2));
 
 				if (ranges::includes(rg2, rg1)==false)
 				{
@@ -508,7 +510,8 @@ int main()
 					views::transform([&](const LogicalEdge& e){return TopologicalEdge{.from=mapping[e.from], .to=mapping[e.to], .distance=0};});
 
 				auto rg4 = span(&topological_edges[start_pos2], end_pos2 - start_pos2);
-			//rg4 est triée, mais pas rg3;
+				assert(ranges::is_sorted(rg4));
+			//rg4 est triée, mais pas rg3 because mapping shuffles the ordering
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
 				if (it != ranges::end(rg3))
 				{
