@@ -465,7 +465,7 @@ int main()
 					continue;
 				}
 				
-			//on regarde si emplacements[j] intersecte les emplacements deja occupés
+			//on regarde si emplacements[j] intersecte un emplacement deja occupé
 				if (ranges::any_of(views::iota(input_rectangles.size()) |
 									views::take(emplacements.size() - input_rectangles.size()) |
 									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
@@ -473,29 +473,28 @@ int main()
 									)
 					)
 				{
-					printf("on regarde si emplacements[%d] intersecte les emplacements deja occupés\n", j);
-					printf("intersect_strict(emplacements[i], emplacements[%d])\n", j);
+					printf("emplacements[%d] intersecte un emplacement deja occupé\n", j);
 					continue;
 				}
 
-// l'emplacement j est-il topologiquement lié au rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
+// l'emplacement j est-il topologiquement lié aux rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
 				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
-					views::transform([](const LogicalEdge& e){return e.to;});
+					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=e.to || connected_component[e.to] == cmax;}) |
+					views::transform([](const LogicalEdge& e){return mapping[e.to];});
 
 				int start_pos2 = topological_edge_partition[j];
 				int end_pos2 = topological_edge_partition[j+1];
-			//les rectangles auxquels j est topologiquement lié et que l'on ne peut pas deplacer:
+			//les rectangles auxquels j est topologiquement lié:
 				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
 					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
-					views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
+					//views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
 
 				if (ranges::includes(rg2, rg1)==false)
 				{
-					printf("l'emplacement %d est-il topologiquement lié au rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, i);
+					printf("l'emplacement %d est-il topologiquement lié aux rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, i);
 					printf("ranges::includes(rg2, rg1)==false\n");
 					continue;
 				}
