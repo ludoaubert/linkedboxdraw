@@ -287,6 +287,7 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
+//TODO: C++23. auto [start_pos, end_pos] = (logical_edge_partition | view::slide(2))[i];
 		int start_pos = logical_edge_partition[i];
 		int end_pos = logical_edge_partition[i+1];
 		for (int pos=start_pos; pos < end_pos; pos++)
@@ -434,6 +435,7 @@ int main()
 				continue;
 			}
 			
+//TODO: C++23. auto [start_pos1, end_pos1] = (logical_edge_partition | view::slide(2))[i];
 			int start_pos1 = logical_edge_partition[i];
 			int end_pos1 = logical_edge_partition[i+1];
 			
@@ -481,6 +483,7 @@ int main()
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
 					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) ;
 
+//TODO: C++23. auto [start_pos2, end_pos2] = (topological_edge_partition | view::slide(2))[j];
 				int start_pos2 = topological_edge_partition[j];
 				int end_pos2 = topological_edge_partition[j+1];
 			//les rectangles auxquels j est topologiquement lié:
