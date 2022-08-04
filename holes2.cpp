@@ -389,6 +389,7 @@ int main()
 
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
+			printf("i=%d\n", i);
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
 			ranges::fill(etat_emplacement, LIBRE);
 			for (int ii=0; ii < input_rectangles.size(); ii++)
@@ -400,6 +401,11 @@ int main()
 			{
 				chemin.push_front( decision_tree[pos].recmap );
 			}
+			
+			printf("chemin=");
+			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
+				printf("{.i_emplacement_source=%d, i_emplacement_destination=%d},", i_emplacement_source, i_emplacement_destination);
+			printf("\n");
 
 			int depth = chemin.size();
 			if (depth > 5)
@@ -418,17 +424,34 @@ int main()
 				mapping[i_emplacement_source] = i_emplacement_destination;
 			}
 
-//on ne mappe pas 2 fois un meme emplacement
 			if (mapping[i] != i)
+			{
+				printf("on ne mappe pas 2 fois un meme emplacement.\n");
+				printf("mapping[%d] != %d\n", i, i);
 				continue;
+			}
 
 			for (int j=0; j < emplacements.size(); j++)
 			{
+				printf("j=%d\n", j);
+
 				if (j == i)
 					continue;
 
 				if (etat_emplacement[j] == OCCUPE)
+				{
+					printf("etat_emplacement[%d] == OCCUPE\n", j);
 					continue;
+				}
+				
+				auto rg = views::iota(input_rectangles.size()) |
+						views::take(etat_emplacement.size() - input_rectangles.size()) |
+						views::select([&](int i){return intersect_strict(emplacements[i], emplacements[j]);});
+				if (ranges::distance(rg) != 0)
+				{
+					printf("intersect_strict(emplacements[i], emplacements[%d])\n", j);
+					continue;
+				}
 
 // l'emplacement j est-il topologiquement lié au rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
 				int start_pos1 = logical_edge_partition[i];
@@ -448,7 +471,10 @@ int main()
 					views::transform([](const TopologicalEdge& e){return e.to;});
 
 				if (ranges::includes(rg2, rg1)==false)
+				{
+					printf("ranges::includes(rg2, rg1)==false\n");
 					continue;
+				}
 
 			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
 			// en ne gardant que les liens de i {e dont e.j a deja ete mappé}
@@ -460,8 +486,11 @@ int main()
 			//rg4 est triée, mais pas rg3;
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
 				if (it == ranges::end(rg3))
+				{
+					printf("it == ranges::end(rg3)\n");
 					continue;
-
+				}
+				
 				decision_tree.push_back({
 					.parent_index=parent_index,
 					.depth=depth,
