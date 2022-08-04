@@ -430,6 +430,21 @@ int main()
 				printf("mapping[%d] != %d\n", i, i);
 				continue;
 			}
+			
+			int start_pos1 = logical_edge_partition[i];
+			int end_pos1 = logical_edge_partition[i+1];
+			
+		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
+		// stable
+			if (ranges::all_of(span(&logical_edges[start_pos1], end_pos1 - start_pos1),
+								[&](const LogicalEdge& e){return mapping[e.to]==e.to && connected_component[e.to] != cmax;}
+								)
+			)
+			{
+				printf("tous les liens de %d {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}\n", i);
+				printf("%d is not stable\n", i);
+				continue;
+			}
 
 			for (int j=0; j < emplacements.size(); j++)
 			{
@@ -454,8 +469,6 @@ int main()
 				}
 
 // l'emplacement j est-il topologiquement lié au rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
-				int start_pos1 = logical_edge_partition[i];
-				int end_pos1 = logical_edge_partition[i+1];
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
 				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
