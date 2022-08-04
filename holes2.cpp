@@ -488,7 +488,7 @@ int main()
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
 				if (it == ranges::end(rg3))
 				{
-					printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de j\n", i);
+					printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de %d\n", i, j);
 					printf("it == ranges::end(rg3)\n");
 					continue;
 				}
