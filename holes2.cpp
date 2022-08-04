@@ -10,6 +10,10 @@
 using namespace std;
 
 
+//Cf compute_box_rectangles.js
+const int RECTANGLE_BOTTOM_CAP=200;
+
+
 struct LogicalEdge {
 	int from;
 	int to;
@@ -177,7 +181,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	for (const auto& [ri, corner, direction, value, rec] : holes_dedup)
 	{
-		if (3*value >= width(input_rectangles[ri]))
+		if (5*value >= RECTANGLE_BOTTOM_CAP)
 		{
 			holes.push_back({ri, corner, direction, value, rec});
 		}
@@ -213,12 +217,12 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 	char *buffer=new char[1000*1000];
 	int pos=0;
 
-        MyRect frame={
-                .m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
-                .m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
-                .m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
-                .m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
-        };
+	MyRect frame={
+		.m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
+ 		.m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
+		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
+ 		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
+	};
 
 	pos+= sprintf(buffer+pos, "<html>\n<body>\n");
 	pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
