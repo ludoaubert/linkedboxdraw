@@ -5,6 +5,7 @@
 #include <ranges>
 #include <span>
 #include <stdio.h>
+#include <fmt/ranges.h>
 #include "MyRect.h"
 using namespace std;
 
@@ -193,6 +194,7 @@ vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
 	edge_partition[0]=0;
 	for (int pos=0, ii=0; ii<n; ii++)
 	{
+//C++23: use views::adjacent or views::slide
 		int &start_pos = edge_partition[ii];
 		int &end_pos = edge_partition[ii+1];
 		end_pos = start_pos;
@@ -347,25 +349,31 @@ int main()
 
 	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_edges);
 
+	fmt::print("topological_edge_partition: {}\n", topological_edge_partition);
+/*
 	printf("topological_edge_partition: ");
 	for (int pos : topological_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-
+*/
 	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges);
 
+	fmt::print("logical_edge_partition: {}\n", logical_edge_partition);	
+/*
 	printf("logical_edge_partition: ");
 	for (int pos : logical_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-
+*/
 	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges, logical_edge_partition);
 
+	fmt::print("connected_component: {}\n", connected_component);		
+/*
 	printf("connected_component: ");
 	for (int c : connected_component)
 		printf("%d, ", c);
 	printf("\n");
-
+*/
 	int nb = ranges::max(connected_component);
 	vector<int> cc_size(nb, 0);
 	for (int c : connected_component)
