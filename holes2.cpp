@@ -467,7 +467,7 @@ int main()
 
 			for (int j=0; j < emplacements.size(); j++)
 			{
-				printf("i=%d j=%d\n", i, j);
+				printf("i=%d j=%d h=%d\n", i, j, j-n);
 
 				if (j == i)
 					continue;
