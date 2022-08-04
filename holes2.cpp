@@ -171,14 +171,14 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 				{
 					int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
 					MyRect rec = rect(pt, pt + value*dir);
-					auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) || is_inside(r, rec);});
+					auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) /*|| is_inside(r, rec)*/;});
 					(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-					//printf("[%d %d]\n", m, M);
+					printf("{.i=%d, .RectCorner=%s, [.m=%d .M=%d]}\n", i, RectCornerString[rc], m, M);
 				}
 
 				if (m > 2)
 				{
-					MyRect rec = rect(pt, pt + m*dir);
+ 					MyRect rec = rect(pt, pt + m*dir);
 					holes.push_back({.ri=i, .corner=(RectCorner)rc, .direction=dir, .value=m, .rec=rec});
 				}
 			}
