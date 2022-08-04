@@ -459,11 +459,15 @@ int main()
 					continue;
 				}
 				
-				auto rg = views::iota(input_rectangles.size()) |
-						views::take(etat_emplacement.size() - input_rectangles.size()) |
-						views::select([&](int i){return intersect_strict(emplacements[i], emplacements[j]);});
-				if (ranges::distance(rg) != 0)
+			//on regarde si emplacements[j] intersecte les emplacements deja occupés
+				if (ranges::any_of(views::iota(input_rectangles.size()) |
+									views::take(emplacements.size() - input_rectangles.size()) |
+									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
+									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
+									)
+					)
 				{
+					printf("on regarde si emplacements[%d] intersecte les emplacements deja occupés\n", j);
 					printf("intersect_strict(emplacements[i], emplacements[%d])\n", j);
 					continue;
 				}
