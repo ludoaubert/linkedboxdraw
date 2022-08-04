@@ -133,26 +133,37 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	};
 
 	int n = input_rectangles.size();
-	const float k = 1.0f;
 
 	vector<RectHole> holes;
 
 	for (int i=0; i<n; i++)
 	{
 		const MyRect& r = input_rectangles[i];
-
-		const MyVector directions[4][3]={
-				{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
-				{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
-				{{.x=+1, .y=+k},{.x=+1, .y=-k},{.x=-1, .y=-k}},
-				{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=+1, .y=-k}}
+/*
+	TOP_LEFT=0,
+	BOTTOM_LEFT,
+	TOP_RIGHT,
+	BOTTOM_RIGHT
+*/
+		const MyPoint rect_corners[4]={
+			{.x=r.m_left, .y=r.m_top},
+			{.x=r.m_left, .y=r.m_bottom},
+			{.x=r.m_right, .y=r.m_top},
+			{.x=r.m_right, .y=r.m_bottom}
 		};
 
-		for (RectCorner rectCorner : RectCorners)
-		{
-			const MyPoint pt = r[rectCorner] ;
+		const MyVector directions[4][3]={
+				{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
+				{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
+				{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
+				{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+		};
 
-			for (const MyVector& dir : directions[rectCorner])
+		for (int rc : views::iota(0,4))
+		{
+			const MyPoint& pt = rect_corners[rc] ;
+
+			for (const MyVector& dir : directions[rc])
 			{
 				int intervalle[2]={2, INT16_MAX};
 				auto& [m, M] = intervalle;
@@ -168,7 +179,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 				if (m > 2)
 				{
 					MyRect rec = rect(pt, pt + m*dir);
-					holes.push_back({.ri=i, .corner=rectCorner, .direction=dir, .value=m, .rec=rec});
+					holes.push_back({.ri=i, .corner=(RectCorner)rc, .direction=dir, .value=m, .rec=rec});
 				}
 			}
 		}
