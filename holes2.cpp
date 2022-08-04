@@ -317,6 +317,8 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 
 int main()
 {
+	const int n = input_rectangles.size();
+
 	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 	{
 		printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom);
@@ -399,11 +401,13 @@ int main()
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 			printf("i=%d\n", i);
-			if (connected_component[i] == cmax)
+
+			if (connected_component[i] == cmax && parent_index != -1)
 			{
 				printf("connected_component[%d] == %d. skipping %d\n", i, cmax, i);
 				continue;
 			}
+
 
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
 			ranges::fill(etat_emplacement, LIBRE);
@@ -423,7 +427,7 @@ int main()
 			printf("\n");
 
 			int depth = chemin.size();
-			if (depth > 5)
+			if (depth > 4)
 				continue;
 
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
@@ -508,12 +512,17 @@ int main()
 					views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
 
+                                printf("rg2={");
+                                for (int i : rg2)
+                                        printf(" %d,", i);
+                                printf("}\n");
+
 				assert(ranges::is_sorted(rg1));
 				assert(ranges::is_sorted(rg2));
 
 				if (ranges::includes(rg2, rg1)==false)
 				{
-					printf("l'emplacement %d est-il topologiquement lié aux rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, i);
+					printf("l'emplacement %d(h=%d) est-il topologiquement lié aux rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, j-n, i);
 					printf("ranges::includes(rg2, rg1)==false\n");
 					continue;
 				}
