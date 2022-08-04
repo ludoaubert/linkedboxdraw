@@ -472,6 +472,7 @@ int main()
 
 				if (ranges::includes(rg2, rg1)==false)
 				{
+					printf("l'emplacement %d est-il topologiquement lié au rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, i);
 					printf("ranges::includes(rg2, rg1)==false\n");
 					continue;
 				}
@@ -487,6 +488,7 @@ int main()
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
 				if (it == ranges::end(rg3))
 				{
+					printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de j\n", i);
 					printf("it == ranges::end(rg3)\n");
 					continue;
 				}
