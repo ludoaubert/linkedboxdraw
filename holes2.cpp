@@ -488,7 +488,7 @@ int main()
 				int end_pos2 = topological_edge_partition[j+1];
 			//les rectangles auxquels j est topologiquement lié:
 				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
-					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
+					//views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
 					//views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
 
