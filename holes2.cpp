@@ -5,7 +5,8 @@
 #include <ranges>
 #include <span>
 #include <stdio.h>
-#include <fmt/ranges.h>
+//#include <fmt/ranges.h>
+//#include <format>
 #include "MyRect.h"
 using namespace std;
 
@@ -353,31 +354,31 @@ int main()
 
 	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_edges);
 
-	fmt::print("topological_edge_partition: {}\n", topological_edge_partition);
-/*
+//	fmt::print("topological_edge_partition: {}\n", topological_edge_partition);
+
 	printf("topological_edge_partition: ");
 	for (int pos : topological_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-*/
+
 	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges);
 
-	fmt::print("logical_edge_partition: {}\n", logical_edge_partition);	
-/*
+//	fmt::print("logical_edge_partition: {}\n", logical_edge_partition);
+
 	printf("logical_edge_partition: ");
 	for (int pos : logical_edge_partition)
 		printf("%d, ", pos);
 	printf("\n");
-*/
+
 	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges, logical_edge_partition);
 
-	fmt::print("connected_component: {}\n", connected_component);		
-/*
+//	fmt::print("connected_component: {}\n", connected_component);
+
 	printf("connected_component: ");
 	for (int c : connected_component)
 		printf("%d, ", c);
 	printf("\n");
-*/
+
 	int nb = ranges::max(connected_component);
 	vector<int> cc_size(nb, 0);
 	for (int c : connected_component)
@@ -475,11 +476,11 @@ int main()
 					printf("etat_emplacement[%d] == OCCUPE\n", j);
 					continue;
 				}
-				
+
 			//on regarde si emplacements[j] intersecte un emplacement deja occupé
 				if (ranges::any_of(views::iota(input_rectangles.size()) |
 									views::take(emplacements.size() - input_rectangles.size()) |
-									views::filter([](int i){return i!=j;}) |
+									views::filter([&](int i){return i!=j;}) |
 									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
 									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
 									)
@@ -493,7 +494,8 @@ int main()
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
 				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) ;
+					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
+					views::transform([](const LogicalEdge& e){return e.to;});
 
 //TODO: C++23. auto [start_pos2, end_pos2] = (topological_edge_partition | view::slide(2))[j];
 				int start_pos2 = topological_edge_partition[j];
@@ -503,7 +505,7 @@ int main()
 					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
 					views::filter([&](const TopologicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
-					
+
 				assert(ranges::is_sorted(rg1));
 				assert(ranges::is_sorted(rg2));
 
@@ -530,10 +532,10 @@ int main()
 					const TopologicalEdge& e = *it;
 					printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de %d\n", i, j);
 					printf("it != ranges::end(rg3)\n");
-					printf("mapped TopologicalEdge={.from=%d, .to=%d} ne figure pas parmi les liens topologiques de %j\n", e.from, e.to, j);
+					printf("mapped TopologicalEdge={.from=%d, .to=%d} ne figure pas parmi les liens topologiques de %d\n", e.from, e.to, j);
 					continue;
 				}
-				
+
 				decision_tree.push_back({
 					.parent_index=parent_index,
 					.depth=depth,
