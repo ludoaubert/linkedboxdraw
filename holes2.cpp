@@ -420,8 +420,7 @@ int main()
 
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
 			{
-				etat_emplacement[i_emplacement_source] = LIBRE;
-				etat_emplacement[i_emplacement_destination] = OCCUPE;
+				swap(etat_emplacement[i_emplacement_source], etat_emplacement[i_emplacement_destination]);
 			}
 
 			for (int i=0; i<input_rectangles.size(); i++)
