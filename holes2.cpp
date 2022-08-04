@@ -479,6 +479,7 @@ int main()
 
 			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
 			// en ne gardant que les liens de i {e dont e.j a deja ete mappé ou e.j que l'on ne peut deplacer}
+				mapping[i]=j;
 				auto rg3 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
 					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=e.to || connected_component[e.to] == cmax;}) |
 					views::transform([&](const LogicalEdge& e){return TopologicalEdge{.from=mapping[e.from], .to=mapping[e.to], .distance=0};});
