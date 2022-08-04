@@ -399,13 +399,12 @@ int main()
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 			printf("i=%d\n", i);
-			
 			if (connected_component[i] == cmax)
 			{
 				printf("connected_component[%d] == %d. skipping %d\n", i, cmax, i);
 				continue;
 			}
-			
+
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
 			ranges::fill(etat_emplacement, LIBRE);
 			for (int ii=0; ii < input_rectangles.size(); ii++)
@@ -417,7 +416,7 @@ int main()
 			{
 				chemin.push_front( decision_tree[pos].recmap );
 			}
-			
+
 			printf("chemin=");
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
 				printf("{.i_emplacement_source=%d, i_emplacement_destination=%d},", i_emplacement_source, i_emplacement_destination);
@@ -445,16 +444,16 @@ int main()
 				printf("mapping[%d] != %d\n", i, i);
 				continue;
 			}
-			
+
 //TODO: C++23. auto [start_pos1, end_pos1] = (logical_edge_partition | view::slide(2))[i];
 			int start_pos1 = logical_edge_partition[i];
 			int end_pos1 = logical_edge_partition[i+1];
-			
+
 		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
 		// stable
 			if (ranges::all_of(span(&logical_edges[start_pos1], end_pos1 - start_pos1),
-								[&](const LogicalEdge& e){return mapping[e.to]==e.to && connected_component[e.to] != cmax;}
-								)
+					[&](const LogicalEdge& e){return mapping[e.to]==e.to && connected_component[e.to] != cmax;}
+					)
 			)
 			{
 				printf("tous les liens de %d {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}\n", i);
@@ -494,6 +493,11 @@ int main()
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
 					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const LogicalEdge& e){return e.to;});
+
+				printf("rg1={");
+				for (int i : rg1)
+					printf(" %d,", i);
+				printf("}\n");
 
 //TODO: C++23. auto [start_pos2, end_pos2] = (topological_edge_partition | view::slide(2))[j];
 				int start_pos2 = topological_edge_partition[j];
@@ -551,6 +555,15 @@ int main()
 	build_decision_tree(-1, build_decision_tree);
 
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
+
+	printf("decision_tree={\n");
+	for (const auto& [parent_index, depth, recmap] : decision_tree)
+	{
+		const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
+		printf("{.parent_index=%d, .depth=%d, .recmap={.i_emplacement_source=%d, i_emplacement_destination=%d}}\n",
+			parent_index, depth, i_emplacement_source, i_emplacement_destination);
+	}
+	printf("}\n");
 
 	return 0;
 }
