@@ -43,7 +43,7 @@ inline MyVector operator*(int16_t value, const MyVector& vec)
 }
 
 
-struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
+struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 //	lightweight node
 
@@ -131,8 +131,10 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	vector<RectHole> holes;
 
-	for (const MyRect& ir : input_rectangles)
+	for (int i=0; i<n; i++)
 	{
+		const MyRect& r = input_rectangles[i];
+
 		const MyVector directions[4][3]={
 				{{.x=-1, .y=-k},{.x=+1, .y=-k},{.x=-1, .y=+k}},
 				{{.x=-1, .y=+k},{.x=+1, .y=+k},{.x=-1, .y=-k}},
@@ -142,7 +144,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 		for (RectCorner rectCorner : RectCorners)
 		{
-			const MyPoint pt = ir[rectCorner] ;
+			const MyPoint pt = r[rectCorner] ;
 
 			for (const MyVector& dir : directions[rectCorner])
 			{
@@ -160,7 +162,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 				if (m > 2)
 				{
 					MyRect rec = rect(pt, pt + m*dir);
-					holes.push_back({.ri=-1, .rj=ir.i, .corner=rectCorner, .direction=dir, .value=m, .rec=rec});
+					holes.push_back({.ri=i, .corner=rectCorner, .direction=dir, .value=m, .rec=rec});
 				}
 			}
 		}
@@ -172,15 +174,11 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	holes.clear();
 
-//cross product
-	for (int ri : views::iota(0,n))
+	for (const auto& [ri, corner, direction, value, rec] : holes_dedup)
 	{
-		for (const auto& [ri_, rj, corner, direction, value, rec] : holes_dedup)
+		if (3*value >= width(input_rectangles[ri]))
 		{
-			if (3*value >= width(input_rectangles[ri]))
-			{
-				holes.push_back({ri, rj, corner, direction, value, rec});
-			}
+			holes.push_back({ri, corner, direction, value, rec});
 		}
 	}
 
@@ -251,7 +249,7 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 
 	for (int hi=0; hi < holes.size() && hi < 15; hi++)
 	{
-		const auto& [ri, rj, RectCorner, direction, value, rec] = holes[hi];
+		const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
 
 		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
 					rec.m_left, rec.m_top, width(rec), height(rec));
@@ -264,7 +262,6 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", rec.m_left + 8, rec.m_top + dy, rj);
 		}
 		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">ri=%d</text>\n", rec.m_left + 30, rec.m_top + 1*14, ri);
-		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">rj=%d</text>\n", rec.m_left + 30, rec.m_top + 2*14, rj);
 	}
 
 	pos += sprintf(buffer+pos, "</svg>\n</html>");
