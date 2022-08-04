@@ -173,7 +173,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 			}
 		}
 	}
-
+/*
 	ranges::sort(holes, {}, &RectHole::rec);
 	vector<RectHole> holes_dedup;
 	ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
@@ -187,7 +187,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 			holes.push_back({ri, corner, direction, value, rec});
 		}
 	}
-
+*/
 	return holes;
 };
 
@@ -215,7 +215,7 @@ vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
 string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>& holes)
 {
 	int n = input_rectangles.size();
-	char buffer[10*1000];
+	char buffer[100*1000];
 	int pos=0;
 
 	MyRect frame={
