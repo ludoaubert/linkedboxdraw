@@ -184,7 +184,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 			}
 		}
 	}
-/*
+
 	ranges::sort(holes, {}, &RectHole::rec);
 	vector<RectHole> holes_dedup;
 	ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
@@ -198,7 +198,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 			holes.push_back({ri, corner, direction, value, rec});
 		}
 	}
-*/
+
 	return holes;
 };
 
@@ -265,7 +265,7 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 		}
 	}
 
-	for (int hi=0; hi < holes.size() && hi < 15; hi++)
+	for (int hi=0; hi < holes.size(); hi++)
 	{
 		const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
 
