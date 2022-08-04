@@ -487,10 +487,12 @@ int main()
 				auto rg4 = span(&topological_edges[start_pos2], end_pos2 - start_pos2);
 			//rg4 est triée, mais pas rg3;
 				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
-				if (it == ranges::end(rg3))
+				if (it != ranges::end(rg3))
 				{
+					const TopologicalEdge& e = *it;
 					printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de %d\n", i, j);
-					printf("it == ranges::end(rg3)\n");
+					printf("it != ranges::end(rg3)\n");
+					printf("mapped TopologicalEdge={.from=%d, .to=%d} ne figure pas parmi les liens topologiques de %j\n", e.from, e.to, j);
 					continue;
 				}
 				
