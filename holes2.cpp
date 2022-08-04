@@ -468,6 +468,7 @@ int main()
 			//on regarde si emplacements[j] intersecte un emplacement deja occupé
 				if (ranges::any_of(views::iota(input_rectangles.size()) |
 									views::take(emplacements.size() - input_rectangles.size()) |
+									views::filter([](int i){return i!=j;}) |
 									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
 									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
 									)
