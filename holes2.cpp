@@ -594,6 +594,8 @@ int main()
 	}
 	printf("}\n");
 
+	int max_value=0;
+
 	for (int i=0; i < decision_tree.size(); i++)
 	{
 		deque<RectMap> chemin;
@@ -620,7 +622,10 @@ int main()
 		ranges::sort(v);
 		ranges::set_intersection(v, topological_edges, back_inserter(inter));
 		printf("i=%d inter.size()=%ld\n", i, inter.size());
+		max_value = max<int>(max_value, inter.size());
 	}
+
+	printf("max_value=%d\n", max_value);
 
 	return 0;
 }
