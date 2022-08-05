@@ -236,13 +236,13 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
  		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
 	};
 
-	pos+= sprintf(buffer+pos, "<html>\n<body>\n");
+	pos+= sprintf(buffer+pos, "<html>\n<head>\n<link rel=\"stylesheet\" href=\"topo_space.css\">\n</head>\n<body>\n");
 	pos+= sprintf(buffer+pos, "<svg width=\"%d\" height=\"%d\">\n", width(frame)+100, height(frame));
 	for (int ri=0; ri < input_rectangles.size(); ri++)
 	{
 		const MyRect& r = input_rectangles[ri];
 		const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] = r;
-		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:blue;stroke:pink;stroke-width:5;opacity:0.5\" />\n",m_left, m_top, width(r), height(r));
+		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" class=\"rect\" />\n",m_left, m_top, width(r), height(r));
 		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", m_left, m_top, ri);
 
 		int dy = 0;
@@ -269,7 +269,7 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 	{
 		const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
 
-		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" style=\"fill:red;stroke:green;stroke-width:5;opacity:0.5\" />\n",
+		pos += sprintf(buffer+pos, "<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" class=\"hole\" />\n",
 					rec.m_left, rec.m_top, width(rec), height(rec));
 		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">hole-%d</text>\n", rec.m_left, rec.m_top, hi);
 

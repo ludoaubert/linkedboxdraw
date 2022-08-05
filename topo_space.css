@@ -1,0 +1,15 @@
+
+.rect{
+	fill:blue;
+	stroke:pink;
+	stroke-width:5;
+	opacity:0.5;
+}
+
+
+.hole{
+	fill:red;
+	stroke:green;
+	stroke-width:5;
+	opacity:0.5;	
+}
