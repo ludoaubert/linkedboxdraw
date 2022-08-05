@@ -585,13 +585,42 @@ int main()
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
 	printf("decision_tree={\n");
-	for (const auto& [parent_index, depth, recmap] : decision_tree)
+        for (int i=0; i < decision_tree.size(); i++)
 	{
+		const auto& [parent_index, depth, recmap] = decision_tree[i];
 		const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
-		printf("{.parent_index=%d, .depth=%d, .recmap={.i_emplacement_source=%d, i_emplacement_destination=%d}}\n",
-			parent_index, depth, i_emplacement_source, i_emplacement_destination);
+		printf("i=%d: {.parent_index=%d, .depth=%d, .recmap={.i_emplacement_source=%d, i_emplacement_destination=%d}}\n",
+			i, parent_index, depth, i_emplacement_source, i_emplacement_destination);
 	}
 	printf("}\n");
+
+	for (int i=0; i < decision_tree.size(); i++)
+	{
+		deque<RectMap> chemin;
+
+		for (int pos=i; pos != -1; pos = decision_tree[pos].parent_index)
+		{
+			chemin.push_front( decision_tree[pos].recmap );
+		}
+		for (int ii=0; ii<input_rectangles.size(); ii++)
+			mapping[ii]=ii;
+		for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
+		{
+			mapping[i_emplacement_source] = i_emplacement_destination;
+		}
+
+		auto rg = logical_edges |
+			views::transform([&](const LogicalEdge& e)->TopologicalEdge{return {
+				.from=mapping[e.from],
+				.to=mapping[e.to],
+				.distance=0
+			};});
+		vector<TopologicalEdge> v(logical_edges.size()), inter;
+		ranges::copy(rg, &v[0]);
+		ranges::sort(v);
+		ranges::set_intersection(v, topological_edges, back_inserter(inter));
+		printf("i=%d inter.size()=%ld\n", i, inter.size());
+	}
 
 	return 0;
 }
