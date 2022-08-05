@@ -254,14 +254,14 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 		for (int rj : contacts)
 		{
 			dy += 14;
-			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"white\">r-%d</text>\n", m_left + 8, m_top + dy, rj);
+			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" class=\"logical_contact\">r-%d</text>\n", m_left + 8, m_top + dy, rj);
 		}
 
 		dy = 0;
 		for (int rj : views::iota(0, n) | views::filter([&](int rj){return ri != rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);}))
 		{
 			dy += 14;
-			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"black\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, rj);
+			pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" class=\"topological_contact\">r-%d</text>\n", r.m_left + 30, r.m_top + dy, rj);
 		}
 	}
 
