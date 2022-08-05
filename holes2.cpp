@@ -246,7 +246,7 @@ string print_html(const vector<MyRect>& input_rectangles, const vector<RectHole>
 		pos += sprintf(buffer+pos, "<text x=\"%d\" y=\"%d\" fill=\"red\">r-%d</text>\n", m_left, m_top, ri);
 
 		int dy = 0;
-//TODO: C++23 introduces views::set_union range adapter. No longer need for vector<int> contacts.
+
 		auto contacts = logical_edges |
 			views::filter([&](const LogicalEdge& e){return e.from==ri;}) |
 			views::transform(&LogicalEdge::to);
