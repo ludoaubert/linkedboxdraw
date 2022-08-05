@@ -438,7 +438,22 @@ int main()
 			printf("\n");
 
 			int depth = chemin.size();
-			if (depth > 4)
+
+                        if (connected_component[i] == cmax && depth <= 2)
+			{
+				printf("connected_component[%d] == cmax && depth=%d <= 2\n", i, depth);
+			}
+			else if (connected_component[i] != cmax && depth > 2)
+			{
+                                printf("connected_component[%d] != cmax && depth=%d > 2\n", i, depth);
+			}
+			else
+                        {
+                                printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, cmax, depth, i);
+                                continue;
+                        }
+
+			if (depth > 6)
 				continue;
 
 			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
