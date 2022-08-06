@@ -633,7 +633,7 @@ int main()
 			unsigned int subset = 0;
 			for (int ii=0; ii < input_rectangles.size(); ii++)
 			{
-				subset += mapping[ii] == ii ? 0 : 1 << ii;
+				subset += mapping[ii] == ii ? 1 << ii : 0;
 			}
 			subset_distrib[subset]++;
 		}
