@@ -628,12 +628,15 @@ int main()
 		printf("i=%d inter.size()=%ld\n", i, inter.size());
 		max_value = max<int>(max_value, inter.size());
 
-		unsigned int subset = 0;
-		for (int ii=0; ii < input_rectangles.size(); ii++)
+		if (max_value == known_max_value)
 		{
-			subset += mapping[ii] == ii ? 0 : 1 << ii;
+			unsigned int subset = 0;
+			for (int ii=0; ii < input_rectangles.size(); ii++)
+			{
+				subset += mapping[ii] == ii ? 0 : 1 << ii;
+			}
+			subset_distrib[subset]++;
 		}
-		subset_distrib[subset]++;
 	}
 
 	printf("max_value=%d\n", max_value);
