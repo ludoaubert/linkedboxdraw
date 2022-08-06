@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <deque>
+#include <map>
 #include <algorithm>
 #include <ranges>
 #include <span>
@@ -595,6 +596,9 @@ int main()
 	printf("}\n");
 
 	int max_value=0;
+	const int known_max_value=26;
+
+        map<unsigned int, int> subset_distrib;
 
 	for (int i=0; i < decision_tree.size(); i++)
 	{
@@ -623,9 +627,23 @@ int main()
 		ranges::set_intersection(v, topological_edges, back_inserter(inter));
 		printf("i=%d inter.size()=%ld\n", i, inter.size());
 		max_value = max<int>(max_value, inter.size());
+
+		unsigned int subset = 0;
+		for (int ii=0; ii < input_rectangles.size(); ii++)
+		{
+			subset += mapping[ii] == ii ? 0 : 1 << ii;
+		}
+		subset_distrib[subset]++;
 	}
 
 	printf("max_value=%d\n", max_value);
+	printf("subset_distrib.size()=%ld\n", subset_distrib.size());
+	printf("subset_distrib={\n");
+	for (const auto& [subset, count] : subset_distrib)
+	{
+		printf("{.subset=%u, .count=%d}\n", subset, count);
+	}
+	printf("}\n");
 
 	return 0;
 }
