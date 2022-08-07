@@ -92,7 +92,7 @@ const vector<MyRect> input_rectangles = {
 };
 
 //bi directional edges
-vector<LogicalEdge> logical_edges = {
+const vector<LogicalEdge> logical_edges = {
 	{.from=0,.to=3},
 	{.from=1,.to=7},
 	{.from=2,.to=7},
@@ -205,7 +205,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 
 template <typename EdgeType>
-vector<int> compute_edge_partition(int n, vector<EdgeType>& edges)
+vector<int> compute_edge_partition(int n, const vector<EdgeType>& edges)
 {
 	vector<int> edge_partition(n+1);
 	edge_partition[0]=0;
@@ -331,12 +331,75 @@ int main()
 {
 	const int n = input_rectangles.size();
 
+{
+/* TODO
+	auto jv = input_rectangles |
+		views::transform([&](const MyRect& r)->string{
+			char buffer[200];
+			sprintf(buffer, "\t{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d},\n",r.m_left, r.m_right, r.m_top, r.m_bottom);
+			return buffer;}) |
+		views ::join;
+*/
+	char buffer[10*1000];
+	int pos=0;
+	pos += sprintf(buffer + pos,"{\n\"input_rectangles\":[");
+	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
+        {
+                pos += sprintf(buffer + pos, "\n\t{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d},", m_left, m_right, m_top, m_bottom);
+        }
+	pos += sprintf(buffer + --pos,"\n],\n\"logical_edges\":[");
+	for (const auto& [from, to] : logical_edges)
+	{
+		pos += sprintf(buffer + pos, "\n\t{\"from\":%d, \"to\":%d},", from, to);
+	}
+	pos += sprintf(buffer + --pos,"\n],\n\"topological_edges\":[");
+
+        for (int ri=0; ri < n; ri++)
+        {
+                for (int rj : views::iota(0, n) | views::filter([&](int rj){return ri != rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);}))
+                {
+                        pos += sprintf(buffer + pos, "\n\t{\"from\":%d, \"to\":%d},", ri, rj);
+                }
+	}
+	pos += sprintf(buffer + --pos,"\n]\n}");
+
+        FILE *f=fopen("logical_graph.json", "w");
+	fprintf(f, "%s", buffer);
+	fclose(f);
+}
+
 	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 	{
 		printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom);
 	}
 	vector<RectHole> holes = compute_holes(input_rectangles);
 
+{
+	char buffer[100*1000];
+	int pos=0;
+        pos += sprintf(buffer + pos,"{\n\"holes\":[");
+	for (int hi=0; hi < holes.size(); hi++)
+        {
+                const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
+		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"ri\":%d, \"RectCorner\":%d, \"RectCornerString\":\"%s\", \"direction\":{\"x\":%.0f,\"y\":%.0f},value=%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
+			hi, ri, RectCorner, RectCornerString[RectCorner], direction.x, direction.y, value, rec.m_left, rec.m_right, rec.m_top, rec.m_bottom);
+	}
+	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
+
+	for (int hi=0; hi < holes.size(); hi++)
+	{
+		RectHole& rh = holes[hi];
+                for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rh.rec, input_rectangles[rj]);}))
+                {
+                        pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
+                }
+	}
+	pos += sprintf(buffer + --pos, "\n]\n}");
+
+        FILE *f=fopen("holes.json", "w");
+        fprintf(f, "%s", buffer);
+        fclose(f);
+}
 	FILE *f;
 	f=fopen("topo_space.html", "w");
 	string buffer=print_html(input_rectangles, holes);

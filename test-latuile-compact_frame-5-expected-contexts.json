@@ -1,0 +1,20 @@
+{"contexts":[{
+"frame":{"left":150,"right":550,"top":70,"bottom":270},
+"translatedBoxes":[
+{"id":0,"translation":{"x":150,"y":70}},
+{"id":1,"translation":{"x":250,"y":70}},
+{"id":2,"translation":{"x":350,"y":70}},
+{"id":3,"translation":{"x":450,"y":100}},
+{"id":4,"translation":{"x":150,"y":170}},
+{"id":5,"translation":{"x":250,"y":170}}
+],
+"links":[]
+}],
+"rectangles":[
+	{"left":0,"right":100,"top":0,"bottom":100},
+	{"left":0,"right":100,"top":0,"bottom":100},
+	{"left":0,"right":100,"top":0,"bottom":100},
+	{"left":0,"right":100,"top":0,"bottom":100},
+	{"left":0,"right":100,"top":0,"bottom":100},
+	{"left":0,"right":100,"top":0,"bottom":100}
+]}

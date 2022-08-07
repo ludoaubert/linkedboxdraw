@@ -1,0 +1,34 @@
+{"documentTitle":"reg-test-0",
+"boxes":[
+	{"title":"rec-0",
+	"id":0,
+	"fields":[
+	]},
+	{"title":"rec-1",
+	"id":1,
+	"fields":[
+	]},
+	{"title":"rec-2",
+	"id":2,
+	"fields":[
+	]},
+	{"title":"rec-3",
+	"id":3,
+	"fields":[
+	]},
+	{"title":"rec-4",
+	"id":4,
+	"fields":[
+	]},
+	{"title":"rec-5",
+	"id":5,
+	"fields":[
+	]}
+],
+"values":[],
+"boxComments":[],
+"fieldComments":[],
+"links":[
+],
+"fieldColors":[]
+}
