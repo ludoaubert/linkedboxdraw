@@ -400,11 +400,6 @@ int main()
         fprintf(f, "%s", buffer);
         fclose(f);
 }
-	FILE *f;
-	f=fopen("topo_space.html", "w");
-	string buffer=print_html(input_rectangles, holes);
-	fprintf(f, "%s", buffer.c_str());
-	fclose(f);
 
 //La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
 
