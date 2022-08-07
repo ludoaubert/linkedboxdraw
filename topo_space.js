@@ -3,6 +3,9 @@ import logical_graph from './logical_graph.json' assert {type: 'json'};
 import holes from './holes.json' assert {type: 'json'};
 
 
+console.log(logical_graph);
+console.log(holes);
+
 function print_html()
 {
 	var innerHTML = "";
