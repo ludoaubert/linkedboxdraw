@@ -76,3 +76,4 @@ function print_html()
 */
 }
 
+document.getElementById("main-svg").innerHtml = print_html();
