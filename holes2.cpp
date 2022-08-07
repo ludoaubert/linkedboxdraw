@@ -316,7 +316,7 @@ int main()
 	for (int hi=0; hi < holes.size(); hi++)
         {
                 const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
-		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"ri\":%d, \"RectCorner\":%d, \"RectCornerString\":\"%s\", \"direction\":{\"x\":%.0f,\"y\":%.0f},value=%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
+		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"ri\":%d, \"RectCorner\":%d, \"RectCornerString\":\"%s\", \"direction\":{\"x\":%.0f,\"y\":%.0f},\"value\":%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
 			hi, ri, RectCorner, RectCornerString[RectCorner], direction.x, direction.y, value, rec.m_left, rec.m_right, rec.m_top, rec.m_bottom);
 	}
 	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
