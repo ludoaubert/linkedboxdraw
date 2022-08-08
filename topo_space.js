@@ -32,7 +32,7 @@ function print_html()
 	windowed_index.fill(0);
 
 	innerHTML += topological_edges
-			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+30}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="topological_contact">r-${to}</text>`;)
+			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+30}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="topological_contact">r-${to}</text>`)
 			.join('\n');
 
 	innerHTML += holes.holes
