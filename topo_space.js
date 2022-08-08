@@ -76,4 +76,4 @@ function print_html()
 */
 }
 
-document.innerHtml = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
+document.body.innerHtml = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
