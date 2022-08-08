@@ -57,7 +57,9 @@ function print_html()
 }
 
 function main(){
-	document.body.innerHtml = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
+	const innerHTML = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
+	console.log(innerHTML);
+	document.body.innerHtml = innerHTML;
 }
 
 window.addEventListener('load', main)
