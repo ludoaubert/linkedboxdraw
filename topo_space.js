@@ -27,7 +27,7 @@ function print_html()
 
 	let windowed_index = [];
 	windowed_index.length = input_rectangles.length;
-	windowed_index.fill(0);
+	windowed_index.fill(1);
 
 	innerHTML += logical_edges
 			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+8}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="logical_contact">r-${to}</text>`)
@@ -35,7 +35,7 @@ function print_html()
 
         innerHTML += '\n';
 
-	windowed_index.fill(0);
+	windowed_index.fill(1);
 
 	innerHTML += topological_edges
 			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+30}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="topological_contact">r-${to}</text>`)
@@ -56,7 +56,7 @@ function print_html()
         innerHTML += '\n';
 
 	windowed_index.length = holes.holes.length;
-	windowed_index.fill(0);
+	windowed_index.fill(1);
 
 	innerHTML += holes.topological_contact
 			.map(({hi, rj}) => `<text x="${holes.holes[hi].rec.m_left + 8}" y="${holes.holes[hi].rec.m_top + 14*windowed_index[hi]++}" fill="black">r-${rj}</text>`)
