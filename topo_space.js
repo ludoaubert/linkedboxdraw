@@ -17,8 +17,7 @@ function print_html()
 			.join('\n');
 
 	innerHTML += input_rectangles
-			.entries()
-			.map(({index, r}) => `<text x="${m_left}" y="${m_top}" fill="red">r-${index}</text>`)
+			.map((r, index) => `<text x="${m_left}" y="${m_top}" fill="red">r-${index}</text>`)
 			.join('\n');
 
 	let windowed_index = [];
@@ -40,8 +39,7 @@ function print_html()
 			.join('\n');
 
 	innerHTML += holes.holes
-			.entries()
-			.map(({index, hole}) => `<text x="${hole.rec.m_left}" y="${hole.rec.m_top}" fill="black">hole-${index}</text>`)
+			.map((hole, index) => `<text x="${hole.rec.m_left}" y="${hole.rec.m_top}" fill="black">hole-${index}</text>`)
 			.join('\n');
 
 	windowed_index.length = holes.holes.length;
