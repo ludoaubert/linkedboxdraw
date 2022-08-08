@@ -43,10 +43,10 @@ function print_html()
 			.join('\n');
 
 	windowed_index.length = holes.holes.length;
-	windewed_index.fill(0);
+	windowed_index.fill(0);
 
 	innerHTML += holes.topological_contact
-			.map(({hi, rj}) => `<text x="${holes.holes[hi].rec.m_left + 8}" y="${holes.holes[hi].rec.m_top + 14*window_index[hi]++}" fill="black">r-${rj}</text>`)
+			.map(({hi, rj}) => `<text x="${holes.holes[hi].rec.m_left + 8}" y="${holes.holes[hi].rec.m_top + 14*windowed_index[hi]++}" fill="black">r-${rj}</text>`)
 			.join('\n');
 
 	innerHTML += holes.holes
