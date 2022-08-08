@@ -17,7 +17,7 @@ function print_html()
 			.join('\n');
 
 	innerHTML += input_rectangles
-			.map((r, index) => `<text x="${m_left}" y="${m_top}" fill="red">r-${index}</text>`)
+			.map((r, index) => `<text x="${r.m_left}" y="${r.m_top}" fill="red">r-${index}</text>`)
 			.join('\n');
 
 	let windowed_index = [];
