@@ -74,7 +74,8 @@ function print_html()
 }
 
 window.main = function main(){
-	const innerHTML = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
+	let div = document.getElementById("main_svg");
+	const innerHTML = print_html();
 	console.log(innerHTML);
-	document.body.innerHtml = innerHTML;
+	div.innerHTML = innerHTML;
 }
