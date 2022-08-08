@@ -73,10 +73,10 @@ function print_html()
 	return innerHTML;
 }
 
-function main(){
+export function main(){
 	const innerHTML = `<svg id="main_svg" width="959" height="704">` + print_html() + `</svg>`;
 	console.log(innerHTML);
 	document.body.innerHtml = innerHTML;
 }
 
-window.addEventListener('load', main)
+//window.addEventListener('load', main)
