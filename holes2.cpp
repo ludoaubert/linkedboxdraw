@@ -585,8 +585,9 @@ int main()
 	{
 		const auto& [parent_index, depth, recmap] = decision_tree[i];
 		const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
-		fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source=\":%d, \"i_emplacement_destination\":%d}\n",
-			i, parent_index, depth, i_emplacement_source, i_emplacement_destination);
+		fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source=\":%d, \"i_emplacement_destination\":%d}%s\n",
+			i, parent_index, depth, i_emplacement_source, i_emplacement_destination,
+			i+1 == decision_tree.size() ? "": ",");
 	}
 	fprintf(f, "]\n");
 	fclose(f);
