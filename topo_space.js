@@ -13,10 +13,10 @@ function print_html()
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
 	const frame = {
-		m_left : Math.min(input_rectangles.map(r => r.m_left)),
-		m_right : Math.max(input_rectangles.map(r => r.m_right)),
-		m_top : Math.min(input_rectangles.map(r => r.m_top)),
-		m_bottom : Math.max(input_rectangles.map(r => r.m_bottom))
+		m_left : Math.min(...input_rectangles.map(r => r.m_left)),
+		m_right : Math.max(...input_rectangles.map(r => r.m_right)),
+		m_top : Math.min(...input_rectangles.map(r => r.m_top)),
+		m_bottom : Math.max(...input_rectangles.map(r => r.m_bottom))
 	};
 
 	innerHTML += input_rectangles
