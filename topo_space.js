@@ -9,10 +9,10 @@ console.log(holes);
 function print_html()
 {
 	const frame = {
-		m_left = min(input_rectangles.map(r => r.m_left)),
-		m_right = max(input_rectangles.map(r => r.m_right)),
-		m_top = min(input_rectangles.map(r => r.m_top)),
-		m_bottom = max(input_rectangles.map(r => r.m_bottom))
+		m_left : min(input_rectangles.map(r => r.m_left)),
+		m_right : max(input_rectangles.map(r => r.m_right)),
+		m_top : min(input_rectangles.map(r => r.m_top)),
+		m_bottom : max(input_rectangles.map(r => r.m_bottom))
 	};
 
 	var innerHTML = `<svg width="${frame.m_right-frame.m_left+60}" height="${frame.m_bottom-frame.m_top+60}">\n`;
