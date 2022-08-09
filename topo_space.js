@@ -1,6 +1,7 @@
 
 import logical_graph from './logical_graph.json' assert {type: 'json'};
 import holes from './holes.json' assert {type: 'json'};
+import decision_tree from './decision_tree.json' assert {type: 'json'};
 
 
 console.log(logical_graph);
