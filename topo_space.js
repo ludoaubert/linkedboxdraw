@@ -8,6 +8,8 @@ console.log(holes);
 
 function print_html()
 {
+        const {input_rectangles, logical_edges, topological_edges}=logical_graph;
+
 	const frame = {
 		m_left : min(input_rectangles.map(r => r.m_left)),
 		m_right : max(input_rectangles.map(r => r.m_right)),
@@ -16,8 +18,6 @@ function print_html()
 	};
 
 	var innerHTML = `<svg width="${frame.m_right-frame.m_left+60}" height="${frame.m_bottom-frame.m_top+60}">\n`;
-
-	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
 	innerHTML += input_rectangles
 			.map(({m_left, m_right, m_top, m_bottom}) => `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
