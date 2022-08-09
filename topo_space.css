@@ -22,3 +22,10 @@
 .topological_contact{
 	fill:black;
 }
+
+#main_svg{
+	display:inline;
+}
+#dt_div{
+	display:inline;
+}
