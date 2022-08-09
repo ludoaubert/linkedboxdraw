@@ -19,6 +19,8 @@ function print_html()
 		m_bottom : Math.max(...input_rectangles.map(r => r.m_bottom))
 	};
 
+	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
+
 	innerHTML += input_rectangles
 			.map(({m_left, m_right, m_top, m_bottom}) => `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
 			.join('');
@@ -60,11 +62,13 @@ function print_html()
 			.map(({ri, rec}) => `<text x="${rec.m_left+30}" y="${rec.m_top+14}" fill="black">ri=${ri}</text>\n`)
 			.join('');
 
+	innerHTML += "</svg>";
+
 	return innerHTML;
 }
 
 window.main = function main(){
-	let div = document.getElementById("main_svg");
+	let div = document.getElementsByTagName("body")[0];
 	const innerHTML = print_html();
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
