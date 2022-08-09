@@ -578,15 +578,19 @@ int main()
 
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
-	printf("decision_tree={\n");
+{
+	FILE *f=fopen("decision_tree.json", "w");
+	fprintf(f, "[\n");
         for (int i=0; i < decision_tree.size(); i++)
 	{
 		const auto& [parent_index, depth, recmap] = decision_tree[i];
 		const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
-		printf("i=%d: {.parent_index=%d, .depth=%d, .recmap={.i_emplacement_source=%d, i_emplacement_destination=%d}}\n",
+		fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source=\":%d, \"i_emplacement_destination\":%d}\n",
 			i, parent_index, depth, i_emplacement_source, i_emplacement_destination);
 	}
-	printf("}\n");
+	fprintf(f, "]\n");
+	fclose(f);
+}
 
 	int max_value=0;
 	const int known_max_value=26;
