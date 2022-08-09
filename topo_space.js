@@ -66,7 +66,7 @@ function print_html()
 }
 
 window.main = function main(){
-	let div = document.getElementsByTagName("BODY")[0];
+	let div = document.getElementsByTagName("body")[0];
 	const innerHTML = print_html();
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
