@@ -64,6 +64,7 @@ struct DecisionTreeNode
 	int parent_index=-1;
 	int depth;
 	RectMap recmap;
+	int match;
 };
 
 enum EtatEmplacement
@@ -578,21 +579,6 @@ int main()
 
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
-{
-	FILE *f=fopen("decision_tree.json", "w");
-	fprintf(f, "[\n");
-        for (int i=0; i < decision_tree.size(); i++)
-	{
-		const auto& [parent_index, depth, recmap] = decision_tree[i];
-		const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
-		fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source\":%d, \"i_emplacement_destination\":%d}%s\n",
-			i, parent_index, depth, i_emplacement_source, i_emplacement_destination,
-			i+1 == decision_tree.size() ? "": ",");
-	}
-	fprintf(f, "]\n");
-	fclose(f);
-}
-
 	int max_value=0;
 	const int known_max_value=26;
 
@@ -623,6 +609,7 @@ int main()
 		ranges::copy(rg, &v[0]);
 		ranges::sort(v);
 		ranges::set_intersection(v, topological_edges, back_inserter(inter));
+                decision_tree[i].match = inter.size();
 		printf("i=%d inter.size()=%ld\n", i, inter.size());
 		max_value = max<int>(max_value, inter.size());
 
@@ -636,6 +623,21 @@ int main()
 			subset_distrib[subset]++;
 		}
 	}
+
+{
+        FILE *f=fopen("decision_tree.json", "w");
+        fprintf(f, "[\n");
+        for (int i=0; i < decision_tree.size(); i++)
+        {
+                const auto& [parent_index, depth, recmap, match] = decision_tree[i];
+                const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
+                fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source\":%d, \"i_emplacement_destination\":%d, \"match\":%d}%s\n",
+                        i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match,
+                        i+1 == decision_tree.size() ? "": ",");
+        }
+        fprintf(f, "]\n");
+        fclose(f);
+}
 
 	printf("max_value=%d\n", max_value);
 	printf("subset_distrib.size()=%ld\n", subset_distrib.size());
