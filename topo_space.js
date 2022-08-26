@@ -80,3 +80,39 @@ window.main = function main(){
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
 			.join('\n');
 }
+
+
+function handle_mouseover(){
+// 'highlight' color is set in tablelist.css
+       if ( this.className === '') {
+            this.className='highlight';
+       }
+       return false
+}
+function handle_mouseout(){
+       if ( this.className === 'highlight') {
+            this.className='';
+       }
+       return false
+}
+function handle_mousedown(){
+//
+// Toggle the selected state of this row
+//
+
+// 'clicked' color is set in tablelist.css.
+     if ( this.className !== 'clicked' ) {
+// Clear previous selection
+            if ( selected !== null ) {
+                 selected.className='';
+            }
+// Mark this row as selected
+            this.className='clicked';
+            selected = this;
+     }
+     else {
+           this.className='';
+           selected = null;
+     }
+     return true
+}
