@@ -37,7 +37,6 @@ tbody tr,thead tr {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 tbody {
-    height: 150px;
     width: 100%;
     overflow-y: auto;
     display: block;
@@ -48,6 +47,13 @@ thead {
 td,th {
     padding: 1px;
     text-align: center;
+}
+
+#decision_tree tbody {
+    height: 350px;
+}
+#chemin tbody {
+    height: 150px;
 }
 
 #decision_tree tr.clicked {
