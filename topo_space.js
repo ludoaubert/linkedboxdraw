@@ -7,6 +7,7 @@ import decision_tree from './decision_tree.json' assert {type: 'json'};
 console.log(logical_graph);
 console.log(holes);
 
+
 function print_html()
 {
 	var innerHTML = "";
@@ -73,4 +74,9 @@ window.main = function main(){
 	const innerHTML = print_html();
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
+
+	let dt = document.getElementById("decision_tree");
+	td.tbody.innerHTML = decision_tree
+                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
+			.join('\n');
 }
