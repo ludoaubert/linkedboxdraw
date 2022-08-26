@@ -75,8 +75,8 @@ window.main = function main(){
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
 
-	let dt = document.getElementById("decision_tree");
-	dt.tbody.innerHTML = decision_tree
+	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
+	dt.innerHTML = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
 			.join('\n');
 }
