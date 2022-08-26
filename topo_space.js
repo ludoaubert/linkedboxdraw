@@ -42,7 +42,7 @@ function print_html()
 	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
 
 	innerHTML += input_rectangles
-			.map(({m_left, m_right, m_top, m_bottom}) => `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
+			.map(({m_left, m_right, m_top, m_bottom}, index) => `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
 			.join('');
 
 	innerHTML += input_rectangles
@@ -64,7 +64,7 @@ function print_html()
 			.join('');
 
 	innerHTML += holes.holes
-			.map(hole => {	const {m_left, m_right, m_top, m_bottom}=hole.rec; return `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />\n`;})
+			.map((hole, index) => {	const {m_left, m_right, m_top, m_bottom}=hole.rec; return `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />\n`;})
 			.join('');
 
 	innerHTML += holes.holes
