@@ -30,28 +30,26 @@
 }
 
 table {
-    background-color: #fd9;
-    table-layout: auto;
-    width: 100%;
+    border: 1px solid grey;
 }
-tbody tr, thead tr {
+tbody tr,thead tr {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
-
 tbody {
-    background-color: #fff;
-/*    display: block;*/
     height: 150px;
-    overflow: auto;
+    width: 100%;
+    overflow-y: auto;
+    display: block;
 }
-td {
-    padding: 3px 10px;
+thead {
+    background: yellowgreen;
 }
-thead { 
-    display:table-header-group;
-    width: calc(100% - 1em);
+td,th {
+    padding: 20px;
+    text-align: left;
 }
+
 #decision_tree tr.clicked {
     background: #ccd;
 }
