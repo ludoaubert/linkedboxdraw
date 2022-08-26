@@ -81,6 +81,7 @@ window.main = function main(){
 			.join('\n');
 }
 
+var selected = null;
 
 function handle_mouseover(event){
 // 'highlight' color is set in tablelist.css
