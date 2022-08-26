@@ -77,5 +77,50 @@
 
 </div>
 
+  <script>
+var selected = null;
+
+let decision_tree = document.querySelector('#decision_tree');
+
+decision_tree.addEventListener('mouseover', (event)=>{
+// 'highlight' color is set in tablelist.css
+       let tr = event.target.parentNode;
+       if ( tr.className === '') {
+            tr.className='highlight';
+       }
+       return false
+});
+
+decision_tree.addEventListener('mouseout', (event)=>{
+       let tr = event.target.parentNode;
+       if ( tr.className === 'highlight') {
+            tr.className='';
+       }
+       return false
+});
+
+decision_tree.addEventListener('mousedown', (event)=>{
+//
+// Toggle the selected state of this row
+//
+       let tr = event.target.parentNode;
+// 'clicked' color is set in tablelist.css.
+     if ( tr.className !== 'clicked' ) {
+// Clear previous selection
+            if ( selected !== null ) {
+                 selected.className='';
+            }
+// Mark this row as selected
+            tr.className='clicked';
+            selected = this;
+     }
+     else {
+           tr.className='';
+           selected = null;
+     }
+     return true
+});
+  </script>
+
 </body>
 </html>
