@@ -82,36 +82,38 @@ window.main = function main(){
 }
 
 
-function handle_mouseover(){
+function handle_mouseover(event){
 // 'highlight' color is set in tablelist.css
-       if ( this.className === '') {
-            this.className='highlight';
+       let tr = event.target.parentNode;
+       if ( tr.className === '') {
+            tr.className='highlight';
        }
        return false
 }
-function handle_mouseout(){
-       if ( this.className === 'highlight') {
-            this.className='';
+function handle_mouseout(event){
+       let tr = event.target.parentNode;
+       if ( tr.className === 'highlight') {
+            tr.className='';
        }
        return false
 }
-function handle_mousedown(){
+function handle_mousedown(event){
 //
 // Toggle the selected state of this row
 //
-
+       let tr = event.target.parentNode;
 // 'clicked' color is set in tablelist.css.
-     if ( this.className !== 'clicked' ) {
+     if ( tr.className !== 'clicked' ) {
 // Clear previous selection
             if ( selected !== null ) {
                  selected.className='';
             }
 // Mark this row as selected
-            this.className='clicked';
+            tr.className='clicked';
             selected = this;
      }
      else {
-           this.className='';
+           tr.className='';
            selected = null;
      }
      return true
