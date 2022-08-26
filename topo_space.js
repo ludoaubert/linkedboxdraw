@@ -89,6 +89,8 @@ function print_html()
 	return innerHTML;
 }
 
+var selected = null;
+
 window.main = function main(){
 	let div = document.getElementById("main_svg");
 	const innerHTML = print_html();
@@ -99,4 +101,45 @@ window.main = function main(){
 	dt.innerHTML = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
 			.join('\n');
+
+dt.addEventListener('mouseover', (event)=>{
+// 'highlight' color is set in tablelist.css
+       let tr = event.target.parentNode;
+       if ( tr.className === '') {
+            tr.className='highlight';
+       }
+       return false
+});
+
+dt.addEventListener('mouseout', (event)=>{
+       let tr = event.target.parentNode;
+       if ( tr.className === 'highlight') {
+            tr.className='';
+       }
+       return false
+});
+
+dt.addEventListener('mousedown', (event)=>{
+
+       let tr = event.target.parentNode;
+
+     if ( tr.className !== 'clicked' ) {
+// Clear previous selection
+            if ( selected !== null ) {
+                 selected.className='';
+            }
+// Mark this row as selected
+            tr.className='clicked';
+            selected = tr;
+	   const i = parseInt(tr.cells[0],10);
+	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
+	cm.innerHTML = print_chemin(i);
+
+     }
+     else {
+           tr.className='';
+           selected = null;
+     }
+     return true
+});
 }

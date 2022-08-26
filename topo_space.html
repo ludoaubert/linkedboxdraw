@@ -77,54 +77,5 @@
 
 </div>
 
-  <script type="module">
-import {print_chemin} from 'topo_space';
-
-var selected = null;
-
-let dt = document.querySelector('#decision_tree');
-
-dt.addEventListener('mouseover', (event)=>{
-// 'highlight' color is set in tablelist.css
-       let tr = event.target.parentNode;
-       if ( tr.className === '') {
-            tr.className='highlight';
-       }
-       return false
-});
-
-dt.addEventListener('mouseout', (event)=>{
-       let tr = event.target.parentNode;
-       if ( tr.className === 'highlight') {
-            tr.className='';
-       }
-       return false
-});
-
-dt.addEventListener('mousedown', (event)=>{
-
-       let tr = event.target.parentNode;
-
-     if ( tr.className !== 'clicked' ) {
-// Clear previous selection
-            if ( selected !== null ) {
-                 selected.className='';
-            }
-// Mark this row as selected
-            tr.className='clicked';
-            selected = tr;
-	   const i = parseInt(tr.cells[0],10);
-	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
-	cm.innerHTML = print_chemin(i);
-
-     }
-     else {
-           tr.className='';
-           selected = null;
-     }
-     return true
-});
-  </script>
-
 </body>
 </html>
