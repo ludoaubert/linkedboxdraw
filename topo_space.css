@@ -42,6 +42,6 @@ tbody {
 td {
     padding: 3px 10px;
 }
-thead > tr, tbody{ display:block;}
+thead { display:table-header-group;}
 #decision_tree tr.clicked { background: #ccd; }
 #decision_tree tr.highlight { background: #eef; }
