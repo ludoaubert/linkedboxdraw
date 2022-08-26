@@ -46,8 +46,8 @@ thead {
     background: yellowgreen;
 }
 td,th {
-    padding: 20px;
-    text-align: left;
+    padding: 1px;
+    text-align: center;
 }
 
 #decision_tree tr.clicked {
