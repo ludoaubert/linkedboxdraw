@@ -42,11 +42,11 @@ function print_html()
 	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
 
 	innerHTML += input_rectangles
-			.map(({m_left, m_right, m_top, m_bottom}, index) => `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
+			.map(({m_left, m_right, m_top, m_bottom}, index) => `<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
 			.join('');
 
 	innerHTML += input_rectangles
-			.map((r, index) => `<text x="${r.m_left}" y="${r.m_top}" fill="red">r-${index}</text>\n`)
+			.map((r, index) => `<text id="tr-${index}" x="${r.m_left}" y="${r.m_top}" fill="red">r-${index}</text>\n`)
 			.join('');
 
 	let windowed_index = [];
@@ -54,32 +54,32 @@ function print_html()
 	windowed_index.fill(1);
 
 	innerHTML += logical_edges
-			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+8}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="logical_contact">r-${to}</text>\n`)
+			.map(({from, to}) => `<text id="le-${from}-${to}" x="${input_rectangles[from].m_left+8}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="logical_contact">r-${to}</text>\n`)
 			.join('');
 
 	windowed_index.fill(1);
 
 	innerHTML += topological_edges
-			.map(({from, to}) => `<text x="${input_rectangles[from].m_left+30}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="topological_contact">r-${to}</text>\n`)
+			.map(({from, to}) => `<text id="te-${from}-${to}" x="${input_rectangles[from].m_left+30}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="topological_contact">r-${to}</text>\n`)
 			.join('');
 
 	innerHTML += holes.holes
-			.map((hole, index) => {	const {m_left, m_right, m_top, m_bottom}=hole.rec; return `<rect x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />\n`;})
+			.map((hole, index) => {	const {m_left, m_right, m_top, m_bottom}=hole.rec; return `<rect id="h-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />\n`;})
 			.join('');
 
 	innerHTML += holes.holes
-			.map((hole, index) => `<text x="${hole.rec.m_left}" y="${hole.rec.m_top}" fill="black">hole-${index}</text>\n`)
+			.map((hole, index) => `<text id="th-${index}" x="${hole.rec.m_left}" y="${hole.rec.m_top}" fill="black">hole-${index}</text>\n`)
 			.join('');
 
 	windowed_index.length = holes.holes.length;
 	windowed_index.fill(1);
 
 	innerHTML += holes.topological_contact
-			.map(({hi, rj}) => `<text x="${holes.holes[hi].rec.m_left + 8}" y="${holes.holes[hi].rec.m_top + 14*windowed_index[hi]++}" fill="black">r-${rj}</text>\n`)
+			.map(({hi, rj}) => `<text id="tc-${hi}-${rj}" x="${holes.holes[hi].rec.m_left + 8}" y="${holes.holes[hi].rec.m_top + 14*windowed_index[hi]++}" fill="black">r-${rj}</text>\n`)
 			.join('');
 
 	innerHTML += holes.holes
-			.map(({ri, rec}) => `<text x="${rec.m_left+30}" y="${rec.m_top+14}" fill="black">ri=${ri}</text>\n`)
+			.map(({ri, rec}, index) => `<text id="th-ri-${index}-${ri}" x="${rec.m_left+30}" y="${rec.m_top+14}" fill="black">ri=${ri}</text>\n`)
 			.join('');
 
 	innerHTML += "</svg>";
