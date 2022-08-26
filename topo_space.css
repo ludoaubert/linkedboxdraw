@@ -36,12 +36,20 @@ table {
 }
 tbody {
     background-color: #fff;
+    display: block;
     height: 150px;
     overflow: auto;
 }
 td {
     padding: 3px 10px;
 }
-thead { display:table-header-group;}
-#decision_tree tr.clicked { background: #ccd; }
-#decision_tree tr.highlight { background: #eef; }
+thead { 
+    display:table-header-group;
+    width: calc(100% - 1em);
+}
+#decision_tree tr.clicked {
+    background: #ccd;
+}
+#decision_tree tr.highlight {
+    background: #eef;
+}
