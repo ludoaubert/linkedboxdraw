@@ -112,16 +112,8 @@ dt.addEventListener('mousedown', (event)=>{
             tr.className='clicked';
             selected = tr;
 	   const i = parseInt(tr.cells[0],10);
-	let arr = [];
-        while (i != -1)
-        {
-		arr.push(decision_tree[i]);
-		i = decision_tree[i].parent_index;
-	}
-	arr = arr.reverse();
 	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
-	cm.innerHTML = arr.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
-			.join('\n');
+	cm.innerHTML = print_chemin(i);
 
      }
      else {

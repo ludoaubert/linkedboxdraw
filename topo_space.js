@@ -8,6 +8,24 @@ console.log(logical_graph);
 console.log(holes);
 
 
+function print_chemin(i)
+{
+	let arr = [];
+
+        while (i != -1)
+        {
+		arr.push(decision_tree[i]);
+		i = decision_tree[i].parent_index;
+	}
+
+	const innerHTML = arr
+			.reverse()
+			.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
+			.join('\n');
+
+	return innerHTML;
+}
+
 function print_html()
 {
 	var innerHTML = "";
