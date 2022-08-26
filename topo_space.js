@@ -129,7 +129,7 @@ dt.addEventListener('mousedown', (event)=>{
 // Mark this row as selected
             tr.className='clicked';
             selected = tr;
-	   const i = parseInt(tr.cells[0],10);
+	   const i = parseInt(tr.cells[0].innerHTML,10);
 	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	cm.innerHTML = print_chemin(i);
 
