@@ -8,7 +8,7 @@ console.log(logical_graph);
 console.log(holes);
 
 
-function print_chemin(i)
+export function print_chemin(i)
 {
 	let arr = [];
 
