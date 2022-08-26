@@ -41,7 +41,7 @@ tbody tr, thead tr {
 
 tbody {
     background-color: #fff;
-    display: block;
+/*    display: block;*/
     height: 150px;
     overflow: auto;
 }
