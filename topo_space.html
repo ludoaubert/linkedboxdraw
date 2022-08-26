@@ -80,9 +80,9 @@
   <script>
 var selected = null;
 
-let decision_tree = document.querySelector('#decision_tree');
+let dt = document.querySelector('#decision_tree');
 
-decision_tree.addEventListener('mouseover', (event)=>{
+dt.addEventListener('mouseover', (event)=>{
 // 'highlight' color is set in tablelist.css
        let tr = event.target.parentNode;
        if ( tr.className === '') {
@@ -91,7 +91,7 @@ decision_tree.addEventListener('mouseover', (event)=>{
        return false
 });
 
-decision_tree.addEventListener('mouseout', (event)=>{
+dt.addEventListener('mouseout', (event)=>{
        let tr = event.target.parentNode;
        if ( tr.className === 'highlight') {
             tr.className='';
@@ -99,7 +99,7 @@ decision_tree.addEventListener('mouseout', (event)=>{
        return false
 });
 
-decision_tree.addEventListener('mousedown', (event)=>{
+dt.addEventListener('mousedown', (event)=>{
 
        let tr = event.target.parentNode;
 
@@ -111,6 +111,17 @@ decision_tree.addEventListener('mousedown', (event)=>{
 // Mark this row as selected
             tr.className='clicked';
             selected = tr;
+	   const i = parseInt(tr.cells[0],10);
+	let arr = [];
+        while (i != -1)
+        {
+		arr.push(decision_tree[i]);
+		i = decision_tree[i].parent_index;
+	}
+	let cm = document.getElementById("chemin");
+	cm.innerHTML = arr.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td></tr>`)
+			.join('\n');
+
      }
      else {
            tr.className='';
