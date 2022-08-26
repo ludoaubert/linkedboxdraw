@@ -97,7 +97,7 @@ window.main = function main(){
 
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
 	dt.innerHTML = decision_tree
-                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_source}</td><td>${match}</td></tr>`)
+                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
 			.join('\n');
 
 dt.addEventListener('mouseover', (event)=>{
