@@ -26,8 +26,6 @@ function print_chemin(i)
 	return innerHTML;
 }
 
-export {print_chemin};
-
 function print_html()
 {
 	var innerHTML = "";
