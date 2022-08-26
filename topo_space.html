@@ -100,11 +100,9 @@ decision_tree.addEventListener('mouseout', (event)=>{
 });
 
 decision_tree.addEventListener('mousedown', (event)=>{
-//
-// Toggle the selected state of this row
-//
+
        let tr = event.target.parentNode;
-// 'clicked' color is set in tablelist.css.
+
      if ( tr.className !== 'clicked' ) {
 // Clear previous selection
             if ( selected !== null ) {
@@ -112,7 +110,7 @@ decision_tree.addEventListener('mousedown', (event)=>{
             }
 // Mark this row as selected
             tr.className='clicked';
-            selected = this;
+            selected = tr;
      }
      else {
            tr.className='';
