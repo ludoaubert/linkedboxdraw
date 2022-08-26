@@ -34,6 +34,11 @@ table {
     table-layout: auto;
     width: 100%;
 }
+tbody tr, thead tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
 tbody {
     background-color: #fff;
     display: block;
