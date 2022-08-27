@@ -139,7 +139,7 @@ dt.addEventListener('mousedown', (event)=>{
                 .join(', ');
 
            document
-                .querySelectorAll(query))
+                .querySelectorAll(query)
                 .forEach(element => element.visible=1);
      }
      else {
