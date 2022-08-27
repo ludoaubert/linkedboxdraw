@@ -7,25 +7,6 @@ import decision_tree from './decision_tree.json' assert {type: 'json'};
 console.log(logical_graph);
 console.log(holes);
 
-
-function print_chemin(i)
-{
-	let arr = [];
-
-        while (i != -1)
-        {
-		arr.push(decision_tree[i]);
-		i = decision_tree[i].parent_index;
-	}
-
-	const innerHTML = arr
-			.reverse()
-			.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
-			.join('\n');
-
-	return innerHTML;
-}
-
 function print_html()
 {
 	var innerHTML = "";
@@ -129,9 +110,20 @@ dt.addEventListener('mousedown', (event)=>{
 // Mark this row as selected
             tr.className='clicked';
             selected = tr;
-	   const i = parseInt(tr.cells[0].innerHTML,10);
-	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
-	cm.innerHTML = print_chemin(i);
+	   let i = parseInt(tr.cells[0].innerHTML,10);
+           let chemin = [];
+           while (i != -1)
+           {
+                chemin.push(decision_tree[i]);
+                i = decision_tree[i].parent_index;
+           }
+
+	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
+	   cm.innerHTML = chemin
+                        .reverse()
+                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
+`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
+			.join('\n');
 
      }
      else {
