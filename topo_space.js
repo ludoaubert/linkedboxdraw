@@ -120,14 +120,18 @@ dt.addEventListener('mousedown', (event)=>{
 
         const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-           chemin.filter(({i_emplacement_destination}) => i_emplacement_destination >= input_rectangles.length)
-                 .forEach((line) => {line.i_emplacement_destination = `h${line.i_emplacement_destination - input_rectangles.length}`});
+	var print_emplacement = i_emplacement_destination => {
+		if (i_emplacement_destination >= input_rectangles.length)
+			return `h${i_emplacement_destination - input_rectangles.length}`
+		else
+			return `${i_emplacement_destination}`;
+	};
 
 	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	   cm.innerHTML = chemin
                         .reverse()
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
+`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
 			.join('\n');
 
            document
