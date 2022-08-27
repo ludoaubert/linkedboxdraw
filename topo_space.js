@@ -122,7 +122,7 @@ dt.addEventListener('mousedown', (event)=>{
 
 	var print_emplacement = i_emplacement_destination => {
 		if (i_emplacement_destination >= input_rectangles.length)
-			return `h${i_emplacement_destination - input_rectangles.length}`
+			return `h${i_emplacement_destination - input_rectangles.length}`;
 		else
 			return `${i_emplacement_destination}`;
 	};
