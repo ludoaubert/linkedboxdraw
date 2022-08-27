@@ -121,7 +121,7 @@ dt.addEventListener('mousedown', (event)=>{
         const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
            chemin.filter(({i_emplacement_destination}) => i_emplacement_destination >= input_rectangles.length)
-                 .forEach((line) => {line.i_emplacement_destination = `h${i_emplacement_destination - input_rectangles.length}`});
+                 .forEach((line) => {line.i_emplacement_destination = `h${line.i_emplacement_destination - input_rectangles.length}`});
 
 	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	   cm.innerHTML = chemin
