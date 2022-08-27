@@ -129,7 +129,7 @@ dt.addEventListener('mousedown', (event)=>{
 
            document
                 .querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
-                .forEach(element => element.style.visibility = "hidden";);
+                .forEach((element) => {element.style.visibility = "hidden";});
 
            const query = chemin
 		.map(({i_emplacement_destination}) => i_emplacement_destination)
@@ -140,7 +140,7 @@ dt.addEventListener('mousedown', (event)=>{
 
            document
                 .querySelectorAll(query)
-                .forEach(element => element.style.visibility = "visible";);
+                .forEach((element) => {element.style.visibility = "visible";});
      }
      else {
            tr.className='';
