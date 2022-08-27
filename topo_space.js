@@ -131,13 +131,15 @@ dt.addEventListener('mousedown', (event)=>{
                 .querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
                 .forEach(element => element.visible=0);
 
-           chemin
+           const query = chemin
 		.map(({i_emplacement_destination}) => i_emplacement_destination)
 		.filter(i_emplacement_destination => i_emplacement_destination >= input_rectangles.length)
                 .map(i_emplacement_destination => i_emplacement_destination - input_rectangles.length)
                 .map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
-                .join(', ')
-                .map(query => document.querySelectorAll(query))
+                .join(', ');
+
+           document
+                .querySelectorAll(query))
                 .forEach(element => element.visible=1);
      }
      else {
