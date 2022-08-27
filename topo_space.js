@@ -125,6 +125,19 @@ dt.addEventListener('mousedown', (event)=>{
 `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
 			.join('\n');
 
+        const {input_rectangles, logical_edges, topological_edges}=logical_graph;
+
+           document
+                .querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
+                .forEach(element => element.visible=0);
+
+           chemin
+		.map(({i_emplacement_destination}) => i_emplacement_destination)
+		.filter(i_emplacement_destination => i_emplacement_destination >= input_rectangles.length)
+                .map(i_emplacement_destination => i_emplacement_destination - input_rectangles.length)
+                .map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
+                .map(query => document.querySelectorAll(query))
+                .forEach(element => element.visible=1);
      }
      else {
            tr.className='';
