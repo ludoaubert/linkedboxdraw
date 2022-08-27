@@ -118,14 +118,17 @@ dt.addEventListener('mousedown', (event)=>{
                 i = decision_tree[i].parent_index;
            }
 
+        const {input_rectangles, logical_edges, topological_edges}=logical_graph;
+
+           chemin.filter(({i_emplacement_destination}) => i_emplacement_destination >= input_rectangles.length)
+                 .forEach((line) => {line.i_emplacement_destination = `h${i_emplacement_destination - input_rectangles.length}`});
+
 	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	   cm.innerHTML = chemin
                         .reverse()
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
 `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
 			.join('\n');
-
-        const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
            document
                 .querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
