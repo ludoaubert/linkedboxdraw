@@ -321,14 +321,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 
 		auto adj_list=[&](int ri)->span<RectLink>{
-
-    			struct Comp
-    			{
-        			bool operator() ( const RectLink& rl, int i ) const { return rl.i < i; }
-        			bool operator() ( int i, const RectLink& rl ) const { return i < rl.i; }
-    			};
-
-			const auto [_F, _L] = std::equal_range(rect_links_buffer, rect_links_buffer + rect_links_size, ri, Comp{});
+			const auto [_F, _L] = ranges::equal_range(span(rect_links_buffer, rect_links_size), ri, {}, &RectLink::i);
 			return span(_F, _L);
 		};
 
