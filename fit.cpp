@@ -320,15 +320,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 #endif
 }
 
-		auto adj_list=[&](int ri)->span<RectLink>{
-			const auto [_F, _L] = ranges::equal_range(span(rect_links_buffer, rect_links_size), ri, {}, &RectLink::i);
-			return span(_F, _L);
-		};
-
 {
         FunctionTimer ft("cft_rec_push");
 		auto rec_push_hole=[&](int ri, int tr, auto&& rec_push_hole)->void{
-			for (const RectLink& rl : adj_list(ri))
+
+                        const auto [_F, _L] = ranges::equal_range(span(rect_links_buffer, rect_links_size), ri, {}, &RectLink::i);
+                        span adj_list(_F, _L);
+
+			for (const RectLink& rl : adj_list)
 			{
 				int tr2= rectangles[ri][maxCompactRectDim] - rectangles[rl.j][minCompactRectDim];
 
