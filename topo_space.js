@@ -140,8 +140,8 @@ dt.addEventListener('mousedown', (event)=>{
 
            const query = chemin
 		.map(({i_emplacement_destination}) => i_emplacement_destination)
-		.filter(i_emplacement_destination => i_emplacement_destination >= input_rectangles.length)
-                .map(i_emplacement_destination => i_emplacement_destination - input_rectangles.length)
+		.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
+                .map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
                 .map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
                 .join(', ');
 
