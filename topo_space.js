@@ -68,6 +68,14 @@ function print_html()
 	return innerHTML;
 }
 
+function print_emplacement(i_emplacement_destination)
+{
+	if (i_emplacement_destination >= lugical_graph.input_rectangles.length)
+		return `h${i_emplacement_destination - input_rectangles.length}`;
+	else
+		return `${i_emplacement_destination}`;
+}
+
 var selected = null;
 
 window.main = function main(){
@@ -78,7 +86,8 @@ window.main = function main(){
 
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
 	dt.innerHTML = decision_tree
-                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) => `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${i_emplacement_destination}</td><td>${match}</td></tr>`)
+                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
+`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
 			.join('\n');
 
 dt.addEventListener('mouseover', (event)=>{
@@ -117,15 +126,6 @@ dt.addEventListener('mousedown', (event)=>{
                 chemin.push(decision_tree[i]);
                 i = decision_tree[i].parent_index;
            }
-
-        const {input_rectangles, logical_edges, topological_edges}=logical_graph;
-
-	var print_emplacement = i_emplacement_destination => {
-		if (i_emplacement_destination >= input_rectangles.length)
-			return `h${i_emplacement_destination - input_rectangles.length}`;
-		else
-			return `${i_emplacement_destination}`;
-	};
 
 	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	   cm.innerHTML = chemin
