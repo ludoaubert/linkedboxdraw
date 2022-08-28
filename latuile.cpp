@@ -27,6 +27,7 @@
 #include <chrono>
 #include <cmath>
 #include <numeric>
+#include <cstring>
 using namespace std ;
 using namespace std::chrono;
 

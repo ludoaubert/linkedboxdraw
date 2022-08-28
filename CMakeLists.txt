@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project (linkedboxdraw)
 set(CMAKE_BUILD_TYPE Release)
 
-SET(CMAKE_CXX_COMPILER "g++-11" )
+SET(CMAKE_CXX_COMPILER "g++-12" )
 SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
 
 add_executable(bombix bombix-origine.cpp)

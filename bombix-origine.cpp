@@ -20,6 +20,7 @@
 #include <chrono>
 #include <regex>
 #include <span>
+#include <cstring>
 //#include <omp.h>
 using namespace std;
 using namespace std::chrono;
