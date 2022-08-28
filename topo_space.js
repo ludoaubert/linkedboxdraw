@@ -71,7 +71,7 @@ function print_html()
 function print_emplacement(i_emplacement_destination)
 {
 	if (i_emplacement_destination >= logical_graph.input_rectangles.length)
-		return `h${i_emplacement_destination - input_rectangles.length}`;
+		return `h${i_emplacement_destination - logical_graph.input_rectangles.length}`;
 	else
 		return `${i_emplacement_destination}`;
 }
