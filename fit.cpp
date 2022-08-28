@@ -330,11 +330,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 			const auto [_F, _L] = std::equal_range(rect_links_buffer, rect_links_buffer + rect_links_size, ri, Comp{});
 			return span(_F, _L);
-/*
-			int i=edge_partition[ri];
-			int j=edge_partition[ri+1];
-			return span(&rect_links_buffer[i], j-i);
-*/		};
+		};
 
 {
         FunctionTimer ft("cft_rec_push");
