@@ -24,7 +24,6 @@ struct SweepLineItem
 	int sweep_value;
 	RectDim rectdim;
 	int ri;
-	int pos;
 
 	auto operator<=>(const SweepLineItem&) const = default;
 };
@@ -150,11 +149,11 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		auto erase=[&](SweepLineItem& sweep_line_item){
 
-			auto& [id, sweep_value, rectdim, i, pos] = sweep_line_item;
+			auto& [id, sweep_value, rectdim, i] = sweep_line_item;
 
 			ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("lower = %d\n", lower.i));
-			pos = distance(active_line, &lower);
+			int pos = distance(active_line, &lower);
 			D(printf("pos = %d\n", pos));
 
 			for (RectLink* rl : active_line[pos].links)
@@ -185,11 +184,11 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		auto insert=[&](SweepLineItem& sweep_line_item){
 
-			auto& [id, sweep_value, rectdim, i, pos] = sweep_line_item;
+			auto& [id, sweep_value, rectdim, i] = sweep_line_item;
 
 			ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("upper = %d\n", upper.i));
-			pos = distance(active_line, &upper);
+			int pos = distance(active_line, &upper);
 			D(printf("pos = %d\n", pos));
 
 			for (int ii=active_line_size-1; ii>=pos; ii--)
@@ -216,7 +215,8 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 				rect_links_buffer[rect_links_size++] = {
 					.i=active_line[pos].i,
 					.j=active_line[pos+1].i,
-					.min_sweep_value=sweep_value};
+					.min_sweep_value=sweep_value
+				};
 
 				if (RectLink *rl=active_line[pos].links[1]; rl!=0)
 					rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
@@ -243,7 +243,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
         FunctionTimer ft("cft_sweep");
 		for (SweepLineItem& item : sweep_line)
 		{
-			const auto& [id, sweep_value, rectdim, ri, pos] = item;
+			const auto& [id, sweep_value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -267,10 +267,10 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 		}
 
-		for (const auto [id, sweep_value, rectdim, ri, pos] : sweep_line)
+		for (const auto [id, sweep_value, rectdim, ri] : sweep_line)
 		{
-			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d, .pos=%d},\n",
-				id, sweep_value, RectDimString[rectdim], ri, pos);
+			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d},\n",
+				id, sweep_value, RectDimString[rectdim], ri);
 		}
 }
 
