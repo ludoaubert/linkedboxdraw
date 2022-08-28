@@ -9,6 +9,7 @@
 //#include <fmt/ranges.h>
 //#include <format>
 #include "MyRect.h"
+#include "fit.h"
 using namespace std;
 
 
@@ -647,6 +648,8 @@ int main()
 		printf("{.subset=%u, .count=%d}\n", subset, count);
 	}
 	printf("}\n");
+
+	test_fit();
 
 	return 0;
 }
