@@ -20,7 +20,6 @@ using namespace std;
 
 struct SweepLineItem
 {
-	int id;
 	int sweep_value;
 	RectDim rectdim;
 	int ri;
@@ -136,9 +135,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 {
         FunctionTimer ft("cft_sort_sweepline");
 		ranges::sort(sweep_line, CustomLess());
-
-		for (int i=0; i < sweep_line.size(); i++)
-			sweep_line[i].id = i;
 }
 		int active_line_size=0;
 		int rect_links_size=0;
@@ -149,7 +145,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		auto erase=[&](SweepLineItem& sweep_line_item){
 
-			auto& [id, sweep_value, rectdim, i] = sweep_line_item;
+			auto& [sweep_value, rectdim, i] = sweep_line_item;
 
 			ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("lower = %d\n", lower.i));
@@ -184,7 +180,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 
 		auto insert=[&](SweepLineItem& sweep_line_item){
 
-			auto& [id, sweep_value, rectdim, i] = sweep_line_item;
+			auto& [sweep_value, rectdim, i] = sweep_line_item;
 
 			ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
 			D(printf("upper = %d\n", upper.i));
@@ -243,7 +239,7 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
         FunctionTimer ft("cft_sweep");
 		for (SweepLineItem& item : sweep_line)
 		{
-			const auto& [id, sweep_value, rectdim, ri] = item;
+			const auto& [sweep_value, rectdim, ri] = item;
 			switch(rectdim)
 			{
 			case LEFT:
@@ -267,10 +263,10 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			}
 		}
 
-		for (const auto [id, sweep_value, rectdim, ri] : sweep_line)
+		for (const auto [sweep_value, rectdim, ri] : sweep_line)
 		{
-			printf("{.id=%d, .sweep_value=%d, .rectdim=%s, .ri=%d},\n",
-				id, sweep_value, RectDimString[rectdim], ri);
+			printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n",
+				sweep_value, RectDimString[rectdim], ri);
 		}
 }
 
