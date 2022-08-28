@@ -376,14 +376,14 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 }
 
-struct MyVector{float x=0.0f; float y=0.0f;};
-struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 void test_fit()
 {
 	FunctionTimer::MAX_NESTING=1;
 	FunctionTimer ft("holes");
 
+	struct MyVector{float x=0.0f; float y=0.0f;};
+	struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyPoint> expected_translations;};
 
 	const vector<SingleHoleTestContext> single_hole_test_contexts={
