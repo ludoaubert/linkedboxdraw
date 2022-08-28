@@ -101,7 +101,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 	RectLink rect_links_buffer[256];
 	RectLink in_rect_links_buffer[N];
 	int in_edge_count[N];
-	int edge_partition[N+1];
 
 	MyPoint translations[N];
 
@@ -281,26 +280,6 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 			D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
 				RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
 		}
-#endif
-{
-        FunctionTimer ft("cft_edge_part");
-		edge_partition[0]=0;
-		for (int pos=0, ii=0; ii<n; ii++)
-		{
-			int &start_pos = edge_partition[ii];
-			int &end_pos = edge_partition[ii+1];
-			end_pos = start_pos;
-			for ( ; pos < rect_links_size && rect_links_buffer[pos].i==ii; pos++)
-			{
-				end_pos = max(end_pos, pos+1);
-			}
-		}
-}
-#ifdef _TRACE_
-		D(printf("edge_partition: "));
-		for (int pos : span(edge_partition,n+1))
-			D(printf("%d,", pos));
-		D(printf("\n"));
 #endif
 
 //TODO: use chunk_by C++23
