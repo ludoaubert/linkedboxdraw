@@ -214,10 +214,11 @@ bool filter(const LogicalEdge& e){
 };
 
 
-vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
+vector<int> compute_connected_components(size_t n,
 					const vector<LogicalEdge>& logical_edges)
 {
-	vector<int> connected_component(input_rectangles.size(), -1);
+	assert(ranges::is_sorted(logical_edges));
+	vector<int> connected_component(n, -1);
 
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
@@ -339,7 +340,7 @@ int main()
 
 	ranges::sort(topological_edges);
 
-	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges);
+	vector<int> connected_component = compute_connected_components(input_rectangles.size(), logical_edges);
 
 //	fmt::print("connected_component: {}\n", connected_component);
 
