@@ -206,25 +206,6 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 };
 
 
-template <typename EdgeType>
-vector<int> compute_edge_partition(int n, const vector<EdgeType>& edges)
-{
-	vector<int> edge_partition(n+1);
-	edge_partition[0]=0;
-	for (int pos=0, ii=0; ii<n; ii++)
-	{
-//C++23: use views::adjacent or views::slide
-		int &start_pos = edge_partition[ii];
-		int &end_pos = edge_partition[ii+1];
-		end_pos = start_pos;
-		for ( ; pos < edges.size() && edges[pos].from==ii; pos++)
-		{
-			end_pos = max(end_pos, pos+1);
-		}
-	}
-	return edge_partition;
-}
-
 
 bool filter(const LogicalEdge& e){
 
