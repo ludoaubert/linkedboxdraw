@@ -234,19 +234,18 @@ bool filter(const LogicalEdge& e){
 
 
 vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
-					const vector<LogicalEdge>& logical_edges,
-					const vector<int>& logical_edge_partition)
+					const vector<LogicalEdge>& logical_edges)
 {
 	vector<int> connected_component(input_rectangles.size(), -1);
 
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
-//TODO: C++23. auto [start_pos, end_pos] = (logical_edge_partition | view::slide(2))[i];
-		int start_pos = logical_edge_partition[i];
-		int end_pos = logical_edge_partition[i+1];
-		for (int pos=start_pos; pos < end_pos; pos++)
+
+		const auto [_F, _L] = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
+		span adj_list(_F, _L);
+
+		for (const LogicalEdge& e : adj_list)
 		{
-			const LogicalEdge& e = logical_edges[pos];
 			if (connected_component[e.to] == -1 && filter(e))
 				rec_compute_connected_components(e.to, c, rec_compute_connected_components);
 		}
@@ -359,25 +358,7 @@ int main()
 
 	ranges::sort(topological_edges);
 
-	vector<int> topological_edge_partition = compute_edge_partition(emplacements.size(), topological_edges);
-
-//	fmt::print("topological_edge_partition: {}\n", topological_edge_partition);
-
-	printf("topological_edge_partition: ");
-	for (int pos : topological_edge_partition)
-		printf("%d, ", pos);
-	printf("\n");
-
-	vector<int> logical_edge_partition = compute_edge_partition(input_rectangles.size(), logical_edges);
-
-//	fmt::print("logical_edge_partition: {}\n", logical_edge_partition);
-
-	printf("logical_edge_partition: ");
-	for (int pos : logical_edge_partition)
-		printf("%d, ", pos);
-	printf("\n");
-
-	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges, logical_edge_partition);
+	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges);
 
 //	fmt::print("connected_component: {}\n", connected_component);
 
@@ -464,13 +445,12 @@ int main()
 				continue;
 			}
 
-//TODO: C++23. auto [start_pos1, end_pos1] = (logical_edge_partition | view::slide(2))[i];
-			int start_pos1 = logical_edge_partition[i];
-			int end_pos1 = logical_edge_partition[i+1];
+			const auto [_F, _L] = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
+                        span le_adj_list(_F, _L);
 
 		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
 		// stable
-			if (ranges::all_of(span(&logical_edges[start_pos1], end_pos1 - start_pos1),
+			if (ranges::all_of(le_adj_list,
 					[&](const LogicalEdge& e){return mapping[e.to]==e.to && connected_component[e.to] != cmax;}
 					)
 			)
@@ -508,7 +488,7 @@ int main()
 
 // l'emplacement j est-il topologiquement lié aux rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
 			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
-				auto rg1 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
+				auto rg1 = le_adj_list |
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
 					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
 					views::transform([](const LogicalEdge& e){return e.to;});
@@ -518,11 +498,12 @@ int main()
 					printf(" %d,", i);
 				printf("}\n");
 
-//TODO: C++23. auto [start_pos2, end_pos2] = (topological_edge_partition | view::slide(2))[j];
-				int start_pos2 = topological_edge_partition[j];
-				int end_pos2 = topological_edge_partition[j+1];
+
+				const auto [_F, _L] = ranges::equal_range(topological_edges, j, {}, &TopologicalEdge::from);
+				span te_adj_list(_F, _L);
+
 			//les rectangles auxquels j est topologiquement lié:
-				auto rg2 = span(&topological_edges[start_pos2], end_pos2 - start_pos2) |
+				auto rg2 = te_adj_list |
 					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
 					views::filter([&](const TopologicalEdge& e){return mapping[e.to]==e.to /*connected_component[e.to] == cmax*/;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
@@ -545,14 +526,13 @@ int main()
 			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
 			// en ne gardant que les liens de i {e dont e.j a deja ete mappé ou e.j que l'on ne peut deplacer}
 				mapping[i]=j;
-				auto rg3 = span(&logical_edges[start_pos1], end_pos1 - start_pos1) |
+				auto rg3 = le_adj_list |
 					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=e.to || connected_component[e.to] == cmax;}) |
 					views::transform([&](const LogicalEdge& e){return TopologicalEdge{.from=mapping[e.from], .to=mapping[e.to], .distance=0};});
 
-				auto rg4 = span(&topological_edges[start_pos2], end_pos2 - start_pos2);
-				assert(ranges::is_sorted(rg4));
+				assert(ranges::is_sorted(te_adj_list));
 			//rg4 est triée, mais pas rg3 because mapping shuffles the ordering
-				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(rg4, e)==0;});
+				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(te_adj_list, e)==0;});
 				if (it != ranges::end(rg3))
 				{
 					const TopologicalEdge& e = *it;
