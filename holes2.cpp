@@ -223,8 +223,7 @@ vector<int> compute_connected_components(size_t n,
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
 
-		const auto [_F, _L] = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
-		span adj_list(_F, _L);
+		span adj_list = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
 
 		for (const LogicalEdge& e : adj_list)
 		{
@@ -427,8 +426,7 @@ int main()
 				continue;
 			}
 
-			const auto [_F, _L] = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
-                        span le_adj_list(_F, _L);
+			span le_adj_list = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
 
 		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
 		// stable
@@ -481,8 +479,7 @@ int main()
 				printf("}\n");
 
 
-				const auto [_F, _L] = ranges::equal_range(topological_edges, j, {}, &TopologicalEdge::from);
-				span te_adj_list(_F, _L);
+				span te_adj_list = ranges::equal_range(topological_edges, j, {}, &TopologicalEdge::from);
 
 			//les rectangles auxquels j est topologiquement lié:
 				auto rg2 = te_adj_list |
