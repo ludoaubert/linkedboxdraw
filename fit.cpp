@@ -354,6 +354,80 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 }
 
 
+enum Algo
+{
+	SPREAD,
+	COMPACT
+};
+
+struct Job
+{
+	Algo algo;
+	Direction update_direction;
+};
+
+const unsigned CORNER_MASK=0xC;
+const unsigned PIPELINE_MASK=0x3;
+
+Job pipelines[4][4]={
+	{
+		{SPREAD, EAST_WEST}, {SPREAD, NORTH_SOUTH}, {COMPACT, EAST_WEST}, {COMPACT, NORTH_SOUTH}
+	},
+	{
+		{SPREAD, EAST_WEST}, {SPREAD, NORTH_SOUTH}, {COMPACT, NORTH_SOUTH}, {COMPACT, EAST_WEST}
+	},
+	{
+		{SPREAD, NORTH_SOUTH}, {SPREAD, EAST_WEST}, {COMPACT, EAST_WEST}, {COMPACT, NORTH_SOUTH}
+	},
+	{
+		{SPREAD, NORTH_SOUTH}, {SPREAD, EAST_WEST}, {COMPACT, NORTH_SOUTH}, {COMPACT, EAST_WEST}
+	}
+};
+
+RectDim corners[4][2]={
+	{LEFT, TOP},
+	{LEFT, BOTTOM},
+	{RIGHT, TOP},
+	{RIGHT, BOTTOM}
+};
+
+//4 corners X 4 job pipelines
+
+
+void apply_job(const Job& job, vector<MyRect>& rectangles)
+{
+	const auto [algo, update_direction] = job;
+
+}
+
+void apply_job_pipeline(const Job (&jobs)[4], vector<MyRect>& rectangles)
+{
+	for (const Job& job : jobs)
+	{
+		apply_job(job, rectangles);
+	}
+}
+
+void translate_rectangles(int id, const RectDim (&corner)[2], vector<MyRect>& rectangles)
+{
+	const auto [RectDimX, RectDimY] = corner;
+
+}
+
+void main_69()
+{
+	int code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
+		unsigned corner=code & CORNER_MASK;
+		unsigned pipeline=code & PIPELINE_MASK;
+		vector<MyRect> rectangles /*= input_rectangles*/;
+		int id=0;
+		translate_rectangles(id, corners[corner], rectangles);
+		apply_job_pipeline(pipelines[pipeline], rectangles);
+		return dim_max(compute_frame(rectangles));
+	});
+}
+
+
 void test_fit()
 {
 	FunctionTimer::MAX_NESTING=1;
