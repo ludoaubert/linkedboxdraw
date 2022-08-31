@@ -271,27 +271,10 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 //TODO: use chunk_by C++23
 	const int N=20;
 	int n = rectangles.size();
-	int in_edge_count[N];
-	RectLink in_rect_links_buffer[N];
-	int in_rect_links_size=0;
 
         MyPoint translations[N];
 
         ranges::fill(translations, MyPoint{0,0});
-{
-	FunctionTimer ft("cft_in_edges");
-	ranges::fill(in_edge_count, 0);
-	for (const RectLink& rl : rect_links)
-		in_edge_count[rl.j] += 1;
-	for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
-		in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
-#ifdef _TRACE_
-	D(printf("in_edges: "));
-	for (const RectLink& rl : span(in_rect_links_buffer, in_rect_links_size))
-		D(printf("%d, ", rl.j));
-	D(printf("\n"));
-#endif
-}
 
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
@@ -314,11 +297,10 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 	};
 
 	auto push_hole=[&](){
-		span adj(in_rect_links_buffer, in_rect_links_size);
-		for (const RectLink& e : adj)
+		for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
 		{
 			int tr=0;
-			rec_push_hole(e.j, tr, rec_push_hole);
+			rec_push_hole(j, tr, rec_push_hole);
 		}
 	};
 	push_hole();
@@ -336,27 +318,11 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 //TODO: use chunk_by C++23
         const int N=20;
         int n = rectangles.size();
-        int in_edge_count[N];
-        RectLink in_rect_links_buffer[N];
-        int in_rect_links_size=0;
 
         MyPoint translations[N];
 
         ranges::fill(translations, MyPoint{0,0});
-{
-        FunctionTimer ft("cft_in_edges");
-        ranges::fill(in_edge_count, 0);
-        for (const RectLink& rl : rect_links)
-                in_edge_count[rl.j] += 1;
-        for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
-                in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
-#ifdef _TRACE_
-        D(printf("in_edges: "));
-        for (const RectLink& rl : span(in_rect_links_buffer, in_rect_links_size))
-                D(printf("%d, ", rl.j));
-        D(printf("\n"));
-#endif
-}
+
         auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
         int compact_dimension=0;
@@ -381,8 +347,10 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
         };
 
         auto query_compact_dimension=[&]()->int{
-		span adj(in_rect_links_buffer, in_rect_links_size);
-                return ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+                return ranges::max(views::iota(0,n) |
+				views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}) |
+				views::transform([&](int j){return rec_query_compact_dimension(j, rec_query_compact_dimension);})
+		);
         };
 
 	compact_dimension = query_compact_dimension();
@@ -403,12 +371,11 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	};
 
         auto push=[&](int tr){
-               span adj(in_rect_links_buffer, in_rect_links_size);
-               for (const RectLink& e : adj)
-               {
-                        int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
-                        if (trj > 0)
-                               rec_push(e.j, trj, rec_push);
+		for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
+		{
+			int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
+			if (trj > 0)
+				rec_push(j, trj, rec_push);
                 }
          };
          push(tr);
