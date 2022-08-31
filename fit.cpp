@@ -381,7 +381,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
         };
 
         auto query_compact_dimension=[&]()->int{
-                return ranges::max(rect_links | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+		span adj(in_rect_links_buffer, in_rect_links_size);
+                return ranges::max(adj | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
         };
 
 	compact_dimension = query_compact_dimension();
