@@ -331,6 +331,108 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 }
 
 
+void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+{
+//TODO: use chunk_by C++23
+        const int N=20;
+        int n = rectangles.size();
+        int in_edge_count[N];
+        RectLink in_rect_links_buffer[N];
+        int in_rect_links_size=0;
+
+        MyPoint translations[N];
+
+        ranges::fill(translations, MyPoint{0,0});
+{
+        FunctionTimer ft("cft_in_edges");
+        ranges::fill(in_edge_count, 0);
+        for (const RectLink& rl : rect_links)
+                in_edge_count[rl.j] += 1;
+        for (int ri : views::iota(0, n) | views::filter([&](int ri){return in_edge_count[ri]==0;}))
+                in_rect_links_buffer[in_rect_links_size++] = {-INT16_MAX, ri};
+#ifdef _TRACE_
+        D(printf("in_edges: "));
+        for (const RectLink& rl : span(in_rect_links_buffer, in_rect_links_size))
+                D(printf("%d, ", rl.j));
+        D(printf("\n"));
+#endif
+}
+        auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+
+        int compact_dimension=0;
+        int tr;
+
+        MyRect frame={
+                .m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
+                .m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
+                .m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
+                .m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+        };
+{
+        FunctionTimer ft("cft_query_compact_dim");
+        auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
+                span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
+                if (adj_list.empty())
+                {
+                        return dimensions(rectangles[ri])[update_direction];
+                }
+                int tr = ranges::max(adj_list | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+                return tr + dimensions(rectangles[ri])[update_direction];
+        };
+
+        auto query_compact_dimension=[&]()->int{
+                return ranges::max(rect_links | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+        };
+
+	compact_dimension = query_compact_dimension();
+	tr = dimensions(frame)[update_direction] - compact_dimension;
+	D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
+}
+{
+	FunctionTimer ft("cft_push");
+	auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
+		span adj = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
+		translations[ri][update_direction] = tri;
+		for (const RectLink& e : adj)
+		{
+			int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
+			if (trj > 0)
+				rec_push(e.j, trj, rec_push);
+		}
+	};
+
+        auto push=[&](int tr){
+               span adj(in_rect_links_buffer, in_rect_links_size);
+               for (const RectLink& e : adj)
+               {
+                        int trj = tr - (rectangles[e.j][minCompactRectDim] - frame[minCompactRectDim]);
+                        if (trj > 0)
+                               rec_push(e.j, trj, rec_push);
+                }
+         };
+         push(tr);
+}
+{
+#ifdef _TRACE_
+         D(printf("translations={"));
+         for (int ri=0; ri < n; ri++)
+         {
+                int tr = translations[ri][update_direction];
+                if (tr != 0)
+                        D(printf("{ri=%d, tr=%d},",ri, tr));
+         }
+         D(printf("}\n"));
+#endif
+         for (int ri=0; ri < n; ri++)
+         {
+                int value = translations[ri][update_direction];
+//                if (value != 0)
+//                     rectangles[ri] += translations[FORWARD_LINKS][ri];
+         }
+}
+}
+
+
 vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_rectangles)
 {
 	FunctionTimer ft("compute_fht_");
