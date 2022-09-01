@@ -411,7 +411,21 @@ vector<MyPoint> compute_fit_to_hole_transform_(const vector<MyRect>& input_recta
 		vector<RectLink> rect_links = sweep(update_direction, rectangles);
 		spread(update_direction, rect_links, rectangles);
 	}
-	return vector<MyPoint>();
+/*
+TODO: use C++23 views::zip_transform() and views::to
+	return views::zip_transform([](const MyRect& r1, const MyRect& r2)->MyPoint{return {r2.m_left-r1.m_left,r2.m_top-r1.m_top};}),
+				input_rectangles, rectangles) | views::to<vector>;
+*/
+	int n=rectangles.size();
+	vector<MyPoint> translations(n);
+	for (int i=0; i<n; i++)
+	{
+		auto& [x, y] = translations[i];
+		const MyRect &r1 = input_rectangles[i], &r2 = rectangles[i];
+		x = r2.m_left - r1.m_left;
+		y = r2.m_top - r1.m_top;
+	}
+	return translations;
 }
 
 
