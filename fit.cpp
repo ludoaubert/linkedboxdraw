@@ -459,6 +459,17 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 {
 	const auto [algo, update_direction] = job;
 
+	vector<RectLink> rect_links = sweep(update_direction, rectangles);
+
+	switch (algo)
+	{
+	case SPREAD:
+		spread(update_direction, rect_links, rectangles);
+		break;
+	case COMPACT:
+		compact(update_direction, rect_links, rectangles);
+		break;
+	}
 }
 
 void apply_job_pipeline(const Job (&jobs)[4], vector<MyRect>& rectangles)
