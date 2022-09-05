@@ -6,6 +6,7 @@
 #include <ranges>
 #include <span>
 #include <stdio.h>
+#include <cstring>
 //#include <fmt/ranges.h>
 //#include <format>
 #include "FunctionTimer.h"
@@ -718,13 +719,6 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 }
 
 
-void translate_rectangles(int id, const RectDim (&corner)[2], vector<MyRect>& rectangles)
-{
-	const auto [RectDimX, RectDimY] = corner;
-
-}
-
-
 struct TranslationRangeItem
 {
 	int id;
@@ -733,18 +727,60 @@ struct TranslationRangeItem
 };
 
 
-vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree)
+vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
+								const vector<MyRect>& emplacements,
+								const vector<MyRect>& input_rectangles)
 {
-	int code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
-		unsigned corner=code & CORNER_MASK;
-		unsigned pipeline=code & PIPELINE_MASK;
-		vector<MyRect> rectangles /*= input_rectangles*/;
-		int id=0;
-		translate_rectangles(id, corners[corner], rectangles);
-		for (const Job& job : pipelines[pipeline])
-			apply_job(job, rectangles);
-		return dim_max(compute_frame(rectangles));
-	});
+	int n = input_rectangles.size();
+	vector<unsigned> match_corners(decision_tree.size(), -1);
+	vector<TranslationRangeItem> translation_ranges;
+	vector<MyRect> rectangles(n);
+
+	for (int id=0; id < decision_tree.size(); id++)
+	{
+		auto tf=[&](unsigned pipeline){
+			memcpy(&rectangles[0], &input_rectangles[0], sizeof(MyRect)*n);
+			for (int pid=id; pid!=-1; pid=decision_tree[pid].parent_index)
+			{
+				const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
+				unsigned match_corner = match_corners[pid];
+				const auto [RectDimX, RectDimY] = corners[match_corner];
+				const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+				const MyPoint tr = {
+					r2[RectDimX] - r1[RectDimX],
+					r2[RectDimY] - r1[RectDimY]
+				};
+				rectangles[i_emplacement_source] += tr;
+			}
+                	for (const Job& job : pipelines[pipeline])
+                        	apply_job(job, rectangles);
+		};
+
+		unsigned code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
+			unsigned match_corner=code & CORNER_MASK;
+			unsigned pipeline=code & PIPELINE_MASK;
+			match_corners[id] = match_corner;
+			tf(pipeline);
+			return dim_max(compute_frame(rectangles));
+		});
+
+		match_corners[id] = code & CORNER_MASK;
+		tf(code & PIPELINE_MASK);
+
+		auto rg = views::iota(0,n) |
+			views::filter([&](int i){return rectangles[i] != input_rectangles[i];}) |
+			views::transform([&](int i)->TranslationRangeItem{
+                                        const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+                                        MyPoint tr={r.m_left - ir.m_left, r.m_top - ir.m_top};
+                                        return {id, i, tr};
+                                }
+			);
+
+		for (TranslationRangeItem item : rg)
+		{
+			translation_ranges.push_back(item);
+		}
+	}
 }
 
 
