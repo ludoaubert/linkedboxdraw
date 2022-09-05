@@ -1395,6 +1395,8 @@ int main()
 	}
 	printf("}\n");
 
+	vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
+
 	test_fit();
 
 	return 0;
