@@ -1397,6 +1397,19 @@ int main()
 
 	vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
 
+{
+	FILE *f=fopen("translation_ranges.json", "w");
+	fprintf(f, "[\n");
+	for (int i=0; i < translation_ranges.size(); i++)
+	{
+		const auto [id, ri, tr] = translation_ranges[i];
+		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
+			i+1 == translation_ranges.size() ? "": ",");
+	}
+        fprintf(f, "]\n");
+        fclose(f);
+}
+
 	test_fit();
 
 	return 0;
