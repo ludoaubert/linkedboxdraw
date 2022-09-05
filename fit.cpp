@@ -442,7 +442,7 @@ struct Job
 const unsigned CORNER_MASK=0xC;
 const unsigned PIPELINE_MASK=0x3;
 
-Job pipelines[4][4]={
+const Job pipelines[4][4]={
 	{
 		{SPREAD, EAST_WEST}, {SPREAD, NORTH_SOUTH}, {COMPACT, EAST_WEST}, {COMPACT, NORTH_SOUTH}
 	},
@@ -457,7 +457,7 @@ Job pipelines[4][4]={
 	}
 };
 
-RectDim corners[4][2]={
+const RectDim corners[4][2]={
 	{LEFT, TOP},
 	{LEFT, BOTTOM},
 	{RIGHT, TOP},
@@ -484,13 +484,6 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 	}
 }
 
-void apply_job_pipeline(const Job (&jobs)[4], vector<MyRect>& rectangles)
-{
-	for (const Job& job : jobs)
-	{
-		apply_job(job, rectangles);
-	}
-}
 
 void translate_rectangles(int id, const RectDim (&corner)[2], vector<MyRect>& rectangles)
 {
@@ -498,7 +491,16 @@ void translate_rectangles(int id, const RectDim (&corner)[2], vector<MyRect>& re
 
 }
 
-void main_69()
+
+struct TranslationRangeItem
+{
+	int id;
+	int ri;
+	MyPoint tr;
+};
+
+
+vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree)
 {
 	int code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
 		unsigned corner=code & CORNER_MASK;
@@ -506,7 +508,8 @@ void main_69()
 		vector<MyRect> rectangles /*= input_rectangles*/;
 		int id=0;
 		translate_rectangles(id, corners[corner], rectangles);
-		apply_job_pipeline(pipelines[pipeline], rectangles);
+		for (const Job& job : pipelines[pipeline])
+			apply_job(job, rectangles);
 		return dim_max(compute_frame(rectangles));
 	});
 }
