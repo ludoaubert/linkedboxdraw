@@ -393,9 +393,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 #endif
          for (int ri=0; ri < n; ri++)
          {
-                int value = translations[ri][update_direction];
-//                if (value != 0)
-//                     rectangles[ri] += translations[FORWARD_LINKS][ri];
+                rectangles[ri] += translations[ri];
          }
 }
 }
