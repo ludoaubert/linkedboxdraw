@@ -678,16 +678,28 @@ const unsigned PIPELINE_MASK=0x3;
 
 const Job pipelines[4][4]={
 	{
-		{SPREAD, EAST_WEST}, {SPREAD, NORTH_SOUTH}, {COMPACT, EAST_WEST}, {COMPACT, NORTH_SOUTH}
+		{.algo=SPREAD, .update_direction=EAST_WEST},
+		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
+		{.algo=COMPACT, .update_direction=EAST_WEST},
+		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
 	},
 	{
-		{SPREAD, EAST_WEST}, {SPREAD, NORTH_SOUTH}, {COMPACT, NORTH_SOUTH}, {COMPACT, EAST_WEST}
+		{.algo=SPREAD, .update_direction=EAST_WEST},
+		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
+		{.algo=COMPACT, .update_direction=NORTH_SOUTH},
+		{.algo=COMPACT, .update_direction=EAST_WEST}
 	},
 	{
-		{SPREAD, NORTH_SOUTH}, {SPREAD, EAST_WEST}, {COMPACT, EAST_WEST}, {COMPACT, NORTH_SOUTH}
+		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
+		{.algo=SPREAD, .update_direction=EAST_WEST},
+		{.algo=COMPACT, .update_direction=EAST_WEST},
+		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
 	},
 	{
-		{SPREAD, NORTH_SOUTH}, {SPREAD, EAST_WEST}, {COMPACT, NORTH_SOUTH}, {COMPACT, EAST_WEST}
+		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
+		{.algo=SPREAD, .update_direction=EAST_WEST},
+		{.algo=COMPACT, .update_direction=NORTH_SOUTH},
+		{.algo=COMPACT, .update_direction=EAST_WEST}
 	}
 };
 
@@ -747,8 +759,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 				const auto [RectDimX, RectDimY] = corners[match_corner];
 				const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
 				const MyPoint tr = {
-					r2[RectDimX] - r1[RectDimX],
-					r2[RectDimY] - r1[RectDimY]
+					.x=r2[RectDimX] - r1[RectDimX],
+					.y=r2[RectDimY] - r1[RectDimY]
 				};
 				rectangles[i_emplacement_source] += tr;
 			}
