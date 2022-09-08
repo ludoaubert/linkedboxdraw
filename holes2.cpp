@@ -793,6 +793,21 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			translation_ranges.push_back(item);
 		}
 	}
+
+{
+        FILE *f=fopen("translation_ranges.json", "w");
+        fprintf(f, "[\n");
+        for (int i=0; i < translation_ranges.size(); i++)
+        {
+                const auto [id, ri, tr] = translation_ranges[i];
+                fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
+                        i+1 == translation_ranges.size() ? "": ",");
+        }
+        fprintf(f, "]\n");
+        fclose(f);
+}
+
+	return translation_ranges;
 }
 
 
@@ -1043,7 +1058,9 @@ void test_fit()
 }
 
 
-int main()
+vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_rectangles,
+						const vector<LogicalEdge>& logical_edges,
+						vector<MyRect>& emplacements)
 {
 	const int n = input_rectangles.size();
 
@@ -1119,7 +1136,6 @@ int main()
 
 //La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
 
-	vector<MyRect> emplacements;
 	for (const MyRect &r : input_rectangles)
 		emplacements.push_back(r);
 	for (const RectHole &rh : holes)
@@ -1381,21 +1397,15 @@ int main()
         fprintf(f, "]\n");
         fclose(f);
 }
+}
+
+int main()
+{
+	vector<MyRect> emplacements;
+
+	vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
 
 	vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
-
-{
-	FILE *f=fopen("translation_ranges.json", "w");
-	fprintf(f, "[\n");
-	for (int i=0; i < translation_ranges.size(); i++)
-	{
-		const auto [id, ri, tr] = translation_ranges[i];
-		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
-			i+1 == translation_ranges.size() ? "": ",");
-	}
-        fprintf(f, "]\n");
-        fclose(f);
-}
 
 	test_fit();
 
