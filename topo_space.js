@@ -90,69 +90,91 @@ window.main = function main(){
 `<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
 			.join('\n');
 
-dt.addEventListener('mouseover', (event)=>{
-// 'highlight' color is set in tablelist.css
-       let tr = event.target.parentNode;
-       if ( tr.className === '') {
-            tr.className='highlight';
-       }
-       return false
-});
+	dt.addEventListener('mouseover', (event)=>{
+	// 'highlight' color is set in tablelist.css
+		   let tr = event.target.parentNode;
+		   if ( tr.className === '') {
+				tr.className='highlight';
+		   }
+		   return false
+	});
 
-dt.addEventListener('mouseout', (event)=>{
-       let tr = event.target.parentNode;
-       if ( tr.className === 'highlight') {
-            tr.className='';
-       }
-       return false
-});
+	dt.addEventListener('mouseout', (event)=>{
+		   let tr = event.target.parentNode;
+		   if ( tr.className === 'highlight') {
+				tr.className='';
+		   }
+		   return false
+	});
 
-dt.addEventListener('mousedown', (event)=>{
+	dt.addEventListener('mousedown', (event)=>{
 
-       let tr = event.target.parentNode;
+		   let tr = event.target.parentNode;
 
-     if ( tr.className !== 'clicked' ) {
-// Clear previous selection
-            if ( selected !== null ) {
-                 selected.className='';
-            }
-// Mark this row as selected
-            tr.className='clicked';
-            selected = tr;
-	   let i = parseInt(tr.cells[0].innerHTML,10);
-           let chemin = [];
-           while (i != -1)
-           {
-                chemin.push(decision_tree[i]);
-                i = decision_tree[i].parent_index;
-           }
+		 if ( tr.className !== 'clicked' ) {
+	// Clear previous selection
+				if ( selected !== null ) {
+					 selected.className='';
+				}
+	// Mark this row as selected
+				tr.className='clicked';
+				selected = tr;
+		   let i = parseInt(tr.cells[0].innerHTML,10);
+			   let chemin = [];
+			   while (i != -1)
+			   {
+					chemin.push(decision_tree[i]);
+					i = decision_tree[i].parent_index;
+			   }
 
-	   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
-	   cm.innerHTML = chemin
-                        .reverse()
-                        .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
-			.join('\n');
+		   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
+		   cm.innerHTML = chemin
+							.reverse()
+							.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
+	`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
+				.join('\n');
 
-           document
-                .querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
-                .forEach((element) => {element.style.visibility = "hidden";});
+			   document
+					.querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
+					.forEach((element) => {element.style.visibility = "hidden";});
 
-           const query = chemin
-		.map(({i_emplacement_destination}) => i_emplacement_destination)
-		.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
-                .map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
-                .map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
-                .join(', ');
+			   const query = chemin
+			.map(({i_emplacement_destination}) => i_emplacement_destination)
+			.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
+					.map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
+					.map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
+					.join(', ');
 
-           document
-                .querySelectorAll(query)
-                .forEach((element) => {element.style.visibility = "visible";});
-     }
-     else {
-           tr.className='';
-           selected = null;
-     }
-     return true
-});
+			   document
+					.querySelectorAll(query)
+					.forEach((element) => {element.style.visibility = "visible";});
+		 }
+		 else {
+			   tr.className='';
+			   selected = null;
+		 }
+		 return true
+	});
+	
+	const allTables = document.querySelectorAll('table');
+
+	for (const table of allTables) {
+	  const tBody = table.tBodies[0];
+	  const rows = Array.from(tBody.rows);
+	  const headerCells = table.tHead.rows[0].cells;
+
+	  for (const th of headerCells) {
+		const cellIndex = th.cellIndex;
+
+		th.addEventListener('click', () => {
+		  rows.sort((tr1, tr2) => {
+			const tr1Text = tr1.cells[cellIndex].textContent;
+			const tr2Text = tr2.cells[cellIndex].textContent;
+			return tr1Text.localeCompare(tr2Text);
+		  });
+
+		  tBody.append(...rows);
+		});
+	  }
+	}
 }
