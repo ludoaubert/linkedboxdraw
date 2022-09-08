@@ -1338,11 +1338,6 @@ int main()
 
 	printf("decision_tree.size()=%ld\n", decision_tree.size());
 
-	int max_value=0;
-	const int known_max_value=26;
-
-        map<unsigned int, int> subset_distrib;
-
 	for (int i=0; i < decision_tree.size(); i++)
 	{
 		deque<RectMap> chemin;
@@ -1370,17 +1365,6 @@ int main()
 		ranges::set_intersection(v, topological_edges, back_inserter(inter));
                 decision_tree[i].match = inter.size();
 		printf("i=%d inter.size()=%ld\n", i, inter.size());
-		max_value = max<int>(max_value, inter.size());
-
-		if (max_value == known_max_value)
-		{
-			unsigned int subset = 0;
-			for (int ii=0; ii < input_rectangles.size(); ii++)
-			{
-				subset += mapping[ii] == ii ? 1 << ii : 0;
-			}
-			subset_distrib[subset]++;
-		}
 	}
 
 {
@@ -1397,15 +1381,6 @@ int main()
         fprintf(f, "]\n");
         fclose(f);
 }
-
-	printf("max_value=%d\n", max_value);
-	printf("subset_distrib.size()=%ld\n", subset_distrib.size());
-	printf("subset_distrib={\n");
-	for (const auto& [subset, count] : subset_distrib)
-	{
-		printf("{.subset=%u, .count=%d}\n", subset, count);
-	}
-	printf("}\n");
 
 	vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
 
