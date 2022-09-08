@@ -1397,6 +1397,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
         fprintf(f, "]\n");
         fclose(f);
 }
+	return decision_tree;
 }
 
 int main()
