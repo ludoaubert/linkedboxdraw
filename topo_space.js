@@ -35,7 +35,18 @@ function translation_range_print_html(id)
 // find the end of the range
 	const end = binarySearch(translation_ranges, item => item.id > id);
 	
-	console.log(translation_ranges.slice(start,end));
+	const translations = translation_ranges.slice(start,end);
+	
+	const rectangles = input_rectangles.map((r, index) => {
+			const tr=translation.find(tr => tr.ri==index);
+			return tr==undefined ? r : {
+				m_left : r.m_left + tr.x,
+				m_right : r.m_right + tr.x,
+				m_top : r.m_top + tr.y,
+				m_bottom : r.m_bottom + tr.y
+			};
+		}
+	);
 }
 
 function print_html()
