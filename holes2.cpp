@@ -815,8 +815,6 @@ void test_fit()
 	FunctionTimer::MAX_NESTING=1;
 	FunctionTimer ft("holes");
 
-	struct MyVector{float x=0.0f; float y=0.0f;};
-	struct RectHole {int ri; int rj; RectCorner corner; MyVector direction; int value; MyRect rec;};
 	struct SingleHoleTestContext {int testid; vector<MyRect> input_rectangles; RectHole rect_hole; vector<MyPoint> expected_translations;};
 
 	const vector<SingleHoleTestContext> single_hole_test_contexts={
@@ -845,7 +843,7 @@ void test_fit()
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
 		.rect_hole = {
-			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=50,
+			.ri=3, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=50,
 			.rec={.m_left=100, .m_right=150, .m_top=100, .m_bottom=150}
 		},
 		.expected_translations={
@@ -884,7 +882,7 @@ void test_fit()
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
 		.rect_hole = {
-			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
+			.ri=3, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
 			.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
 		},
 		.expected_translations={
@@ -923,7 +921,7 @@ void test_fit()
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
 		.rect_hole = {
-			.ri=3, .rj=1, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
+			.ri=3, .corner=BOTTOM_LEFT, .direction={.x=1.0, .y=1.0}, .value=100,
 			.rec={.m_left=100, .m_right=200, .m_top=100, .m_bottom=200}
 		},
 		.expected_translations={
@@ -960,7 +958,7 @@ void test_fit()
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
 		.rect_hole = {
-			.ri=3, .rj=5, .corner=TOP_RIGHT, .direction={.x=1.0, .y=1.0}, .value=50,
+			.ri=3, .corner=TOP_RIGHT, .direction={.x=1.0, .y=1.0}, .value=50,
 			.rec={.m_left=200, .m_right=250, .m_top=150, .m_bottom=200}
 		},
 		.expected_translations={
@@ -993,7 +991,7 @@ void test_fit()
                         {.m_left=300, .m_right=400, .m_top=100, .m_bottom=200}
                 },
                 .rect_hole = {
-                        .ri=2, .rj=0, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,
+                        .ri=2, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,
                         .rec={.m_left=100, .m_right=200, .m_top=0, .m_bottom=100}
                 },
                 .expected_translations={
@@ -1027,7 +1025,7 @@ void test_fit()
                         {.m_left=300, .m_right=400, .m_top=0, .m_bottom=100}
                 },
                 .rect_hole = {
-                        .ri=2, .rj=0, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,//this line is wrong but not used
+                        .ri=2, .corner=TOP_RIGHT, .direction={.x=1.0, .y=-1.0}, .value=100,//this line is wrong but not used
                         .rec={.m_left=100, .m_right=150, .m_top=300, .m_bottom=350}
                 },
                 .expected_translations={
@@ -1040,7 +1038,7 @@ void test_fit()
 
 	for (const auto& [testid, input_rectangles, rect_hole, expected_translations] : single_hole_test_contexts)
 	{
-		const auto& [ri, rj, corner, direction, value, rec] = rect_hole;
+		const auto& [ri, corner, direction, value, rec] = rect_hole;
 		int dm1 = dim_max(compute_frame(input_rectangles));
 		vector<MyRect> input_rectangles_ = input_rectangles;
 		MyRect& r = input_rectangles_[ri];
