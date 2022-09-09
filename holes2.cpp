@@ -1367,15 +1367,21 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	return decision_tree;
 }
 
-int main()
+int main(int argc, char argv[])
 {
-	vector<MyRect> emplacements;
+	if (argc==1 && strcmp(argv, "--dt"))
+	{
+		vector<MyRect> emplacements;
 
-	vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
 
-	vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
+		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
+	}
 
-	test_fit();
+	if (argc == 0)
+	{
+		test_fit();
+	}
 
 	return 0;
 }
