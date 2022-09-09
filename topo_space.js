@@ -8,6 +8,36 @@ import translation_ranges from './translation_ranges.json' assert {type: 'json'}
 console.log(logical_graph);
 console.log(holes);
 
+// supposed to find the index of the first element that matches the predicate.
+// expects that ALL elements after that also match!
+function binarySearch(array, predicate) {
+  let lo = 0, hi = array.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (predicate(array[mid], mid, array)) {
+      hi = mid;
+    } else {
+      lo = mid + 1;
+    }
+  }
+  return lo;
+}
+
+
+function print_html(id)
+{
+	var innerHTML = "";
+	
+	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
+
+	// find the start of the range
+	const start = binarySearch(translation_ranges, item => item.id >= id);
+// find the end of the range
+	const end = binarySearch(translation_ranges, item => item.id > id);
+	
+	console.log(translation_ranges.slice(start,end));
+}
+
 function print_html()
 {
 	var innerHTML = "";
@@ -121,6 +151,9 @@ window.main = function main(){
 				tr.className='clicked';
 				selected = tr;
 		   let i = parseInt(tr.cells[0].innerHTML,10);
+		   
+				print_html(i);
+		   
 			   let chemin = [];
 			   while (i != -1)
 			   {
