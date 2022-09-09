@@ -13,7 +13,7 @@
 #include "MyRect.h"
 using namespace std;
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -458,28 +458,27 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 		case LEFT:
 		case TOP:
 			D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
-			printf("before insert\n");
+			D(printf("before insert\n"));
 //			print_active_line();
 			insert(item);
-			printf("after insert\n");
-			print_active_line();
+			D(printf("after insert\n"));
+			D(print_active_line());
 			break;
 		case RIGHT:
 		case BOTTOM:
 			D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
-			printf("before erase\n");
+			D(printf("before erase\n"));
 //			print_active_line();
 			erase(item);
-			printf("after erase\n");
-			print_active_line();
+			D(printf("after erase\n"));
+			D(print_active_line());
 			break;
 		}
 	}
 
 	for (const auto [sweep_value, rectdim, ri] : sweep_line)
 	{
-		printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n",
-			sweep_value, RectDimString[rectdim], ri);
+		D(printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri));
 	}
 }
 
