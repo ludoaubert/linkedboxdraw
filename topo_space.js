@@ -26,8 +26,6 @@ function binarySearch(array, predicate) {
 
 function translation_range_print_html(id)
 {
-	var innerHTML = "";
-	
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
 	// find the start of the range
@@ -47,6 +45,37 @@ function translation_range_print_html(id)
 			};
 		}
 	);
+	
+	var innerHTML = "";
+	
+	const frame = {
+		m_left : Math.min(...rectangles.map(r => r.m_left)),
+		m_right : Math.max(...rectangles.map(r => r.m_right)),
+		m_top : Math.min(...rectangles.map(r => r.m_top)),
+		m_bottom : Math.max(...rectangles.map(r => r.m_bottom))
+	};
+
+	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
+
+	innerHTML += rectangles
+			.map(({m_left, m_right, m_top, m_bottom}, index) => `<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
+			.join('');
+
+	innerHTML += rectangles
+			.map((r, index) => `<text id="tr-${index}" x="${r.m_left}" y="${r.m_top}" fill="red">r-${index}</text>\n`)
+			.join('');
+
+	let windowed_index = [];
+	windowed_index.length = input_rectangles.length;
+	windowed_index.fill(1);
+
+	innerHTML += logical_edges
+			.map(({from, to}) => `<text id="le-${from}-${to}" x="${input_rectangles[from].m_left+8}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="logical_contact">r-${to}</text>\n`)
+			.join('');
+
+	innerHTML += "</svg>";
+
+	return innerHTML;			
 }
 
 function print_html()
@@ -163,7 +192,8 @@ window.main = function main(){
 				selected = tr;
 		   let i = parseInt(tr.cells[0].innerHTML,10);
 		   
-				translation_range_print_html(i);
+		   	let div = document.getElementById("range_svg");
+			div.innerHTML = translation_range_print_html(i);
 		   
 			   let chemin = [];
 			   while (i != -1)
