@@ -24,7 +24,7 @@ function binarySearch(array, predicate) {
 }
 
 
-function print_html(id)
+function translation_range_print_html(id)
 {
 	var innerHTML = "";
 	
@@ -152,7 +152,7 @@ window.main = function main(){
 				selected = tr;
 		   let i = parseInt(tr.cells[0].innerHTML,10);
 		   
-				print_html(i);
+				translation_range_print_html(i);
 		   
 			   let chemin = [];
 			   while (i != -1)
