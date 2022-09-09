@@ -1367,9 +1367,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	return decision_tree;
 }
 
-int main(int argc, char argv[])
+int main(int argc, char* argv[])
 {
-	if (argc==1 && strcmp(argv, "--dt"))
+	if (argc==2 && strcmp(argv[1], "--dt")==0)
 	{
 		vector<MyRect> emplacements;
 
@@ -1378,7 +1378,7 @@ int main(int argc, char argv[])
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
 	}
 
-	if (argc == 0)
+	if (argc == 1)
 	{
 		test_fit();
 	}
