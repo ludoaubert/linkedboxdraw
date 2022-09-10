@@ -742,6 +742,13 @@ const RectDim corners[4][2]={
 	{RIGHT, BOTTOM}
 };
 
+const char* CornerStrings[4]={
+        "{LEFT, TOP}",
+        "{LEFT, BOTTOM}",
+        "{RIGHT, TOP}",
+        "{RIGHT, BOTTOM}"
+};
+
 //4 corners X 4 job pipelines
 
 
@@ -801,14 +808,22 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		};
 
 		unsigned code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
-			unsigned match_corner=code & CORNER_MASK;
-			unsigned pipeline=code & PIPELINE_MASK;
+			D(printf("code=%u\n", code));
+			unsigned match_corner=(code & CORNER_MASK) >> 2;
+			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
 			match_corners[id] = match_corner;
-			tf(pipeline);
+                	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
+			tf(code & PIPELINE_MASK);
+			D(printf("dim_max=%d\n", dim_max(compute_frame(rectangles)) ));
 			return dim_max(compute_frame(rectangles));
 		});
 
-		match_corners[id] = code & CORNER_MASK;
+		D(printf("code=%u\n", code));
+		D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
+		D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
+		D(printf("code & PIPELINE_MASK=%u\n", code & PIPELINE_MASK));
+
+		match_corners[id] = (code & CORNER_MASK) >> 2;
 		tf(code & PIPELINE_MASK);
 
 		auto rg = views::iota(0,n) |
