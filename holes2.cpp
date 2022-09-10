@@ -195,6 +195,57 @@ const vector<LogicalEdge> logical_edges = {
 };
 
 
+const vector<MyRect> emplacements={
+        {.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+        {.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+        {.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+        {.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+        {.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+        {.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+        {.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+        {.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+        {.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
+        {.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+        {.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+        {.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+        {.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+        {.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+        {.m_left=130, .m_right=345, .m_top=451, .m_bottom=627},
+
+	{.m_left=88, .m_right=130, .m_top=451, .m_bottom=493},
+	{.m_left=88, .m_right=130, .m_top=585, .m_bottom=627},
+	{.m_left=88, .m_right=130, .m_top=627, .m_bottom=669},
+	{.m_left=103, .m_right=246, .m_top=20, .m_bottom=163},
+	{.m_left=130, .m_right=227, .m_top=627, .m_bottom=724},
+	{.m_left=140, .m_right=283, .m_top=20, .m_bottom=163},
+	{.m_left=248, .m_right=345, .m_top=627, .m_bottom=724},
+	{.m_left=263, .m_right=406, .m_top=20, .m_bottom=163},
+	{.m_left=283, .m_right=330, .m_top=324, .m_bottom=371},
+	{.m_left=283, .m_right=330, .m_top=340, .m_bottom=387},
+	{.m_left=283, .m_right=330, .m_top=404, .m_bottom=451},
+	{.m_left=283, .m_right=406, .m_top=40, .m_bottom=163},
+	{.m_left=283, .m_right=406, .m_top=41, .m_bottom=164},
+	{.m_left=296, .m_right=345, .m_top=627, .m_bottom=676},
+	{.m_left=297, .m_right=345, .m_top=676, .m_bottom=724},
+	{.m_left=345, .m_right=393, .m_top=676, .m_bottom=724},
+	{.m_left=345, .m_right=410, .m_top=451, .m_bottom=516},
+	{.m_left=463, .m_right=527, .m_top=164, .m_bottom=228},
+	{.m_left=487, .m_right=552, .m_top=451, .m_bottom=516},
+	{.m_left=505, .m_right=553, .m_top=676, .m_bottom=724},
+	{.m_left=544, .m_right=608, .m_top=164, .m_bottom=228},
+	{.m_left=553, .m_right=601, .m_top=676, .m_bottom=724},
+	{.m_left=560, .m_right=608, .m_top=164, .m_bottom=212},
+	{.m_left=566, .m_right=630, .m_top=660, .m_bottom=724},
+	{.m_left=689, .m_right=753, .m_top=660, .m_bottom=724},
+	{.m_left=774, .m_right=947, .m_top=20, .m_bottom=193},
+	{.m_left=774, .m_right=947, .m_top=23, .m_bottom=196}
+};
+
+const vector<DecisionTreeNode> decision_tree={
+{/*.i=3492,*/ .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+};
+
+
 vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 {
 	MyRect frame={
@@ -1025,6 +1076,14 @@ void test_fit()
 }
 
 
+void test_translations()
+{
+	vector<TranslationRangeItem> translations = compute_decision_tree_translations(decision_tree,
+                                                                			emplacements,
+                                                                			input_rectangles);
+};
+
+
 vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_rectangles,
 						const vector<LogicalEdge>& logical_edges,
 						vector<MyRect>& emplacements)
@@ -1381,6 +1440,8 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		test_fit();
+
+		test_translations();
 	}
 
 	return 0;
