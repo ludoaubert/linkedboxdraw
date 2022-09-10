@@ -516,8 +516,6 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-{
-        FunctionTimer ft("cft_rec_push");
 	auto rec_push_hole=[&](int ri, int tr, auto&& rec_push_hole)->void{
 
 		span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
@@ -542,7 +540,6 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 		}
 	};
 	push_hole();
-}
 
 	for (int ri=0; ri < n; ri++)
 	{
