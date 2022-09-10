@@ -862,12 +862,11 @@ const vector<TestContext> test_contexts={
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
                 .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST},
-                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                        {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.i=0, .x=0, .y=0},
-			{.i=1, .x=0, .y=0}
+			{.i=1, .x=0, .y=50},
+			{.i=3, .x=0, .y=50}
 		}
 	},
 /*
