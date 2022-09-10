@@ -13,7 +13,7 @@
 #include "MyRect.h"
 using namespace std;
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -810,14 +810,14 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 }
 
 
-void test_fit()
-{
-	FunctionTimer::MAX_NESTING=1;
-	FunctionTimer ft("holes");
+struct TestContext {
+	int testid;
+	vector<MyRect> input_rectangles;
+	vector<Job> pipeline;
+	vector<MyPoint> expected_translations;
+};
 
-	struct TestContext {int testid; vector<MyRect> input_rectangles; vector<MyPoint> expected_translations;};
-
-	const vector<TestContext> test_contexts={
+const vector<TestContext> test_contexts={
 /*
        +-------+
        |       |
@@ -841,6 +841,10 @@ void test_fit()
 			{.m_left=300-200, .m_right=400-200, .m_top=100, .m_bottom=200},
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
+		},
+		.pipeline = {
+			{.algo=SPREAD,.update_direction=EAST_WEST},
+			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
 		},
 		.expected_translations={
 			{.x=0, .y=0},
@@ -877,6 +881,10 @@ void test_fit()
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
+                .pipeline = {
+                        {.algo=SPREAD,.update_direction=EAST_WEST},
+                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                },
 		.expected_translations={
 			{.x=0, .y=0},
 			{.x=0, .y=0},
@@ -912,6 +920,10 @@ void test_fit()
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
+                .pipeline = {
+                        {.algo=SPREAD,.update_direction=EAST_WEST},
+                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                },
 		.expected_translations={
 			{.x=0, .y=0},
 			{.x=-50, .y=0},
@@ -945,6 +957,10 @@ void test_fit()
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
+                .pipeline = {
+                        {.algo=SPREAD,.update_direction=EAST_WEST},
+                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                },
 		.expected_translations={
 			{.x=0, .y=0},
 			{.x=0, .y=0},
@@ -973,6 +989,10 @@ void test_fit()
                         {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
                         {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
                         {.m_left=300-200, .m_right=400-200, .m_top=100-100, .m_bottom=200-100}
+                },
+                .pipeline = {
+                        {.algo=SPREAD,.update_direction=EAST_WEST},
+                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
                 .expected_translations={
                         {.x=0, .y=0},
@@ -1004,19 +1024,39 @@ void test_fit()
                         {.m_left=200, .m_right=300, .m_top=0, .m_bottom=700},
                         {.m_left=300-200, .m_right=400-200, .m_top=0+250, .m_bottom=100+250}
                 },
+                .pipeline = {
+                        {.algo=SPREAD,.update_direction=EAST_WEST},
+                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                },
                 .expected_translations={
                         {.x=0, .y=0},
                         {.x=0, .y=0},
                         {.x=0, .y=0}
                 }
         }
-	};
+};
 
-	for (const auto& [testid, input_rectangles, expected_translations] : test_contexts)
+
+void test_fit()
+{
+	for (const auto& [testid, input_rectangles, pipeline, expected_translations] : test_contexts)
 	{
+		vector<MyRect> rectangles = input_rectangles;
 		int dm1 = dim_max(compute_frame(input_rectangles));
-		vector<MyPoint> translations = compute_fit_to_hole_transform_(input_rectangles);
-		int dm2 = dim_max(compute_frame(input_rectangles + translations));
+		for (const Job& job : pipeline)
+			apply_job(job, rectangles);
+
+		int n=rectangles.size();
+		vector<MyPoint> translations(n);
+		for (int i=0; i<n; i++)
+		{
+			auto& [x, y] = translations[i];
+			const MyRect &r1 = input_rectangles[i], &r2 = rectangles[i];
+			x = r2.m_left - r1.m_left;
+			y = r2.m_top - r1.m_top;
+		}
+
+		int dm2 = dim_max(compute_frame(rectangles));
 		bool bOK = translations == expected_translations;
 		printf("fit_to_hole testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
