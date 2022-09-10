@@ -495,7 +495,11 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 	}
 #endif
 
-	return vector<RectLink>(rect_links_buffer, rect_links_buffer + rect_links_size);
+	auto rg = views::counted(rect_links_buffer, rect_links_size) |
+		views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
+		//views::to<vector>; TODO C++23
+
+	return vector(ranges::begin(rg), ranges::end(rg));
 }
 
 
