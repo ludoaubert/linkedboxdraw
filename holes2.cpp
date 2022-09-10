@@ -486,18 +486,19 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
         FunctionTimer ft("cft_rectlinks_sort");
 	sort(rect_links_buffer, rect_links_buffer + rect_links_size);
 }
+
+        auto rg = views::counted(rect_links_buffer, rect_links_size) |
+                views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
 #ifdef _TRACE_
 	D(printf("rect_links:\n"));
-	for (const auto& [i, j, min_sweep_value, max_sweep_value] : span(rect_links_buffer, rect_links_size))
+	for (const auto& [i, j, min_sweep_value, max_sweep_value] : rg)
 	{
 		D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
 			RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
 	}
 #endif
 
-	auto rg = views::counted(rect_links_buffer, rect_links_size) |
-		views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
-		//views::to<vector>; TODO C++23
+	// return rg | views::to<vector>; TODO C++23
 
 	return vector(ranges::begin(rg), ranges::end(rg));
 }
