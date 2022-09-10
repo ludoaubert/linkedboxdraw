@@ -518,6 +518,8 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 
 	auto rec_push_hole=[&](int ri, int tr, auto&& rec_push_hole)->void{
 
+		D(printf("entering rec_push_hole(ri=%d ,tr=%d)\n", ri, tr));
+
 		span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
 
 		for (const RectLink& rl : adj_list)
@@ -529,7 +531,8 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 
 			rec_push_hole(rl.j, tr+tr2, rec_push_hole);
 		}
-		translations[ri][update_direction] = tr ;
+		int16_t &tri = translations[ri][update_direction];
+		tri = max<int16_t>(tri, tr) ;
 	};
 
 	auto push_hole=[&](){
@@ -540,6 +543,12 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 		}
 	};
 	push_hole();
+
+	for (const auto& [x, y] : views::counted(translations, n))
+	{
+		D(printf("{.x=%d, .y=%d},", x, y));
+	}
+	D(printf("\n"));
 
 	for (int ri=0; ri < n; ri++)
 	{
@@ -782,12 +791,16 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	return translation_ranges;
 }
 
+struct TranslationItem {
+	int i, x, y;
+	friend bool operator==(const TranslationItem&, const TranslationItem&) = default;
+};
 
 struct TestContext {
 	int testid;
 	vector<MyRect> input_rectangles;
 	vector<Job> pipeline;
-	vector<MyPoint> expected_translations;
+	vector<TranslationItem> expected_translations;
 };
 
 const vector<TestContext> test_contexts={
@@ -816,16 +829,15 @@ const vector<TestContext> test_contexts={
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
 		.pipeline = {
-			{.algo=SPREAD,.update_direction=EAST_WEST},
-			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
+			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=50},
-			{.x=0, .y=0}
+			{.i=0, .x=0, .y=0},
+			{.i=1, .x=0, .y=0},
+			{.i=2, .x=0, .y=0},
+			{.i=3, .x=0, .y=0},
+			{.i=4, .x=0, .y=100},
+			{.i=5, .x=0, .y=0}
 		}
 	},
 /*
@@ -859,12 +871,8 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=-50},
-			{.x=0, .y=0}
+			{.i=0, .x=0, .y=0},
+			{.i=1, .x=0, .y=0}
 		}
 	},
 /*
@@ -898,12 +906,8 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.x=0, .y=0},
-			{.x=-50, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=-50},
-			{.x=0, .y=0}
+			{.i=0, .x=0, .y=0},
+			{.i=1, .x=-50, .y=0}
 		}
 	},
 /*
@@ -935,12 +939,8 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0},
-			{.x=0, .y=0}
+			{.i=0, .x=0, .y=0},
+			{.i=1, .x=0, .y=0}
 		}
 	},
 
@@ -968,9 +968,9 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
                 .expected_translations={
-                        {.x=0, .y=0},
-                        {.x=0, .y=0},
-                        {.x=0, .y=0}
+                        {.i=0, .x=0, .y=0},
+                        {.i=1, .x=0, .y=0},
+                        {.i=2, .x=0, .y=0}
                 }
         },
 
@@ -1002,9 +1002,9 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=NORTH_SOUTH}
                 },
                 .expected_translations={
-                        {.x=0, .y=0},
-                        {.x=0, .y=0},
-                        {.x=0, .y=0}
+                        {.i=0, .x=0, .y=0},
+                        {.i=1, .x=0, .y=0},
+                        {.i=2, .x=0, .y=0}
                 }
         }
 };
@@ -1019,24 +1019,16 @@ void test_fit()
 		for (const Job& job : pipeline)
 			apply_job(job, rectangles);
 
-/*
-TODO: use C++23 views::zip_transform() and views::to
-        return views::zip_transform([](const MyRect& r1, const MyRect& r2)->MyPoint{
-		return {.x=r2.m_left-r1.m_left, .y=r2.m_to-r1.m_to};
-	}, input_rectangles, rectangles) | views::to<vector>;
-*/
 		int n=rectangles.size();
-		vector<MyPoint> translations(n);
-		for (int i=0; i<n; i++)
-		{
-			auto& [x, y] = translations[i];
-			const MyRect &r1 = input_rectangles[i], &r2 = rectangles[i];
-			x = r2.m_left - r1.m_left;
-			y = r2.m_top - r1.m_top;
-		}
+		auto rg = views::iota(0, n) |
+			views::filter([&](int i){return input_rectangles[i] != rectangles[i];}) |
+			views::transform([&](int i)->TranslationItem{
+				const MyRect &r1 = input_rectangles[i], &r2 = rectangles[i];
+				return {.i=i,.x=r2.m_left - r1.m_left,.y=r2.m_top - r1.m_top};
+			});
 
 		int dm2 = dim_max(compute_frame(rectangles));
-		bool bOK = translations == expected_translations;
+		bool bOK = ranges::equal(rg, expected_translations);
 		printf("fit_to_hole testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		printf("dim_max(frame) : %d => %d\n", dm1, dm2);
 //		(bOK ? nbOK : nbKO)++;
