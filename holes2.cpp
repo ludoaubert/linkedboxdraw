@@ -896,12 +896,14 @@ const vector<TestContext> test_contexts={
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
                 .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST},
-                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                        {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
 		.expected_translations={
-			{.i=0, .x=0, .y=0},
-			{.i=1, .x=-50, .y=0}
+			{.i=0, .x=50, .y=0},
+			{.i=1, .x=50, .y=0},
+			{.i=3, .x=50, .y=0},
+			{.i=4, .x=50, .y=0},
+			{.i=5, .x=50, .y=0}
 		}
 	},
 /*
@@ -929,12 +931,10 @@ const vector<TestContext> test_contexts={
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
                 .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST},
-                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                        {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.i=0, .x=0, .y=0},
-			{.i=1, .x=0, .y=0}
+			{.i=1, .x=0, .y=50}
 		}
 	},
 
@@ -943,11 +943,11 @@ const vector<TestContext> test_contexts={
        |rh |
 +------+---+   +------+
 |      |       |      |
-|  0   +       +  1   +------+
-|      |       |      |      |
-+------+       +------+  2   |
-                      |      |
-                      +------+
+|  0   +       +  1   +---------+
+|      |       |      |         |
++------+       +------+  2      |
+                      |         |
+                      +---------+
 2 => rh
 */
         {
@@ -955,16 +955,13 @@ const vector<TestContext> test_contexts={
                 .input_rectangles = {
                         {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
                         {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
-                        {.m_left=300-200, .m_right=400-200, .m_top=100-100, .m_bottom=200-100}
+                        {.m_left=300-200, .m_right=450-200, .m_top=100-100, .m_bottom=200-100}
                 },
                 .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST},
-                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                        {.algo=SPREAD,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-                        {.i=0, .x=0, .y=0},
-                        {.i=1, .x=0, .y=0},
-                        {.i=2, .x=0, .y=0}
+			{.i=1, .x=50, .y=0}
                 }
         },
 
