@@ -832,12 +832,7 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.i=0, .x=0, .y=0},
-			{.i=1, .x=0, .y=0},
-			{.i=2, .x=0, .y=0},
-			{.i=3, .x=0, .y=0},
-			{.i=4, .x=0, .y=100},
-			{.i=5, .x=0, .y=0}
+			{.i=5, .x=100, .y=0}
 		}
 	},
 /*
