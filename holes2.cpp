@@ -13,7 +13,7 @@
 #include "MyRect.h"
 using namespace std;
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -985,17 +985,15 @@ const vector<TestContext> test_contexts={
                 .testid=5,
                 .input_rectangles = {
                         {.m_left=0, .m_right=100, .m_top=0, .m_bottom=700},
-                        {.m_left=200, .m_right=300, .m_top=0, .m_bottom=700},
-                        {.m_left=300-200, .m_right=400-200, .m_top=0+250, .m_bottom=100+250}
+                        {.m_left=300, .m_right=400, .m_top=0, .m_bottom=700},
+                        {.m_left=400-300, .m_right=450-300, .m_top=0+250, .m_bottom=100+250}
                 },
                 .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST},
-                        {.algo=SPREAD,.update_direction=NORTH_SOUTH}
+                        {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-                        {.i=0, .x=0, .y=0},
-                        {.i=1, .x=0, .y=0},
-                        {.i=2, .x=0, .y=0}
+			{.i=0, .x=150, .y=0},
+			{.i=2, .x=150, .y=0}
                 }
         }
 };
