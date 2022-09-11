@@ -693,6 +693,18 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 }
 }
 
+enum MirroringState
+{
+	ACTIVE,
+	IDLE
+};
+
+struct Mirror
+{
+	MirroringState mirroring_state;
+	Direction mirroring_direction;
+};
+
 enum Algo
 {
 	SPREAD,
@@ -706,8 +718,28 @@ struct Job
 };
 
 // TODO: use upcoming C++23 views::cartesian_product()
-const unsigned CORNER_MASK=0xC;
-const unsigned PIPELINE_MASK=0x3;
+const unsigned MIRRORING_MASK=0x30;
+const unsigned CORNER_MASK=0x0C;
+const unsigned PIPELINE_MASK=0x03;
+
+const Mirror mirrors[4][2]={
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
+		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+	},
+        {
+                {.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
+                {.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+        },
+        {
+                {.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
+                {.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+        },
+        {
+                {.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
+                {.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+        }
+};
 
 const Job pipelines[4][4]={
 	{
