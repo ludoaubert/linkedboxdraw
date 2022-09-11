@@ -741,30 +741,25 @@ const Mirror mirrors[4][2]={
         }
 };
 
-const Job pipelines[4][4]={
+const char* MirroringStrings[4]={
+	"IDLE,IDLE",
+	"IDLE,ACTIVE",
+	"ACTIVE,IDLE",
+	"ACTIVE,ACTIVE"
+};
+
+const Job pipelines[4][1]={
 	{
-		{.algo=SPREAD, .update_direction=EAST_WEST},
-		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
-		{.algo=COMPACT, .update_direction=EAST_WEST},
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
+		{.algo=SPREAD, .update_direction=EAST_WEST}
 	},
 	{
-		{.algo=SPREAD, .update_direction=EAST_WEST},
-		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH},
+		{.algo=SPREAD, .update_direction=NORTH_SOUTH}
+	},
+	{
 		{.algo=COMPACT, .update_direction=EAST_WEST}
 	},
 	{
-		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
-		{.algo=SPREAD, .update_direction=EAST_WEST},
-		{.algo=COMPACT, .update_direction=EAST_WEST},
 		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
-	},
-	{
-		{.algo=SPREAD, .update_direction=NORTH_SOUTH},
-		{.algo=SPREAD, .update_direction=EAST_WEST},
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH},
-		{.algo=COMPACT, .update_direction=EAST_WEST}
 	}
 };
 
@@ -782,12 +777,35 @@ const char* CornerStrings[4]={
         "{RIGHT, BOTTOM}"
 };
 
-//4 corners X 4 job pipelines
+//4 mirrors X 4 corners X 4 job pipelines
+
+void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
+{
+	const auto& [mirroring_state, mirroring_direction] = mirror;
+
+	if (mirroring_state == ACTIVE)
+	{
+		ranges::for_each(rectangles, [&](MyRect &r){
+
+			switch(mirroring_direction)
+			{
+			case EAST_WEST:
+				r.m_left *= -1;
+				r.m_right *= -1;
+				break;
+			case NORTH_SOUTH:
+				r.m_top *= -1;
+				r.m_bottom *= -1;
+				break;
+			}
+		});
+	}
+}
 
 
 void apply_job(const Job& job, vector<MyRect>& rectangles)
 {
-	const auto [algo, update_direction] = job;
+	const auto& [algo, update_direction] = job;
 
 	vector<RectLink> rect_links = sweep(update_direction, rectangles);
 
@@ -822,7 +840,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-		auto tf=[&](unsigned pipeline){
+		auto tf=[&](unsigned pipeline, unsigned mirroring){
 			memcpy(&rectangles[0], &input_rectangles[0], sizeof(MyRect)*n);
 			for (int pid=id; pid!=-1; pid=decision_tree[pid].parent_index)
 			{
@@ -836,17 +854,23 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 				};
 				rectangles[i_emplacement_source] += tr;
 			}
+			for (const Mirror& mirror : mirrors[mirroring])
+				apply_mirror(mirror, rectangles);
                 	for (const Job& job : pipelines[pipeline])
                         	apply_job(job, rectangles);
+                        for (const Mirror& mirror : mirrors[mirroring])
+                                apply_mirror(mirror, rectangles);
 		};
 
-		unsigned code = ranges::min(views::iota(0, 4*4), {}, [&](unsigned code){
+		unsigned code = ranges::min(views::iota(0, 4*4*4), {}, [&](unsigned code){
 			D(printf("code=%u\n", code));
+			unsigned mirroring = (code & MIRRORING_MASK) >> 4;
 			unsigned match_corner=(code & CORNER_MASK) >> 2;
+			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 4]));
 			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
 			match_corners[id] = match_corner;
                 	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
-			tf(code & PIPELINE_MASK);
+			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4);
 			D(printf("dim_max=%d\n", dim_max(compute_frame(rectangles)) ));
 			return dim_max(compute_frame(rectangles));
 		});
@@ -857,7 +881,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		D(printf("code & PIPELINE_MASK=%u\n", code & PIPELINE_MASK));
 
 		match_corners[id] = (code & CORNER_MASK) >> 2;
-		tf(code & PIPELINE_MASK);
+		tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4);
 
 		auto rg = views::iota(0,n) |
 			views::filter([&](int i){return rectangles[i] != input_rectangles[i];}) |
