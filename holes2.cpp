@@ -718,9 +718,9 @@ struct Job
 };
 
 // TODO: use upcoming C++23 views::cartesian_product()
-const unsigned MIRRORING_MASK=0x30;
-const unsigned CORNER_MASK=0x0C;
-const unsigned PIPELINE_MASK=0x03;
+const unsigned MIRRORING_MASK=0x18;
+const unsigned CORNER_MASK=0x06;
+const unsigned PIPELINE_MASK=0x01;
 
 const Mirror mirrors[4][2]={
 	{
@@ -748,18 +748,12 @@ const char* MirroringStrings[4]={
 	"ACTIVE,ACTIVE"
 };
 
-const Job pipelines[4][1]={
+const Job pipelines[2][1]={
 	{
 		{.algo=SPREAD, .update_direction=EAST_WEST}
 	},
 	{
 		{.algo=SPREAD, .update_direction=NORTH_SOUTH}
-	},
-	{
-		{.algo=COMPACT, .update_direction=EAST_WEST}
-	},
-	{
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
 	}
 };
 
@@ -777,7 +771,7 @@ const char* CornerStrings[4]={
         "{RIGHT, BOTTOM}"
 };
 
-//4 mirrors X 4 corners X 4 job pipelines
+//4 mirrors X 4 corners X 2 job pipelines
 
 void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
 {
@@ -868,12 +862,12 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		unsigned code = ranges::min(views::iota(0, 4*4*4), {}, [&](unsigned code){
 			D(printf("code=%u\n", code));
-			unsigned mirroring = (code & MIRRORING_MASK) >> 4;
-			unsigned match_corner=(code & CORNER_MASK) >> 2;
-			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 4]));
-			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
-                	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
-			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4, (code & CORNER_MASK) >> 2);
+			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
+			unsigned match_corner=(code & CORNER_MASK) >> 1;
+			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
+			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
+                	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 1));
+			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
 			D(printf("dim_max=%d\n", dim_max(compute_frame(emplacements)) ));
 			return dim_max(compute_frame(emplacements));
 		});
