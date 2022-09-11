@@ -845,7 +845,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 			const auto [RectDimX, RectDimY] = corners[match_corner];
-			const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+			const MyRect &r1 = input_emplacements[i_emplacement_source], &r2 = input_emplacements[i_emplacement_destination];
 			const MyPoint tr = {
 				.x=r2[RectDimX] - r1[RectDimX],
 				.y=r2[RectDimY] - r1[RectDimY]
