@@ -830,36 +830,40 @@ struct TranslationRangeItem
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-								const vector<MyRect>& emplacements,
+								const vector<MyRect>& input_emplacements,
 								const vector<MyRect>& input_rectangles)
 {
+	int m = input_emplacements.size();
 	int n = input_rectangles.size();
-	vector<unsigned> match_corners(decision_tree.size(), -1);
 	vector<TranslationRangeItem> translation_ranges;
-	vector<MyRect> rectangles(n);
+	vector<MyRect> emplacements(m);
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-		auto tf=[&](unsigned pipeline, unsigned mirroring){
-			memcpy(&rectangles[0], &input_rectangles[0], sizeof(MyRect)*n);
-			for (int pid=id; pid!=-1; pid=decision_tree[pid].parent_index)
+		auto tf=[&](unsigned pipeline, unsigned mirroring, unsigned match_corner){
+			memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
+			if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
 			{
-				const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
-				unsigned match_corner = match_corners[pid];
-				const auto [RectDimX, RectDimY] = corners[match_corner];
-				const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
-				const MyPoint tr = {
-					.x=r2[RectDimX] - r1[RectDimX],
-					.y=r2[RectDimY] - r1[RectDimY]
-				};
-				rectangles[i_emplacement_source] += tr;
+				span translations = ranges::equal_range(translation_ranges, parent_index, {}, &TranslationRangeItem::id);
+				for (const auto& [id, ri, tr] : translations)
+					emplacements[ri] += tr;
 			}
+
+			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+			const auto [RectDimX, RectDimY] = corners[match_corner];
+			const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+			const MyPoint tr = {
+				.x=r2[RectDimX] - r1[RectDimX],
+				.y=r2[RectDimY] - r1[RectDimY]
+			};
+			emplacements[i_emplacement_source] += tr;
+
 			for (const Mirror& mirror : mirrors[mirroring])
-				apply_mirror(mirror, rectangles);
+				apply_mirror(mirror, emplacements);
                 	for (const Job& job : pipelines[pipeline])
-                        	apply_job(job, rectangles);
+                        	apply_job(job, emplacements);
                         for (const Mirror& mirror : mirrors[mirroring])
-                                apply_mirror(mirror, rectangles);
+                                apply_mirror(mirror, emplacements);
 		};
 
 		unsigned code = ranges::min(views::iota(0, 4*4*4), {}, [&](unsigned code){
@@ -868,11 +872,10 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			unsigned match_corner=(code & CORNER_MASK) >> 2;
 			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 4]));
 			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
-			match_corners[id] = match_corner;
                 	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
-			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4);
-			D(printf("dim_max=%d\n", dim_max(compute_frame(rectangles)) ));
-			return dim_max(compute_frame(rectangles));
+			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4, (code & CORNER_MASK) >> 2);
+			D(printf("dim_max=%d\n", dim_max(compute_frame(emplacements)) ));
+			return dim_max(compute_frame(emplacements));
 		});
 
 		D(printf("code=%u\n", code));
@@ -880,13 +883,12 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
 		D(printf("code & PIPELINE_MASK=%u\n", code & PIPELINE_MASK));
 
-		match_corners[id] = (code & CORNER_MASK) >> 2;
-		tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4);
+		tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4, (code & CORNER_MASK) >> 2);
 
-		auto rg = views::iota(0,n) |
-			views::filter([&](int i){return rectangles[i] != input_rectangles[i];}) |
+		auto rg = views::iota(0,m) |
+			views::filter([&](int i){return emplacements[i] != input_emplacements[i];}) |
 			views::transform([&](int i)->TranslationRangeItem{
-                                        const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+                                        const MyRect &ir = input_emplacements[i], &r = emplacements[i];
                                         MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
                                         return {id, i, tr};
                                 }
