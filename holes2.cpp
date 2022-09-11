@@ -845,12 +845,14 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 			const auto [RectDimX, RectDimY] = corners[match_corner];
-			const MyRect &r1 = input_emplacements[i_emplacement_source], &r2 = input_emplacements[i_emplacement_destination];
+			const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
 			const MyPoint tr = {
 				.x=r2[RectDimX] - r1[RectDimX],
 				.y=r2[RectDimY] - r1[RectDimY]
 			};
 			emplacements[i_emplacement_source] += tr;
+			if (i_emplacement_destination >= n)
+				emplacements[i_emplacement_destination] += MyPoint{10*1000, 10*1000};	//move it away from frame
 
 			for (const Mirror& mirror : mirrors[mirroring])
 				apply_mirror(mirror, emplacements);
@@ -860,7 +862,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
                                 apply_mirror(mirror, emplacements);
 		};
 
-		unsigned code = ranges::min(views::iota(0, 4*4*4), {}, [&](unsigned code){
+		unsigned code = ranges::min(views::iota(0, 4*4*2), {}, [&](unsigned code){
 			D(printf("code=%u\n", code));
 			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
 			unsigned match_corner=(code & CORNER_MASK) >> 1;
