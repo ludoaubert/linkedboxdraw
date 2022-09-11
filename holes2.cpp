@@ -705,6 +705,7 @@ struct Job
 	Direction update_direction;
 };
 
+// TODO: use upcoming C++23 views::cartesian_product()
 const unsigned CORNER_MASK=0xC;
 const unsigned PIPELINE_MASK=0x3;
 
