@@ -898,6 +898,12 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("dim_max=%d\n", dim_max(compute_frame(emplacements)) ));
 			return dim_max(compute_frame(emplacements));
 		});
+		
+		selectors[i] = {
+			.pipeline = code & PIPELINE_MASK;
+			.mirroring = (code & MIRRORING_MASK) >> 3;
+			.match_corner = (code & CORNER_MASK) >> 1;
+		};
 
 		D(printf("code=%u\n", code));
 		D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
