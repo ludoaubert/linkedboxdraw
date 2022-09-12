@@ -368,7 +368,7 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 {
 	FunctionTimer ft("sweep");
 
-	const int N=20;
+	const int N=30;
 	int n = rectangles.size();
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
@@ -558,7 +558,7 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 void spread(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 //TODO: use chunk_by C++23
-	const int N=20;
+	const int N=30;
 	int n = rectangles.size();
 
         MyPoint translations[N];
@@ -611,7 +611,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 //TODO: use chunk_by C++23
-        const int N=20;
+        const int N=30;
         int n = rectangles.size();
 
         MyPoint translations[N];
