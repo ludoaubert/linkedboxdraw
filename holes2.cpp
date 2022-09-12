@@ -786,10 +786,12 @@ void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
 			case EAST_WEST:
 				r.m_left *= -1;
 				r.m_right *= -1;
+				swap(r.m_left, r.m_right);
 				break;
 			case NORTH_SOUTH:
 				r.m_top *= -1;
 				r.m_bottom *= -1;
+				swap(r.m_top, r.m_bottom);
 				break;
 			}
 		});
@@ -840,7 +842,9 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	vector<MyRect> emplacements(m);
 	vector<MyRect> rectangles(n);
 
-	auto tf=[&](int id, int pipeline, int mirroring, int match_corner){
+	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
+
+		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
                 for (MyRect& r : rectangles)
                         r = emplacements[r.i];
@@ -928,7 +932,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
 
-		auto rg = views::iota(0,m) |
+		auto rg = views::iota(0,n) |
 			views::filter([&](int i){return emplacements[i] != input_emplacements[i];}) |
 			views::transform([&](int i)->TranslationRangeItem{
                                         const MyRect &ir = input_emplacements[i], &r = emplacements[i];
