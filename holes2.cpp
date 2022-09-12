@@ -900,9 +900,9 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		});
 		
 		selectors[i] = {
-			.pipeline = code & PIPELINE_MASK;
-			.mirroring = (code & MIRRORING_MASK) >> 3;
-			.match_corner = (code & CORNER_MASK) >> 1;
+			.pipeline = code & PIPELINE_MASK,
+			.mirroring = (code & MIRRORING_MASK) >> 3,
+			.match_corner = (code & CORNER_MASK) >> 1
 		};
 
 		D(printf("code=%u\n", code));
