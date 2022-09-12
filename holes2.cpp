@@ -823,45 +823,70 @@ struct TranslationRangeItem
 };
 
 
+struct Selector
+{
+	unsigned pipeline, mirroring, match_corner;
+};
+
+
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 								const vector<MyRect>& input_emplacements,
 								const vector<MyRect>& input_rectangles)
 {
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
+	vector<Selector> selectors(decision_tree.node());
 	vector<TranslationRangeItem> translation_ranges;
 	vector<MyRect> emplacements(m);
+	vector<MyRect> rectangles(n);
+	
+	int child_id;
+	
+	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner, auto&& tf){
+		
+//gather the rectangles of interest
+		rectangles.resize(n);
+		memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
+		for (int pid=child_id; pid != -1; pid=decision_tree[pid].parent_index)
+		{
+			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
+			if (i_emplacement_destination >= n)
+				rectangles.push_back( emplacements[i_emplacement_destination] );
+		}
+		
+		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
+		{
+			tf(parent_index, selectors[parent_index].pipeline, selectors[parent_index].mirroring, selectors[parent_index].match_corner, tf);
+		}
+
+		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		const auto [RectDimX, RectDimY] = corners[match_corner];
+		const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+		emplacements[i_emplacement_source] += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
+		if (i_emplacement_destination >= n)
+			emplacements[i_emplacement_destination] += MyPoint{10*1000, 10*1000};	//move it away from frame
+
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
+		for (const Job& job : pipelines[pipeline])
+			apply_job(job, rectangles);
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
+		
+		for (const MyRect&r : rectangles)
+			emplacements[r.i] = r;
+	};
+
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-		auto tf=[&](unsigned pipeline, unsigned mirroring, unsigned match_corner){
-			memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
-			if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
-			{
-				span translations = ranges::equal_range(translation_ranges, parent_index, {}, &TranslationRangeItem::id);
-				for (const auto& [id, ri, tr] : translations)
-					emplacements[ri] += tr;
-			}
-
-			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-			const auto [RectDimX, RectDimY] = corners[match_corner];
-			const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
-			const MyPoint tr = {
-				.x=r2[RectDimX] - r1[RectDimX],
-				.y=r2[RectDimY] - r1[RectDimY]
-			};
-			emplacements[i_emplacement_source] += tr;
-			if (i_emplacement_destination >= n)
-				emplacements[i_emplacement_destination] += MyPoint{10*1000, 10*1000};	//move it away from frame
-
-			for (const Mirror& mirror : mirrors[mirroring])
-				apply_mirror(mirror, emplacements);
-                	for (const Job& job : pipelines[pipeline])
-                        	apply_job(job, emplacements);
-                        for (const Mirror& mirror : mirrors[mirroring])
-                                apply_mirror(mirror, emplacements);
-		};
-
+		memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
+		for (int i=0; i<m; i++)
+			emplacements[i].i = i;
+		
+	//used to gather the rectangles of interest
+		child_id = id;
+		
 		unsigned code = ranges::min(views::iota(0, 4*4*2), {}, [&](unsigned code){
 			D(printf("code=%u\n", code));
 			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
@@ -869,7 +894,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
 			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
                 	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 1));
-			tf(code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
+			tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1, tf);
 			D(printf("dim_max=%d\n", dim_max(compute_frame(emplacements)) ));
 			return dim_max(compute_frame(emplacements));
 		});
