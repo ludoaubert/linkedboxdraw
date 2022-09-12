@@ -862,9 +862,10 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 		const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+		const MyRect r = emplacements[i_emplacement_source];
 		emplacements[i_emplacement_source] += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 		if (i_emplacement_destination >= n)
-			emplacements[i_emplacement_destination] += MyPoint{10*1000, 10*1000};	//move it away from frame
+			emplacements[i_emplacement_destination] = r;
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
