@@ -13,7 +13,7 @@
 #include "MyRect.h"
 using namespace std;
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -841,16 +841,22 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	vector<MyRect> rectangles(n);
 
 	auto tf=[&](int id, int pipeline, int mirroring, int match_corner){
-                const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-                const auto [RectDimX, RectDimY] = corners[match_corner];
-                const MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
-                const MyRect r = emplacements[i_emplacement_source];
-                emplacements[i_emplacement_source] += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
-                if (i_emplacement_destination >= n)
-                        emplacements[i_emplacement_destination] = r;
 
                 for (MyRect& r : rectangles)
                         r = emplacements[r.i];
+
+                const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+                const auto [RectDimX, RectDimY] = corners[match_corner];
+                MyRect &r1 = rectangles[i_emplacement_source],
+		 &r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
+                const MyRect r = r1;
+                r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
+                if (i_emplacement_destination >= n)
+		{
+			int i=r2.i;
+                        r2 = r;
+			r2.i = i;
+		}
 
                 for (const Mirror& mirror : mirrors[mirroring])
                         apply_mirror(mirror, rectangles);
@@ -901,9 +907,9 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("code=%u\n", code));
 			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
 			unsigned match_corner=(code & CORNER_MASK) >> 1;
-			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 4]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
-			D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
-                	D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 1));
+			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 3]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
+			D(printf("CornerStrings[(code & CORNER_MASK) >> 1]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
+                	D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
 			tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
 			D(printf("dim_max=%d\n", dim_max(compute_frame(rectangles)) ));
 			return dim_max(compute_frame(rectangles));
@@ -916,11 +922,11 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		};
 
 		D(printf("code=%u\n", code));
-		D(printf("(code & CORNER_MASK) >> 2=%u\n", (code & CORNER_MASK) >> 2));
-		D(printf("CornerStrings[(code & CORNER_MASK) >> 2]=%s\n", CornerStrings[(code & CORNER_MASK) >> 2]));
+		D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
+		D(printf("CornerStrings[(code & CORNER_MASK) >> 1]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
 		D(printf("code & PIPELINE_MASK=%u\n", code & PIPELINE_MASK));
 
-		tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 4, (code & CORNER_MASK) >> 2);
+		tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
 
 		auto rg = views::iota(0,m) |
 			views::filter([&](int i){return emplacements[i] != input_emplacements[i];}) |
