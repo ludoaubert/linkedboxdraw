@@ -70,10 +70,18 @@ struct RectMap
 
 struct DecisionTreeNode
 {
+	int i;
 	int parent_index=-1;
 	int depth;
 	RectMap recmap;
 	int match;
+};
+
+struct TranslationRangeItem
+{
+        int id;
+        int ri;
+        MyPoint tr;
 };
 
 enum EtatEmplacement
@@ -241,8 +249,39 @@ const vector<MyRect> emplacements={
 	{.m_left=774, .m_right=947, .m_top=23, .m_bottom=196}
 };
 
-const vector<DecisionTreeNode> decision_tree={
-{/*.i=3492,*/ .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+
+struct TranslationRangesTestContext
+{
+	int testid;
+	vector<DecisionTreeNode> decision_tree;
+	vector<TranslationRangeItem> expected_translation_ranges;
+};
+
+
+const TranslationRangesTestContext TRTestContexts[2]={
+{
+	.testid=0,
+	.decision_tree={
+		{.i=3492, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+	},
+	.expected_translation_ranges={}
+},
+{
+	.testid=1,
+	.decision_tree={
+		{.i=0, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=0, .i_emplacement_destination=35}, .match=24},
+		{.i=1, .parent_index=0, .depth=1, .recmap={.i_emplacement_source=1, .i_emplacement_destination=33}, .match=24},
+		{.i=2, .parent_index=1, .depth=2, .recmap={.i_emplacement_source=2, .i_emplacement_destination=1}, .match=24},
+		{.i=3, .parent_index=2, .depth=3, .recmap={.i_emplacement_source=6, .i_emplacement_destination=2}, .match=24},
+		{.i=4, .parent_index=3, .depth=4, .recmap={.i_emplacement_source=12, .i_emplacement_destination=6}, .match=26},
+		{.i=5, .parent_index=4, .depth=5, .recmap={.i_emplacement_source=13, .i_emplacement_destination=0}, .match=24},
+		{.i=6, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=22}, .match=26},
+		{.i=7, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=26}, .match=26},
+		{.i=8, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=27}, .match=26},
+		{.i=9, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=32}, .match=26},
+	},
+	.expected_translation_ranges={}
+}
 };
 
 
@@ -815,14 +854,6 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 		break;
 	}
 }
-
-
-struct TranslationRangeItem
-{
-	int id;
-	int ri;
-	MyPoint tr;
-};
 
 
 struct ProcessSelector
