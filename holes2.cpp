@@ -82,6 +82,8 @@ struct TranslationRangeItem
         int id;
         int ri;
         MyPoint tr;
+
+        friend bool operator==(const TranslationRangeItem&, const TranslationRangeItem&) = default;
 };
 
 enum EtatEmplacement
@@ -1230,9 +1232,14 @@ void test_fit()
 
 void test_translations()
 {
-	vector<TranslationRangeItem> translations = compute_decision_tree_translations(decision_tree,
-                                                                			emplacements,
-                                                                			input_rectangles);
+	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
+	{
+		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree,
+                	                                                			emplacements,
+                        	                                        			input_rectangles);
+		bool bOK = translation_ranges == expected_translation_ranges;
+		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
+	}
 };
 
 
@@ -1566,7 +1573,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
         fprintf(f, "[\n");
         for (int i=0; i < decision_tree.size(); i++)
         {
-                const auto& [parent_index, depth, recmap, match] = decision_tree[i];
+                const auto& [_, parent_index, depth, recmap, match] = decision_tree[i];
                 const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
                 fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source\":%d, \"i_emplacement_destination\":%d, \"match\":%d}%s\n",
                         i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match,
