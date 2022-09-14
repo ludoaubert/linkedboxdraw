@@ -3,6 +3,7 @@
 #include <deque>
 #include <map>
 #include <algorithm>
+#include <numeric>
 #include <ranges>
 #include <span>
 #include <stdio.h>
