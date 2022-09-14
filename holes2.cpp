@@ -946,10 +946,28 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			unsigned match_corner=(code & CORNER_MASK) >> 1;
 			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 3]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
 			D(printf("CornerStrings[(code & CORNER_MASK) >> 1]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
-                	D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
+			D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
+
 			tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
-			D(printf("dim_max=%d\n", dim_max(compute_frame(rectangles)) ));
-			return dim_max(compute_frame(rectangles));
+			
+			auto rg1 = logical_edges | 
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+
+			auto rg2 = views::iota(0,n) |
+				views::transform([&](int i)->TranslationRangeItem{
+					const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+					MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+					return {id, i, tr};}) |
+				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) | 
+				views::filter([&](const TranslationRangeItem& item){return item.i != decision_tree[id].recmap.i_emplacement_source;}) |
+				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+		
+			int cost = dim_max(compute_frame(rectangles)) + 
+						accumulate(ranges::begin(rg1), ranges::end(rg1),0) + 
+						accumulate(ranges::begin(rg2), ranges::end(rg2),0) ;
+			
+			D(printf("cost=%d\n", cost));
+			return cost;
 		});
 
 		selectors[id] = {
