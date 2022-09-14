@@ -759,10 +759,6 @@ struct Job
 	Direction update_direction;
 };
 
-// TODO: use upcoming C++23 views::cartesian_product()
-const unsigned MIRRORING_MASK=0x18;
-const unsigned CORNER_MASK=0x06;
-const unsigned PIPELINE_MASK=0x01;
 
 const unsigned NR_MIRRORING_OPTIONS=4;
 
@@ -871,6 +867,23 @@ struct ProcessSelector
 };
 
 
+// TODO: use upcoming C++23 views::cartesian_product()
+vector<ProcessSelector> cartesian_product()
+{
+	vector<ProcessSelector> result;
+
+	for (int pipeline=0; pipeline < NR_RECT_CORNERS*NR_JOB_PIPELINES; pipeline++)
+		for (int mirroring=0; mirroring < NR_MIRRORING_OPTIONS; mirroring++)
+			for (int match_corner=0; match_corner < NR_RECT_CORNERS; match_corner++)
+				result.push_back({pipeline, mirroring, match_corner});
+
+	return result;
+}
+
+
+const vector<ProcessSelector> process_selectors = cartesian_product();
+
+
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 								const vector<MyRect>& input_emplacements,
 								const vector<MyRect>& input_rectangles)
@@ -886,7 +899,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
-        for (MyRect& r : rectangles)
+		for (MyRect& r : rectangles)
 			r = emplacements[r.i];
 
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
@@ -946,27 +959,23 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
                 {
                         rec_tf(parent_index, rec_tf);
                 }
-				
+
 /*
 // TODO: use upcoming C++23 views::cartesian_product()
 	auto rg = views::cartesian_product( views::iota(0, NR_JOB_PIPELINES),
 										views::iota(0, NR_MIRRORING_OPTIONS),
 										views::iota(0, NR_RECT_CORNERS));
-	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{... 
-	
+	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{...
+
 */
 
-		unsigned code = ranges::min(views::iota(0, NR_MIRRORING_OPTIONS*NR_RECT_CORNERS*NR_JOB_PIPELINES), {}, [&](unsigned code){
-			D(printf("code=%u\n", code));
-			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
-			unsigned match_corner=(code & CORNER_MASK) >> 1;
-			D(printf("MirroringStrings[(code & MIRRORING_MASK) >> 3]=%s\n", MirroringStrings[(code & MIRRORING_MASK) >> 3]));
-			D(printf("CornerStrings[(code & CORNER_MASK) >> 1]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
-			D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
+		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
+			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
+			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-			tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
-			
-			auto rg1 = logical_edges | 
+			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+
+			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
 
 			auto rg2 = views::iota(0,n) |
@@ -974,30 +983,24 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 					const MyRect &ir = input_rectangles[i], &r = rectangles[i];
 					MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
 					return {id, i, tr};}) |
-				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) | 
-				views::filter([&](const TranslationRangeItem& item){return item.i != decision_tree[id].recmap.i_emplacement_source;}) |
+				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+				views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].recmap.i_emplacement_source;}) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
-		
-			int cost = dim_max(compute_frame(rectangles)) + 
-						accumulate(ranges::begin(rg1), ranges::end(rg1),0) + 
+
+			int cost = dim_max(compute_frame(rectangles)) +
+						accumulate(ranges::begin(rg1), ranges::end(rg1),0) +
 						accumulate(ranges::begin(rg2), ranges::end(rg2),0) ;
-			
+
 			D(printf("cost=%d\n", cost));
 			return cost;
 		});
 
-		selectors[id] = {
-			.pipeline = code & PIPELINE_MASK,
-			.mirroring = (code & MIRRORING_MASK) >> 3,
-			.match_corner = (code & CORNER_MASK) >> 1
-		};
+		selectors[id] = {pipeline, mirroring, match_corner};
 
-		D(printf("code=%u\n", code));
-		D(printf("(code & CORNER_MASK) >> 1=%u\n", (code & CORNER_MASK) >> 1));
-		D(printf("CornerStrings[(code & CORNER_MASK) >> 1]=%s\n", CornerStrings[(code & CORNER_MASK) >> 1]));
-		D(printf("code & PIPELINE_MASK=%u\n", code & PIPELINE_MASK));
+		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
+		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		tf(id, code & PIPELINE_MASK, (code & MIRRORING_MASK) >> 3, (code & CORNER_MASK) >> 1);
+		tf(id, pipeline, mirroring, match_corner);
 
                 for (const MyRect& r : rectangles)
                         emplacements[r.i] = r;
