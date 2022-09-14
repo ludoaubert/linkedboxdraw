@@ -764,33 +764,37 @@ const unsigned MIRRORING_MASK=0x18;
 const unsigned CORNER_MASK=0x06;
 const unsigned PIPELINE_MASK=0x01;
 
-const Mirror mirrors[4][2]={
+const unsigned NR_MIRRORING_OPTIONS=4;
+
+const Mirror mirrors[NR_MIRRORING_OPTIONS][2]={
 	{
 		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
 		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
 	},
-        {
-                {.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
-                {.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-        },
-        {
-                {.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-                {.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
-        },
-        {
-                {.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-                {.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-        }
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
+		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
+		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
+		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+	}
 };
 
-const char* MirroringStrings[4]={
+const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
 	"IDLE,IDLE",
 	"IDLE,ACTIVE",
 	"ACTIVE,IDLE",
 	"ACTIVE,ACTIVE"
 };
 
-const Job pipelines[2][1]={
+const unsigned NR_JOB_PIPELINES=2;
+
+const Job pipelines[NR_JOB_PIPELINES][1]={
 	{
 		{.algo=SPREAD, .update_direction=EAST_WEST}
 	},
@@ -799,14 +803,16 @@ const Job pipelines[2][1]={
 	}
 };
 
-const RectDim corners[4][2]={
+const unsigned NR_RECT_CORNERS=4;
+
+const RectDim corners[NR_RECT_CORNERS][2]={
 	{LEFT, TOP},
 	{LEFT, BOTTOM},
 	{RIGHT, TOP},
 	{RIGHT, BOTTOM}
 };
 
-const char* CornerStrings[4]={
+const char* CornerStrings[NR_RECT_CORNERS]={
         "{LEFT, TOP}",
         "{LEFT, BOTTOM}",
         "{RIGHT, TOP}",
@@ -880,28 +886,28 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
-                for (MyRect& r : rectangles)
-                        r = emplacements[r.i];
+        for (MyRect& r : rectangles)
+			r = emplacements[r.i];
 
-                const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-                const auto [RectDimX, RectDimY] = corners[match_corner];
-                MyRect &r1 = rectangles[i_emplacement_source],
-		 &r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
-                const MyRect r = r1;
-                r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
-                if (i_emplacement_destination >= n)
+		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		const auto [RectDimX, RectDimY] = corners[match_corner];
+		MyRect &r1 = rectangles[i_emplacement_source],
+				&r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
+		const MyRect r = r1;
+		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
+		if (i_emplacement_destination >= n)
 		{
 			int i=r2.i;
-                        r2 = r;
+			r2 = r;
 			r2.i = i;
 		}
 
-                for (const Mirror& mirror : mirrors[mirroring])
-                        apply_mirror(mirror, rectangles);
-                for (const Job& job : pipelines[pipeline])
-                        apply_job(job, rectangles);
-                for (const Mirror& mirror : mirrors[mirroring])
-                        apply_mirror(mirror, rectangles);
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
+		for (const Job& job : pipelines[pipeline])
+			apply_job(job, rectangles);
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
 	};
 
 	auto rec_tf=[&](int id, auto&& rec_tf)->void{
@@ -940,8 +946,17 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
                 {
                         rec_tf(parent_index, rec_tf);
                 }
+				
+/*
+// TODO: use upcoming C++23 views::cartesian_product()
+	auto rg = views::cartesian_product( views::iota(0, NR_JOB_PIPELINES),
+										views::iota(0, NR_MIRRORING_OPTIONS),
+										views::iota(0, NR_RECT_CORNERS));
+	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{... 
+	
+*/
 
-		unsigned code = ranges::min(views::iota(0, 4*4*2), {}, [&](unsigned code){
+		unsigned code = ranges::min(views::iota(0, NR_MIRRORING_OPTIONS*NR_RECT_CORNERS*NR_JOB_PIPELINES), {}, [&](unsigned code){
 			D(printf("code=%u\n", code));
 			unsigned mirroring = (code & MIRRORING_MASK) >> 3;
 			unsigned match_corner=(code & CORNER_MASK) >> 1;
