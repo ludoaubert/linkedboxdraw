@@ -32,9 +32,9 @@ function translation_range_print_html(id)
 	const start = binarySearch(translation_ranges, item => item.id >= id);
 // find the end of the range
 	const end = binarySearch(translation_ranges, item => item.id > id);
-	
+
 	const translations = translation_ranges.slice(start,end);
-	
+
 	const rectangles = input_rectangles.map((r, index) => {
 			const tr=translations.find(tr => tr.ri==index);
 			return tr==undefined ? r : {
@@ -45,9 +45,9 @@ function translation_range_print_html(id)
 			};
 		}
 	);
-	
+
 	var innerHTML = "";
-	
+
 	const frame = {
 		m_left : Math.min(...rectangles.map(r => r.m_left)),
 		m_right : Math.max(...rectangles.map(r => r.m_right)),
@@ -75,7 +75,7 @@ function translation_range_print_html(id)
 
 	innerHTML += "</svg>";
 
-	return innerHTML;			
+	return innerHTML;
 }
 
 function print_html()
@@ -184,45 +184,45 @@ window.main = function main(){
 
 		 if ( tr.className !== 'clicked' ) {
 	// Clear previous selection
-				if ( selected !== null ) {
-					 selected.className='';
-				}
+		if ( selected !== null ) {
+			 selected.className='';
+		}
 	// Mark this row as selected
-				tr.className='clicked';
-				selected = tr;
-		   let i = parseInt(tr.cells[0].innerHTML,10);
-		   
-		   	let div = document.getElementById("range_svg");
-			div.innerHTML = translation_range_print_html(i);
-		   
-			   let chemin = [];
-			   while (i != -1)
-			   {
-					chemin.push(decision_tree[i]);
-					i = decision_tree[i].parent_index;
-			   }
+		tr.className='clicked';
+		selected = tr;
+		let i = parseInt(tr.cells[0].innerHTML,10);
 
-		   let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
-		   cm.innerHTML = chemin
-							.reverse()
-							.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
+		let div = document.getElementById("range_svg");
+		div.innerHTML = translation_range_print_html(i);
+
+		let chemin = [];
+		while (i != -1)
+		{
+			chemin.push(decision_tree[i]);
+			i = decision_tree[i].parent_index;
+		}
+
+		let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
+		cm.innerHTML = chemin
+				.reverse()
+				.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
 	`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
 				.join('\n');
 
-			   document
-					.querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
-					.forEach((element) => {element.style.visibility = "hidden";});
+		document
+			.querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
+			.forEach((element) => {element.style.visibility = "hidden";});
 
-			   const query = chemin
+		const query = chemin
 			.map(({i_emplacement_destination}) => i_emplacement_destination)
 			.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
-					.map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
-					.map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
-					.join(', ');
+			.map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
+			.map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
+			.join(', ');
 
-			   document
-					.querySelectorAll(query)
-					.forEach((element) => {element.style.visibility = "visible";});
+		   document
+			.querySelectorAll(query)
+			.forEach((element) => {element.style.visibility = "visible";});
 		 }
 		 else {
 			   tr.className='';
@@ -230,7 +230,7 @@ window.main = function main(){
 		 }
 		 return true
 	});
-	
+
 	const allTables = document.querySelectorAll('table');
 
 	for (const table of allTables) {

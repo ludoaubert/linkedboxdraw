@@ -14,7 +14,7 @@
 #include "MyRect.h"
 using namespace std;
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
