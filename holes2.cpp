@@ -1003,7 +1003,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("sigma_translation = %d\n", sigma_translation));
 			D(printf("[.width=%d, .height=%d]\n", width, height));
 
-			int cost = width * height + sigma_edge_distance + sigma_translation ;
+			int cost = width + height + sigma_edge_distance + sigma_translation ;
 
 			D(printf("cost=%d\n", cost));
 			return cost;
