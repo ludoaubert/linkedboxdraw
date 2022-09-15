@@ -265,12 +265,19 @@ const TranslationRangesTestContext TRTestContexts[2]={
 {
 	.testid=0,
 	.decision_tree={
-		{.i=3492, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+		{.i=822, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=0, .i_emplacement_destination=41}, .match=24}
 	},
 	.expected_translation_ranges={}
 },
 {
 	.testid=1,
+	.decision_tree={
+		{.i=3492, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+	},
+	.expected_translation_ranges={}
+},
+{
+	.testid=2,
 	.decision_tree={
 		{.i=0, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=0, .i_emplacement_destination=35}, .match=24},
 		{.i=1, .parent_index=0, .depth=1, .recmap={.i_emplacement_source=1, .i_emplacement_destination=33}, .match=24},
@@ -318,10 +325,10 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		};
 
 		const MyVector directions[4][3]={
-				{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
-				{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
-				{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
-				{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
+			{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
+			{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
+			{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
+			{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
 		};
 
 		for (int rc : views::iota(0,4))
@@ -707,15 +714,15 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 		}
 	};
 
-        auto push=[&](int tr){
-		for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
-		{
-			int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
-			if (trj > 0)
-				rec_push(j, trj, rec_push);
-                }
-         };
-         push(tr);
+	auto push=[&](int tr){
+	for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
+	{
+		int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
+		if (trj > 0)
+			rec_push(j, trj, rec_push);
+			}
+	 };
+	 push(tr);
 }
 {
 #ifdef _TRACE_
@@ -970,6 +977,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 */
 
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
+			D(printf("pipeline=%u\n", pipeline);
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
@@ -986,10 +994,16 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 				views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].recmap.i_emplacement_source;}) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+				
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
+			
+			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance);
+			D(printf("sigma_translation = %d\n", sigma_translation);
+			D(printf("[.width=%d, .height=%d]\n", width, height);
 
-			int cost = dim_max(compute_frame(rectangles)) +
-						accumulate(ranges::begin(rg1), ranges::end(rg1),0) +
-						accumulate(ranges::begin(rg2), ranges::end(rg2),0) ;
+			int cost = width * height + sigma_edge_distance + sigma_translation ;
 
 			D(printf("cost=%d\n", cost));
 			return cost;
@@ -997,20 +1011,21 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		selectors[id] = {pipeline, mirroring, match_corner};
 
+		D(printf("pipeline=%u\n", pipeline);
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
 		tf(id, pipeline, mirroring, match_corner);
 
-                for (const MyRect& r : rectangles)
-                        emplacements[r.i] = r;
+		for (const MyRect& r : rectangles)
+			emplacements[r.i] = r;
 
 		auto rg = views::iota(0,n) |
-                        views::transform([&](int i)->TranslationRangeItem{
+					views::transform([&](int i)->TranslationRangeItem{
                                         const MyRect &ir = input_emplacements[i], &r = emplacements[i];
                                         MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
                                         return {id, i, tr};}) |
-			views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
+					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
 
 		for (TranslationRangeItem item : rg)
 		{
@@ -1429,19 +1444,19 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 			int depth = chemin.size();
 
-                        if (connected_component[i] == cmax && depth <= 2)
+			if (connected_component[i] == cmax && depth <= 2)
 			{
 				printf("connected_component[%d] == cmax && depth=%d <= 2\n", i, depth);
 			}
 			else if (connected_component[i] != cmax && depth > 2)
 			{
-                                printf("connected_component[%d] != cmax && depth=%d > 2\n", i, depth);
+				printf("connected_component[%d] != cmax && depth=%d > 2\n", i, depth);
 			}
 			else
-                        {
-                                printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, cmax, depth, i);
-                                continue;
-                        }
+			{
+				printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, cmax, depth, i);
+				continue;
+			}
 
 			if (depth > 6)
 				continue;
