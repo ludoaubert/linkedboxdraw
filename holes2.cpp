@@ -207,21 +207,21 @@ const vector<LogicalEdge> logical_edges = {
 
 
 const vector<MyRect> emplacements={
-        {.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
-        {.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
-        {.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
-        {.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
-        {.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
-        {.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
-        {.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
-        {.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
-        {.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
-        {.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
-        {.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
-        {.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
-        {.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
-        {.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
-        {.m_left=130, .m_right=345, .m_top=451, .m_bottom=627},
+	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+	{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+	{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+	{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+	{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+	{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+	{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+	{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
+	{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+	{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+	{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+	{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+	{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+	{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627},
 
 	{.m_left=88, .m_right=130, .m_top=451, .m_bottom=493},
 	{.m_left=88, .m_right=130, .m_top=585, .m_bottom=627},
@@ -809,10 +809,10 @@ const RectDim corners[NR_RECT_CORNERS][2]={
 };
 
 const char* CornerStrings[NR_RECT_CORNERS]={
-        "{LEFT, TOP}",
-        "{LEFT, BOTTOM}",
-        "{RIGHT, TOP}",
-        "{RIGHT, BOTTOM}"
+	"{LEFT, TOP}",
+	"{LEFT, BOTTOM}",
+	"{RIGHT, TOP}",
+	"{RIGHT, BOTTOM}"
 };
 
 //4 mirrors X 4 corners X 2 job pipelines
@@ -885,8 +885,8 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-								const vector<MyRect>& input_emplacements,
-								const vector<MyRect>& input_rectangles)
+																const vector<MyRect>& input_emplacements,
+																const vector<MyRect>& input_rectangles)
 {
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
