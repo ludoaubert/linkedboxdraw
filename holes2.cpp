@@ -261,7 +261,7 @@ struct TranslationRangesTestContext
 };
 
 
-const TranslationRangesTestContext TRTestContexts[2]={
+const vector<TranslationRangesTestContext> TRTestContexts={
 {
 	.testid=0,
 	.decision_tree={
@@ -977,7 +977,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 */
 
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
-			D(printf("pipeline=%u\n", pipeline);
+			D(printf("pipeline=%u\n", pipeline));
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
@@ -994,14 +994,14 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 				views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].recmap.i_emplacement_source;}) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
-				
+
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles));
-			
-			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance);
-			D(printf("sigma_translation = %d\n", sigma_translation);
-			D(printf("[.width=%d, .height=%d]\n", width, height);
+
+			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
+			D(printf("sigma_translation = %d\n", sigma_translation));
+			D(printf("[.width=%d, .height=%d]\n", width, height));
 
 			int cost = width * height + sigma_edge_distance + sigma_translation ;
 
@@ -1011,7 +1011,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		selectors[id] = {pipeline, mirroring, match_corner};
 
-		D(printf("pipeline=%u\n", pipeline);
+		D(printf("pipeline=%u\n", pipeline));
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
