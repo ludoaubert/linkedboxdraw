@@ -879,7 +879,7 @@ vector<ProcessSelector> cartesian_product()
 {
 	vector<ProcessSelector> result;
 
-	for (int pipeline=0; pipeline < NR_RECT_CORNERS*NR_JOB_PIPELINES; pipeline++)
+	for (int pipeline=0; pipeline < NR_JOB_PIPELINES; pipeline++)
 		for (int mirroring=0; mirroring < NR_MIRRORING_OPTIONS; mirroring++)
 			for (int match_corner=0; match_corner < NR_RECT_CORNERS; match_corner++)
 				result.push_back({pipeline, mirroring, match_corner});
