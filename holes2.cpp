@@ -946,19 +946,19 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			emplacements[i].i = i;
 
 //gather the rectangles of interest
-                rectangles.resize(n);
-                memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
-                for (int pid=id; pid != -1; pid=decision_tree[pid].parent_index)
-                {
-                        const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
-                        if (i_emplacement_destination >= n)
-                                rectangles.push_back( emplacements[i_emplacement_destination] );
-                }
+		rectangles.resize(n);
+		memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
+		for (int pid=id; pid != -1; pid=decision_tree[pid].parent_index)
+		{
+			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
+			if (i_emplacement_destination >= n)
+				rectangles.push_back( emplacements[i_emplacement_destination] );
+		}
 
 		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
-                {
-                        rec_tf(parent_index, rec_tf);
-                }
+		{
+			rec_tf(parent_index, rec_tf);
+		}
 
 /*
 // TODO: use upcoming C++23 views::cartesian_product()
