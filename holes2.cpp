@@ -14,7 +14,7 @@
 #include "MyRect.h"
 using namespace std;
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -977,9 +977,9 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 */
 
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
-			D(printf("pipeline=%u\n", pipeline));
-			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
-			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
+			D(printf("pipeline=%u\n", ps.pipeline));
+			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
+			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
 			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
 
