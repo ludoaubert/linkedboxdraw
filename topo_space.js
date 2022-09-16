@@ -46,8 +46,6 @@ function translation_range_print_html(id)
 		}
 	);
 
-	var innerHTML = "";
-
 	const frame = {
 		m_left : Math.min(...rectangles.map(r => r.m_left)),
 		m_right : Math.max(...rectangles.map(r => r.m_right)),
@@ -55,29 +53,16 @@ function translation_range_print_html(id)
 		m_bottom : Math.max(...rectangles.map(r => r.m_bottom))
 	};
 
-	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
-	
-	innerHTML += rectangles
-			.map(({m_left, m_right, m_top, m_bottom}, index) => {
-
-return `
-<g id="g-${index}" transform="translate(${m_left} ${m_top})">
-<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />
-<text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>
-` +
-
-logical_edges.filter(({from, to}) => from==index)
-			.map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*line}" class="logical_contact">r-${to}</text>`)
-			.join('\n') +
-`
-</g>
-`
-			})
+	return [`<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">`,
+                rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
+                        [`<g id="g-${index}" transform="translate(${m_left} ${m_top})">`,
+                        `<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
+                        `<text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>`,
+                        logical_edges.filter(({from, to}) => from==index)
+			        .map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*line}" class="logical_contact">r-${to}</text>`),
+                        `</g>`]),
+                "</svg>"].flat()
 			.join('\n');
-
-	innerHTML += "</svg>";
-
-	return innerHTML;
 }
 
 function print_html()
