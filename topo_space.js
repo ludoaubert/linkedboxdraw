@@ -59,9 +59,9 @@ function translation_range_print_html(id)
                         `<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
                         `<text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>`,
                         logical_edges.filter(({from, to}) => from==index)
-			        .map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*line}" class="logical_contact">r-${to}</text>`),
-                        `</g>`]),
-                "</svg>"].flat()
+			        .map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
+			`</g>`]),
+		"</svg>"].flat()
 			.join('\n');
 }
 
