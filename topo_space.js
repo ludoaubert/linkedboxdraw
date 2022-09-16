@@ -66,7 +66,7 @@ function translation_range_print_html(id)
 
 return `
 <g id="g-${index}" transform="translate(${m_left} ${m_top})">
-<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />
+<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />
 <text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>
 ` +
 
