@@ -66,8 +66,8 @@ return `
 <text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>
 ` +
 
-logical_edges.filter(({from, to}, line) => from==index)
-			.map(({from, to}) => `<text id="le-${from}-${to}" x="8" y="${14*line++}" class="logical_contact">r-${to}</text>`)
+logical_edges.filter(({from, to}) => from==index)
+			.map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*line++}" class="logical_contact">r-${to}</text>`)
 			.join('\n') +
 `
 </g>
