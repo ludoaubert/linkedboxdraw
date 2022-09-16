@@ -56,22 +56,28 @@ function translation_range_print_html(id)
 	};
 
 	innerHTML += `<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">\n`;
-
-	innerHTML += rectangles
-			.map(({m_left, m_right, m_top, m_bottom}, index) => `<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />\n`)
-			.join('');
-
-	innerHTML += rectangles
-			.map((r, index) => `<text id="tr-${index}" x="${r.m_left}" y="${r.m_top}" fill="red">r-${index}</text>\n`)
-			.join('');
-
+	
 	let windowed_index = [];
 	windowed_index.length = input_rectangles.length;
 	windowed_index.fill(1);
 
-	innerHTML += logical_edges
-			.map(({from, to}) => `<text id="le-${from}-${to}" x="${input_rectangles[from].m_left+8}" y="${input_rectangles[from].m_top+14*windowed_index[from]++}" class="logical_contact">r-${to}</text>\n`)
-			.join('');
+	innerHTML += rectangles
+			.map(({m_left, m_right, m_top, m_bottom}, index) => {
+
+return `
+<g id="g-${index}" transform="translate(${m_left} ${m_top})">
+<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />
+<text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>
+` +
+
+logical_edges.filter(({from, to}) => from==index)
+			.map(({from, to}) => `<text id="le-${from}-${to}" x="8" y="${14*windowed_index[from]++}" class="logical_contact">r-${to}</text>`)
+			.join('\n') +
+`
+</g>
+`
+			})
+			.join('\n');
 
 	innerHTML += "</svg>";
 
