@@ -90,8 +90,8 @@ function print_html()
 			return [`<rect id="h-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />`,
 				`<text id="th-${index}" x="${m_left}" y="${m_top}" fill="black">hole-${index}</text>`,
 				holes.topological_contact.filter(({hi, rj}) => hi==index)
-							.map(({hi, rj}, line) => `<text id="tc-${hi}-${rj}" x="${m_left + 8}" y="${m_top + 14*(line+1)}" fill="black">r-${rj}</text>`)]}),
-		holes.holes.map(({ri, rec}, index) => `<text id="th-ri-${index}-${ri}" x="${m_left+30}" y="${m_top+14}" fill="black">ri=${ri}</text>`),
+							.map(({hi, rj}, line) => `<text id="tc-${hi}-${rj}" x="${m_left + 8}" y="${m_top + 14*(line+1)}" fill="black">r-${rj}</text>`),
+				`<text id="th-ri-${index}-${hole.ri}" x="${m_left+30}" y="${m_top+14}" fill="black">ri=${hole.ri}</text>`];}),
 		"</svg>"].flat()
 			.join('\n');
 }
