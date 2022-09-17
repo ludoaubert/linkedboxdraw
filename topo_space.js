@@ -119,7 +119,7 @@ window.main = function main(){
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
 	dt.innerHTML = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-				["tr",[
+				["<tr>",[
 					`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
 					].map(s => `<td>${s}</td>`),
 				"</tr>"]).flat()
@@ -170,7 +170,7 @@ window.main = function main(){
 		cm.innerHTML = chemin
 				.reverse()
 				.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-                                ["tr",[
+                                ["<tr>",[
                                         `${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
                                         ].map(s => `<td>${s}</td>`),
                                 "</tr>"]).flat()
