@@ -117,13 +117,17 @@ window.main = function main(){
 	div.innerHTML = innerHTML;
 
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
-	dt.innerHTML = decision_tree
+	const a = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
 				[`<tr>`,[
 					`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
 					].map(s => `<td>${s}</td>`),
-				`</tr>`]).flat()
-			.join('\n');
+				`</tr>`]);
+
+	const b = a.flat();
+	const c = b.join('\n');
+
+	dt.innerHTML = c;
 
 	dt.addEventListener('mouseover', (event)=>{
 	// 'highlight' color is set in tablelist.css
