@@ -124,7 +124,7 @@ window.main = function main(){
 					].map(s => `<td>${s}</td>`),
 				`</tr>`]);
 
-	const b = a.flat();
+	const b = a.flat(2);
 	const c = b.join('\n');
 
 	dt.innerHTML = c;
