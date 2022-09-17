@@ -88,14 +88,14 @@ function print_html()
 			topological_edges.filter(({from, to}) => from==index)
 					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
 			`</g>`]),
-		holes.holes.map((hole, index) => {const {m_left, m_right, m_top, m_bottom}=hole.rec;
-		return [`<g id="g-h-${index}" transform="translate(${m_left} ${m_top})">`,
+		holes.holes.map((hole, index) =>
+			[`<g id="g-h-${index}" transform="translate(${hole.rec.m_left} ${hole.rec.m_top})">`,
 			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />`,
 			`<text x="0" y="0" fill="black">hole-${index}</text>`,
 			holes.topological_contact.filter(({hi, rj}) => hi==index)
 						.map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" fill="black">r-${rj}</text>`),
 			`<text x="30" y="14" fill="black">ri=${hole.ri}</text>`,
-			`</g>`];}),
+			`</g>`]),
 		"</svg>"].flat()
 			.join('\n');
 }
@@ -119,7 +119,10 @@ window.main = function main(){
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
 	dt.innerHTML = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
+				["tr",[
+					`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
+					].map(s => `<td>${s}</td>`),
+				"</tr>"].flat()
 			.join('\n');
 
 	dt.addEventListener('mouseover', (event)=>{
@@ -167,8 +170,11 @@ window.main = function main(){
 		cm.innerHTML = chemin
 				.reverse()
 				.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-	`<tr><td>${i}</td><td>${parent_index}</td><td>${depth}</td><td>${i_emplacement_source}</td><td>${print_emplacement(i_emplacement_destination)}</td><td>${match}</td></tr>`)
-				.join('\n');
+                                ["tr",[
+                                        `${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
+                                        ].map(s => `<td>${s}</td>`),
+                                "</tr>"].flat()
+                        .join('\n');
 
 		document
 			.querySelectorAll(`[id^="g-h-"]`)
