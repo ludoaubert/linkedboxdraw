@@ -61,7 +61,7 @@ function translation_range_print_html(id)
                         logical_edges.filter(({from, to}) => from==index)
 			        .map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			`</g>`]),
-		"</svg>"].flat()
+		"</svg>"].flat(3)
 			.join('\n');
 }
 
@@ -96,7 +96,7 @@ function print_html()
 						.map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" fill="black">r-${rj}</text>`),
 			`<text x="30" y="14" fill="black">ri=${ri}</text>`,
 			`</g>`]),
-		"</svg>"].flat()
+		"</svg>"].flat(3)
 			.join('\n');
 }
 
