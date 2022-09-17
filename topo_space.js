@@ -122,7 +122,7 @@ window.main = function main(){
 				["tr",[
 					`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
 					].map(s => `<td>${s}</td>`),
-				"</tr>"].flat()
+				"</tr>"]).flat()
 			.join('\n');
 
 	dt.addEventListener('mouseover', (event)=>{
