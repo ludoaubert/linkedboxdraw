@@ -117,15 +117,14 @@ window.main = function main(){
 	div.innerHTML = innerHTML;
 
 	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
-	const a = decision_tree
+	dt.innerHTML = decision_tree
                         .map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
 				[`<tr>`,[
 					`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
 					].map(s => `<td>${s}</td>`),
-				`</tr>`]);
-
-	const b = a.flat(2);
-	const c = b.join('\n');
+				`</tr>`])
+			.flat(2)
+			.join('\n');
 
 	dt.innerHTML = c;
 
