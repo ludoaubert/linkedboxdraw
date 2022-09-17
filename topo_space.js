@@ -126,8 +126,6 @@ window.main = function main(){
 			.flat(2)
 			.join('\n');
 
-	dt.innerHTML = c;
-
 	dt.addEventListener('mouseover', (event)=>{
 	// 'highlight' color is set in tablelist.css
 		   let tr = event.target.parentNode;
