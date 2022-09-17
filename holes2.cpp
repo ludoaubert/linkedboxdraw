@@ -14,7 +14,7 @@
 #include "MyRect.h"
 using namespace std;
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -290,7 +290,71 @@ const vector<TranslationRangesTestContext> TRTestContexts={
 		{.i=8, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=27}, .match=26},
 		{.i=9, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=32}, .match=26},
 	},
-	.expected_translation_ranges={}
+	.expected_translation_ranges={
+                {.id=1, .ri=1, .tr={.x=0, .y=111}},
+                {.id=1, .ri=8, .tr={.x=0, .y=46}},
+                {.id=1, .ri=14, .tr={.x=0, .y=111}},
+                {.id=2, .ri=0, .tr={.x=0, .y=-112}},
+                {.id=2, .ri=1, .tr={.x=0, .y=-1}},
+                {.id=2, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=2, .ri=6, .tr={.x=0, .y=-112}},
+                {.id=2, .ri=8, .tr={.x=0, .y=46}},
+                {.id=2, .ri=14, .tr={.x=0, .y=111}},
+                {.id=3, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=3, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=3, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=3, .ri=6, .tr={.x=89, .y=126}},
+                {.id=3, .ri=8, .tr={.x=0, .y=46}},
+                {.id=3, .ri=14, .tr={.x=0, .y=111}},
+                {.id=4, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=4, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=4, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=4, .ri=6, .tr={.x=89, .y=126}},
+                {.id=4, .ri=8, .tr={.x=0, .y=46}},
+                {.id=4, .ri=12, .tr={.x=89, .y=127}},
+                {.id=4, .ri=13, .tr={.x=-180, .y=0}},
+                {.id=4, .ri=14, .tr={.x=0, .y=111}},
+                {.id=5, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=5, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=5, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=5, .ri=6, .tr={.x=89, .y=126}},
+                {.id=5, .ri=8, .tr={.x=0, .y=46}},
+                {.id=5, .ri=12, .tr={.x=89, .y=127}},
+                {.id=5, .ri=13, .tr={.x=123, .y=-543}},
+                {.id=5, .ri=14, .tr={.x=0, .y=111}},
+                {.id=6, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=6, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=6, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=6, .ri=6, .tr={.x=89, .y=126}},
+                {.id=6, .ri=8, .tr={.x=0, .y=46}},
+                {.id=6, .ri=12, .tr={.x=89, .y=127}},
+                {.id=6, .ri=13, .tr={.x=123, .y=-543}},
+                {.id=6, .ri=14, .tr={.x=-62, .y=-879}},
+                {.id=7, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=7, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=7, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=7, .ri=6, .tr={.x=89, .y=126}},
+                {.id=7, .ri=8, .tr={.x=0, .y=46}},
+                {.id=7, .ri=12, .tr={.x=89, .y=127}},
+                {.id=7, .ri=13, .tr={.x=123, .y=-543}},
+                {.id=7, .ri=14, .tr={.x=-42, .y=-879}},
+                {.id=8, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=8, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=8, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=8, .ri=6, .tr={.x=89, .y=126}},
+                {.id=8, .ri=8, .tr={.x=0, .y=46}},
+                {.id=8, .ri=12, .tr={.x=89, .y=127}},
+                {.id=8, .ri=13, .tr={.x=123, .y=-543}},
+                {.id=8, .ri=14, .tr={.x=-42, .y=-879}},
+                {.id=9, .ri=0, .tr={.x=0, .y=-272}},
+                {.id=9, .ri=1, .tr={.x=0, .y=-161}},
+                {.id=9, .ri=2, .tr={.x=-56, .y=222}},
+                {.id=9, .ri=6, .tr={.x=89, .y=126}},
+                {.id=9, .ri=8, .tr={.x=0, .y=46}},
+                {.id=9, .ri=12, .tr={.x=89, .y=127}},
+                {.id=9, .ri=13, .tr={.x=123, .y=-543}},
+                {.id=9, .ri=14, .tr={.x=182, .y=-879}}
+	}
 }
 };
 
@@ -892,8 +956,8 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-																const vector<MyRect>& input_emplacements,
-																const vector<MyRect>& input_rectangles)
+								const vector<MyRect>& input_emplacements,
+								const vector<MyRect>& input_rectangles)
 {
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
@@ -1292,7 +1356,19 @@ void test_translations()
                         	                                        			input_rectangles);
 		bool bOK = translation_ranges == expected_translation_ranges;
 		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
-return;
+		if (bOK == false)
+		{
+        		auto rg = translation_ranges
+				| views::transform([](const TranslationRangeItem& item)->string{
+					const auto [id, ri, tr] = item;
+					char buffer[200];
+					sprintf(buffer, "\t\t{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+					return buffer;})
+				| views::join;
+			for (char const c : rg)
+				D(printf("%c", c));
+			D(printf("\n"));
+		}
 	}
 };
 
