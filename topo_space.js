@@ -88,9 +88,9 @@ function print_html()
 			topological_edges.filter(({from, to}) => from==index)
 					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
 			`</g>`]),
-		holes.holes.map((hole, index) =>
-			[`<g id="g-h-${index}" transform="translate(${hole.rec.m_left} ${hole.rec.m_top})">`,
-			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />`,
+		holes.holes.map(({rec}, index) =>
+			[`<g id="g-h-${index}" transform="translate(${rec.m_left} ${rec.m_top})">`,
+			`<rect x="0" y="0" width="${rec.m_right-rec.m_left}" height="${rec.m_bottom-rec.m_top}" class="hole" />`,
 			`<text x="0" y="0" fill="black">hole-${index}</text>`,
 			holes.topological_contact.filter(({hi, rj}) => hi==index)
 						.map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" fill="black">r-${rj}</text>`),
