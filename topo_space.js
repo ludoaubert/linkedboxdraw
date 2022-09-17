@@ -80,18 +80,22 @@ function print_html()
 
 	return [`<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">`,
 		input_rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
-			[`<rect id="r-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
-			`<text id="tr-${index}" x="${m_left}" y="${m_top}" fill="red">r-${index}</text>`,
+			[`<g id="g-r-${index}" transform="translate(${m_left} ${m_top})">`,
+			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
+			`<text x="0" y="0" fill="red">r-${index}</text>`,
 			logical_edges.filter(({from, to}) => from==index)
-					.map(({from, to}, line) => `<text id="le-${from}-${to}" x="${m_left+8}" y="${m_top+14*(line+1)}" class="logical_contact">r-${to}</text>`),
+					.map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			topological_edges.filter(({from, to}) => from==index)
-					.map(({from, to}, line) => `<text id="te-${from}-${to}" x="${m_left+30}" y="${m_top+14*(line+1)}" class="topological_contact">r-${to}</text>`)]),
+					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
+			`</g>`]),
 		holes.holes.map((hole, index) => {const {m_left, m_right, m_top, m_bottom}=hole.rec;
-			return [`<rect id="h-${index}" x="${m_left}" y="${m_top}" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />`,
-				`<text id="th-${index}" x="${m_left}" y="${m_top}" fill="black">hole-${index}</text>`,
-				holes.topological_contact.filter(({hi, rj}) => hi==index)
-							.map(({hi, rj}, line) => `<text id="tc-${hi}-${rj}" x="${m_left + 8}" y="${m_top + 14*(line+1)}" fill="black">r-${rj}</text>`),
-				`<text id="th-ri-${index}-${hole.ri}" x="${m_left+30}" y="${m_top+14}" fill="black">ri=${hole.ri}</text>`];}),
+		return [`<g id="g-h-${index}" transform="translate(${m_left} ${m_top})">`,
+			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class="hole" />`,
+			`<text x="0" y="0" fill="black">hole-${index}</text>`,
+			holes.topological_contact.filter(({hi, rj}) => hi==index)
+						.map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" fill="black">r-${rj}</text>`),
+			`<text x="30" y="14" fill="black">ri=${hole.ri}</text>`,
+			`</g>`];}),
 		"</svg>"].flat()
 			.join('\n');
 }
@@ -167,14 +171,14 @@ window.main = function main(){
 				.join('\n');
 
 		document
-			.querySelectorAll(`[id^="h-"], [id^="th-"], [id^="tc-"], [id^="th-ri-"]`)
+			.querySelectorAll(`[id^="g-h-"]`)
 			.forEach((element) => {element.style.visibility = "hidden";});
 
 		const query = chemin
 			.map(({i_emplacement_destination}) => i_emplacement_destination)
 			.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
 			.map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
-			.map(h => `[id^="h-${h}"], [id^="th-${h}"], [id^="tc-${h}"], [id^="th-ri-${h}"]`)
+			.map(h => `[id^="g-h-${h}"]`)
 			.join(', ');
 
 		   document
