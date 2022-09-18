@@ -14,7 +14,9 @@
 #include "MyRect.h"
 using namespace std;
 
-#define _TRACE_
+//./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
+
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -994,15 +996,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 		MyRect &r1 = rectangles[i_emplacement_source],
-			&r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
-		const MyRect r = r1;
+			&r2 = emplacements[i_emplacement_destination];
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
-		if (i_emplacement_destination >= n)
-		{
-			int i=r2.i;
-			r2 = r;
-			r2.i = i;
-		}
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
@@ -1031,40 +1026,43 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
                 D(printf("\n"));
 	};
 
-//TODO: use C++23 Deducing this.
-	auto rec_tf=[&](int id, auto&& rec_tf)->void{
-
-		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
-		{
-			rec_tf(parent_index, rec_tf);
-		}
-
-		const auto [pipeline, mirroring, match_corner] = selectors[id];
-
-		D(printf("[pipeline=%u, mirroring=%u, match_corner=%u] = selectors[id=%d]\n", pipeline, mirroring, match_corner, id));
-
-		tf(id, pipeline, mirroring, match_corner);
-
-		for (const MyRect& r : rectangles)
-			emplacements[r.i] = r;
-	};
-
-
 	for (int id=0; id < decision_tree.size(); id++)
 	{
+
+//TODO: use C++23 Deducing this.
+		auto rec_tf=[&](int pid, auto&& rec_tf)->void{
+
+			if (int parent_index = decision_tree[pid].parent_index; parent_index != -1)
+			{
+				rec_tf(parent_index, rec_tf);
+			}
+
+			const auto [pipeline, mirroring, match_corner] = selectors[pid];
+
+			D(printf("[pipeline=%u, mirroring=%u, match_corner=%u] = selectors[id=%d]\n", pipeline, mirroring, match_corner, pid));
+
+//gather the rectangles of interest
+			rectangles.resize(n);
+			memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
+			for (int i=id; i != pid; i=decision_tree[i].parent_index)
+			{
+				const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[i].recmap;
+				if (i_emplacement_destination >= n)
+					rectangles.push_back( emplacements[i_emplacement_destination] );
+			}
+
+			tf(pid, pipeline, mirroring, match_corner);
+
+			for (const MyRect& r : rectangles)
+				emplacements[r.i] = r;
+		};
+
 		memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
 		for (int i=0; i<m; i++)
 			emplacements[i].i = i;
 
-//gather the rectangles of interest
 		rectangles.resize(n);
 		memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
-		for (int pid=id; pid != -1; pid=decision_tree[pid].parent_index)
-		{
-			const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[pid].recmap;
-			if (i_emplacement_destination >= n)
-				rectangles.push_back( emplacements[i_emplacement_destination] );
-		}
 
 		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
 		{
@@ -1079,6 +1077,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{...
 
 */
+
+		rectangles.resize(n);
 
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
 			D(printf("pipeline=%u\n", ps.pipeline));
