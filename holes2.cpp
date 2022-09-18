@@ -965,7 +965,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	int n = input_rectangles.size();
 	vector<ProcessSelector> selectors(decision_tree.size());
 	vector<TranslationRangeItem> translation_ranges;
-	vector<MyRect> emplacements(m);
+	vector<MyRect> emplacements(m+n);
 	vector<MyRect> rectangles(n);
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
@@ -1047,8 +1047,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			for (int i=id; i != pid; i=decision_tree[i].parent_index)
 			{
 				const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[i].recmap;
-				if (i_emplacement_destination >= n)
-					rectangles.push_back( emplacements[i_emplacement_destination] );
+				int pos = i_emplacement_destination >= n ? i_emplacement_destination : i_emplacement_destination + m;
+				rectangles.push_back( emplacements[pos] );
 			}
 
 			tf(pid, pipeline, mirroring, match_corner);
@@ -1058,7 +1058,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		};
 
 		memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
-		for (int i=0; i<m; i++)
+		memcpy(&emplacements[m], &input_rectangles[0], sizeof(MyRect)*n);
+		for (int i=0; i<m+n; i++)
 			emplacements[i].i = i;
 
 		rectangles.resize(n);
