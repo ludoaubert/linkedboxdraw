@@ -970,6 +970,24 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
+		auto rg = rectangles | views::transform([](const MyRect& r){return r.i;})
+					| views::transform([&](int i)->string{
+						char buffer[10];
+						if (i < n)
+							sprintf(buffer,"%d ", i);
+						else
+							sprintf(buffer,"h%d ", i-n);
+						return buffer;
+						}
+					 )
+					//| views::join_with(" ") ; TODO C++23
+					| views::join;
+
+		D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] rectangles[...r.i]=", id, pipeline, mirroring, match_corner));
+		for (char c : rg)
+			D(printf("%c", c));
+		D(printf("\n"));
+
 		for (MyRect& r : rectangles)
 			r = emplacements[r.i];
 
@@ -992,6 +1010,25 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			apply_job(job, rectangles);
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
+
+		auto rg2 = rectangles | views::transform([&](const MyRect& r)->TranslationRangeItem{
+                                        	const MyRect &ir = emplacements[r.i];
+                                        	return {.id=id, .ri=r.i, .tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top}};})
+				| views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};})
+				| views::transform([&](const TranslationRangeItem& item)->string{
+					const auto [id,i,tr]=item;
+					char buffer[50];
+					if (i < n)
+						sprintf(buffer, "{id=%d, ri=%d, tr={x=%d, y=%d}} ", id, i, tr.x, tr.y);
+					else
+						sprintf(buffer, "{id=%d, ri=h%d, tr={x=%d, y=%d}} ", id, i-n, tr.x, tr.y);
+					return buffer;})
+				| views::join;
+
+                D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] tf output translations=", id, pipeline, mirroring, match_corner));
+                for (char c : rg2)
+                        D(printf("%c", c));
+                D(printf("\n"));
 	};
 
 	auto rec_tf=[&](int id, auto&& rec_tf)->void{
