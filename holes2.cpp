@@ -1075,7 +1075,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		selectors[id] = {pipeline, mirroring, match_corner};
 
-		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner);
+		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner));
 
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
