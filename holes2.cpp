@@ -976,7 +976,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 		MyRect &r1 = rectangles[i_emplacement_source],
-				&r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
+			&r2 = *find_if(rectangles.rbegin(), rectangles.rend(), [&](const MyRect& r){return r.i==i_emplacement_destination;});
 		const MyRect r = r1;
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 		if (i_emplacement_destination >= n)
@@ -1075,7 +1075,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		selectors[id] = {pipeline, mirroring, match_corner};
 
-		D(printf("pipeline=%u\n", pipeline));
+		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner);
+
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
