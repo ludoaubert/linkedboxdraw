@@ -1031,6 +1031,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
                 D(printf("\n"));
 	};
 
+//TODO: use C++23 Deducing this.
 	auto rec_tf=[&](int id, auto&& rec_tf)->void{
 
 		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
@@ -1039,6 +1040,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		}
 
 		const auto [pipeline, mirroring, match_corner] = selectors[id];
+
+		D(printf("[pipeline=%u, mirroring=%u, match_corner=%u] = selectors[id=%d]\n", pipeline, mirroring, match_corner, id));
 
 		tf(id, pipeline, mirroring, match_corner);
 
