@@ -361,6 +361,43 @@ const vector<TranslationRangesTestContext> TRTestContexts={
 };
 
 
+vector<MyRect> trimmed(const MyRect& r, const MyRect& by)
+{
+//	if (r.m_right <= by.m_left || by.m_right <= r.m_left || r.m_bottom <= by.m_top || by.m_bottom <= r.m_top)
+		return {r};
+}
+
+
+MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
+{
+	struct RectNode{MyRect r; int parent_id;};
+	vector<RectNode> rect_tree;
+
+	auto rec_trim=[&](int parent_id, int i, auto&& rec_trim)->void
+	{
+		for (const MyRect& rec : trimmed(parent_id==-1 ? r : rect_tree[parent_id].r, rectangles[i]))
+		{
+			int size = rect_tree.size();
+			rect_tree.push_back({rec, parent_id});
+			if (i+1 < rectangles.size())
+				rec_trim(size, i+1, rec_trim);
+		}
+	};
+
+	int parent_id=-1;
+	int i=0;
+	rec_trim(parent_id, i, rec_trim);
+
+//TODO: use C++23 chunk_by()
+
+	int n=rect_tree.size();
+	auto rg = views::iota(n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
+				| views::transform([&](int id){return rect_tree[id].r;});
+
+	return ranges::max(rg, {}, [](const MyRect& r){return width(r)*height(r);});
+}
+
+
 vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 {
 	MyRect frame={
