@@ -361,10 +361,254 @@ const vector<TranslationRangesTestContext> TRTestContexts={
 };
 
 
+enum TrimAlgo
+{
+	SPLIT,
+	NOTCH,
+	TRIM,
+	CORNER
+};
+
+
+const unsigned NR_TRIM_ALGO=4;
+
+
+enum TrimMirrorDirection
+{
+	HORIZONTAL_MIRROR,
+	VERTICAL_MIRROR,
+	TILTED_MIRROR
+};
+
+enum MirroringState
+{
+	ACTIVE,
+	IDLE
+};
+
+struct TrimMirror{
+	MirroringState mirroring_state;
+	TrimMirrorDirection mirroring_direction;
+};
+
+const unsigned NR_TRIM_MIRRORING_OPTIONS = 2*2*2;
+
+const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+	},
+        {
+                {.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+                {.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+        },
+        {
+                {.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+        },
+        {
+                {.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+                {.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+        },
+        {
+                {.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+        }
+};
+
+const char* TrimMirroringStrings[NR_TRIM_MIRRORING_OPTIONS]={
+	"IDLE,IDLE,IDLE",
+	"IDLE,ACTIVE,IDLE",
+	"ACTIVE,IDLE,IDLE",
+	"ACTIVE,ACTIVE,IDLE",
+        "IDLE,IDLE,ACTIVE",
+        "IDLE,ACTIVE,ACTIVE",
+        "ACTIVE,IDLE,ACTIVE",
+        "ACTIVE,ACTIVE,ACTIVE"
+};
+
+
+/*      by
+      +------+
+      |      |
++=====+======+=====+
+|     |      |     |
+|     |      |     | r
+|     |      |     |
++=====+======+=====+
+      |      |
+      +------+
+*/
+
+void split(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
+{
+	if (r.m_left < by.m_left && by.m_right < r.m_right && by.m_top < r.m_top && by.m_bottom > r.m_bottom)
+	{
+		rects = {
+			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
+			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom}
+		};
+	}
+}
+
+/*
++==================+
+|                  |
+|     +------+     | r
+|     |      |     |
++=====+======+=====+
+      |      |
+      +------+
+         by
+*/
+
+void notch(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
+{
+	if (r.m_left < by.m_left && by.m_right < r.m_right && by.m_bottom > r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
+	{
+		rects = {
+			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
+			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom},
+			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=by.m_top}
+		};
+	}
+}
+
+/*
+      +==================+
+      |                  |
+      |                  | r
++-----+------------------+----+
+|     +==================+    |
+|                             |
++-----------------------------+
+         by
+*/
+void trim(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
+{
+	if (by.m_left < r.m_left && by.m_right > r.m_right && r.m_top < by.m_top && r.m_bottom > by.m_top && r.m_bottom < by.m_bottom)
+	{
+		rects = {
+			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=by.m_top}
+		};
+	}
+}
+
+/*
+      +==================+
+      |                  |
+      |                  | r
++-----+-----+            |
+|     +=====+============+
+|           |
++-----------+
+         by
+*/
+void corner(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
+{
+	if (by.m_left < r.m_left && by.m_right > r.m_left && by.m_right < r.m_right &&
+		by.m_bottom > r.m_bottom && by.m_top > r.m_top && by.m_top < r.m_bottom)
+	{
+		rects = {
+			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=by.m_top},
+			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom}
+		};
+	}
+}
+
+
+void apply_trim_algo(TrimAlgo trim_algo, const MyRect& r, const MyRect& by, vector<MyRect>& rects)
+{
+	switch (trim_algo)
+	{
+	case SPLIT:
+		split(r, by, rects);
+		break;
+	case NOTCH:
+		notch(r, by, rects);
+		break;
+	case TRIM:
+		trim(r, by, rects);
+		break;
+	case CORNER:
+		corner(r, by, rects);
+		break;
+	}
+}
+
+void apply_trim_mirror(const TrimMirror& mirror, MyRect& r)
+{
+	const auto& [mirroring_state, mirroring_direction] = mirror;
+
+	if (mirroring_state == ACTIVE)
+	{
+		switch(mirroring_direction)
+		{
+		case VERTICAL_MIRROR:
+			r.m_left *= -1;
+			r.m_right *= -1;
+			swap(r.m_left, r.m_right);
+			break;
+		case HORIZONTAL_MIRROR:
+			r.m_top *= -1;
+			r.m_bottom *= -1;
+			swap(r.m_top, r.m_bottom);
+			break;
+		case TILTED_MIRROR:
+			swap(r.m_left, r.m_top);
+			swap(r.m_right, r.m_bottom);
+			break;
+		}
+	}
+}
+
+
+struct TrimProcessSelector
+{
+	unsigned trim_algo, mirroring;
+};
+
+
+// TODO: use upcoming C++23 views::cartesian_product()
+vector<TrimProcessSelector> cartesian_product_()
+{
+	vector<TrimProcessSelector> result;
+
+	for (int trim_algo=0; trim_algo < NR_TRIM_ALGO; trim_algo++)
+		for (int mirroring=0; mirroring < NR_TRIM_MIRRORING_OPTIONS; mirroring++)
+				result.push_back({trim_algo, mirroring});
+
+	return result;
+}
+
+const vector<TrimProcessSelector> trim_process_selectors = cartesian_product_();
+
+
 vector<MyRect> trimmed(const MyRect& r, const MyRect& by)
 {
-//	if (r.m_right <= by.m_left || by.m_right <= r.m_left || r.m_bottom <= by.m_top || by.m_bottom <= r.m_top)
-		return {r};
+
+	vector<MyRect> rects;
+	return rects;
 }
 
 
@@ -845,11 +1089,6 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 }
 }
 
-enum MirroringState
-{
-	ACTIVE,
-	IDLE
-};
 
 struct Mirror
 {
