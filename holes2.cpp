@@ -604,11 +604,31 @@ vector<TrimProcessSelector> cartesian_product_()
 const vector<TrimProcessSelector> trim_process_selectors = cartesian_product_();
 
 
-vector<MyRect> trimmed(const MyRect& r, const MyRect& by)
+vector<MyRect> trimmed(MyRect r, MyRect by)
 {
+        vector<MyRect> rects;
+	for (const auto [trim_algo, mirroring] : trim_process_selectors)
+	{
+		const TrimMirror (&trim_mirror_process)[3] = trim_mirrors[mirroring];
+		ranges::for_each(trim_mirror_process, [&](const TrimMirror mirror){
+			apply_trim_mirror(mirror, r);
+			apply_trim_mirror(mirror, by);
+			}
+		);
 
-	vector<MyRect> rects;
-	return rects;
+		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
+
+                ranges::for_each(trim_mirror_process | views::reverse, [&](const TrimMirror mirror){
+                        apply_trim_mirror(mirror, r);
+                        apply_trim_mirror(mirror, by);
+			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
+                        }
+                );
+
+		if (!rects.empty())
+			return rects;
+	}
+	return {r};
 }
 
 
