@@ -619,7 +619,9 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	{
 		const TrimMirror (&trim_mirror_process)[3] = trim_mirrors[mirroring];
 
-		for_each(trim_mirror_process, [&](const TrimMirror mirror){
+		auto rg = views::counted(trim_mirror_process,3);
+
+		for_each(rg, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			}
@@ -627,7 +629,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
 
-		for_each(trim_mirror_process | views::reverse, [&](const TrimMirror mirror){
+		for_each(rg | views::reverse, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
@@ -646,7 +648,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 					| views::join;
 			for (char c : rg)
 				D(printf("%c", c));
-			
+
 			return rects;
 		}
 	}
