@@ -402,38 +402,38 @@ const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={
 	{
 		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
 		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
 	},
 	{
 		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
 		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
 	},
 	{
 		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
 		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
+		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
 	},
-        {
-                {.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-                {.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-        },
-        {
-                {.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-        },
-        {
-                {.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-                {.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-        },
-        {
-                {.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-                {.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-        }
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+	},
+	{
+		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
+		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
+	}
 };
 
 const char* TrimMirroringStrings[NR_TRIM_MIRRORING_OPTIONS]={
@@ -441,10 +441,10 @@ const char* TrimMirroringStrings[NR_TRIM_MIRRORING_OPTIONS]={
 	"IDLE,ACTIVE,IDLE",
 	"ACTIVE,IDLE,IDLE",
 	"ACTIVE,ACTIVE,IDLE",
-        "IDLE,IDLE,ACTIVE",
-        "IDLE,ACTIVE,ACTIVE",
-        "ACTIVE,IDLE,ACTIVE",
-        "ACTIVE,ACTIVE,ACTIVE"
+	"IDLE,IDLE,ACTIVE",
+	"IDLE,ACTIVE,ACTIVE",
+	"ACTIVE,IDLE,ACTIVE",
+	"ACTIVE,ACTIVE,ACTIVE"
 };
 
 
@@ -651,10 +651,28 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 	int parent_id=-1;
 	int i=0;
 	rec_trim(parent_id, i, rec_trim);
-
-//TODO: use C++23 chunk_by()
+	
+/*
+TODO : use views::set_difference
+auto v1 = std::vector<int> {3,4,5,6,7}; // sort!
+auto v2 = std::vector<int> {4,5}; // sort!
+ranges::sort(v1); // sort!
+ranges::sort(v2); // sort!
+auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
+*/
 
 	int n=rect_tree.size();
+/* C++23 ?
+
+	auto rg1 = rect_tree | transform([](const RectNode& n){return n.parent_id;});
+	vector<int> sorted_parent_ids(ranges::begin(rg), ranges::end(rg));
+	sort(sorted_parent_ids);
+	
+	auto rg2 = views::set_difference(views::iota(n), sorted_parents_ids)
+						| views::transform([&](int id){return rect_tree[id].r;});
+	
+	return ranges::max(rg2 , {}, [](const MyRect& r){return width(r)*height(r);});
+*/
 	auto rg = views::iota(n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
 				| views::transform([&](int id){return rect_tree[id].r;});
 
