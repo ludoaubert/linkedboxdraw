@@ -372,6 +372,13 @@ enum TrimAlgo
 
 const unsigned NR_TRIM_ALGO=4;
 
+const char* TrimAlgoStrings[NR_TRIM_ALGO]={
+	"SPLIT",
+	"NOTCH",
+	"TRIM",
+	"CORNER"	
+};
+
 
 enum TrimMirrorDirection
 {
@@ -629,7 +636,9 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		if (!rects.empty())
 		{
-			D(printf("trim_algo=%u, mirroring=%u\n", trim_algo, mirroring))
+			D(printf("trim_algo=%u, mirroring=%u\n", trim_algo, mirroring));
+			D(printf("TrimAlgoString = %s\n", TrimAlgoStrings[trim_algo]));
+			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[mirroring]));
 			auto rg = rects | views::transform([](const MyRect& r)->string{
 								char buffer[80];
 								sprintf(buffer,"{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom);
