@@ -621,7 +621,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		auto rg = views::counted(trim_mirror_process,3);
 
-		for_each(rg, [&](const TrimMirror mirror){
+		ranges::for_each(rg, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			}
@@ -629,10 +629,10 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
 
-		for_each(rg | views::reverse, [&](const TrimMirror mirror){
+		ranges::for_each(rg | views::reverse, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
-			for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
+			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
 			}
 		);
 
@@ -671,13 +671,13 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 				rec_trim(size, i+1, rec_trim);
 		}
 	};
-	
+
 	rect_tree = {{.r=r, .parent_id=-1}};
 
 	int parent_id=0;
 	int i=0;
 	rec_trim(parent_id, i, rec_trim);
-	
+
 /*
 TODO : use views::set_difference
 auto v1 = std::vector<int> {3,4,5,6,7}; // sort!
@@ -693,10 +693,10 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 	auto rg1 = rect_tree | transform([](const RectNode& n){return n.parent_id;});
 	vector<int> sorted_parent_ids(ranges::begin(rg), ranges::end(rg));
 	sort(sorted_parent_ids);
-	
+
 	auto rg2 = views::set_difference(views::iota(n), sorted_parents_ids)
 						| views::transform([&](int id){return rect_tree[id].r;});
-	
+
 	return ranges::max(rg2 , {}, [](const MyRect& r){return width(r)*height(r);});
 */
 	auto rg = views::iota(n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
