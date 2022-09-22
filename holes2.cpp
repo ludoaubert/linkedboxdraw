@@ -16,7 +16,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -716,14 +716,14 @@ struct RectTrimTestContext{
 
 const vector<RectTrimTestContext> rect_trim_test_contexts={
 /*
-				+----+
-				| 1  |
+			+----+
+			| 1  |
 		+=======+====+===========+
 		|       |    |           |
 		|       +----+           | r
-	  +-+-+                      |
-	0 |	+=|======================+
-	  +---+
+	      +-+-+                      |
+	    0 |	+=|======================+
+	      +---+
 */
 	{
 		.testid=0,
@@ -2154,7 +2154,7 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		test_rect_trim();
-		
+		return 0;
 		test_fit();
 
 		test_translations();
