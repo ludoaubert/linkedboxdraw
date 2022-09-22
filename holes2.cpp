@@ -444,14 +444,14 @@ const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={
 };
 
 const char* TrimMirroringStrings[NR_TRIM_MIRRORING_OPTIONS]={
-	"IDLE,IDLE,IDLE",
-	"IDLE,ACTIVE,IDLE",
-	"ACTIVE,IDLE,IDLE",
-	"ACTIVE,ACTIVE,IDLE",
-	"IDLE,IDLE,ACTIVE",
-	"IDLE,ACTIVE,ACTIVE",
-	"ACTIVE,IDLE,ACTIVE",
-	"ACTIVE,ACTIVE,ACTIVE"
+	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:IDLE",
+	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:IDLE",
+	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:IDLE",
+	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:IDLE",
+	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:ACTIVE",
+	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:ACTIVE",
+	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:ACTIVE",
+	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:ACTIVE"
 };
 
 
@@ -655,7 +655,9 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	return {};
 }
 
-
+/*
+TODO: use C++23 deducing this
+*/
 MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 {
 	struct RectNode{MyRect r; int parent_id;};
@@ -663,12 +665,19 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 
 	auto rec_trim=[&](int parent_id, int i, auto&& rec_trim)->void
 	{
-		for (const MyRect& rec : trimmed(rect_tree[parent_id].r, rectangles[i]))
+		const vector<MyRect> rects = trimmed(rect_tree[parent_id].r, rectangles[i]);
+		for (const MyRect& rec : rects)
 		{
 			int size = rect_tree.size();
 			rect_tree.push_back({.r=rec, .parent_id=parent_id});
 			if (i+1 < rectangles.size())
 				rec_trim(size, i+1, rec_trim);
+		}
+
+		if (rects.empty())
+		{
+                        if (i+1 < rectangles.size())
+                                rec_trim(parent_id, i+1, rec_trim);
 		}
 	};
 
@@ -688,18 +697,25 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 */
 
 	int n=rect_tree.size();
+	D(printf("rect_tree.size()=%d\n", n));
 /* C++23 ?
 
 	auto rg1 = rect_tree | transform([](const RectNode& n){return n.parent_id;});
 	vector<int> sorted_parent_ids(ranges::begin(rg), ranges::end(rg));
 	sort(sorted_parent_ids);
 
-	auto rg2 = views::set_difference(views::iota(n), sorted_parents_ids)
+	auto rg2 = views::set_difference(views::iota(0, n), sorted_parents_ids)
 						| views::transform([&](int id){return rect_tree[id].r;});
 
 	return ranges::max(rg2 , {}, [](const MyRect& r){return width(r)*height(r);});
 */
-	auto rg = views::iota(n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
+	auto rg1 = views::iota(0,n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;});
+	D(printf("leaves: "));
+	for (int id : rg1)
+		D(printf("%d, ", id));
+	D(printf("\n"));
+
+	auto rg = views::iota(0, n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
 				| views::transform([&](int id){return rect_tree[id].r;});
 
 	return ranges::max(rg, {}, [](const MyRect& r){return width(r)*height(r);});
@@ -732,7 +748,7 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
 			{.m_left=80, .m_right=120, .m_top=180, .m_bottom=220},//0
 			{.m_left=180, .m_right=220, .m_top=80, .m_bottom=120} //1
 		},
-		.expected={.m_left=220, .m_right=300, .m_top=100, .m_bottom=200}
+		.expected={.m_left=120, .m_right=300, .m_top=120, .m_bottom=200}
 	}
 };
 
@@ -742,8 +758,9 @@ void test_rect_trim()
 	for (const auto [testid, r, input_rectangles, expected] : rect_trim_test_contexts)
 	{
 		MyRect result = trimmed(r, input_rectangles);
+		D(printf("result={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", result.m_left, result.m_right, result.m_top, result.m_bottom));
 		bool bOK = result == expected;
-		printf("rect trim testid=%d : %s\n", testid, bOK ? "OK" : "KO");		
+		printf("rect trim testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 	}
 }
 
