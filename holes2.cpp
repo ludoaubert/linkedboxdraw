@@ -606,11 +606,13 @@ const vector<TrimProcessSelector> trim_process_selectors = cartesian_product_();
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
 {
-        vector<MyRect> rects;
+	vector<MyRect> rects;
+
 	for (const auto [trim_algo, mirroring] : trim_process_selectors)
 	{
 		const TrimMirror (&trim_mirror_process)[3] = trim_mirrors[mirroring];
-		ranges::for_each(trim_mirror_process, [&](const TrimMirror mirror){
+
+		for_each(trim_mirror_process, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			}
@@ -618,17 +620,28 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
 
-                ranges::for_each(trim_mirror_process | views::reverse, [&](const TrimMirror mirror){
-                        apply_trim_mirror(mirror, r);
-                        apply_trim_mirror(mirror, by);
-			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
-                        }
-                );
+		for_each(trim_mirror_process | views::reverse, [&](const TrimMirror mirror){
+			apply_trim_mirror(mirror, r);
+			apply_trim_mirror(mirror, by);
+			for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
+			}
+		);
 
 		if (!rects.empty())
+		{
+			D(printf("trim_algo=%u, mirroring=%u\n", trim_algo, mirroring))
+			auto rg = rects | views::transform([](const MyRect& r)->string{
+								char buffer[80];
+								sprintf(buffer,"{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom);
+								return buffer;})
+					| views::join;
+			for (char c : rg)
+				D(printf("%c", c));
+			
 			return rects;
+		}
 	}
-	return {r};
+	return {};
 }
 
 
@@ -639,16 +652,18 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 
 	auto rec_trim=[&](int parent_id, int i, auto&& rec_trim)->void
 	{
-		for (const MyRect& rec : trimmed(parent_id==-1 ? r : rect_tree[parent_id].r, rectangles[i]))
+		for (const MyRect& rec : trimmed(rect_tree[parent_id].r, rectangles[i]))
 		{
 			int size = rect_tree.size();
-			rect_tree.push_back({rec, parent_id});
+			rect_tree.push_back({.r=rec, .parent_id=parent_id});
 			if (i+1 < rectangles.size())
 				rec_trim(size, i+1, rec_trim);
 		}
 	};
+	
+	rect_tree = {{.r=r, .parent_id=-1}};
 
-	int parent_id=-1;
+	int parent_id=0;
 	int i=0;
 	rec_trim(parent_id, i, rec_trim);
 	
@@ -677,6 +692,48 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 				| views::transform([&](int id){return rect_tree[id].r;});
 
 	return ranges::max(rg, {}, [](const MyRect& r){return width(r)*height(r);});
+}
+
+
+struct RectTrimTestContext{
+	int testid;
+	MyRect r;
+	vector<MyRect> input_rectangles;
+	MyRect expected;
+};
+
+
+const vector<RectTrimTestContext> rect_trim_test_contexts={
+/*
+				+----+
+				| 1  |
+		+=======+====+===========+
+		|       |    |           |
+		|       +----+           | r
+	  +-+-+                      |
+	0 |	+=|======================+
+	  +---+
+*/
+	{
+		.testid=0,
+		.r={.m_left=100, .m_right=300, .m_top=100, .m_bottom=200},
+		.input_rectangles={
+			{.m_left=80, .m_right=120, .m_top=180, .m_bottom=220},//0
+			{.m_left=180, .m_right=220, .m_top=80, .m_bottom=120} //1
+		},
+		.expected={.m_left=220, .m_right=300, .m_top=100, .m_bottom=200}
+	}
+};
+
+
+void test_rect_trim()
+{
+	for (const auto [testid, r, input_rectangles, expected] : rect_trim_test_contexts)
+	{
+		MyRect result = trimmed(r, input_rectangles);
+		bool bOK = result == expected;
+		printf("rect trim testid=%d : %s\n", testid, bOK ? "OK" : "KO");		
+	}
 }
 
 
@@ -2085,6 +2142,8 @@ int main(int argc, char* argv[])
 
 	if (argc == 1)
 	{
+		test_rect_trim();
+		
 		test_fit();
 
 		test_translations();
