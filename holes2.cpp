@@ -16,7 +16,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -2093,7 +2093,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 				assert(ranges::is_sorted(te_adj_list));
 			//rg4 est triée, mais pas rg3 because mapping shuffles the ordering
-				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){return ranges::count(te_adj_list, e)==0;});
+				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){auto rg=ranges::equal_range(te_adj_list, e); return ranges::empty(rg);});
 				if (it != ranges::end(rg3))
 				{
 					const TopologicalEdge& e = *it;
