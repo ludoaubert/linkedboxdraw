@@ -1100,7 +1100,15 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 	};
 
 	auto push_hole=[&](){
-		for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
+
+		vector<RectLink> index = rect_links;
+		ranges::sort(index, {}, &RectLink::j);
+		vector<int> root_nodes;
+		ranges::set_difference(views::iota(0,n),
+					index | views::transform(&RectLink::j),
+					back_inserter(root_nodes)
+					);
+		for (int j : root_nodes)
 		{
 			int tr=0;
 			rec_push_hole(j, tr, rec_push_hole);
@@ -1142,6 +1150,15 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
                 .m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
                 .m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
         };
+
+	vector<RectLink> index = rect_links;
+	ranges::sort(index, {}, &RectLink::j);
+	vector<int> root_nodes;
+	ranges::set_difference(views::iota(0,n),
+				index | views::transform(&RectLink::j),
+				back_inserter(root_nodes)
+				);
+
 {
         FunctionTimer ft("cft_query_compact_dim");
         auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
@@ -1155,8 +1172,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
         };
 
         auto query_compact_dimension=[&]()->int{
-                return ranges::max(views::iota(0,n) |
-				views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}) |
+                return ranges::max(root_nodes |
 				views::transform([&](int j){return rec_query_compact_dimension(j, rec_query_compact_dimension);})
 		);
         };
@@ -1179,7 +1195,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	};
 
 	auto push=[&](int tr){
-	for (int j : views::iota(0,n) | views::filter([&](int j){return ranges::count(rect_links,j,&RectLink::j)==0;}))
+	for (int j : root_nodes)
 	{
 		int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
 		if (trj > 0)
