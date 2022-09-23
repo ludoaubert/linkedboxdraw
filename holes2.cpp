@@ -700,7 +700,7 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 	vector<RectNode> index = rect_tree;
 	ranges::sort(index, {}, &RectNode::parent_id);
 	vector<int> leaves;
-	ranges::set_difference(rect_tree | views::transform(&RectNode::id), 
+	ranges::set_difference(rect_tree | views::transform(&RectNode::id),
 							index | views::transform(&RectNode::parent_id),
 							std::back_inserter(leaves));
 
@@ -709,7 +709,10 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 		D(printf("%d, ", id));
 	D(printf("\n"));
 
-	return ranges::max(leaves | views::transform([&](int id){return rect_tree[id].r;}, {}, [](const MyRect& r){return width(r)*height(r);});
+	return ranges::max(leaves | views::transform([&](int id){return rect_tree[id].r;}),
+			{},
+			[](const MyRect& r){return width(r)*height(r);}
+		);
 }
 
 
