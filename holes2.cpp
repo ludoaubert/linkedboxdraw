@@ -660,7 +660,7 @@ TODO: use C++23 deducing this
 */
 MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 {
-	struct RectNode{MyRect r; int parent_id;};
+	struct RectNode{int id; MyRect r; int parent_id;};
 	vector<RectNode> rect_tree;
 
 	auto rec_trim=[&](int parent_id, int i, auto&& rec_trim)->void
@@ -669,7 +669,7 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 		for (const MyRect& rec : rects)
 		{
 			int size = rect_tree.size();
-			rect_tree.push_back({.r=rec, .parent_id=parent_id});
+			rect_tree.push_back({.id=size, .r=rec, .parent_id=parent_id});
 			if (i+1 < rectangles.size())
 				rec_trim(size, i+1, rec_trim);
 		}
@@ -681,7 +681,7 @@ MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
 		}
 	};
 
-	rect_tree = {{.r=r, .parent_id=-1}};
+	rect_tree = {{.id=0, .r=r, .parent_id=-1}};
 
 	int parent_id=0;
 	int i=0;
@@ -696,29 +696,18 @@ ranges::sort(v2); // sort!
 auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 */
 
-	int n=rect_tree.size();
-	D(printf("rect_tree.size()=%d\n", n));
-/* C++23 ?
+	D(printf("building index:\n"));
+	vector<RectNode> index = rect_tree;
+	ranges::sort(index, {}, &RectNode::parent_id);
+	vector<RectNode> select;
+	ranges::set_difference(rect_tree, index, std::back_inserter(select), {}, &RectNode::id, &RectNode::parent_id);
 
-	auto rg1 = rect_tree | transform([](const RectNode& n){return n.parent_id;});
-	vector<int> sorted_parent_ids(ranges::begin(rg), ranges::end(rg));
-	sort(sorted_parent_ids);
-
-	auto rg2 = views::set_difference(views::iota(0, n), sorted_parents_ids)
-						| views::transform([&](int id){return rect_tree[id].r;});
-
-	return ranges::max(rg2 , {}, [](const MyRect& r){return width(r)*height(r);});
-*/
-	auto rg1 = views::iota(0,n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;});
 	D(printf("leaves: "));
-	for (int id : rg1)
-		D(printf("%d, ", id));
+	for (const RectNode& n : select)
+		D(printf("%d, ", select.id));
 	D(printf("\n"));
 
-	auto rg = views::iota(0, n) | views::filter([&](int id){return ranges::count(rect_tree,id,&RectNode::parent_id)==0;})
-				| views::transform([&](int id){return rect_tree[id].r;});
-
-	return ranges::max(rg, {}, [](const MyRect& r){return width(r)*height(r);});
+	return ranges::max(select | views::transform([](const RectNode& n){return n.r;}, {}, [](const MyRect& r){return width(r)*height(r);});
 }
 
 
