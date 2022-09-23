@@ -705,11 +705,11 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 							std::back_inserter(leaves));
 
 	D(printf("leaves: "));
-	for (int id : select)
+	for (int id : leaves)
 		D(printf("%d, ", id));
 	D(printf("\n"));
 
-	return ranges::max(select | views::transform([&](int id){return rect_tree[id].r;}, {}, [](const MyRect& r){return width(r)*height(r);});
+	return ranges::max(leaves | views::transform([&](int id){return rect_tree[id].r;}, {}, [](const MyRect& r){return width(r)*height(r);});
 }
 
 
