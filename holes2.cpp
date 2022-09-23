@@ -701,8 +701,8 @@ auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
 	ranges::sort(index, {}, &RectNode::parent_id);
 	vector<int> leaves;
 	ranges::set_difference(rect_tree | views::transform(&RectNode::id),
-							index | views::transform(&RectNode::parent_id),
-							std::back_inserter(leaves));
+				index | views::transform(&RectNode::parent_id),
+				std::back_inserter(leaves));
 
 	D(printf("leaves: "));
 	for (int id : leaves)
