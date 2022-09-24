@@ -16,7 +16,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -726,14 +726,17 @@ struct RectTrimTestContext{
 
 const vector<RectTrimTestContext> rect_trim_test_contexts={
 /*
-			+----+
+             80  120   180  220         300
+              | | |     |    |           |
+
+-80			+----+
 			| 1  |
-		+=======+====+===========+
+-100		+=======+====+===========+
 		|       |    |           |
-		|       +----+           | r
-	      +-+-+                      |
-	    0 |	+=|======================+
-	      +---+
+-120		|       +----+           | r
+-180	      +-+-+                      |
+-200	    0 |	+=|======================+
+-220	      +---+
 */
 	{
 		.testid=0,
@@ -743,7 +746,54 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
 			{.m_left=180, .m_right=220, .m_top=80, .m_bottom=120} //1
 		},
 		.expected={.m_left=120, .m_right=300, .m_top=120, .m_bottom=200}
-	}
+	},
+/*
+           50  100 150               350 400 450
+            |   |   |                 |   |   |
+
+-50	    +-------+                 +-------+
+	    |   2   |                 |   3   |
+-100	    |	+===+=================+===+   |
+	    |	|   |                 |   |   |
+-150	    +---+---+                 +---+---+
+		|           r             |
+-200	    +---+---+                 +---+---+
+	    |	|   |                 |   |   |
+-250	    |	+===+=================+===+   |
+            |   0   |                 |   1   |
+-300        +-------+                 +-------+
+*/
+	{
+		.testid=1,
+		.r={.m_left=100, .m_right=400, .m_top=100, .m_bottom=250},
+                .input_rectangles={
+                        {.m_left=50, .m_right=150, .m_top=200, .m_bottom=300},//0
+                        {.m_left=350, .m_right=450, .m_top=200, .m_bottom=300},//1
+                        {.m_left=50, .m_right=150, .m_top=50, .m_bottom=150},//2
+                        {.m_left=350, .m_right=450, .m_top=50, .m_bottom=150} //3
+                },
+                .expected={.m_left=150, .m_right=350, .m_top=100, .m_bottom=250}
+	},
+/*
+               100                    350 400 450
+		|                      |   |   |
+
+-100		+==========================+
+		|                          |
+-150		|                      +---+---+
+		|             r        |   | 0 |
+-200		|                      +---+---+
+		|                          |
+-250		+==========================+
+*/
+        {
+                .testid=2,
+                .r={.m_left=100, .m_right=400, .m_top=100, .m_bottom=250},
+                .input_rectangles={
+                        {.m_left=350, .m_right=450, .m_top=150, .m_bottom=200}//0
+                },
+                .expected={.m_left=100, .m_right=350, .m_top=100, .m_bottom=250}
+        }
 };
 
 
