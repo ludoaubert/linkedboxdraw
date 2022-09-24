@@ -728,7 +728,7 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
 /*
              80  120   180  220         300
               | | |     |    |           |
-
+               100
 -80			+----+
 			| 1  |
 -100		+=======+====+===========+
