@@ -793,6 +793,52 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
                         {.m_left=350, .m_right=450, .m_top=150, .m_bottom=200}//0
                 },
                 .expected={.m_left=100, .m_right=350, .m_top=100, .m_bottom=250}
+        },
+/*
+           50  100                        400 450
+            |   |                          |   |
+                              r
+-100            +==========================+
+                |                          |
+-150        +---+--------------------------+---+
+            |   |             0            |   |
+-200        +---+------------------------- +---+
+                |                          |
+		|			   |
+		|			   |
+-300            +==========================+
+*/
+        {
+                .testid=3,
+                .r={.m_left=100, .m_right=400, .m_top=100, .m_bottom=300},
+                .input_rectangles={
+                        {.m_left=50, .m_right=450, .m_top=150, .m_bottom=200}//0
+                },
+                .expected={.m_left=100, .m_right=400, .m_top=200, .m_bottom=250}
+        },
+/*
+           50  100 150                    400 450
+            |   |   |                      |   |
+
+-50         +-------+
+            |       |
+-100        |   +===+======================+
+            |   |   |                      |
+-150        |   |   |                      |
+            |   |   |         r            |
+-200        |   |   |                      |
+            |   |   |                      |
+-250        |   +===+======================+
+            |   0   |
+-300        +-------+
+*/
+        {
+                .testid=4,
+                .r={.m_left=100, .m_right=400, .m_top=100, .m_bottom=250},
+                .input_rectangles={
+                        {.m_left=50, .m_right=150, .m_top=50, .m_bottom=300}//0
+                },
+                .expected={.m_left=150, .m_right=400, .m_top=200, .m_bottom=250}
         }
 };
 
@@ -1433,7 +1479,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		auto rg = rectangles | views::transform([](const MyRect& r){return r.i;})
 					| views::transform([&](int i)->string{
-						char buffer[10];
+						char buffer[20];
 						if (i < n)
 							sprintf(buffer,"%d ", i);
 						else
