@@ -814,7 +814,7 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
                 .input_rectangles={
                         {.m_left=50, .m_right=450, .m_top=150, .m_bottom=200}//0
                 },
-                .expected={.m_left=100, .m_right=400, .m_top=200, .m_bottom=250}
+                .expected={.m_left=100, .m_right=400, .m_top=200, .m_bottom=300}
         },
 /*
            50  100 150                    400 450
@@ -838,7 +838,7 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
                 .input_rectangles={
                         {.m_left=50, .m_right=150, .m_top=50, .m_bottom=300}//0
                 },
-                .expected={.m_left=150, .m_right=400, .m_top=200, .m_bottom=250}
+                .expected={.m_left=150, .m_right=400, .m_top=100, .m_bottom=250}
         }
 };
 
