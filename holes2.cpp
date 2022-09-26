@@ -82,11 +82,20 @@ struct DecisionTreeNode
 
 struct TranslationRangeItem
 {
+	int id;
+	int ri;
+	MyPoint tr;
+
+	friend bool operator==(const TranslationRangeItem&, const TranslationRangeItem&) = default;
+};
+
+struct RectangleHoleRangeItem
+{
         int id;
         int ri;
-        MyPoint tr;
+        MyRect r;
 
-        friend bool operator==(const TranslationRangeItem&, const TranslationRangeItem&) = default;
+        friend bool operator==(const RectangleHoleRangeItem&, const RectangleHoleRangeItem&) = default;
 };
 
 enum EtatEmplacement
@@ -1441,7 +1450,8 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 
 struct ProcessSelector
 {
-	unsigned pipeline, mirroring, match_corner;
+	int pipeline=-1, mirroring=-1, match_corner=-1;
+	friend bool operator==(const ProcessSelector&, const ProcessSelector&) = default;
 };
 
 
@@ -1470,6 +1480,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	int n = input_rectangles.size();
 	vector<ProcessSelector> selectors(decision_tree.size());
 	vector<TranslationRangeItem> translation_ranges;
+	vector<RectangleHoleRangeItem> rectangle_hole_ranges;
 	vector<MyRect> emplacements(m+n);
 	vector<MyRect> rectangles(n);
 
@@ -1502,7 +1513,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 		int pos = i_emplacement_destination >= n ? i_emplacement_destination : i_emplacement_destination + m;
 		MyRect &r1 = rectangles[i_emplacement_source];
-		const MyRect &r2 = emplacements[pos];
+		MyRect r2 = emplacements[pos];
+		if (pos >= m)
+		{
+			r2 = trimmed(r2, rectangles);
+			if (selectors[id] != ProcessSelector{.pipeline=-1, .mirroring=-1, .match_corner=-1})
+			{
+				rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
+			}
+		}
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
 		for (const Mirror& mirror : mirrors[mirroring])
@@ -1646,16 +1665,30 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	}
 
 {
-        FILE *f=fopen("translation_ranges.json", "w");
-        fprintf(f, "[\n");
-        for (int i=0; i < translation_ranges.size(); i++)
-        {
-                const auto [id, ri, tr] = translation_ranges[i];
-                fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
-                        i+1 == translation_ranges.size() ? "": ",");
-        }
-        fprintf(f, "]\n");
-        fclose(f);
+	FILE *f=fopen("translation_ranges.json", "w");
+	fprintf(f, "[\n");
+	for (int i=0; i < translation_ranges.size(); i++)
+	{
+		const auto [id, ri, tr] = translation_ranges[i];
+		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
+			i+1 == translation_ranges.size() ? "": ",");
+	}
+	fprintf(f, "]\n");
+	fclose(f);
+}
+
+{
+	FILE* f=fopen("rectangle_hole_ranges.json", "w");
+	const int size = rectangle_hole_ranges.size();
+	fwrite(f, "[\n");
+	for (int i=0; i < size; i++)
+	{
+		const auto [id, ri, r] = rectangle_hole_ranges[i];
+		fwrite(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
+			id, ri, r.m_left, r.m_right, r.m_top, r.m_bottom, i+1<n ? "," : "");
+	}
+	fwrite(f, "]\n");
+	fclose(f);	
 }
 
 	return translation_ranges;
