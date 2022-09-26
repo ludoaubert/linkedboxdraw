@@ -1,174 +1,63 @@
 
+struct FreeRectangleRangeItem
+{
+        int id;
+        int ri;
+        MyRect r;
+
+        friend bool operator==(const FreeRectangleRangeItem&, const FreeRectangleRangeItem&) = default;
+};
+
+
+vector<FreeRectangleRangeItem> free_rectangle_ranges;
 
 /*
-void dim_swap(MyRect& r)
-{
-	swap(r.m_left, r.m_top);
-	swap(r.m_right, r.m_bottom);
-}
+TODO: utiliser C++23 deducing this
 */
 
-enum TrimAlgo
-{
-	SPLIT,
-	CHIP,
-	TRIM,
-	CORNER
-};
-
-enum TrimMirrorDirection
-{
-	HORIZONTAL_MIRROR,
-	VERTICAL_MIRROR,
-	TILTED_MIRROR
-};
-
-const TrimMirrorDirection trim_mirror_directions[3] = {HORIZONTAL_MIRROR,VERTICAL_MIRROR,TILTED_MIRROR} ;
-
-const MirroringState TrimMirrorSates[2] = {ACTIVE, IDLE};
-
-const Mirror mirrors[NR_MIRRORING_OPTIONS][3]={
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR}
-	},
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-	}
-};
-
-const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
-	"IDLE,IDLE",
-	"IDLE,ACTIVE",
-	"ACTIVE,IDLE",
-	"ACTIVE,ACTIVE"
-};
-
-const int NR_TRIM_CONFIG=4;
-const int NR_MIRRORING=3;
-
-struct TrimSelector
-{
-	int trim_algo;
-	int mirroring;
-};
-
-const vector<TrimSelector> trim_cartesian_product =...
-
-
-/*      by
-      +------+
-      |      |
-+=====+======+=====+
-|     |      |     |
-|     |      |     | r
-|     |      |     |
-+=====+======+=====+
-      |      |
-	  +------+ 
-*/
-
-void split(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
-{
-	if (r.m_left < by.m_left && by.m_right < r.m_right && by.m_top < r.m_top && by.m_bottom > r.m_bottom)
-	{
-		rects = {
-			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
-			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom}
-		};
-	}
-}
-
-/*
-+==================+
-|                  |
-|     +------+     | r
-|     |      |     |
-+=====+======+=====+
-      |      |
-	  +------+
-         by	  
-*/
-
-void chip(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
-{
-	if (r.m_left < by.m_left && by.m_right < r.m_right && by.m_bottom > r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
-	{
-		rects = {
-			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
-			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom},
-			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=by.m_top}
-		};
-	}
-}
-
-/*
-      +==================+
-      |                  |
-      |                  | r
-+-----+------------------+----+
-|     +==================+    |
-|                             |
-+-----------------------------+
-         by	  
-*/
-void trim(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
-{
-	if (by.m_left < r.m_left && by.m_right > r.m_right && r.m_top < by.m_top && r.m_bottom > by.m_top && r.m_bottom < by.m_bottom)
-	{
-		rects = {
-			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, m_bottom=by.m_top}
+	auto rec_list_nodes = [&](int id, auto&& rec_list_nodes)->vector<int>{
+		vector<int> nodes;
+		const int parent_id = decision_tree[id].parent_id;
+		if (parent_id != -1)
+		{
+			vector<int> parent_nodes = rec_list_nodes(parent_id, rec_list_nodes);
+			nodes = move(parent_nodes);
 		}
-	}
-}
-
-/*
-      +==================+
-      |                  |
-      |                  | r
-+-----+-----+            |
-|     +=====+============+
-|           |
-+-----------+
-         by	  
-*/
-void corner(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
-{
-	if (by.m_left < r.m_left && by.m_right > r.m_left && by.m_right < r.m_right &&
-		by.m_bottom > r.m_bottom && by.m_top > r.m_top && by.m_top < r.m_bottom)
+		nodes.push_back(id);
+		return nodes;
+	};
+	
+	auto rg1 = rec_list_nodes(id) | views::transform([&](int id){	return decision_tree[i].recmap.i_emplacement_source;	})
+								| views::filter([&](int i){return i < n;});
+	
+	auto rg2 = rec_list_nodes(id) | views::transform([&](int id){	return decision_tree[i].recmap.i_emplacement_destination;	})
+								| views::filter([&](int i){return i < n});
+	
+	vector<int> emplacements_sources(ranges::begin(rg1), ranges::end(rg1)),
+				emplacements_destinations(ranges::begin(rg2), ranges::end(rg2));
+	ranges::sort(emplacements_sources);
+	ranges::sort(emplacements_destinations);
+	vector<int> emplacements_liberes;
+	ranges::set_difference(emplacements_sources, emplacements_destinations, back_inserter(emplacements_liberes));
+	
+	auto rg = emplacements_liberes | views::transform([&](int i)->FreeRectangleRangeItem{return {.id=id, .ri=i, .r=emplacements[i+n+m]};})
+									| views::transform([&](const FreeRectangleRangeItem& i)->FreeRectangleRangeItem{
+											return {.id=i.id, .ri=i.ri, .r=trimmed(i.r, rectangles)};});
+											
+	for (const FreeRectangleRangeItem& i : rg)
+		free_rectangle_ranges.push_back(i);
+	
+	
+	FILE* f=fopen("free_rectangle_ranges.json", "w");
+	
+	const int size = free_rectangle_ranges.size();
+	fwrite(f, "[\n");
+	for (int i=0; i < size; i++)
 	{
-		rects = {
-			{.m_left=r.m_left, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=by.m_top},
-			{.m_left=by.m_right, .m_right=r.m_right, .m_top=r.m_top, .m_bottom=r.m_bottom}
-		};
+		const auto [id, ri, r] = free_rectangle_ranges[i];
+		fwrite(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
+			id, ri, r.m_left, r.m_right, r.m_top, r.m_bottom, i+1<n ? "," : "");
 	}
-}
+	fwrite(f, "]");
 
-
-void apply_trim(TrimAlgo trim_algo, const MyRect& r, const MyRect& by, vector<MyRect>& rects)
-{
-	switch (trim_algo)
-	{
-	case SPLIT:
-		split(r, by, rects);
-		break;
-	case CHIP:
-		chip(r, by, rects);
-		break;
-	case TRIM:
-		trim(r, by, rects);
-		break;
-	case CORNER:
-		corner(r, by, rects);
-		break;
-	}
-}
+	fclose(f);
