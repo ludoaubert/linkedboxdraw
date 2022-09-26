@@ -16,7 +16,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -1680,15 +1680,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 {
 	FILE* f=fopen("rectangle_hole_ranges.json", "w");
 	const int size = rectangle_hole_ranges.size();
-	fwrite(f, "[\n");
+	fprintf(f, "[\n");
 	for (int i=0; i < size; i++)
 	{
 		const auto [id, ri, r] = rectangle_hole_ranges[i];
-		fwrite(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
+		fprintf(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
 			id, ri, r.m_left, r.m_right, r.m_top, r.m_bottom, i+1<n ? "," : "");
 	}
-	fwrite(f, "]\n");
-	fclose(f);	
+	fprintf(f, "]\n");
+	fclose(f);
 }
 
 	return translation_ranges;
