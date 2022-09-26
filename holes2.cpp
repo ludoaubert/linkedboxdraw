@@ -385,7 +385,7 @@ const char* TrimAlgoStrings[NR_TRIM_ALGO]={
 	"SPLIT",
 	"NOTCH",
 	"TRIM",
-	"CORNER"	
+	"CORNER"
 };
 
 
@@ -1450,8 +1450,7 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 
 struct ProcessSelector
 {
-	int pipeline=-1, mirroring=-1, match_corner=-1;
-	friend bool operator==(const ProcessSelector&, const ProcessSelector&) = default;
+	unsigned pipeline, mirroring, match_corner;
 };
 
 
@@ -1513,14 +1512,10 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 		int pos = i_emplacement_destination >= n ? i_emplacement_destination : i_emplacement_destination + m;
 		MyRect &r1 = rectangles[i_emplacement_source];
-		MyRect r2 = emplacements[pos];
-		if (pos >= m)
+		MyRect r2 = i_emplacement_destination < n ? input_rectangles[i_emplacement_destination] : emplacements[i_emplacement_destination];
+		if (i_emplacement_destination < n)
 		{
 			r2 = trimmed(r2, rectangles);
-			if (selectors[id] != ProcessSelector{.pipeline=-1, .mirroring=-1, .match_corner=-1})
-			{
-				rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
-			}
 		}
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
@@ -2310,7 +2305,7 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		test_rect_trim();
-		return 0;
+
 		test_fit();
 
 		test_translations();
