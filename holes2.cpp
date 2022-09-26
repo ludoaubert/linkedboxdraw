@@ -1483,7 +1483,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	vector<MyRect> emplacements(m+n);
 	vector<MyRect> rectangles(n);
 
-	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
+	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner, bool final){
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
@@ -1510,12 +1510,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		const auto [RectDimX, RectDimY] = corners[match_corner];
-		int pos = i_emplacement_destination >= n ? i_emplacement_destination : i_emplacement_destination + m;
 		MyRect &r1 = rectangles[i_emplacement_source];
 		MyRect r2 = i_emplacement_destination < n ? input_rectangles[i_emplacement_destination] : emplacements[i_emplacement_destination];
 		if (i_emplacement_destination < n)
 		{
 			r2 = trimmed(r2, rectangles);
+			if (final)
+			{
+				rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
+			}
 		}
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
@@ -1571,7 +1574,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 				rectangles.push_back( emplacements[pos] );
 			}
 
-			tf(pid, pipeline, mirroring, match_corner);
+			const bool final=false;
+			tf(pid, pipeline, mirroring, match_corner, final);
 
 			for (const MyRect& r : rectangles)
 				emplacements[r.i] = r;
@@ -1606,7 +1610,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
-			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+			const bool final=false;
+			tf(id, ps.pipeline, ps.mirroring, ps.match_corner, final);
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
@@ -1641,7 +1646,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		tf(id, pipeline, mirroring, match_corner);
+		const bool final=true;
+		tf(id, pipeline, mirroring, match_corner, final);
 
 		for (const MyRect& r : rectangles)
 			emplacements[r.i] = r;
