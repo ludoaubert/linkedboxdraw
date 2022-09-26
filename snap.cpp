@@ -1,15 +1,15 @@
 
-struct FreeRectangleRangeItem
+struct RectangleHoleRangeItem
 {
         int id;
         int ri;
         MyRect r;
 
-        friend bool operator==(const FreeRectangleRangeItem&, const FreeRectangleRangeItem&) = default;
+        friend bool operator==(const RectangleHoleRangeItem&, const RectangleHoleRangeItem&) = default;
 };
 
 
-vector<FreeRectangleRangeItem> free_rectangle_ranges;
+vector<RectangleHoleRangeItem> free_rectangle_ranges;
 
 /*
 TODO: utiliser C++23 deducing this
@@ -40,11 +40,11 @@ TODO: utiliser C++23 deducing this
 	vector<int> emplacements_liberes;
 	ranges::set_difference(emplacements_sources, emplacements_destinations, back_inserter(emplacements_liberes));
 	
-	auto rg = emplacements_liberes | views::transform([&](int i)->FreeRectangleRangeItem{return {.id=id, .ri=i, .r=emplacements[i+n+m]};})
-									| views::transform([&](const FreeRectangleRangeItem& i)->FreeRectangleRangeItem{
+	auto rg = emplacements_liberes | views::transform([&](int i)->RectangleHoleRangeItem{return {.id=id, .ri=i, .r=emplacements[i+m]};})
+									| views::transform([&](const RectangleHoleRangeItem& i)->RectangleHoleRangeItem{
 											return {.id=i.id, .ri=i.ri, .r=trimmed(i.r, rectangles)};});
 											
-	for (const FreeRectangleRangeItem& i : rg)
+	for (const RectangleHoleRangeItem& i : rg)
 		free_rectangle_ranges.push_back(i);
 	
 	
