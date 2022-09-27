@@ -2036,6 +2036,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		emplacements.push_back(r);
 	for (const RectHole &rh : holes)
 		emplacements.push_back(rh.rec);
+	
+//TODO: use C++23 views::cartesian_product()
 
 	vector<TopologicalEdge> topological_edges;
 	for (int i=0; i < emplacements.size(); i++)
@@ -2075,6 +2077,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	vector<int> mapping(input_rectangles.size());
 
 	vector<DecisionTreeNode> decision_tree;
+	
+//TODO: use C++23 deducing this.
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
 
