@@ -2077,11 +2077,12 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	vector<int> mapping(input_rectangles.size());
 
 	vector<DecisionTreeNode> decision_tree;
-	
+
 //TODO: use C++23 deducing this.
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
 
+//TODO: use C++23 cartesian_product() to generate (i,j) and views::filter() to filter out i==j, ...upfront
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 			printf("i=%d\n", i);
@@ -2091,6 +2092,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			for (int ii=0; ii < input_rectangles.size(); ii++)
 				etat_emplacement[ii] = OCCUPE;
 
+//TODO: use C++23 std::generator: synchronous coroutine generator for ranges
 			deque<RectMap> chemin;
 
 			for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
