@@ -2036,7 +2036,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		emplacements.push_back(r);
 	for (const RectHole &rh : holes)
 		emplacements.push_back(rh.rec);
-	
+
 //TODO: use C++23 views::cartesian_product()
 
 	vector<TopologicalEdge> topological_edges;
@@ -2073,9 +2073,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	for (int i=0; i < recmap.size(); i++)
 		recmap[i] = i;
 
-	vector<EtatEmplacement> etat_emplacement(emplacements.size());
-	vector<int> mapping(input_rectangles.size());
-
 	vector<DecisionTreeNode> decision_tree;
 
 //TODO: use C++23 deducing this.
@@ -2090,6 +2087,40 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			chemin.push_front( decision_tree[pos].recmap );
 		}
 
+		auto etat_emplacement=[&](int i){
+
+                	for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
+			{
+				const auto& [i_emplacement_source, i_emplacement_destination]=decision_tree[pos].recmap;
+
+                        	if (i < n)
+                        	{
+					if (i == i_emplacement_source)
+						return LIBRE;
+					if (i == i_emplacement_destination)
+						return OCCUPE;
+				}
+                        	else
+                        	{
+					if (i == i_emplacement_destination)
+						return OCCUPE;
+                        	}
+			}
+// par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
+			return i < n ? OCCUPE : LIBRE ;
+		};
+
+		auto mapping=[&](int i){
+			assert(i < n);
+                        for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
+                        {
+                                const auto& [i_emplacement_source, i_emplacement_destination]=decision_tree[pos].recmap;
+				if (i_emplacement_source == i)
+					return i_emplacement_destination;
+			}
+			return i;
+		};
+
  		D(printf("chemin="));
  		for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
 			D(printf("{.i_emplacement_source=%d, .i_emplacement_destination=%d},\n",i_emplacement_source, i_emplacement_destination));
@@ -2100,11 +2131,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
 			D(printf("i=%d\n", i));
-
-// par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
-			ranges::fill(etat_emplacement, LIBRE);
-			for (int ii=0; ii < input_rectangles.size(); ii++)
-				etat_emplacement[ii] = OCCUPE;
 
 			if (connected_component[i] == cmax && depth <= 2)
 			{
@@ -2123,19 +2149,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			if (depth > 6)
 				continue;
 
-			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
-			{
-				swap(etat_emplacement[i_emplacement_source], etat_emplacement[i_emplacement_destination]);
-			}
-
-			for (int i=0; i<input_rectangles.size(); i++)
-				mapping[i]=i;
-			for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
-			{
-				mapping[i_emplacement_source] = i_emplacement_destination;
-			}
-
-			if (mapping[i] != i)
+			if (mapping(i) != i)
 			{
 				D(printf("on ne mappe pas 2 fois un meme emplacement.\n"));
 				D(printf("mapping[%d] != %d\n", i, i));
@@ -2147,7 +2161,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
 		// stable
 			if (ranges::all_of(le_adj_list,
-					[&](const LogicalEdge& e){return mapping[e.to]==e.to && connected_component[e.to] != cmax;}
+					[&](const LogicalEdge& e){return mapping(e.to)==e.to && connected_component[e.to] != cmax;}
 					)
 			)
 			{
@@ -2163,7 +2177,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 				if (j == i)
 					continue;
 
-				if (etat_emplacement[j] == OCCUPE)
+				if (etat_emplacement(j) == OCCUPE)
 				{
 					D(printf("etat_emplacement[%d] == OCCUPE\n", j));
 					continue;
@@ -2173,7 +2187,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 				if (ranges::any_of(views::iota(input_rectangles.size()) |
 									views::take(emplacements.size() - input_rectangles.size()) |
 									views::filter([&](int i){return i!=j;}) |
-									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
+									views::filter([&](int i){return etat_emplacement(i)==OCCUPE;}),
 									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
 									)
 					)
@@ -2200,7 +2214,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			//les rectangles auxquels j est topologiquement lié:
 				auto rg2 = te_adj_list |
 					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
-					views::filter([&](const TopologicalEdge& e){return mapping[e.to]==e.to /*connected_component[e.to] == cmax*/;}) |
+					views::filter([&](const TopologicalEdge& e){return mapping(e.to)==e.to /*connected_component[e.to] == cmax*/;}) |
 					views::transform([](const TopologicalEdge& e){return e.to;});
 
                                 D(printf("rg2={"));
@@ -2220,10 +2234,16 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
 			// en ne gardant que les liens de i {e dont e.j a deja ete mappé ou e.j que l'on ne peut deplacer}
-				mapping[i]=j;
+
 				auto rg3 = le_adj_list |
-					views::filter([&](const LogicalEdge& e){return mapping[e.to]!=e.to || connected_component[e.to] == cmax;}) |
-					views::transform([&](const LogicalEdge& e){return TopologicalEdge{.from=mapping[e.from], .to=mapping[e.to], .distance=0};});
+					views::filter([&](const LogicalEdge& e){return (e.to==i ? j : mapping(e.to)) != e.to || connected_component[e.to] == cmax;}) |
+					views::transform([&](const LogicalEdge& e){
+						return TopologicalEdge{
+							.from = e.from==i ? j : mapping(e.from),
+							.to = e.to==i ? j : mapping(e.to),
+							.distance=0};
+						}
+					);
 
 				assert(ranges::is_sorted(te_adj_list));
 			//rg4 est triée, mais pas rg3 because mapping shuffles the ordering
@@ -2263,6 +2283,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		{
 			chemin.push_front( decision_tree[pos].recmap );
 		}
+		vector<int> mapping(n);
 		for (int ii=0; ii<input_rectangles.size(); ii++)
 			mapping[ii]=ii;
 		for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
