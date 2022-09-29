@@ -1,63 +1,54 @@
 
-struct RectangleHoleRangeItem
-{
-        int id;
-        int ri;
-        MyRect r;
+//TODO: friend auto operator<=>(const TranslationRangeItem&, const TranslationRangeItem&) = default;
 
-        friend bool operator==(const RectangleHoleRangeItem&, const RectangleHoleRangeItem&) = default;
+//TODO: use C++23 chunk_by() and views::set_union(). views::zip_transform(), to<vector>().
+
+struct DiagramScore{
+	int id, sigma_edge_distance, width, height, total;
 };
 
+auto rg = views::iota(0, decision_tree.size()) |
+			views::transform([&](int id)->DiagramScore{
+				
+				vector<TranslationRangeItem> ts;
 
-vector<RectangleHoleRangeItem> free_rectangle_ranges;
+				ranges::set_union(
+					ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+					views::iota(0,n) | views::transform([](int i){return TranslationRangeItem{.id=0,.ri=i, .tr={.x=0,.y=0}}; }),
+					back_inserter(ts),
+					{},
+					&TranslationRangeItem::ri,
+					&TranslationRangeItem::ri);
+					
+				auto rg = views::iota(0,n) | views::transform([](int i){return input_rectangles[i]+ts[i];});
+				vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
+				
+				auto rg1 = logical_edges |
+								views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
+				const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+				const auto [width, height] = dimensions(compute_frame(rectangles));
 
-/*
-TODO: utiliser C++23 deducing this
-*/
+				return {
+					.id=id,
+					.sigma_edge_distance=sigma_edge_distance,
+					.width=width,
+					.height=height,
+					.total= width + height + sigma_edge_distance
+				};
+			});
 
-	auto rec_list_nodes = [&](int id, auto&& rec_list_nodes)->vector<int>{
-		vector<int> nodes;
-		const int parent_id = decision_tree[id].parent_id;
-		if (parent_id != -1)
-		{
-			vector<int> parent_nodes = rec_list_nodes(parent_id, rec_list_nodes);
-			nodes = move(parent_nodes);
-		}
-		nodes.push_back(id);
-		return nodes;
-	};
-	
-	auto rg1 = rec_list_nodes(id) | views::transform([&](int id){	return decision_tree[i].recmap.i_emplacement_source;	})
-								| views::filter([&](int i){return i < n;});
-	
-	auto rg2 = rec_list_nodes(id) | views::transform([&](int id){	return decision_tree[i].recmap.i_emplacement_destination;	})
-								| views::filter([&](int i){return i < n});
-	
-	vector<int> emplacements_sources(ranges::begin(rg1), ranges::end(rg1)),
-				emplacements_destinations(ranges::begin(rg2), ranges::end(rg2));
-	ranges::sort(emplacements_sources);
-	ranges::sort(emplacements_destinations);
-	vector<int> emplacements_liberes;
-	ranges::set_difference(emplacements_sources, emplacements_destinations, back_inserter(emplacements_liberes));
-	
-	auto rg = emplacements_liberes | views::transform([&](int i)->RectangleHoleRangeItem{return {.id=id, .ri=i, .r=emplacements[i+m]};})
-									| views::transform([&](const RectangleHoleRangeItem& i)->RectangleHoleRangeItem{
-											return {.id=i.id, .ri=i.ri, .r=trimmed(i.r, rectangles)};});
-											
-	for (const RectangleHoleRangeItem& i : rg)
-		free_rectangle_ranges.push_back(i);
-	
-	
-	FILE* f=fopen("free_rectangle_ranges.json", "w");
-	
-	const int size = free_rectangle_ranges.size();
-	fwrite(f, "[\n");
-	for (int i=0; i < size; i++)
+//TODO: use C++23 views::join_with(",") and avoid allocation of 'vector<DiagramScore> scores'
+{		
+	vector<DiagramScore> scores(ranges::begin(rg), ranges::end(rg));
+	FILE *f=fopen("scores.json", "w");
+	fprintf(f, "[\n");
+	for (int i=0; i < scores.size(); i++)
 	{
-		const auto [id, ri, r] = free_rectangle_ranges[i];
-		fwrite(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
-			id, ri, r.m_left, r.m_right, r.m_top, r.m_bottom, i+1<n ? "," : "");
+		const auto [id, sigma_edge_distance, width, height, total] = scores[i];
+		fprintf(f, "{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}%s\n", 
+			id, sigma_edge_distance, width, height, total,
+			i+1 == translation_ranges.size() ? "": ",");
 	}
-	fwrite(f, "]");
-
-	fclose(f);
+	fprintf(f, "]\n");
+	fclose(f);	
+}
