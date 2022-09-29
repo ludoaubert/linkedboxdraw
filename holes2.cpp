@@ -2334,7 +2334,7 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 			ranges::set_union(
 				ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
-				views::iota(0,n) | views::transform([](int i){return TranslationRangeItem{.id=0,.ri=i, .tr={.x=0,.y=0}}; }),
+				views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
 				back_inserter(ts),
 				{},
 				&TranslationRangeItem::ri,
