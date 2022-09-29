@@ -166,6 +166,11 @@ struct ActiveLineItem
 };
 
 
+struct Score{
+	int id, sigma_edge_distance, width, height, total;
+};
+
+
 const vector<MyRect> input_rectangles = {
 	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
 	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
@@ -2314,6 +2319,65 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	return decision_tree;
 }
 
+//TODO: use C++23 views::chunk_by() and  views::zip_transform(), views::to<vector>().
+vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
+			const vector<TranslationRangeItem>& translation_ranges,
+			const vector<MyRect>& input_rectangles,
+			const vector<LogicalEdge>& logical_edges)
+{
+	int n = decision_tree.size();
+
+	auto rg = views::iota(0, n) |
+		views::transform([&](int id)->Score{
+
+			vector<TranslationRangeItem> ts;
+
+			ranges::set_union(
+				ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+				views::iota(0,n) | views::transform([](int i){return TranslationRangeItem{.id=0,.ri=i, .tr={.x=0,.y=0}}; }),
+				back_inserter(ts),
+				{},
+				&TranslationRangeItem::ri,
+				&TranslationRangeItem::ri);
+
+			auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
+			vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
+
+			auto rg1 = logical_edges | views::transform([&](const auto& le){
+				return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
+
+			return {
+				.id=id,
+				.sigma_edge_distance=sigma_edge_distance,
+				.width=width,
+				.height=height,
+				.total= width + height + sigma_edge_distance
+			};
+		});
+
+//TODO: use C++23 views::join_with(",") and avoid allocation of 'vector<DiagramScore> scores'
+
+	vector<Score> scores(ranges::begin(rg), ranges::end(rg));
+{
+	FILE *f=fopen("scores.json", "w");
+	fprintf(f, "[\n");
+	for (int i=0; i < scores.size(); i++)
+	{
+		const auto [id, sigma_edge_distance, width, height, total] = scores[i];
+		fprintf(f, "{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}%s\n",
+			id, sigma_edge_distance, width, height, total,
+			i+1 == n ? "": ",");
+	}
+	fprintf(f, "]\n");
+	fclose(f);
+}
+
+	return scores;
+}
+
+
 int main(int argc, char* argv[])
 {
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
@@ -2323,6 +2387,8 @@ int main(int argc, char* argv[])
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
 
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
+
+		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
 	}
 
 	if (argc == 1)
