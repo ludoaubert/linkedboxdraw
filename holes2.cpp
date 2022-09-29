@@ -2325,9 +2325,10 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 			const vector<MyRect>& input_rectangles,
 			const vector<LogicalEdge>& logical_edges)
 {
-	int n = decision_tree.size();
+	int n = input_rectangles.size();
+	int m = decision_tree.size();
 
-	auto rg = views::iota(0, n) |
+	auto rg = views::iota(0, m) |
 		views::transform([&](int id)->Score{
 
 			vector<TranslationRangeItem> ts;
@@ -2368,7 +2369,7 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const auto [id, sigma_edge_distance, width, height, total] = scores[i];
 		fprintf(f, "{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}%s\n",
 			id, sigma_edge_distance, width, height, total,
-			i+1 == n ? "": ",");
+			i+1 == m ? "": ",");
 	}
 	fprintf(f, "]\n");
 	fclose(f);
