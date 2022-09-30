@@ -128,8 +128,8 @@ window.main = function main(){
 			.flat(2)
 			.join('\n');
 			
-	let scores = document.getElementById("scores").getElementsByTagName('tbody')[0];
-	scores.innerHTML = scores
+	let sc = document.getElementById("scores").getElementsByTagName('tbody')[0];
+	sc.innerHTML = scores
 						.map(({id, sigma_edge_distance, width, height, total}) =>
 				[`<tr>`,[
 					`${id}`, `${sigma_edge_distance}`, `${width}`, `${height}`, `${total}`
