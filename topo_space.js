@@ -69,14 +69,14 @@ function translation_range_print_html(id)
 			};
 		}
 	);
-	
+
 	const tr = compute_center_frame_translation(rectangles_);
-	
+
 	const rectangles = rectangles_.map(r => {return {
 			m_left : r.m_left + tr.x,
 			m_right : r.m_right + tr.x,
 			m_top : r.m_top + tr.y,
-			m_bottom : r.m_bottom + tr.y			
+			m_bottom : r.m_bottom + tr.y
 		};}
 	);
 
@@ -207,10 +207,10 @@ window.main = function main(){
 				`</tr>`])
 			.flat(2)
 			.join('\n');
-			
+
 	let sc = document.getElementById("scores").getElementsByTagName('tbody')[0];
 	sc.innerHTML = scores
-						.map(({id, sigma_edge_distance, width, height, total}) =>
+			.map(({id, sigma_edge_distance, width, height, total}) =>
 				[`<tr>`,[
 					`${id}`, `${sigma_edge_distance}`, `${width}`, `${height}`, `${total}`
 					].map(s => `<td>${s}</td>`),
@@ -219,25 +219,27 @@ window.main = function main(){
 			.join('\n');
 
 
-	dt.addEventListener('mouseover', (event)=>{
-	// 'highlight' color is set in tablelist.css
+	for (let div of [dt, sc])
+	{
+		div.addEventListener('mouseover', (event)=>{
+		// 'highlight' color is set in tablelist.css
 		   let tr = event.target.parentNode;
 		   if ( tr.className === '') {
 				tr.className='highlight';
 		   }
 		   return false
-	});
+		});
 
-	dt.addEventListener('mouseout', (event)=>{
+		div.addEventListener('mouseout', (event)=>{
 		   let tr = event.target.parentNode;
 		   if ( tr.className === 'highlight') {
 				tr.className='';
 		   }
 		   return false
-	});
+		});
 
-	dt.addEventListener('mousedown', select_id);
-	sc.addEventListener('mousedown', select_id);
+		div.addEventListener('mousedown', select_id);
+	}
 
 	const allTables = document.querySelectorAll('table');
 
