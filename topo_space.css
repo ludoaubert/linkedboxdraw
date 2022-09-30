@@ -62,9 +62,9 @@ td,th {
 	height: 150px;
 }
 
-#decision_tree, #scores tr.clicked {
+#decision_tree tr.clicked, #scores tr.clicked {
     background: #ccd;
 }
-#decision_tree, #scores tr.highlight {
+#decision_tree tr.highlight, #scores tr.highlight {
     background: #eef;
 }
