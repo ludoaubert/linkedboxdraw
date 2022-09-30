@@ -36,6 +36,9 @@ tbody tr,thead tr {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
+#scores tbody tr,#scores thead tr {
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
 tbody {
     width: 100%;
     overflow-y: auto;
