@@ -72,12 +72,12 @@ function translation_range_print_html(id)
 	
 	const tr = compute_center_frame_translation(rectangles_);
 	
-	const rectangles = rectangles_.map(r => return {
+	const rectangles = rectangles_.map(r => {return {
 			m_left : r.m_left + tr.x,
 			m_right : r.m_right + tr.x,
 			m_top : r.m_top + tr.y,
 			m_bottom : r.m_bottom + tr.y			
-		};
+		};}
 	);
 
 	const frame = compute_frame(rectangles);
