@@ -101,7 +101,7 @@ int max = ranges::max(r);
 
 MyRect compute_frame(const vector<MyRect>& rectangles)
 {
-        MyRect frame ;
+	MyRect frame ;
 
 	if (rectangles.size()==0)
 		return frame;
