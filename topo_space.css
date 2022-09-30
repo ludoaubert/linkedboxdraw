@@ -55,6 +55,9 @@ td,th {
 #chemin tbody {
     height: 150px;
 }
+#scores {
+	height: 150px;
+}
 
 #decision_tree tr.clicked {
     background: #ccd;
