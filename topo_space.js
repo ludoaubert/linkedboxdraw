@@ -181,12 +181,12 @@ function select_id(event)
 	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	cm.innerHTML = chemin
 			.reverse()
-			.map(({i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match}) =>
-							["<tr>",[
-									`${i}`, `${parent_index}`, `${depth}`, `${i_emplacement_source}`, `${print_emplacement(i_emplacement_destination)}`, `${match}`
-									].map(s => `<td>${s}</td>`),
-			"</tr>"]).flat(2)
-					.join('\n');
+			.map(item => ["<tr>",
+					Object.values(item)
+					.map(i => `<td>${i}</td>`),
+				      "</tr>"])
+			.flat(2)
+			.join('\n');
 
 	document
 		.querySelectorAll(`[id^="g-h-"]`)
@@ -217,28 +217,18 @@ window.main = function main(){
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
 
-	let dt = document.getElementById("decision_tree").getElementsByTagName('tbody')[0];
-	dt.innerHTML = decision_tree
-                        .map(item => [`<tr>`,
-					Object.values(item)
-					.map(i => `<td>${i}</td>`),
-				      `</tr>`])
-			.flat(2)
-			.join('\n');
-
-	let sc = document.getElementById("scores").getElementsByTagName('tbody')[0];
-	sc.innerHTML = scores
-			.map(({id, sigma_edge_distance, width, height, total}) =>
-				[`<tr>`,[
-					`${id}`, `${sigma_edge_distance}`, `${width}`, `${height}`, `${total}`
-					].map(s => `<td>${s}</td>`),
-				`</tr>`])
-			.flat(2)
-			.join('\n');
-
-
-	for (let div of [dt, sc])
+	for (let [json_source, id] of [[decision_tree, "decision_tree"], [scores, "scores"]])
 	{
+		let div = document.getElementById(id).getElementsByTagName('tbody')[0];
+
+		div.innerHTML = json_source
+				.map(item => [`<tr>`,
+					      Object.values(item)
+					      .map(i => `<td>${i}</td>`),
+					     `</tr>`])
+                        	.flat(2)
+                        	.join('\n');
+
 		div.addEventListener('mouseover', (event)=>{
 		// 'highlight' color is set in tablelist.css
 		   let tr = event.target.parentNode;
