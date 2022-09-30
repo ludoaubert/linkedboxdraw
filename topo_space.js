@@ -130,9 +130,8 @@ function print_html()
 				m_bottom : rec.m_bottom + tr.y
 			},
 			ri : ri
-			}:
-			});
-			.map(({rec, ri}, index) =>
+			};
+			}).map(({rec, ri}, index) =>
 			[`<g id="g-h-${index}" transform="translate(${rec.m_left} ${rec.m_top})">`,
 			`<rect x="0" y="0" width="${rec.m_right-rec.m_left}" height="${rec.m_bottom-rec.m_top}" class="hole" />`,
 			`<text x="0" y="0" fill="black">hole-${index}</text>`,
