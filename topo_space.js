@@ -3,6 +3,7 @@ import logical_graph from './logical_graph.json' assert {type: 'json'};
 import holes from './holes.json' assert {type: 'json'};
 import decision_tree from './decision_tree.json' assert {type: 'json'};
 import translation_ranges from './translation_ranges.json' assert {type: 'json'};
+import scores from './scores.json' assert {type: 'json'};
 
 
 console.log(logical_graph);
@@ -100,6 +101,7 @@ function print_html()
 			.join('\n');
 }
 
+
 function print_emplacement(i_emplacement_destination)
 {
 	if (i_emplacement_destination >= logical_graph.input_rectangles.length)
@@ -125,6 +127,17 @@ window.main = function main(){
 				`</tr>`])
 			.flat(2)
 			.join('\n');
+			
+	let scores = document.getElementById("scores").getElementsByTagName('tbody')[0];
+	scores.innerHTML = scores
+						.map(({id, sigma_edge_distance, width, height, total}) =>
+				[`<tr>`,[
+					`${id}`, `${sigma_edge_distance}`, `${width}`, `${height}`, `${total}`
+					].map(s => `<td>${s}</td>`),
+				`</tr>`])
+			.flat(2)
+			.join('\n');
+
 
 	dt.addEventListener('mouseover', (event)=>{
 	// 'highlight' color is set in tablelist.css
