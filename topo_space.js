@@ -217,7 +217,7 @@ window.main = function main(){
 	console.log(innerHTML);
 	div.innerHTML = innerHTML;
 
-	for (let [json_source, id] of [[decision_tree, "decision_tree"], [scores, "scores"]])
+	for (const [json_source, id] of [[decision_tree, "decision_tree"], [scores, "scores"]])
 	{
 		let div = document.getElementById(id).getElementsByTagName('tbody')[0];
 
