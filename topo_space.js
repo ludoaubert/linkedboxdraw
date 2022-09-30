@@ -226,7 +226,14 @@ window.main = function main(){
 		  rows.sort((tr1, tr2) => {
 			const tr1Text = tr1.cells[cellIndex].textContent;
 			const tr2Text = tr2.cells[cellIndex].textContent;
-			return parseInt(tr1Text) < parseInt(tr2Text);
+			const tr1Int = parseInt(tr1Text);
+			const tr2Int = parseInt(tr2Text);
+			if (tr1Int < tr2Int)
+				return -1;
+			else of (tr1Int == tr2Int)
+				return 0;
+			else
+				return +1;
 		  });
 
 		  tBody.append(...rows);
