@@ -230,7 +230,7 @@ window.main = function main(){
 			const tr2Int = parseInt(tr2Text);
 			if (tr1Int < tr2Int)
 				return -1;
-			else of (tr1Int == tr2Int)
+			else if (tr1Int == tr2Int)
 				return 0;
 			else
 				return +1;
