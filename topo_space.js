@@ -226,7 +226,7 @@ window.main = function main(){
 		  rows.sort((tr1, tr2) => {
 			const tr1Text = tr1.cells[cellIndex].textContent;
 			const tr2Text = tr2.cells[cellIndex].textContent;
-			return tr1Text.localeCompare(tr2Text);
+			return parseInt(tr1Text) < parseInt(tr2Text);
 		  });
 
 		  tBody.append(...rows);
