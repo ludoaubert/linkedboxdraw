@@ -8,6 +8,27 @@ import scores from './scores.json' assert {type: 'json'};
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
 
+function compute_frame(rectangles)
+{
+	const frame = {
+		m_left : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_left)),
+		m_right : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_right)),
+		m_top : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_top)),
+		m_bottom : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_bottom))
+	};
+	return frame;
+}
+
+function compute_center_frame_translation(rectangles)
+{
+	const frame = compute_frame(rectangles);
+	const translation = {
+		x: -frame.m_left,
+		y: -frame.m_top
+	};
+	return translation;
+}
+
 console.log(logical_graph);
 console.log(holes);
 
@@ -38,7 +59,7 @@ function translation_range_print_html(id)
 
 	const translations = translation_ranges.slice(start,end);
 
-	const rectangles = input_rectangles.map((r, index) => {
+	const rectangles_ = input_rectangles.map((r, index) => {
 			const tr=translations.find(tr => tr.ri==index);
 			return tr==undefined ? r : {
 				m_left : r.m_left + tr.x,
@@ -48,15 +69,20 @@ function translation_range_print_html(id)
 			};
 		}
 	);
+	
+	const tr = compute_center_frame_translation(rectangles_);
+	
+	const rectangles = rectangles_.map(r => return {
+			m_left : r.m_left + tr.x,
+			m_right : r.m_right + tr.x,
+			m_top : r.m_top + tr.y,
+			m_bottom : r.m_bottom + tr.y			
+		};
+	);
 
-	const frame = {
-		m_left : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_left)),
-		m_right : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_right)),
-		m_top : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_top)),
-		m_bottom : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_bottom))
-	};
+	const frame = compute_frame(rectangles);
 
-	return [`<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">`,
+	return [`<svg width="${frame.m_right-frame.m_left}" height="${frame.m_bottom-frame.m_top}">`,
                 rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
                         [`<g id="g-${index}" transform="translate(${m_left} ${m_top})">`,
                         `<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
@@ -74,14 +100,9 @@ function print_html()
 
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-	const frame = {
-		m_left : Math.min(...input_rectangles.map(r => r.m_left)),
-		m_right : Math.max(...input_rectangles.map(r => r.m_right)),
-		m_top : Math.min(...input_rectangles.map(r => r.m_top)),
-		m_bottom : Math.max(...input_rectangles.map(r => r.m_bottom))
-	};
+	const frame = compute_frame(input_rectangles);
 
-	return [`<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">`,
+	return [`<svg width="${frame.m_right-frame.m_left}" height="${frame.m_bottom-frame.m_top}">`,
 		input_rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
 			[`<g id="g-r-${index}" transform="translate(${m_left} ${m_top})">`,
 			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
