@@ -100,10 +100,20 @@ function print_html()
 
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-	const frame = compute_frame(input_rectangles);
+        const tr = compute_center_frame_translation(input_rectangles);
+
+        const rectangles = input_rectangles.map(r => {return {
+                        m_left : r.m_left + tr.x,
+                        m_right : r.m_right + tr.x,
+                        m_top : r.m_top + tr.y,
+                        m_bottom : r.m_bottom + tr.y
+                };}
+        );
+
+        const frame = compute_frame(rectangles);
 
 	return [`<svg width="${frame.m_right-frame.m_left}" height="${frame.m_bottom-frame.m_top}">`,
-		input_rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
+		rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
 			[`<g id="g-r-${index}" transform="translate(${m_left} ${m_top})">`,
 			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
 			`<text x="0" y="0" fill="red">r-${index}</text>`,
@@ -112,7 +122,17 @@ function print_html()
 			topological_edges.filter(({from, to}) => from==index)
 					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
 			`</g>`]),
-		holes.holes.map(({rec, ri}, index) =>
+		holes.holes.map(({rec, ri}) => {return {
+			rec : {
+				m_left : rec.m_left + tr.x,
+				m_right : rec.m_right + tr.x,
+				m_top : rec.m_top + tr.y,
+				m_bottom : rec.m_bottom + tr.y
+			},
+			ri : ri
+			}:
+			});
+			.map(({rec, ri}, index) =>
 			[`<g id="g-h-${index}" transform="translate(${rec.m_left} ${rec.m_top})">`,
 			`<rect x="0" y="0" width="${rec.m_right-rec.m_left}" height="${rec.m_bottom-rec.m_top}" class="hole" />`,
 			`<text x="0" y="0" fill="black">hole-${index}</text>`,
