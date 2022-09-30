@@ -5,6 +5,8 @@ import decision_tree from './decision_tree.json' assert {type: 'json'};
 import translation_ranges from './translation_ranges.json' assert {type: 'json'};
 import scores from './scores.json' assert {type: 'json'};
 
+// FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
+const FRAME_MARGIN = 20;
 
 console.log(logical_graph);
 console.log(holes);
@@ -48,10 +50,10 @@ function translation_range_print_html(id)
 	);
 
 	const frame = {
-		m_left : Math.min(...rectangles.map(r => r.m_left)),
-		m_right : Math.max(...rectangles.map(r => r.m_right)),
-		m_top : Math.min(...rectangles.map(r => r.m_top)),
-		m_bottom : Math.max(...rectangles.map(r => r.m_bottom))
+		m_left : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_left)),
+		m_right : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_right)),
+		m_top : -FRAME_MARGIN/2 + Math.min(...rectangles.map(r => r.m_top)),
+		m_bottom : +FRAME_MARGIN/2 + Math.max(...rectangles.map(r => r.m_bottom))
 	};
 
 	return [`<svg width="${frame.m_right-frame.m_left+100}" height="${frame.m_bottom-frame.m_top+100}">`,

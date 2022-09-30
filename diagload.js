@@ -5,7 +5,7 @@ var currentX = 0;
 var currentY = 0;
 var g = 0;
 
-// FRAME_MARGIN is duplicated in table_input.js
+// FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
 
 
