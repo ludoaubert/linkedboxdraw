@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include <deque>
-#include <map>
+#include <bitset>
 #include <algorithm>
 #include <numeric>
 #include <ranges>
@@ -2079,6 +2079,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		recmap[i] = i;
 
 	vector<DecisionTreeNode> decision_tree;
+
+	vector<bitset<30> > etat_emplacements;
 
 //TODO: use C++23 deducing this.
 
