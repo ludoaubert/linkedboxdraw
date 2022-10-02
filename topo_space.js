@@ -48,6 +48,17 @@ function binarySearch(array, predicate) {
 }
 
 
+function translated_rectangle(r, tr)
+{
+	return {
+		m_left : r.m_left + tr.x,
+		m_right : r.m_right + tr.x,
+		m_top : r.m_top + tr.y,
+		m_bottom : r.m_bottom + tr.y
+	};
+}
+
+
 function translation_range_print_html(id)
 {
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
@@ -61,24 +72,13 @@ function translation_range_print_html(id)
 
 	const rectangles_ = input_rectangles.map((r, index) => {
 			const tr=translations.find(tr => tr.ri==index);
-			return tr==undefined ? r : {
-				m_left : r.m_left + tr.x,
-				m_right : r.m_right + tr.x,
-				m_top : r.m_top + tr.y,
-				m_bottom : r.m_bottom + tr.y
-			};
+			return tr==undefined ? r : translated_rectangle(r, tr);
 		}
 	);
 
 	const tr = compute_center_frame_translation(rectangles_);
 
-	const rectangles = rectangles_.map(r => {return {
-			m_left : r.m_left + tr.x,
-			m_right : r.m_right + tr.x,
-			m_top : r.m_top + tr.y,
-			m_bottom : r.m_bottom + tr.y
-		};}
-	);
+	const rectangles = rectangles_.map(r => translated_rectangle(r, tr));
 
 	const frame = compute_frame(rectangles);
 
@@ -102,13 +102,7 @@ function print_html()
 
         const tr = compute_center_frame_translation(input_rectangles);
 
-        const rectangles = input_rectangles.map(r => {return {
-                        m_left : r.m_left + tr.x,
-                        m_right : r.m_right + tr.x,
-                        m_top : r.m_top + tr.y,
-                        m_bottom : r.m_bottom + tr.y
-                };}
-        );
+        const rectangles = input_rectangles.map(r => translated_rectangle(r, tr));
 
         const frame = compute_frame(rectangles);
 
@@ -123,13 +117,8 @@ function print_html()
 					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
 			`</g>`]),
 		holes.holes.map(({rec, ri}) => {return {
-			rec : {
-				m_left : rec.m_left + tr.x,
-				m_right : rec.m_right + tr.x,
-				m_top : rec.m_top + tr.y,
-				m_bottom : rec.m_bottom + tr.y
-			},
-			ri : ri
+				rec : translated_rectangle(rec, tr),
+				ri : ri
 			};
 			}).map(({rec, ri}, index) =>
 			[`<g id="g-h-${index}" transform="translate(${rec.m_left} ${rec.m_top})">`,
