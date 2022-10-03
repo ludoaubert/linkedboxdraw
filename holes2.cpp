@@ -2042,6 +2042,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	for (const RectHole &rh : holes)
 		emplacements.push_back(rh.rec);
 
+	const int m = emplacements.size();
+
 //TODO: use C++23 views::cartesian_product()
 
 	vector<TopologicalEdge> topological_edges;
@@ -2080,15 +2082,25 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	vector<DecisionTreeNode> decision_tree;
 
-	vector<bitset<30> > etat_emplacements;
+	const unsigned BITSET_MAX_SIZE=128;
+
+	vector<bitset<BITSET_MAX_SIZE> > etat_emplacements;
 
 //TODO: use C++23 deducing this.
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+//1:OCCUPE, 0:LIBRE
+		auto etat_emplacement = parent_index == -1 ? bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) : etat_emplacements[parent_index];
 
-//TODO: use C++23 std::generator: synchronous coroutine generator for ranges
+		auto bitset_swap=[&](int i, int j){
+			int bi = (int)etat_emplacement[i], bj = (int)etat_emplacement[j];
+			swap(bi, bj);
+			etat_emplacement[i]=bi;
+			etat_emplacement[j]=bj;
+		};
 
-		auto etat_emplacement=[&](int i){
+
+		auto etat_emplacement_=[&](int i){
 
                 	for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
 			{
@@ -2110,6 +2122,10 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 // par default, les intput_rectangles sont des emplacements non libres, les autres emplacements etant libres
 			return i < n ? OCCUPE : LIBRE ;
 		};
+
+		for (int i=0; i < m; i++)
+			if(/*parent_index==-1 && */ etat_emplacement_(i)!=(int)etat_emplacement[i])
+				throw "fuck you";
 
 		auto mapping=[&](int i){
 			assert(i < n);
@@ -2176,7 +2192,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 				if (j == i)
 					continue;
 
-				if (etat_emplacement(j) == OCCUPE)
+				if (etat_emplacement_(j) == OCCUPE)
 				{
 					D(printf("etat_emplacement[%d] == OCCUPE\n", j));
 					continue;
@@ -2186,7 +2202,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 				if (ranges::any_of(views::iota(input_rectangles.size()) |
 									views::take(emplacements.size() - input_rectangles.size()) |
 									views::filter([&](int i){return i!=j;}) |
-									views::filter([&](int i){return etat_emplacement(i)==OCCUPE;}),
+									views::filter([&](int i){return etat_emplacement_(i)==OCCUPE;}),
 									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
 									)
 					)
@@ -2264,6 +2280,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 						.i_emplacement_destination=j
 					}
 				});
+
+				bitset_swap(i, j);
+				etat_emplacements.push_back(etat_emplacement);
 
 				build_decision_tree(decision_tree.size()-1, build_decision_tree);
 			}
