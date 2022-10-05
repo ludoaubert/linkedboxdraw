@@ -218,7 +218,8 @@ window.main = function main(){
 		div.innerHTML = json_source
 				.map(item => {
 								let deep_copy=JSON.parse(JSON.stringify(item));
-								deep_copy.i_emplacement_destination = print_emplacement(item.i_emplacement_destination);
+								if ('i_emplacement_destination' in deep_copy)
+									deep_copy.i_emplacement_destination = print_emplacement(item.i_emplacement_destination);
 								return deep_copy;
 							}
 				)
