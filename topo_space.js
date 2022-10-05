@@ -170,6 +170,11 @@ function select_id(event)
 	let cm = document.getElementById("chemin").getElementsByTagName("tbody")[0];
 	cm.innerHTML = chemin
 			.reverse()
+			.map(item => {
+							item.i_emplacement_destination = print_emplacement(item.i_emplacement_destination));
+							return item;
+						}
+			)
 			.map(item => ["<tr>",
 					Object.values(item)
 					.map(i => `<td>${i}</td>`),
@@ -211,6 +216,12 @@ window.main = function main(){
 		let div = document.getElementById(id).getElementsByTagName('tbody')[0];
 
 		div.innerHTML = json_source
+				.map(item => {
+								let deep_copy=JSON.parse(JSON.stringify(item));
+								deep_copy.i_emplacement_destination = print_emplacement(item.i_emplacement_destination));
+								return deep_copy;
+							}
+				)
 				.map(item => [`<tr>`,
 					      Object.values(item)
 					      .map(i => `<td>${i}</td>`),
