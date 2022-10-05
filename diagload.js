@@ -222,9 +222,6 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 */
 		for (const {from, to, polyline} of links)
 		{
-			const linkIndex = mydata.links.findIndex(lk => lk.from==from && lk.to==to);
-			const {fromCardinality, toCardinality} = mydata.links[linkIndex];
-
 			let points = [];
 			for (var k=0; k < polyline.length; k++)
 			{
@@ -243,22 +240,22 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			const p4 = polyline[polyline.length - 1];
 
 			if (p1.y==p2.y && p1.x > p2.x)	// left
-				innerHTML += `<text x="${p1.x-5}" y="${p1.y-5}" text-anchor="end">${fromCardinality}</text>`;
+				innerHTML += `<text x="${p1.x-5}" y="${p1.y-5}"></text>`;
 			else if (p1.y==p2.y && p1.x < p2.x) // right
-				innerHTML += `<text x="${p1.x+5}" y="${p1.y-5}" text-anchor="start">${fromCardinality}</text>`;
+				innerHTML += `<text x="${p1.x+5}" y="${p1.y-5}"></text>`;
 			else if (p1.x==p2.x && p1.y > p2.y) // up
-				innerHTML += `<text x="${p1.x}" y="${p1.y-5}" text-anchor="end">${fromCardinality}</text>`;
+				innerHTML += `<text x="${p1.x}" y="${p1.y-5}"></text>`;
 			else if (p1.x==p2.x && p1.y < p2.y) // down
-				innerHTML += `<text x="${p1.x}" y="${p1.y+10+5}" text-anchor="end">${fromCardinality}</text>`;
+				innerHTML += `<text x="${p1.x}" y="${p1.y+10+5}"></text>`;
 
 			if (p4.y==p3.y && p4.x > p3.x)	// right
-				innerHTML += `<text x="${p4.x-5}" y="${p4.y+10+5}" text-anchor="end">${toCardinality}</text>`;
+				innerHTML += `<text x="${p4.x-5}" y="${p4.y+10+5}"></text>`;
 			else if (p4.y==p3.y && p4.x < p3.x) // left
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}" text-anchor="start">${toCardinality}</text>`;
+				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
 			else if (p4.x==p3.x && p4.y > p3.y) // down
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y-5}" text-anchor="start">${toCardinality}</text>`;
+				innerHTML += `<text x="${p4.x+5}" y="${p4.y-5}"></text>`;
 			else if (p4.x==p3.x && p4.y < p3.y) // up
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}" text-anchor="start">${toCardinality}</text>`;
+				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
 		}
 
 		for (const {id, translation} of translatedBoxes)
