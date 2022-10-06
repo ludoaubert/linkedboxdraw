@@ -64,34 +64,51 @@ function translation_range_print_html(id)
 {
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-// find the start of the range
 	const start = binarySearch(translation_ranges, item => item.id >= id);
-// find the end of the range
 	const end = binarySearch(translation_ranges, item => item.id > id);
-
 	const translations = translation_ranges.slice(start,end);
-
 	const rectangles_ = input_rectangles.map((r, index) => {
 			const tr=translations.find(tr => tr.ri==index);
 			return tr==undefined ? r : translated_rectangle(r, tr);
 		}
 	);
-
 	const tr = compute_center_frame_translation(rectangles_);
-
 	const rectangles = rectangles_.map(r => translated_rectangle(r, tr));
-
 	const frame = compute_frame(rectangles);
 
-	return [`<svg width="${frame.m_right-frame.m_left}" height="${frame.m_bottom-frame.m_top}">`,
-                rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
-                        [`<g id="g-${index}" transform="translate(${m_left} ${m_top})">`,
-                        `<rect id="r-${index}" x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
-                        `<text id="tr-${index}" x="0" y="0" fill="red">r-${index}</text>`,
+        const start2 = binarySearch(translation_ranges2, item => item.id >= id);
+        const end2 = binarySearch(translation_ranges2, item => item.id > id);
+        const translations2 = translation_ranges2.slice(start2,end2);
+        const rectangles2_ = rectangles_.map((r, index) => {
+                        const tr=translations2.find(tr => tr.ri==index);
+                        return tr==undefined ? r : translated_rectangle(r, tr);
+                }
+        );
+        const tr2 = compute_center_frame_translation(rectangles2_);
+        const rectangles2 = rectangles2_.map(r => translated_rectangle(r, tr));
+        const frame2 = compute_frame(rectangles2);
+
+	const width = (r) => r.m_right-r.m_left;
+	const height = (r) => r.m_bottom-r.m_top;
+
+	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
+                rectangles.map((r, index) =>
+                        [`<g transform="translate(${r.m_left} ${r.m_top})">`,
+                        `<rect x="0" y="0" width="${width(r)}" height="${heigth(r)}" class=\"rect\" />`,
+                        `<text x="0" y="0" fill="red">r-${index}</text>`,
                         logical_edges.filter(({from, to}) => from==index)
-			        .map(({from, to}, line) => `<text id="le-${from}-${to}" x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
+			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			`</g>`]),
-		"</svg>"].flat(3)
+		"</svg>",
+		`<svg width="${width(frame2)}" height="${height(frame2)}">`,
+                rectangles2.map((r, index) =>
+                        [`<g transform="translate(${r.m_left} ${r.m_top})">`,
+                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)" class=\"rect\" />`,
+                        `<text x="0" y="0" fill="red">r-${index}</text>`,
+                        logical_edges.filter(({from, to}) => from==index)
+                                .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
+                        `</g>`]),
+                "</svg>"].flat(3)
 			.join('\n');
 }
 
