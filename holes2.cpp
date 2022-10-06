@@ -2534,10 +2534,7 @@ int main(int argc, char* argv[])
 
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
 
-		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree,
-																							translation_ranges,
-																							input_rectangles,
-																							logical_edges);
+		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
 		
 		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
 	}
