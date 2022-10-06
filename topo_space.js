@@ -49,6 +49,14 @@ function binarySearch(array, predicate) {
 }
 
 
+const equal_range = (translation_ranges, id) => {
+	const start = binarySearch(translation_ranges, item => item.id >= id);
+	const end = binarySearch(translation_ranges, item => item.id > id);
+	const translations = translation_ranges.slice(start,end);
+	return translations;
+};
+
+
 function translated_rectangle(r, tr)
 {
 	return {
@@ -59,37 +67,30 @@ function translated_rectangle(r, tr)
 	};
 }
 
+const width = (r) => r.m_right-r.m_left;
+const height = (r) => r.m_bottom-r.m_top;
+
+const tf = (rectangles, translations) => {
+        const rectangles_ = rectangles.map((r, index) => {
+                        const tr=translations.find(tr => tr.ri==index);
+                        return tr==undefined ? r : translated_rectangle(r, tr);
+                }
+        );
+        const tr = compute_center_frame_translation(rectangles_);
+        return rectangles_.map(r => translated_rectangle(r, tr));
+};
 
 function translation_range_print_html(id)
 {
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-	const start = binarySearch(translation_ranges, item => item.id >= id);
-	const end = binarySearch(translation_ranges, item => item.id > id);
-	const translations = translation_ranges.slice(start,end);
-	const rectangles_ = input_rectangles.map((r, index) => {
-			const tr=translations.find(tr => tr.ri==index);
-			return tr==undefined ? r : translated_rectangle(r, tr);
-		}
-	);
-	const tr = compute_center_frame_translation(rectangles_);
-	const rectangles = rectangles_.map(r => translated_rectangle(r, tr));
+	const translations = equal_range(translation_ranges, id);
+	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
 
-        const start2 = binarySearch(translation_ranges2, item => item.id >= id);
-        const end2 = binarySearch(translation_ranges2, item => item.id > id);
-        const translations2 = translation_ranges2.slice(start2,end2);
-        const rectangles2_ = rectangles_.map((r, index) => {
-                        const tr=translations2.find(tr => tr.ri==index);
-                        return tr==undefined ? r : translated_rectangle(r, tr);
-                }
-        );
-        const tr2 = compute_center_frame_translation(rectangles2_);
-        const rectangles2 = rectangles2_.map(r => translated_rectangle(r, tr));
+        const translations2 = equal_range(translation_ranges2, id);
+        const rectangles2 = tf(rectangles, translations2);
         const frame2 = compute_frame(rectangles2);
-
-	const width = (r) => r.m_right-r.m_left;
-	const height = (r) => r.m_bottom-r.m_top;
 
 	const svg = (frame, rectangles) => {
 	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
