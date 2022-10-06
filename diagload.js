@@ -310,7 +310,7 @@ function ApplyRepartition()
 	
 	mycontexts.contexts = [...Array(nb).keys()].map(i => ({
 			"frame":null,
-			"translatedBoxes":translatedBoxes.filter(tB => repartition[tB.id]=i),
+			"translatedBoxes":translatedBoxes.filter(({id,translation}) => repartition[id]==i),
 			"links":[]
 			})
 		);
