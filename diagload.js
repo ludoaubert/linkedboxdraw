@@ -290,8 +290,6 @@ function drawDiag() {
 
 function ApplyRepartition()
 {
-	alert("ApplyRepartition");
-
 	const repartitionTable = document.getElementById("repartition");
 
 	var repartition = [];
@@ -304,32 +302,18 @@ function ApplyRepartition()
 		const n = parseInt(row.cells[2].innerText);
 		repartition[id]=n;
 	}
-	console.log(JSON.stringify(repartition));
-
-	//make a deep copy of mycontexts
-	const mycontexts_ = JSON.parse(JSON.stringify(mycontexts));
+	
+	const translatedBoxes = mycontexts.contexts.map(({frame,translatedBoxes,links})=>translatedBoxes)
+											.flat();
 
 	const nb = 1 + Math.max(...repartition);
-
-	mycontexts.contexts = [];
-
-	for (let i=0; i <nb; i++)
-	{
-		mycontexts.contexts[i] = new Object({
+	
+	mycontexts.contexts = [...Array(nb).keys()].map(i => ({
 			"frame":null,
-			"translatedBoxes":[],
+			"translatedBoxes":translatedBoxes.filter(tB => repartition[tB.id]=i),
 			"links":[]
-			});
-	}
-
-	for (const context_ of mycontexts_.contexts)
-	{
-		for (const {id,translation} of context_.translatedBoxes)
-		{
-			const i = repartition[id];
-			mycontexts.contexts[i].translatedBoxes.push({id,translation});
-		}
-	}
+			})
+		);
 
 // case when a new box was created. It has not been assigned to a context by the previous algorithm.
 // Below is the code that will detect it and assign it to its context.
