@@ -103,7 +103,7 @@ function translation_range_print_html(id)
 		`<svg width="${width(frame2)}" height="${height(frame2)}">`,
                 rectangles2.map((r, index) =>
                         [`<g transform="translate(${r.m_left} ${r.m_top})">`,
-                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)" class=\"rect\" />`,
+                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"rect\" />`,
                         `<text x="0" y="0" fill="red">r-${index}</text>`,
                         logical_edges.filter(({from, to}) => from==index)
                                 .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
@@ -124,10 +124,13 @@ function print_html()
 
         const frame = compute_frame(rectangles);
 
-	return [`<svg width="${frame.m_right-frame.m_left}" height="${frame.m_bottom-frame.m_top}">`,
-		rectangles.map(({m_left, m_right, m_top, m_bottom}, index) =>
-			[`<g id="g-r-${index}" transform="translate(${m_left} ${m_top})">`,
-			`<rect x="0" y="0" width="${m_right-m_left}" height="${m_bottom-m_top}" class=\"rect\" />`,
+        const width = (r) => r.m_right-r.m_left;
+        const height = (r) => r.m_bottom-r.m_top;
+
+	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
+		rectangles.map((r, index) =>
+			[`<g id="g-r-${index}" transform="translate(${r.m_left} ${r.m_top})">`,
+			`<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"rect\" />`,
 			`<text x="0" y="0" fill="red">r-${index}</text>`,
 			logical_edges.filter(({from, to}) => from==index)
 					.map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
