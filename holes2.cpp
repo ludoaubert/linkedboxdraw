@@ -1740,21 +1740,21 @@ const vector<ProcessSelector2> process_selectors2 = cartesian_product2();
 //TODO: use views::chunk_by() C++23
 
 vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
-													const vector<TranslationRangeItem>& translation_ranges,
-													const vector<MyRect>& input_rectangles,
-													const vector<LogicalEdge>& logical_edges)
+								const vector<TranslationRangeItem>& translation_ranges,
+								const vector<MyRect>& input_rectangles,
+								const vector<LogicalEdge>& logical_edges)
 {
 	int n = input_rectangles.size();
-	
-	vector<MyRect> rectangles(n), rectangles2(n);
-	
-	vector<TranslationRangeItem>& translation_ranges2;
-	
-	auto tf=[&](int id, unsigned pipeline, unsigned mirroring){
 
-		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u)\n", id, pipeline, mirroring));
-		
-		ranges::copy(rectangles, rectangles2);
+	vector<MyRect> rectangles(n), rectangles2(n);
+
+	vector<TranslationRangeItem> translation_ranges2;
+
+	auto tf=[&](unsigned pipeline, unsigned mirroring){
+
+		D(printf("calling tf(pipeline=%u, mirroring=%u)\n", pipeline, mirroring));
+
+		ranges::copy(rectangles, begin(rectangles2));
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
@@ -1764,11 +1764,11 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 			apply_mirror(mirror, rectangles2);
 	};
 
-	
+
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-		ranges::copy(input_rectangles, rectangles);
-		
+		ranges::copy(input_rectangles, begin(rectangles));
+
 		vector<TranslationRangeItem> ts;
 
 		ranges::set_union(
@@ -1778,15 +1778,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 			{},
 			&TranslationRangeItem::ri,
 			&TranslationRangeItem::ri);
-			
+
 		auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
-		ranges::copy(rg, rectangles);
-		
+		ranges::copy(rg, begin(rectangles));
+
 		const auto [pipeline, mirroring] = ranges::min(process_selectors2, {}, [&](const ProcessSelector2& ps){
 			D(printf("pipeline=%u\n", ps.pipeline));
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 
-			tf(id, ps.pipeline, ps.mirroring);
+			tf(ps.pipeline, ps.mirroring);
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);	});
@@ -1817,21 +1817,21 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 
-		tf(id, pipeline, mirroring, match_corner);
+		tf(pipeline, mirroring);
 
-		auto rg = views::iota(0,n) |
-					views::transform([&](int i)->TranslationRangeItem{
-                                        const MyRect &ir = rectangles[i], &r = rectangles2[i];
-                                        MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-                                        return {id, i, tr};}) |
-					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
+		auto rng = views::iota(0,n) |
+			views::transform([&](int i)->TranslationRangeItem{
+				const MyRect &ir = rectangles[i], &r = rectangles2[i];
+				MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+				return {id, i, tr};}) |
+			views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
 
-		for (TranslationRangeItem item : rg)
+		for (TranslationRangeItem item : rng)
 		{
 			translation_ranges2.push_back(item);
 		}
 	}
-	
+
 {
 	FILE *f=fopen("translation_ranges2.json", "w");
 	fprintf(f, "[\n");
