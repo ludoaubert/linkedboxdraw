@@ -94,7 +94,7 @@ function translation_range_print_html(id)
 	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
                 rectangles.map((r, index) =>
                         [`<g transform="translate(${r.m_left} ${r.m_top})">`,
-                        `<rect x="0" y="0" width="${width(r)}" height="${heigth(r)}" class=\"rect\" />`,
+                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"rect\" />`,
                         `<text x="0" y="0" fill="red">r-${index}</text>`,
                         logical_edges.filter(({from, to}) => from==index)
 			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
