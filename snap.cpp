@@ -16,11 +16,33 @@ const Job pipelines2[NR_JOB_PIPELINES2][2]={
 
 //cartesian product with NR_MIRRORING_OPTIONS
 
+struct ProcessSelector2
+{
+	unsigned pipeline, mirroring;
+};
+
+// TODO: use upcoming C++23 views::cartesian_product()
+vector<ProcessSelector2> cartesian_product2()
+{
+	vector<ProcessSelector2> result;
+
+	for (int pipeline=0; pipeline < NR_JOB_PIPELINES2; pipeline++)
+		for (int mirroring=0; mirroring < NR_MIRRORING_OPTIONS; mirroring++)
+			result.push_back({pipeline, mirroring});
+
+	return result;
+}
+
+
+const vector<ProcessSelector> process_selectors = cartesian_product();
+
+
 //TODO: use views::chunk_by() C++23
 
 vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 													const vector<TranslationRangeItem>& translation_ranges,
-													const vector<MyRect>& input_rectangles)
+													const vector<MyRect>& input_rectangles,
+													const vector<LogicalEdge>& logical_edges)
 {
 	int n = input_rectangles.size();
 	
@@ -36,7 +58,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
-		for (const Job& job : pipelines[pipeline])
+		for (const Job& job : pipelines2[pipeline])
 			apply_job(job, rectangles2);
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
@@ -91,21 +113,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 			return cost;
 		});
 
-		selectors[id] = {pipeline, mirroring, match_corner};
-
-		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u}\n", id, pipeline, mirroring));
+		D(printf("selection[id=%d] = {pipeline=%u, mirroring=%u}\n", id, pipeline, mirroring));
 
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 
-		const bool final=true;
-		tf(id, pipeline, mirroring, match_corner, final);
-
-		for (const MyRect& r : rectangles)
-			emplacements[r.i] = r;
+		tf(id, pipeline, mirroring, match_corner);
 
 		auto rg = views::iota(0,n) |
 					views::transform([&](int i)->TranslationRangeItem{
-                                        const MyRect &ir = input_emplacements[i], &r = emplacements[i];
+                                        const MyRect &ir = rectangles[i], &r = rectangles2[i];
                                         MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
                                         return {id, i, tr};}) |
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
