@@ -3,6 +3,7 @@ import logical_graph from './logical_graph.json' assert {type: 'json'};
 import holes from './holes.json' assert {type: 'json'};
 import decision_tree from './decision_tree.json' assert {type: 'json'};
 import translation_ranges from './translation_ranges.json' assert {type: 'json'};
+import translation_ranges2 from './translation_ranges2.json' assert {type: 'json'};
 import scores from './scores.json' assert {type: 'json'};
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
@@ -63,7 +64,7 @@ function translation_range_print_html(id)
 {
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-	// find the start of the range
+// find the start of the range
 	const start = binarySearch(translation_ranges, item => item.id >= id);
 // find the end of the range
 	const end = binarySearch(translation_ranges, item => item.id > id);
