@@ -172,10 +172,10 @@ function select_id(event)
 	cm.innerHTML = chemin
 			.reverse()
 			.map(item => {
-							let deep_copy=JSON.parse(JSON.stringify(item));
-							deep_copy.i_emplacement_destination = print_emplacement(item.i_emplacement_destination);
-							return deep_copy;
-						}
+					let deep_copy=JSON.parse(JSON.stringify(item));
+					deep_copy.i_emplacement_destination = print_emplacement(item.i_emplacement_destination);
+					return deep_copy;
+				}
 			)
 			.map(item => ["<tr>",
 					Object.values(item)
