@@ -2235,7 +2235,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 //TODO: use C++23 deducing this.
 
-	auto build_decision_tree = [&](int parent_index, const vector<bitset<BITSET_MAX_SIZE> >& etat_emplacement, auto&& build_decision_tree)->void{
+	auto build_decision_tree = [&](int parent_index, const bitset<BITSET_MAX_SIZE>& etat_emplacement, auto&& build_decision_tree)->void{
 
 		auto mapping=[&](int i){
 			assert(i < n);
@@ -2390,10 +2390,10 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 						.i_emplacement_destination=j
 					}
 				});
-				
+
 //1:OCCUPE, 0:LIBRE
-				auto bitset_swap=[&](int i, int j)->vector<bitset<BITSET_MAX_SIZE> >{
-					vector<bitset<BITSET_MAX_SIZE> > etat_emplacement_ =  etat_emplacement;
+				auto bitset_swap=[&](int i, int j)->bitset<BITSET_MAX_SIZE>{
+					bitset<BITSET_MAX_SIZE> etat_emplacement_ =  etat_emplacement;
 					D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
 					int bi = (int)etat_emplacement_[i], bj = (int)etat_emplacement_[j];
 					swap(bi, bj);
@@ -2410,7 +2410,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	};
 
 //1:OCCUPE, 0:LIBRE
-	build_decision_tree(-1, bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')), build_decision_tree);
+	const bitset<BITSET_MAX_SIZE> etat_emplacement(string(m-n,'0')+string(n,'1'));
+	build_decision_tree(-1, etat_emplacement, build_decision_tree);
 
 	D(printf("decision_tree.size()=%ld\n", decision_tree.size()));
 
