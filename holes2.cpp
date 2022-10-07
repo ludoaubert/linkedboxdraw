@@ -2238,18 +2238,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 //TODO: use C++23 deducing this.
 
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
-//1:OCCUPE, 0:LIBRE
-		auto etat_emplacement = parent_index == -1 ? bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) : etat_emplacements[parent_index];
-
-		auto bitset_swap=[&](int i, int j){
-			D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
-			int bi = (int)etat_emplacement[i], bj = (int)etat_emplacement[j];
-			swap(bi, bj);
-			etat_emplacement[i]=bi;
-			etat_emplacement[j]=bj;
-			D(printf("etat_emplacement[%d]=%d\n", i, bi));
-                        D(printf("etat_emplacement[%d]=%d\n", j, bj));
-		};
 
 		auto mapping=[&](int i){
 			assert(i < n);
@@ -2315,6 +2303,21 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 				if (j == i)
 					continue;
+				
+//It's important to create etat_emplacement at this location and not before looping on j, because the calls to bitset_swap would make
+//state update which would accumulate, not what we want.
+//1:OCCUPE, 0:LIBRE
+				auto etat_emplacement = parent_index == -1 ? bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) : etat_emplacements[parent_index];
+
+				auto bitset_swap=[&](int i, int j){
+					D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
+					int bi = (int)etat_emplacement[i], bj = (int)etat_emplacement[j];
+					swap(bi, bj);
+					etat_emplacement[i]=bi;
+					etat_emplacement[j]=bj;
+					D(printf("etat_emplacement[%d]=%d\n", i, bi));
+					D(printf("etat_emplacement[%d]=%d\n", j, bj));
+				};
 
 				if (etat_emplacement[j] == OCCUPE)
 				{
