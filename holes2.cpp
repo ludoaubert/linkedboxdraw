@@ -2233,11 +2233,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	const unsigned BITSET_MAX_SIZE=128;
 
-	vector<bitset<BITSET_MAX_SIZE> > etat_emplacements;
-
 //TODO: use C++23 deducing this.
 
-	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+	auto build_decision_tree = [&](int parent_index, const vector<bitset<BITSET_MAX_SIZE> >& etat_emplacement, auto&& build_decision_tree)->void{
 
 		auto mapping=[&](int i){
 			assert(i < n);
@@ -2303,21 +2301,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 				if (j == i)
 					continue;
-				
-//It's important to create etat_emplacement at this location and not before looping on j, because the calls to bitset_swap would make
-//state update which would accumulate, not what we want.
-//1:OCCUPE, 0:LIBRE
-				auto etat_emplacement = parent_index == -1 ? bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) : etat_emplacements[parent_index];
-
-				auto bitset_swap=[&](int i, int j){
-					D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
-					int bi = (int)etat_emplacement[i], bj = (int)etat_emplacement[j];
-					swap(bi, bj);
-					etat_emplacement[i]=bi;
-					etat_emplacement[j]=bj;
-					D(printf("etat_emplacement[%d]=%d\n", i, bi));
-					D(printf("etat_emplacement[%d]=%d\n", j, bj));
-				};
 
 				if (etat_emplacement[j] == OCCUPE)
 				{
@@ -2407,16 +2390,27 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 						.i_emplacement_destination=j
 					}
 				});
+				
+//1:OCCUPE, 0:LIBRE
+				auto bitset_swap=[&](int i, int j)->vector<bitset<BITSET_MAX_SIZE> >{
+					vector<bitset<BITSET_MAX_SIZE> > etat_emplacement_ =  etat_emplacement;
+					D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
+					int bi = (int)etat_emplacement_[i], bj = (int)etat_emplacement_[j];
+					swap(bi, bj);
+					etat_emplacement_[i]=bi;
+					etat_emplacement_[j]=bj;
+					D(printf("etat_emplacement_[%d]=%d\n", i, bi));
+					D(printf("etat_emplacement_[%d]=%d\n", j, bj));
+					return etat_emplacement_;
+				};
 
-				bitset_swap(i, j);
-				etat_emplacements.push_back(etat_emplacement);
-
-				build_decision_tree(decision_tree.size()-1, build_decision_tree);
+				build_decision_tree(decision_tree.size()-1, bitset_swap(i, j), build_decision_tree);
 			}
 		}
 	};
 
-	build_decision_tree(-1, build_decision_tree);
+//1:OCCUPE, 0:LIBRE
+	build_decision_tree(-1, bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')), build_decision_tree);
 
 	D(printf("decision_tree.size()=%ld\n", decision_tree.size()));
 
