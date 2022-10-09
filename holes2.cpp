@@ -2052,7 +2052,32 @@ const vector<TestContext> test_contexts={
 			{.i=0, .x=150, .y=0},
 			{.i=2, .x=150, .y=0}
                 }
-        }
+        },
+	{
+		.testid=6,
+		.input_rectangles = {
+                        {.m_left=328, .m_right=530, .m_top=10, .m_bottom=154},
+			{.m_left=252, .m_right=474, .m_top=490, .m_bottom=601},
+			{.m_left=385, .m_right=530, .m_top=218, .m_bottom=330},
+			{.m_left=530, .m_right=696, .m_top=10, .m_bottom=202},
+                        {.m_left=530, .m_right=696, .m_top=202, .m_bottom=330},
+			{.m_left=682, .m_right=869, .m_top=346, .m_bottom=506},
+			{.m_left=267, .m_right=447, .m_top=601, .m_bottom=761},
+                        {.m_left=474, .m_right=682, .m_top=330, .m_bottom=506},
+                        {.m_left=266, .m_right=474, .m_top=330, .m_bottom=490},
+                        {.m_left=488, .m_right=675, .m_top=506, .m_bottom=650},
+                        {.m_left=744, .m_right=917, .m_top=186, .m_bottom=346},
+                        {.m_left=675, .m_right=862, .m_top=506, .m_bottom=714},
+                        {.m_left=25, .m_right=205, .m_top=153, .m_bottom=281},
+                        {.m_left=10, .m_right=205, .m_top=281, .m_bottom=441},
+                        {.m_left=37, .m_right=252, .m_top=441, .m_bottom=617}
+		},
+		.pipeline = {
+                        {.algo=COMPACT,.update_direction=EAST_WEST}
+                },
+                .expected_translations={
+                }
+	}
 };
 
 
