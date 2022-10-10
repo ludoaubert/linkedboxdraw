@@ -1242,24 +1242,24 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 //TODO: use chunk_by C++23
-        const int N=30;
-        int n = rectangles.size();
+	const int N=30;
+	int n = rectangles.size();
 
-        MyPoint translations[N];
+	MyPoint translations[N];
 
-        ranges::fill(translations, MyPoint{0,0});
+	ranges::fill(translations, MyPoint{0,0});
 
-        auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-        int compact_dimension=0;
-        int tr;
+	int compact_dimension=0;
+	int tr;
 
-        MyRect frame={
-                .m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
-                .m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
-                .m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
-                .m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
-        };
+	MyRect frame={
+		.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
+		.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
+		.m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
+		.m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+	};
 
 	vector<RectLink> index = rect_links;
 	ranges::sort(index, {}, &RectLink::j);
@@ -1272,20 +1272,20 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 {
 	FunctionTimer ft("cft_query_compact_dim");
 	auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
-	span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
-	if (adj_list.empty())
-	{
-		return dimensions(rectangles[ri])[update_direction];
-	}
-	int tr = ranges::max(adj_list | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
+		span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
+		if (adj_list.empty())
+		{
+			return dimensions(rectangles[ri])[update_direction];
+		}
+		int tr = ranges::max(adj_list | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
 		return tr + dimensions(rectangles[ri])[update_direction];
 	};
 
-        auto query_compact_dimension=[&]()->int{
-                return ranges::max(root_nodes |
+	auto query_compact_dimension=[&]()->int{
+		return ranges::max(root_nodes |
 				views::transform([&](int j){return rec_query_compact_dimension(j, rec_query_compact_dimension);})
 		);
-        };
+	};
 
 	compact_dimension = query_compact_dimension();
 	tr = dimensions(frame)[update_direction] - compact_dimension;
@@ -1316,19 +1316,19 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 }
 {
 #ifdef _TRACE_
-         D(printf("translations={"));
-         for (int ri=0; ri < n; ri++)
-         {
-                int tr = translations[ri][update_direction];
-                if (tr != 0)
-                        D(printf("{ri=%d, tr=%d},",ri, tr));
-         }
-         D(printf("}\n"));
+	D(printf("translations={"));
+	for (int ri=0; ri < n; ri++)
+	{
+		int tr = translations[ri][update_direction];
+		if (tr != 0)
+			D(printf("{ri=%d, tr=%d},",ri, tr));
+	}
+	D(printf("}\n"));
 #endif
-         for (int ri=0; ri < n; ri++)
-         {
-                rectangles[ri] += translations[ri];
-         }
+	for (int ri=0; ri < n; ri++)
+	{
+		rectangles[ri] += translations[ri];
+	}
 }
 }
 
