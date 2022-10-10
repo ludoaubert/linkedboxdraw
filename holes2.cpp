@@ -1305,14 +1305,14 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	};
 
 	auto push=[&](int tr){
-	for (int j : root_nodes)
-	{
-		int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
-		if (trj > 0)
-			rec_push(j, trj, rec_push);
-			}
-	 };
-	 push(tr);
+		for (int j : root_nodes)
+		{
+			int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
+			if (trj > 0)
+				rec_push(j, trj, rec_push);
+		}
+	};
+	push(tr);
 }
 {
 #ifdef _TRACE_
