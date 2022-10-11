@@ -27,9 +27,12 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 			}
 		};
 		
-		const int frame_left = min(rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];}));
+		const int frame_min = min(rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];}));
+		const int next_min = min(rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];})
+											| views::filter([&](int value){return value != frame_min;})
+								);
 		
-		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_left;});
+		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
 		
 		for (int ri : rg)
 		{
