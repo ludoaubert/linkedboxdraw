@@ -39,7 +39,7 @@
 		if (tr <= 0)
 			break;
 
-		auto rg2 = views::iota(0,n) | views::filter([&](int i){return rectangles[i].m_left==frame_left;})
+		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
 					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
 
 		ranges::copy(rg2, back_inserter(translation_ranges));
