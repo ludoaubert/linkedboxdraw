@@ -105,14 +105,14 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 			rec_select_partition(ri, rec_select_partition);
 		}
 
-		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] != partition[e.j];})
+		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
 				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
+
+		if (ranges::empty(r))
+			break;
 
 		MyPoint tr={.x=0, .y=0};
 		tr[update_direction] = min<int>(ranges::min(r), next_min - frame_min);
-
-		if (tr[update_direction] <= 0)
-			break;
 
 		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
 					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
