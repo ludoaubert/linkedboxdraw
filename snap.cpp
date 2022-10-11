@@ -1,8 +1,13 @@
 
 
+
+void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+{
+	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+	
 	vector<TranslationRangeItem> translation_ranges;
 
-	vector<MyRect> rectangles = input_rectangles;
+	//vector<MyRect> rectangles = input_rectangles;
 
 	const int n = rectangles.size();
 
@@ -22,21 +27,23 @@
 			}
 		};
 		
-		const int frame_left = min(rectangles | views::transform(&MyRect::m_left));
+		const int frame_left = min(rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];}));
 		
-		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i].m_left==frame_left;});
+		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_left;});
 		
 		for (int ri : rg)
 		{
+			partition[ri] = 1;
 			rec_select_partition(ri, rec_select_partition);
 		}
 
 		auto rg = rect_links | views::filter([&](const RectLink& e){return partition[e.i] != partition[e.j];})
-				| views::transform([&](const RectLink& e){return rectangles[e.j].m_left-rectangles[e.i].m_right;}) ;
+				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
-		int tr = min(rg);
+		MyPoint tr={.x=0, .y=0};
+		tr[update_direction] = min(rg);
 
-		if (tr <= 0)
+		if (tr[update_direction] <= 0)
 			break;
 
 		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
@@ -46,3 +53,4 @@
 	}
 
 	return translation_ranges;
+}
