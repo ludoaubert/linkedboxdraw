@@ -75,7 +75,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	{
 		printf("id=%d\n", id);
 		
-		bitset<30> partition(n,0);
+		bitset<30> partition;
 		
 		auto rec_select_partition=[&](int ri, auto&& rec_select_partition){
 	
