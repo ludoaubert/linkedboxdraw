@@ -66,7 +66,7 @@ const vector<RectLink> rect_links={
 void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-	
+
 	vector<TranslationRangeItem> translation_ranges;
 
 	const int n = rectangles.size();
@@ -74,54 +74,53 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	for (int id=0; ; id++)
 	{
 		printf("id=%d\n", id);
-		
+
 		bitset<30> partition;
-		
-		auto rec_select_partition=[&](int ri, auto&& rec_select_partition){
-	
-			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i) 
-						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];})
+
+		auto rec_select_partition=[&](int ri, auto&& rec_select_partition)->void{
+
+			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i)
+						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];});
+
 			ranges::for_each(rg, [&](const RectLink& rl){
 					partition[rl.j]=1;
 					printf("partition[%d]=1\n", rl.j);
 					rec_select_partition(rl.j, rec_select_partition);
 			});
-
-			}
 		};
-		
+
 		auto rg = rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];});
-		const int frame_min = min(rg);
-		const int next_min = min(rg | views::filter([&](int value){return value != frame_min;}));
-		
+		const int frame_min = ranges::min(rg);
+		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
+
 		printf("frame_min=%d\n", frame_min);
 		printf("next_min=%d\n", next_min);
-		
-		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
-		
-		for (int ri : rg)
+
+		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
+
+		for (int ri : rng)
 		{
 			partition[ri] = 1;
 			printf("partition[%d] = 1\n", ri);
 			rec_select_partition(ri, rec_select_partition);
 		}
 
-		auto rg = rect_links | views::filter([&](const RectLink& e){return partition[e.i] != partition[e.j];})
+		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] != partition[e.j];})
 				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
 		MyPoint tr={.x=0, .y=0};
-		tr[update_direction] = min<int>(min(rg), next_min - frame_min);
+		tr[update_direction] = min<int>(ranges::min(r), next_min - frame_min);
 
 		if (tr[update_direction] <= 0)
 			break;
 
 		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
 					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
-		
+
 		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
-		
-		auto rg3 = views::iota(0,n) | views::select([&](int i){return rectangles[i][minCompactRectDim] != input_rectangles[i][minCompactRectDim];})
-								| views::transform([&](int i){MyPoint tr;
+
+		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != input_rectangles[i][minCompactRectDim];})
+						| views::transform([&](int i){MyPoint tr;
 										tr[update_direction] = rectangles[i][minCompactRectDim] - input_rectangles[i][minCompactRectDim];
 										return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
 									});
@@ -133,21 +132,17 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 		ranges::copy(rg3, back_inserter(translation_ranges));
 	}
 
-	return translation_ranges;
+        for (const auto [id, ri, tr] : translation_ranges)
+        {
+                printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+        }
 }
 
 
 int main(int argc, char* argv[])
 {
 	vector<MyRect> rectangles = input_rectangles;
-	vector<TranslationRangeItem> translation_ranges = compact(EAST_WEST, rect_links, rectangles);
-	
-	for (const auto [id, ri, tr] : translation_ranges)
-	{
-		printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
-	}
-	
+	compact(EAST_WEST, rect_links, rectangles);
+
 	return 0;
 }
-
-//g++-12 -fmodules-ts -std=c++2b snap.cpp MyRect.cpp
