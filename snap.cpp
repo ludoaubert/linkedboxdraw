@@ -124,6 +124,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 		}
 
 		ranges::copy(rg2, back_inserter(translation_ranges));
+		
+		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 	}
 
 	return translation_ranges;
