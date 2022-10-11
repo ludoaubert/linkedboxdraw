@@ -43,7 +43,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
 		MyPoint tr={.x=0, .y=0};
-		tr[update_direction] = min(rg);
+		tr[update_direction] = min<int>(min(rg), next_min - frame_min);
 
 		if (tr[update_direction] <= 0)
 			break;
