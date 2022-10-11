@@ -1,11 +1,18 @@
 #include <vector>
 #include <algorithm>
+#include <numeric>
 #include <ranges>
 #include <bitset>
 #include <stdio.h>
 #include "MyRect.h"
 using namespace std;
 
+struct LogicalEdge {
+	int from;
+	int to;
+
+	friend auto operator<=>(const LogicalEdge&, const LogicalEdge&) = default;
+};
 
 struct RectLink{
 	int i, j, TOP, BOTTOM;
@@ -39,6 +46,38 @@ const vector<MyRect> input_rectangles = {
 	{m_left: 37, m_right: 252, m_top: 441, m_bottom: 617}
 } ;
 
+//bi directional edges
+const vector<LogicalEdge> logical_edges = {
+        {.from=0,.to=3},
+        {.from=1,.to=7},
+        {.from=2,.to=7},
+        {.from=3,.to=0},
+        {.from=3,.to=4},
+        {.from=4,.to=3},
+        {.from=4,.to=7},
+        {.from=5,.to=7},
+        {.from=6,.to=7},
+        {.from=6,.to=12},
+        {.from=7,.to=1},
+        {.from=7,.to=2},
+        {.from=7,.to=4},
+        {.from=7,.to=5},
+        {.from=7,.to=6},
+        {.from=7,.to=8},
+        {.from=7,.to=9},
+        {.from=7,.to=10},
+        {.from=7,.to=11},
+        {.from=8,.to=7},
+        {.from=9,.to=7},
+        {.from=10,.to=7},
+        {.from=11,.to=7},
+        {.from=12,.to=6},
+        {.from=12,.to=13},
+        {.from=13,.to=12},
+        {.from=13,.to=14},
+        {.from=14,.to=13}
+};
+
 const vector<RectLink> rect_links={
 	{.i=0, .j=3, .TOP=10, .BOTTOM=154},
 	{.i=1, .j=7, .TOP=490, .BOTTOM=506},
@@ -63,7 +102,7 @@ const vector<RectLink> rect_links={
 	{.i=14, .j=8, .TOP=441, .BOTTOM=490}
 };
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
@@ -136,13 +175,42 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
         {
                 printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
         }
+
+//TODO: use C++23 chunk_by()
+
+	const int nb = 1 + ranges::max(translation_ranges | views::transform(&TranslationRangeItem::id));
+
+	int id = ranges::min( views::iota(0,nb), {}, [&](int id){
+
+			vector<MyRect> rectangles = input_rectangles;
+                        ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+                                        [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+
+			auto rg1 = logical_edges |
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+
+			auto rg2 = ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id) |
+				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
+
+			printf("sigma_edge_distance = %d\n", sigma_edge_distance);
+			printf("sigma_translation = %d\n", sigma_translation);
+			printf("[.width=%d, .height=%d]\n", width, height);
+
+			int cost = width + height + sigma_edge_distance + sigma_translation ;
+                        return cost;}
+                );
+        printf("id=%d\n", id);
 }
 
 
 int main(int argc, char* argv[])
 {
 	vector<MyRect> rectangles = input_rectangles;
-	compact(EAST_WEST, rect_links, rectangles);
+	compact(EAST_WEST, rect_links, logical_edges, rectangles);
 
 	return 0;
 }
