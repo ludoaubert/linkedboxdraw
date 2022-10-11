@@ -73,6 +73,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 
 	for (int id=0; ; id++)
 	{
+		printf("id=%d\n", id);
+		
 		bitset<30> partition(n,0);
 		
 		auto rec_select_partition=[&](int ri, auto&& rec_select_partition){
@@ -81,6 +83,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];})
 			ranges::for_each(rg, [&](const RectLink& rl){
 					partition[rl.j]=1;
+					printf("partition[%d]=1\n", rl.j);
 					rec_select_partition(rl.j, rec_select_partition);
 			});
 
@@ -91,11 +94,15 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 		const int frame_min = min(rg);
 		const int next_min = min(rg | views::filter([&](int value){return value != frame_min;}));
 		
+		printf("frame_min=%d\n", frame_min);
+		printf("next_min=%d\n", next_min);
+		
 		auto rg = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
 		
 		for (int ri : rg)
 		{
 			partition[ri] = 1;
+			printf("partition[%d] = 1\n", ri);
 			rec_select_partition(ri, rec_select_partition);
 		}
 
@@ -110,6 +117,11 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 
 		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
 					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
+
+		for (const auto [id, ri, tr] : rg2)
+		{
+			printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+		}
 
 		ranges::copy(rg2, back_inserter(translation_ranges));
 	}
