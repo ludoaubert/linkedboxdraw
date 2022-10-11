@@ -144,3 +144,5 @@ int main(int argc, char* argv[])
 	
 	return 0;
 }
+
+//g++-12 -fmodules-ts -std=c++2b snap.cpp MyRect.cpp
