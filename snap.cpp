@@ -204,6 +204,10 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
                         return cost;}
                 );
         printf("id=%d\n", id);
+
+	rectangles = input_rectangles;
+	ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 }
 
 
