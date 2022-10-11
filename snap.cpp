@@ -1,72 +1,13 @@
-#include <vector>
-#include <algorithm>
-#include <ranges>
-#include <bitset>
-#include "MyRect.h"
-using namespace std;
 
 
-struct RectLink{
-	int i, j, TOP, BOTTOM;
-};
-
-
-struct TranslationRangeItem
-{
-	int id;
-	int ri;
-	MyPoint tr;
-
-	friend bool operator==(const TranslationRangeItem&, const TranslationRangeItem&) = default;
-};
-
-const vector<MyRect> input_rectangles = {
-	{m_left: 328, m_right: 530, m_top: 10, m_bottom: 154},
-	{m_left: 252, m_right: 474, m_top: 490, m_bottom: 601},
-	{m_left: 385, m_right: 530, m_top: 218, m_bottom: 330},
-	{m_left: 530, m_right: 696, m_top: 10, m_bottom: 202},
-	{m_left: 530, m_right: 696, m_top: 202, m_bottom: 330},
-	{m_left: 682, m_right: 869, m_top: 346, m_bottom: 506},
-	{m_left: 267, m_right: 447, m_top: 601, m_bottom: 761},
-	{m_left: 474, m_right: 682, m_top: 330, m_bottom: 506},
-	{m_left: 266, m_right: 474, m_top: 330, m_bottom: 490},
-	{m_left: 488, m_right: 675, m_top: 506, m_bottom: 650},
-	{m_left: 744, m_right: 917, m_top: 186, m_bottom: 346},
-	{m_left: 675, m_right: 862, m_top: 506, m_bottom: 714},
-	{m_left: 25, m_right: 205, m_top: 153, m_bottom: 281},
-	{m_left: 10, m_right: 205, m_top: 281, m_bottom: 441},
-	{m_left: 37, m_right: 252, m_top: 441, m_bottom: 617}
-} ;
-
-const vector<RectLink> rect_links={
-	{.i=0, .j=3, .TOP=10, .BOTTOM=154},
-	{.i=1, .j=7, .TOP=490, .BOTTOM=506},
-	{.i=1, .j=9, .TOP=506, .BOTTOM=601},
-	{.i=2, .j=4, .TOP=218, .BOTTOM=330},
-	{.i=3, .j=10, .TOP=186, .BOTTOM=202},
-	{.i=4, .j=10, .TOP=202, .BOTTOM=330},
-	{.i=6, .j=9, .TOP=601, .BOTTOM=650},
-	{.i=6, .j=11, .TOP=650, .BOTTOM=714},
-	{.i=7, .j=5, .TOP=346, .BOTTOM=506},
-	{.i=7, .j=10, .TOP=330, .BOTTOM=346},
-	{.i=8, .j=7, .TOP=330, .BOTTOM=490},
-	{.i=9, .j=11, .TOP=506, .BOTTOM=650},
-	{.i=12, .j=0, .TOP=153, .BOTTOM=154},
-	{.i=12, .j=2, .TOP=218, .BOTTOM=281},
-	{.i=12, .j=3, .TOP=154, .BOTTOM=202},
-	{.i=12, .j=4, .TOP=202, .BOTTOM=218},
-	{.i=13, .j=2, .TOP=281, .BOTTOM=330},
-	{.i=13, .j=8, .TOP=330, .BOTTOM=441},
-	{.i=14, .j=1, .TOP=490, .BOTTOM=601},
-	{.i=14, .j=6, .TOP=601, .BOTTOM=617},
-	{.i=14, .j=8, .TOP=441, .BOTTOM=490}
-};
 
 void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 	
 	vector<TranslationRangeItem> translation_ranges;
+
+	//vector<MyRect> rectangles = input_rectangles;
 
 	const int n = rectangles.size();
 
@@ -114,13 +55,4 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	}
 
 	return translation_ranges;
-}
-
-
-int main(int argc, char* argv[])
-{
-	vector<MyRect> rectangles = input_rectangles;
-	compact(EAST_WEST, rect_links, rectangles);
-	
-	return 0;
 }
