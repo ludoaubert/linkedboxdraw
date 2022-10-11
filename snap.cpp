@@ -16,9 +16,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 		bitset<30> partition(n,0);
 		
 		auto rec_select_partition=[&](int ri, auto&& rec_select_partition){
-			//TODO: avoid naming adj_list ?
-			span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
-			auto rg = adj_list | views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];})
+	
+			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i) 
+						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];})
 			ranges::for_each(rg, [&](const RectLink& rl){
 					partition[rl.j]=1;
 					rec_select_partition(rl.j, rec_select_partition);
