@@ -68,8 +68,6 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 	
 	vector<TranslationRangeItem> translation_ranges;
 
-	//vector<MyRect> rectangles = input_rectangles;
-
 	const int n = rectangles.size();
 
 	for (int id=0; ; id++)
@@ -119,7 +117,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, vec
 }
 
 
-int main(int argc, char* argv[]=
+int main(int argc, char* argv[])
 {
 	vector<MyRect> rectangles = input_rectangles;
 	compact(EAST_WEST, rect_links, rectangles);
