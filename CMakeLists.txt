@@ -17,7 +17,7 @@ add_executable(rect_union ${SOURCES})
 set (SOURCES holes2.cpp MyRect.cpp FunctionTimer.cpp)
 add_executable(holes2 ${SOURCES})
 
-set (SOURCES snap.cpp MyRect.h)
+set (SOURCES snap.cpp MyRect.cpp)
 add_executable(snap ${SOURCES})
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
