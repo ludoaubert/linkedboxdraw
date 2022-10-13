@@ -171,10 +171,10 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::copy(rg3, back_inserter(translation_ranges));
 	}
 
-        for (const auto [id, ri, tr] : translation_ranges)
-        {
-                printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
-        }
+	for (const auto [id, ri, tr] : translation_ranges)
+	{
+		printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+	}
 
 //TODO: use C++23 chunk_by()
 
@@ -203,7 +203,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			int cost = width + height + sigma_edge_distance + sigma_translation ;
                         return cost;}
                 );
-        printf("id=%d\n", id);
+	printf("id=%d\n", id);
 
 	rectangles = input_rectangles;
 	ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
