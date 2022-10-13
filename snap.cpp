@@ -212,91 +212,23 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
                 printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
         }
 
-	vector<TranslationRangeItem> translation_ranges;
-
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
 
-	for (int id=0; ; id++)
-	{
-		printf("id=%d\n", id);
-
-		bitset<30> partition;
-
-		auto rec_select_partition=[&](int ri, auto&& rec_select_partition)->void{
-
-			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i)
-						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];});
-
-			ranges::for_each(rg, [&](const RectLink& rl){
-					partition[rl.j]=1;
-					printf("partition[%d]=1\n", rl.j);
-					rec_select_partition(rl.j, rec_select_partition);
-			});
-		};
-
-		auto rg = rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];});
-		const int frame_min = ranges::min(rg);
-		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
-
-		printf("frame_min=%d\n", frame_min);
-		printf("next_min=%d\n", next_min);
-
-		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
-
-		for (int ri : rng)
-		{
-			partition[ri] = 1;
-			printf("partition[%d] = 1\n", ri);
-			rec_select_partition(ri, rec_select_partition);
-		}
-
-		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
-				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
-
-		if (ranges::empty(r))
-			break;
-
-		MyPoint tr={.x=0, .y=0};
-		tr[update_direction] = min<int>(ranges::min(r), next_min - frame_min);
-
-		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
-					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
-
-		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
-
-		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != rectangles_[i][minCompactRectDim];})
-						| views::transform([&](int i){MyPoint tr;
-										tr[update_direction] = rectangles[i][minCompactRectDim] - rectangles_[i][minCompactRectDim];
-										return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
-									});
-		for (const auto [id, ri, tr] : rg3)
-		{
-			printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
-		}
-
-		ranges::copy(rg3, back_inserter(translation_ranges));
-	}
-
-	for (const auto [id, ri, tr] : translation_ranges)
-	{
-		printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
-	}
-
 //TODO: use C++23 chunk_by()
 
-	const int nb = 1 + ranges::max(translation_ranges | views::transform(&TranslationRangeItem::id));
+	const int nb = 1 + ranges::max(rg | views::transform(&TranslationRangeItem::id));
 
 	id = ranges::min( views::iota(0,nb), {}, [&](int id){
 
 			vector<MyRect> rectangles = rectangles_;
-			ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+			ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 							[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
 
-			auto rg2 = ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id) |
+			auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
@@ -313,7 +245,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	printf("id=%d\n", id);
 
 	rectangles = rectangles_;
-	ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 }
 
