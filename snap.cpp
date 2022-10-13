@@ -183,8 +183,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	int id = ranges::min( views::iota(0,nb), {}, [&](int id){
 
 			vector<MyRect> rectangles = input_rectangles;
-                        ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
-                                        [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+			ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
+							[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
