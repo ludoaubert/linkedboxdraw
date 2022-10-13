@@ -114,8 +114,12 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		vector<MyRect> rectangles = rectangles_;
+		
+		const int id = prev.empty() ? 1 : prev[0].id+1;
 
 		vector<TranslationRangeItem> ts;
+		
+//TODO: views::set_union() and views::gzip_transform() and we wouldn't need to create so many variables.
 
 		ranges::set_union(
 			prev,
