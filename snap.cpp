@@ -106,19 +106,19 @@ const vector<RectLink> rect_links={
 void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-	
+
 	const vector<MyRect> rectangles_ = rectangles ;
-	
+
 	int n = rectangles.size();
-	
+
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		vector<MyRect> rectangles = rectangles_;
-		
+
 		const int id = prev.empty() ? 1 : prev[0].id+1;
 
 		vector<TranslationRangeItem> ts;
-		
+
 //TODO: views::set_union() and views::gzip_transform() and we wouldn't need to create so many variables.
 
 		ranges::set_union(
@@ -202,6 +202,12 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	auto rg = vv | views::join;
 
+        printf("rg = vv | views::join\n");
+
+        for (const auto [id, ri, tr] : rg)
+        {
+                printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+        }
 
 	vector<TranslationRangeItem> translation_ranges;
 
