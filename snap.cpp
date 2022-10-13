@@ -111,11 +111,14 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	int n = rectangles.size();
 
+        vector<vector<TranslationRangeItem> > vv(10);
+	int id=0;
+
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		vector<MyRect> rectangles = rectangles_;
 
-		const int id = prev.empty() ? 1 : prev[0].id+1;
+	        id++;
 
 		vector<TranslationRangeItem> ts;
 
@@ -194,7 +197,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 //10: just had to choose a number. Should not be needed with C++23 partial_fold()
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
-	vector<vector<TranslationRangeItem> > vv(10);
+
 	partial_sum(vv.begin(), vv.end(), vv.begin(),
 				[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
 					return next(prev);}
@@ -284,7 +287,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	const int nb = 1 + ranges::max(translation_ranges | views::transform(&TranslationRangeItem::id));
 
-	int id = ranges::min( views::iota(0,nb), {}, [&](int id){
+	id = ranges::min( views::iota(0,nb), {}, [&](int id){
 
 			vector<MyRect> rectangles = rectangles_;
 			ranges::for_each(ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
