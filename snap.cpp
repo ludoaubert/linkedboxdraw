@@ -111,6 +111,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	const int n = rectangles.size();
 	
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
+// Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
 
 	for (int id=0; ; id++)
 	{
