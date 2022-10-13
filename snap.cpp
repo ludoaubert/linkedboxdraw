@@ -109,6 +109,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	vector<TranslationRangeItem> translation_ranges;
 
 	const int n = rectangles.size();
+	
+//TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
 
 	for (int id=0; ; id++)
 	{
