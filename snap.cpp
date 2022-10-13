@@ -129,9 +129,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			&TranslationRangeItem::ri,
 			&TranslationRangeItem::ri);
 
-		auto rg = views::iota(0,n) | views::transform([&](int i){return rectangles_[i]+ts[i].tr;});
-		ranges::copy(rg, begin(rectangles));
-			
+		auto rects = views::iota(0,n) | views::transform([&](int i){return rectangles_[i]+ts[i].tr;});
+		ranges::copy(rects, begin(rectangles));
+
 		bitset<30> partition;
 
 		auto rec_select_partition=[&](int ri, auto&& rec_select_partition)->void{
@@ -191,23 +191,20 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::copy(rg3, back_inserter(translation_ranges));
 		return translation_ranges;
 	};
-	
+
 //10: just had to choose a number. Should not be needed with C++23 partial_fold()
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
 	vector<vector<TranslationRangeItem> > vv(10);
-	partial_sum(vv.begin(), vv.end(), vv.begin(), 
+	partial_sum(vv.begin(), vv.end(), vv.begin(),
 				[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
 					return next(prev);}
 				);
-					
+
 	auto rg = vv | views::join;
-					
-	
+
 
 	vector<TranslationRangeItem> translation_ranges;
 
-	const int n = rectangles.size();
-	
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
 
