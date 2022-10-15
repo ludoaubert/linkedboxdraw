@@ -1582,7 +1582,7 @@ void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
 }
 
 
-void apply_job(const Job& job, vector<MyRect>& rectangles)
+void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
 {
 	const auto& [algo, update_direction] = job;
 
@@ -1594,7 +1594,7 @@ void apply_job(const Job& job, vector<MyRect>& rectangles)
 		spread(update_direction, rect_links, rectangles);
 		break;
 	case COMPACT:
-		compact(update_direction, rect_links, rectangles);
+		compact(update_direction, rect_links, logical_edges, rectangles);
 		break;
 	}
 }
@@ -1677,7 +1677,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 		for (const Job& job : pipelines[pipeline])
-			apply_job(job, rectangles);
+			apply_job(job, logical_edges, rectangles);
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 
@@ -1906,7 +1906,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
 		for (const Job& job : pipelines2[pipeline])
-			apply_job(job, rectangles2);
+			apply_job(job, logical_edges, rectangles2);
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
 	};
@@ -2235,7 +2235,7 @@ void test_fit()
 		vector<MyRect> rectangles = input_rectangles;
 		int dm1 = dim_max(compute_frame(input_rectangles));
 		for (const Job& job : pipeline)
-			apply_job(job, rectangles);
+			apply_job(job, logical_edges, rectangles);
 
 		int n=rectangles.size();
 		auto rg = views::iota(0, n) |
