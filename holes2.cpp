@@ -7,6 +7,7 @@
 #include <ranges>
 #include <span>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <cstring>
 //#include <fmt/ranges.h>
 //#include <format>
@@ -2624,6 +2625,35 @@ int main(int argc, char* argv[])
 
 		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
 	}
+
+	if (argc==3 && strcmp(argv[1], "--dt")==0 && strcmp(argv[2], "--skip")==0)
+        {
+                vector<DecisionTreeNode> decision_tree ;
+
+                if(FILE* f = fopen("decision_tree.dat", "rb")) {
+    			struct stat stat_buf;
+			int rc = stat("decision_tree.dat", &stat_buf);
+			int n = stat_buf.st_size / sizeof(DecisionTreeNode);
+			decision_tree.resize(n);
+			size_t ret_code = fread(&decision_tree[0], sizeof (DecisionTreeNode), n, f);
+                        fclose(f);
+                }
+
+                vector<TranslationRangeItem> translation_ranges ;
+
+                if(FILE* f = fopen("translation_ranges.dat", "rb")) {
+                        struct stat stat_buf;
+                        int rc = stat("translation_ranges.dat", &stat_buf);
+                        int n = stat_buf.st_size / sizeof(TranslationRangeItem);
+                        translation_ranges.resize(n);
+                        size_t ret_code = fread(&translation_ranges[0], sizeof (TranslationRangeItem), n, f);
+                        fclose(f);
+                }
+
+                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
+
+                vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
+        }
 
 	if (argc == 1)
 	{
