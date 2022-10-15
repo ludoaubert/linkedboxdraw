@@ -1239,7 +1239,154 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 }
 
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
+{
+	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+
+	const vector<MyRect> rectangles_ = rectangles ;
+
+	int n = rectangles.size();
+
+        vector<vector<TranslationRangeItem> > vv(10);
+	int id=0;
+
+	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
+	{
+		vector<MyRect> rectangles = rectangles_;
+
+	        id++;
+
+		vector<TranslationRangeItem> ts;
+
+//TODO: views::set_union() and views::gzip_transform() and we wouldn't need to create so many variables.
+
+		ranges::set_union(
+			prev,
+			views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
+			back_inserter(ts),
+			{},
+			&TranslationRangeItem::ri,
+			&TranslationRangeItem::ri);
+
+		auto rects = views::iota(0,n) | views::transform([&](int i){return rectangles_[i]+ts[i].tr;});
+		ranges::copy(rects, begin(rectangles));
+
+		bitset<30> partition;
+
+		auto rec_select_partition=[&](int ri, auto&& rec_select_partition)->void{
+
+			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i)
+						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];});
+
+			ranges::for_each(rg, [&](const RectLink& rl){
+					partition[rl.j]=1;
+					printf("partition[%d]=1\n", rl.j);
+					rec_select_partition(rl.j, rec_select_partition);
+			});
+		};
+
+		auto rg = rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];});
+		const int frame_min = ranges::min(rg);
+		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
+
+		printf("frame_min=%d\n", frame_min);
+		printf("next_min=%d\n", next_min);
+
+		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
+
+		for (int ri : rng)
+		{
+			partition[ri] = 1;
+			printf("partition[%d] = 1\n", ri);
+			rec_select_partition(ri, rec_select_partition);
+		}
+
+		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
+				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
+
+		vector<TranslationRangeItem> translation_ranges;
+
+		if (ranges::empty(r))
+			return translation_ranges;
+
+		MyPoint tr={.x=0, .y=0};
+		tr[update_direction] = min<int>(ranges::min(r), next_min - frame_min);
+
+		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
+					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
+
+		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+
+		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != rectangles_[i][minCompactRectDim];})
+						| views::transform([&](int i){MyPoint tr;
+										tr[update_direction] = rectangles[i][minCompactRectDim] - rectangles_[i][minCompactRectDim];
+										return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
+									});
+		for (const auto [id, ri, tr] : rg3)
+		{
+			printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+		}
+
+		ranges::copy(rg3, back_inserter(translation_ranges));
+		return translation_ranges;
+	};
+
+//10: just had to choose a number. Should not be needed with C++23 partial_fold()
+// Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
+
+	partial_sum(vv.begin(), vv.end(), vv.begin(),
+				[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
+					return next(prev);}
+				);
+
+	auto rg = vv | views::join;
+
+	printf("rg = vv | views::join\n");
+
+	for (const auto [id, ri, tr] : rg)
+	{
+		printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+	}
+
+//TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
+// Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
+
+//TODO: use C++23 chunk_by()
+
+	const int nb = 1 + ranges::max(rg | views::transform(&TranslationRangeItem::id));
+
+	id = ranges::min( views::iota(0,nb), {}, [&](int id){
+
+			vector<MyRect> rectangles = rectangles_;
+			ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
+							[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+
+			auto rg1 = logical_edges |
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+
+			auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
+				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
+
+			printf("sigma_edge_distance = %d\n", sigma_edge_distance);
+			printf("sigma_translation = %d\n", sigma_translation);
+			printf("[.width=%d, .height=%d]\n", width, height);
+
+			int cost = width + height + sigma_edge_distance + sigma_translation ;
+			return cost;}
+                );
+	printf("id=%d\n", id);
+
+	rectangles = rectangles_;
+	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
+			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+}
+
+
+void compact_(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
 {
 //TODO: use chunk_by C++23
 	const int N=30;
