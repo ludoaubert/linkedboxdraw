@@ -1349,6 +1349,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		D(printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y));
 	}
 
+	if (ranges::empty(rg))
+		return ;
+
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
 
