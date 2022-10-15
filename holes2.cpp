@@ -2608,10 +2608,20 @@ int main(int argc, char* argv[])
 
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
 
+		if(FILE* f = fopen("decision_tree.dat", "wb")) {
+			fwrite(&decision_tree[0], sizeof decision_tree[0], decision_tree.size(), f);
+			fclose(f);
+		}
+
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
 
+		if(FILE* f = fopen("translation_ranges.dat", "wb")) {
+			fwrite(&translation_ranges[0], sizeof translation_ranges[0], translation_ranges.size(), f);
+			fclose(f);
+		}
+
 		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
-		
+
 		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
 	}
 
