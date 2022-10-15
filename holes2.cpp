@@ -1247,14 +1247,14 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	int n = rectangles.size();
 
-        vector<vector<TranslationRangeItem> > vv(10);
+	vector<vector<TranslationRangeItem> > vv(10);
 	int id=0;
 
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		vector<MyRect> rectangles = rectangles_;
-
-	        id++;
+		
+		id++;
 
 		vector<TranslationRangeItem> ts;
 
@@ -1280,7 +1280,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 			ranges::for_each(rg, [&](const RectLink& rl){
 					partition[rl.j]=1;
-					printf("partition[%d]=1\n", rl.j);
+					D(printf("partition[%d]=1\n", rl.j));
 					rec_select_partition(rl.j, rec_select_partition);
 			});
 		};
@@ -1289,15 +1289,15 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		const int frame_min = ranges::min(rg);
 		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
 
-		printf("frame_min=%d\n", frame_min);
-		printf("next_min=%d\n", next_min);
+		D(printf("frame_min=%d\n", frame_min));
+		D(printf("next_min=%d\n", next_min));
 
 		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
 
 		for (int ri : rng)
 		{
 			partition[ri] = 1;
-			printf("partition[%d] = 1\n", ri);
+			D(printf("partition[%d] = 1\n", ri));
 			rec_select_partition(ri, rec_select_partition);
 		}
 
@@ -1324,7 +1324,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 									});
 		for (const auto [id, ri, tr] : rg3)
 		{
-			printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+			D(printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y));
 		}
 
 		ranges::copy(rg3, back_inserter(translation_ranges));
@@ -1341,11 +1341,11 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	auto rg = vv | views::join;
 
-	printf("rg = vv | views::join\n");
+	D(printf("rg = vv | views::join\n"));
 
 	for (const auto [id, ri, tr] : rg)
 	{
-		printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+		D(printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y));
 	}
 
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
@@ -1371,112 +1371,18 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
-			printf("sigma_edge_distance = %d\n", sigma_edge_distance);
-			printf("sigma_translation = %d\n", sigma_translation);
-			printf("[.width=%d, .height=%d]\n", width, height);
+			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
+			D(printf("sigma_translation = %d\n", sigma_translation));
+			D(printf("[.width=%d, .height=%d]\n", width, height));
 
 			int cost = width + height + sigma_edge_distance + sigma_translation ;
 			return cost;}
                 );
-	printf("id=%d\n", id);
+	D(printf("id=%d\n", id));
 
 	rectangles = rectangles_;
 	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
-}
-
-
-void compact_(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
-{
-//TODO: use chunk_by C++23
-	const int N=30;
-	int n = rectangles.size();
-
-	MyPoint translations[N];
-
-	ranges::fill(translations, MyPoint{0,0});
-
-	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-
-	int compact_dimension=0;
-	int tr;
-
-	MyRect frame={
-		.m_left=ranges::min(rectangles | views::transform(&MyRect::m_left)),
-		.m_right=ranges::max(rectangles | views::transform(&MyRect::m_right)),
-		.m_top=ranges::min(rectangles | views::transform(&MyRect::m_top)),
-		.m_bottom=ranges::max(rectangles | views::transform(&MyRect::m_bottom))
-	};
-
-	vector<RectLink> index = rect_links;
-	ranges::sort(index, {}, &RectLink::j);
-	vector<int> root_nodes;
-	ranges::set_difference(views::iota(0,n),
-				index | views::transform(&RectLink::j),
-				back_inserter(root_nodes)
-				);
-
-{
-	FunctionTimer ft("cft_query_compact_dim");
-	auto rec_query_compact_dimension=[&](int ri, auto&& rec_query_compact_dimension)->int{
-		span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
-		if (adj_list.empty())
-		{
-			return dimensions(rectangles[ri])[update_direction];
-		}
-		int tr = ranges::max(adj_list | views::transform([&](const RectLink& e){return rec_query_compact_dimension(e.j, rec_query_compact_dimension);}));
-		return tr + dimensions(rectangles[ri])[update_direction];
-	};
-
-	auto query_compact_dimension=[&]()->int{
-		return ranges::max(root_nodes |
-				views::transform([&](int j){return rec_query_compact_dimension(j, rec_query_compact_dimension);})
-		);
-	};
-
-	compact_dimension = query_compact_dimension();
-	tr = dimensions(frame)[update_direction] - compact_dimension;
-	D(printf("compact_dimension=%d tr=%d\n", compact_dimension, tr));
-}
-{
-	FunctionTimer ft("cft_push");
-	auto rec_push=[&](int ri, int tri, auto&& rec_push)->void{
-		span adj = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
-		translations[ri][update_direction] = tri;
-		for (const RectLink& e : adj)
-		{
-			int trj = tri - (rectangles[e.j][minCompactRectDim] - rectangles[ri][maxCompactRectDim]);
-			if (trj > 0)
-				rec_push(e.j, trj, rec_push);
-		}
-	};
-
-	auto push=[&](int tr){
-		for (int j : root_nodes)
-		{
-			int trj = tr - (rectangles[j][minCompactRectDim] - frame[minCompactRectDim]);
-			if (trj > 0)
-				rec_push(j, trj, rec_push);
-		}
-	};
-	push(tr);
-}
-{
-#ifdef _TRACE_
-	D(printf("translations={"));
-	for (int ri=0; ri < n; ri++)
-	{
-		int tr = translations[ri][update_direction];
-		if (tr != 0)
-			D(printf("{ri=%d, tr=%d},",ri, tr));
-	}
-	D(printf("}\n"));
-#endif
-	for (int ri=0; ri < n; ri++)
-	{
-		rectangles[ri] += translations[ri];
-	}
-}
 }
 
 
