@@ -1254,7 +1254,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		vector<MyRect> rectangles = rectangles_;
-		
+
 		id++;
 
 		vector<TranslationRangeItem> ts;
@@ -1586,8 +1586,12 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
-		for (const Job& job : pipelines[pipeline])
-			apply_job(job, logical_edges, rectangles);
+		for (const auto& [algo, update_direction] : pipelines[pipeline])
+		{
+			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			assert(algo == SPREAD);
+			spread(update_direction, rect_links, rectangles);
+		}
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 
@@ -1756,17 +1760,50 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	return translation_ranges;
 }
 
+struct JobMirror
+{
+	Job job;
+	Mirror mirror;
+};
 
 const unsigned NR_JOB_PIPELINES2=2;
 
-const Job pipelines2[NR_JOB_PIPELINES2][2]={
+const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 	{
-		{.algo=COMPACT, .update_direction=EAST_WEST},
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH}
+		{
+			.job={.algo=COMPACT, .update_direction=EAST_WEST},
+			.mirror={.mirroring_state=IDLE, .mirroring_direction=EAST_WEST}
+		},
+                {
+                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
+                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
+                },
+		{
+			.job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+			.mirror={.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+		},
+                {
+                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+                }
 	},
 	{
-		{.algo=COMPACT, .update_direction=NORTH_SOUTH},
-		{.algo=COMPACT, .update_direction=EAST_WEST}
+                {
+                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+                        .mirror={.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+                },
+                {
+                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+                },
+                {
+                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
+                        .mirror={.mirroring_state=IDLE, .mirroring_direction=EAST_WEST}
+                },
+                {
+                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
+                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
+                }
 	}
 };
 
@@ -1815,8 +1852,12 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
-		for (const Job& job : pipelines2[pipeline])
-			apply_job(job, logical_edges, rectangles2);
+		for (const auto& [algo, update_direction] : pipelines2[pipeline])
+		{
+			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			assert(algo == COMPACT);
+			compact(update_direction, rect_links, logical_edges, rectangles);
+		}
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles2);
 	};
