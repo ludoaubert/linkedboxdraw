@@ -1303,14 +1303,16 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		}
 
 //TODO : use views::chunk_by() C++23
+/*
 		auto rng2 = views::iota(0,n) | views::filter([&](int ri){return partition[ri]==0;})
 									| views::filter([&](int ri){
 											auto rg = ranges::equal_range(logical_edges, ri, {}, &LogicalEdge::from) |
 														views::transform([&](const LogicalEdge& e){return partition[e.to];}) ;
 											return ranges::count(rg, 0)==0 && ranges::count(rg, 1) > 0; });
+
 		for (int ri : rng2)
 			partition[ri]=1;
-
+*/
 		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
 				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
