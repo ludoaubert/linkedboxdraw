@@ -17,7 +17,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -1786,7 +1786,7 @@ struct JobMirror
 	Mirror mirror;
 };
 
-const unsigned NR_JOB_PIPELINES2=2;
+const int NR_JOB_PIPELINES2=2;
 
 const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 	{
@@ -1877,7 +1877,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 		auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
 		ranges::copy(rg, begin(rectangles));
 
-		const auto pipeline = ranges::min(views::iota(0,2/*NR_JOB_PIPELINES2*/), {}, [&](int pipeline){
+		const auto pipeline = ranges::min(views::iota(0,NR_JOB_PIPELINES2), {}, [&](int pipeline){
 			D(printf("pipeline=%u\n", pipeline));
 
 			tf(pipeline);
