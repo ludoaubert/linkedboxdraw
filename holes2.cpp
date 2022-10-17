@@ -1394,7 +1394,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			D(printf("[.width=%d, .height=%d]\n", width, height));
 			D(printf("sigma_edge_overlap = %d\n", sigma_edge_overlap));
 
-			int cost = width + height + sigma_edge_distance /*+ sigma_translation*/ - sigma_edge_overlap;
+			int cost = width + height + width*height + sigma_edge_distance + sigma_translation - sigma_edge_overlap;
 
 			D(printf("cost = %d\n", cost));
 
