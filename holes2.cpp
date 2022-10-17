@@ -1301,12 +1301,12 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			D(printf("partition[%d] = 1\n", ri));
 			rec_select_partition(ri, rec_select_partition);
 		}
-		
+
 //TODO : use views::chunk_by() C++23
 		auto rng2 = views::iota(0,n) | views::filter([&](int ri){return partition[ri]==0;})
 									| views::filter([&](int ri){
-											auto rg = ranges::equal_range(logical_edges, ri, {}, &LogicalEdge::i) | 
-														views::transform([&](const LogicalEdge& e){return partition[e.j];}) ;
+											auto rg = ranges::equal_range(logical_edges, ri, {}, &LogicalEdge::from) |
+														views::transform([&](const LogicalEdge& e){return partition[e.to];}) ;
 											return ranges::count(rg, 0)==0 && ranges::count(rg, 1) > 0; });
 		for (int ri : rng2)
 			partition[ri]=1;
@@ -1375,20 +1375,29 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 							[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
 			auto rg1 = logical_edges |
-				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+				views::transform([&](const LogicalEdge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
 
 			auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
+			auto rg3 = logical_edges |
+				views::transform([&](const LogicalEdge& le){	return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
+
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles));
+			const int sigma_edge_overlap = accumulate(ranges::begin(rg3), ranges::end(rg3),0);
 
+			D(printf("id = %d\n", id));
 			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
 			D(printf("sigma_translation = %d\n", sigma_translation));
 			D(printf("[.width=%d, .height=%d]\n", width, height));
+			D(printf("sigma_edge_overlap = %d\n", sigma_edge_overlap));
 
-			int cost = width + height + sigma_edge_distance + sigma_translation ;
+			int cost = width + height + sigma_edge_distance + sigma_translation - sigma_edge_overlap;
+
+			D(printf("cost = %d\n", cost));
+
 			return cost;}
                 );
 	D(printf("id=%d\n", id));
