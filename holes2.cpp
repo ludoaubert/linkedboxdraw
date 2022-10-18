@@ -1828,7 +1828,7 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 };
 
 
-
+//./holes2 --dt --skip | awk '/begin cmpt_tr2 id=4 /,/end cmpt_tr2 id=4 /'
 //TODO: use views::chunk_by() C++23
 
 vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
@@ -1862,6 +1862,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
+		D(printf("begin cmpt_tr2 id=%d \n", id));
 		ranges::copy(input_rectangles, begin(rectangles));
 
 		vector<TranslationRangeItem> ts;
@@ -1922,6 +1923,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 		{
 			translation_ranges2.push_back(item);
 		}
+
+                D(printf("end cmpt_tr2 id=%d \n", id));
 	}
 
 {
@@ -2638,6 +2641,8 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 	return scores;
 }
 
+
+// ./holes2 --dt --skip | awk '/begin cmpt_tr2 id=4 /,/end cmpt_tr2 id=4 /'
 
 int main(int argc, char* argv[])
 {
