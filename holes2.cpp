@@ -8,12 +8,14 @@
 #include <span>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <filesystem>
 #include <cstring>
 //#include <fmt/ranges.h>
 //#include <format>
 #include "FunctionTimer.h"
 #include "MyRect.h"
 using namespace std;
+namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
@@ -232,6 +234,62 @@ const vector<TestInput> test_input={
 		{.from=13,.to=12},
 		{.from=13,.to=14},
 		{.from=14,.to=13}
+	}
+},
+{
+	.testid=1,
+	.input_rectangles = {
+		{.m_left=0+977, .m_right=119+977, .m_top=0+426, .m_bottom=152+426},//0
+		{.m_left=0+977, .m_right=119+977, .m_top=0+250, .m_bottom=136+250},//1
+		{.m_left=0+818, .m_right=119+818, .m_top=0+266, .m_bottom=168+266},//2
+		{.m_left=0+942, .m_right=154+942, .m_top=0+10, .m_bottom=200+10},//3
+		{.m_left=0+176, .m_right=154+176, .m_top=0+74, .m_bottom=200+74},//4
+		{.m_left=0+624, .m_right=126+624, .m_top=0+26, .m_bottom=200+26},//6
+		{.m_left=0+479, .m_right=154+479, .m_top=0+378, .m_bottom=200+378},//12
+		{.m_left=0+388, .m_right=154+388, .m_top=0+10, .m_bottom=88+10},//13
+		{.m_left=0+176, .m_right=154+176, .m_top=0+314, .m_bottom=200+314},//14
+		{.m_left=0+388, .m_right=196+388, .m_top=0+138, .m_bottom=200+138},//15
+		{.m_left=0+10, .m_right=126+10, .m_top=0+266, .m_bottom=120+266},//19
+		{.m_left=0+10, .m_right=126+10, .m_top=0+154, .m_bottom=72+154},//20
+		{.m_left=0+10, .m_right=126+10, .m_top=0+426, .m_bottom=72+426},//21
+		{.m_left=0+673, .m_right=105+673, .m_top=0+266, .m_bottom=200+266},//26
+		{.m_left=0+369, .m_right=70+369, .m_top=0+378, .m_bottom=88+378}//30
+	},
+	.logical_edges = {
+		{.from=0, .to=2},
+		{.from=1, .to=2},
+		{.from=2, .to=0},
+		{.from=2, .to=1},
+		{.from=2, .to=3},
+		{.from=2, .to=9},
+		{.from=3, .to=2},
+		{.from=4, .to=5},
+		{.from=4, .to=6},
+		{.from=4, .to=9},
+		{.from=4, .to=11},
+		{.from=5, .to=4},
+		{.from=6, .to=4},
+		{.from=6, .to=8},
+		{.from=7, .to=9},
+		{.from=8, .to=6},
+		{.from=8, .to=9},
+		{.from=8, .to=12},
+		{.from=9, .to=2},
+		{.from=9, .to=4},
+		{.from=9, .to=7},
+		{.from=9, .to=8},
+		{.from=9, .to=10},
+		{.from=9, .to=13},
+		{.from=9, .to=14},
+		{.from=10, .to=9},
+		{.from=10, .to=11},
+		{.from=10, .to=12},
+		{.from=11, .to=4},
+		{.from=11, .to=10},
+		{.from=12, .to=8},
+		{.from=12, .to=10},
+		{.from=13, .to=9},
+		{.from=14, .to=9}
 	}
 }};
 
@@ -2625,6 +2683,7 @@ int main(int argc, char* argv[])
 {
 for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 {
+	char file_name[50];
 
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
 	{
@@ -2632,30 +2691,51 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
 
-		if(FILE* f = fopen("decision_tree.dat", "wb")) {
+		sprintf(file_name, "logical_graph%d.json", testid);
+		fs::copy("logical_graph.json", file_name, fs::copy_options::update_existing);
+		sprintf(file_name, "holes%d.json", testid);
+		fs::copy("holes.json", file_name, fs::copy_options::update_existing);
+		sprintf(file_name, "decision_tree%d.json", testid);
+		fs::copy("decision_tree.json", file_name, fs::copy_options::update_existing);
+
+		sprintf(file_name, "decision_tree%d.dat", testid);
+		if(FILE* f = fopen(file_name, "wb")) {
 			fwrite(&decision_tree[0], sizeof decision_tree[0], decision_tree.size(), f);
 			fclose(f);
 		}
 
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges);
 
-		if(FILE* f = fopen("translation_ranges.dat", "wb")) {
+                sprintf(file_name, "translation_ranges_%d.json", testid);
+		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
+                sprintf(file_name, "rectangle_hole_ranges%d.json", testid);
+		fs::copy("rectangle_hole_ranges.json", file_name, fs::copy_options::update_existing);
+
+		sprintf(file_name, "translation_ranges%d.dat", testid);
+		if(FILE* f = fopen(file_name, "wb")) {
 			fwrite(&translation_ranges[0], sizeof translation_ranges[0], translation_ranges.size(), f);
 			fclose(f);
 		}
 
 		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
 
+                sprintf(file_name, "translation_ranges2_%d.json", testid);
+                fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
+
 		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
+
+                sprintf(file_name, "scores%d.json", testid);
+		fs::copy("scores.json", file_name, fs::copy_options::update_existing);
 	}
 
 	if (argc==3 && strcmp(argv[1], "--dt")==0 && strcmp(argv[2], "--skip")==0)
         {
                 vector<DecisionTreeNode> decision_tree ;
 
-                if(FILE* f = fopen("decision_tree.dat", "rb")) {
+                sprintf(file_name, "decision_tree%d.dat", testid);
+                if(FILE* f = fopen(file_name, "rb")) {
     			struct stat stat_buf;
-			int rc = stat("decision_tree.dat", &stat_buf);
+			int rc = stat(file_name, &stat_buf);
 			int n = stat_buf.st_size / sizeof(DecisionTreeNode);
 			decision_tree.resize(n);
 			size_t ret_code = fread(&decision_tree[0], sizeof (DecisionTreeNode), n, f);
@@ -2664,9 +2744,10 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
                 vector<TranslationRangeItem> translation_ranges ;
 
-                if(FILE* f = fopen("translation_ranges.dat", "rb")) {
+                sprintf(file_name, "translation_ranges%d.dat", testid);
+                if(FILE* f = fopen(file_name, "rb")) {
                         struct stat stat_buf;
-                        int rc = stat("translation_ranges.dat", &stat_buf);
+                        int rc = stat(file_name, &stat_buf);
                         int n = stat_buf.st_size / sizeof(TranslationRangeItem);
                         translation_ranges.resize(n);
                         size_t ret_code = fread(&translation_ranges[0], sizeof (TranslationRangeItem), n, f);
