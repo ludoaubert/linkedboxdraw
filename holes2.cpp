@@ -17,7 +17,7 @@ using namespace std;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -125,6 +125,7 @@ struct SweepLineItem
 		  |
 		  V
 		sweep
+
 		  |
 		  |
 		  |
@@ -222,7 +223,7 @@ const vector<LogicalEdge> logical_edges = {
 	{.from=14,.to=13}
 };
 
-
+/*
 const vector<MyRect> emplacements={
 	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
 	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
@@ -268,7 +269,7 @@ const vector<MyRect> emplacements={
 	{.m_left=774, .m_right=947, .m_top=20, .m_bottom=193},
 	{.m_left=774, .m_right=947, .m_top=23, .m_bottom=196}
 };
-
+*/
 
 struct TranslationRangesTestContext
 {
@@ -1554,9 +1555,15 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-								const vector<MyRect>& input_emplacements,
 								const vector<MyRect>& input_rectangles)
 {
+	vector<MyRect> input_emplacements;
+	vector<RectHole> holes = compute_holes(input_rectangles);
+	for (const MyRect &r : input_rectangles)
+		input_emplacements.push_back(r);
+	for (const RectHole &rh : holes)
+		input_emplacements.push_back(rh.rec);
+
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
 	vector<ProcessSelector> selectors(decision_tree.size());
@@ -2207,7 +2214,6 @@ void test_translations()
 	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
 	{
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree,
-                	                                                			emplacements,
                         	                                        			input_rectangles);
 		bool bOK = translation_ranges == expected_translation_ranges;
 		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
@@ -2657,7 +2663,7 @@ int main(int argc, char* argv[])
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, emplacements, input_rectangles);
+		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles);
 
 		if(FILE* f = fopen("translation_ranges.dat", "wb")) {
 			fwrite(&translation_ranges[0], sizeof translation_ranges[0], translation_ranges.size(), f);
