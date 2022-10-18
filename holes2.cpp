@@ -239,21 +239,21 @@ const vector<TestInput> test_input={
 {
 	.testid=1,
 	.input_rectangles = {
-		{.m_left=0+977, .m_right=119+977, .m_top=0+426, .m_bottom=152+426},//0
-		{.m_left=0+977, .m_right=119+977, .m_top=0+250, .m_bottom=136+250},//1
-		{.m_left=0+818, .m_right=119+818, .m_top=0+266, .m_bottom=168+266},//2
-		{.m_left=0+942, .m_right=154+942, .m_top=0+10, .m_bottom=200+10},//3
-		{.m_left=0+176, .m_right=154+176, .m_top=0+74, .m_bottom=200+74},//4
-		{.m_left=0+624, .m_right=126+624, .m_top=0+26, .m_bottom=200+26},//6
-		{.m_left=0+479, .m_right=154+479, .m_top=0+378, .m_bottom=200+378},//12
-		{.m_left=0+388, .m_right=154+388, .m_top=0+10, .m_bottom=88+10},//13
-		{.m_left=0+176, .m_right=154+176, .m_top=0+314, .m_bottom=200+314},//14
-		{.m_left=0+388, .m_right=196+388, .m_top=0+138, .m_bottom=200+138},//15
-		{.m_left=0+10, .m_right=126+10, .m_top=0+266, .m_bottom=120+266},//19
-		{.m_left=0+10, .m_right=126+10, .m_top=0+154, .m_bottom=72+154},//20
-		{.m_left=0+10, .m_right=126+10, .m_top=0+426, .m_bottom=72+426},//21
-		{.m_left=0+673, .m_right=105+673, .m_top=0+266, .m_bottom=200+266},//26
-		{.m_left=0+369, .m_right=70+369, .m_top=0+378, .m_bottom=88+378}//30
+		{.m_left=0+977-RECT_BORDER, .m_right=119+977+RECT_BORDER, .m_top=0+426-RECT_BORDER, .m_bottom=152+426+RECT_BORDER},//0
+		{.m_left=0+977-RECT_BORDER, .m_right=119+977+RECT_BORDER, .m_top=0+250-RECT_BORDER, .m_bottom=136+250+RECT_BORDER},//1
+		{.m_left=0+818-RECT_BORDER, .m_right=119+818+RECT_BORDER, .m_top=0+266-RECT_BORDER, .m_bottom=168+266+RECT_BORDER},//2
+		{.m_left=0+942-RECT_BORDER, .m_right=154+942+RECT_BORDER, .m_top=0+10-RECT_BORDER, .m_bottom=200+10+RECT_BORDER},//3
+		{.m_left=0+176-RECT_BORDER, .m_right=154+176+RECT_BORDER, .m_top=0+74-RECT_BORDER, .m_bottom=200+74+RECT_BORDER},//4
+		{.m_left=0+624-RECT_BORDER, .m_right=126+624+RECT_BORDER, .m_top=0+26-RECT_BORDER, .m_bottom=200+26+RECT_BORDER},//6
+		{.m_left=0+479-RECT_BORDER, .m_right=154+479+RECT_BORDER, .m_top=0+378-RECT_BORDER, .m_bottom=200+378+RECT_BORDER},//12
+		{.m_left=0+388-RECT_BORDER, .m_right=154+388+RECT_BORDER, .m_top=0+10-RECT_BORDER, .m_bottom=88+10+RECT_BORDER},//13
+		{.m_left=0+176-RECT_BORDER, .m_right=154+176+RECT_BORDER, .m_top=0+314-RECT_BORDER, .m_bottom=200+314+RECT_BORDER},//14
+		{.m_left=0+388-RECT_BORDER, .m_right=196+388+RECT_BORDER, .m_top=0+138-RECT_BORDER, .m_bottom=200+138+RECT_BORDER},//15
+		{.m_left=0+10-RECT_BORDER, .m_right=126+10+RECT_BORDER, .m_top=0+266-RECT_BORDER, .m_bottom=120+266+RECT_BORDER},//19
+		{.m_left=0+10-RECT_BORDER, .m_right=126+10+RECT_BORDER, .m_top=0+154-RECT_BORDER, .m_bottom=72+154+RECT_BORDER},//20
+		{.m_left=0+10-RECT_BORDER, .m_right=126+10+RECT_BORDER, .m_top=0+426-RECT_BORDER, .m_bottom=72+426+RECT_BORDER},//21
+		{.m_left=0+673-RECT_BORDER, .m_right=105+673+RECT_BORDER, .m_top=0+266-RECT_BORDER, .m_bottom=200+266+RECT_BORDER},//26
+		{.m_left=0+369-RECT_BORDER, .m_right=70+369+RECT_BORDER, .m_top=0+378-RECT_BORDER, .m_bottom=88+378+RECT_BORDER}//30
 	},
 	.logical_edges = {
 		{.from=0, .to=2},
@@ -2386,7 +2386,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	vector<DecisionTreeNode> decision_tree;
 
-	const unsigned BITSET_MAX_SIZE=128;
+	const unsigned BITSET_MAX_SIZE=1024;
 
 //TODO: use C++23 deducing this.
 
