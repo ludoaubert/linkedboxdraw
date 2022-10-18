@@ -173,55 +173,67 @@ struct Score{
 };
 
 
-const vector<MyRect> input_rectangles = {
-	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
-	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
-	{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
-	{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
-	{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
-	{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
-	{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
-	{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
-	{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
-	{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
-	{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
-	{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
-	{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
-	{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
-	{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
+struct TestInput
+{
+	int testid;
+	vector<MyRect> input_rectangles;
+//bi directional edges
+	vector<LogicalEdge> logical_edges;
 };
 
+
+const vector<TestInput> test_input={
+{
+	.testid=0,
+	.input_rectangles = {
+        	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+        	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+        	{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+        	{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+        	{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+        	{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+        	{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+        	{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+        	{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
+        	{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+        	{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+        	{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+        	{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+        	{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+        	{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
+	},
 //bi directional edges
-const vector<LogicalEdge> logical_edges = {
-	{.from=0,.to=3},
-	{.from=1,.to=7},
-	{.from=2,.to=7},
-	{.from=3,.to=0},
-	{.from=3,.to=4},
-	{.from=4,.to=3},
-	{.from=4,.to=7},
-	{.from=5,.to=7},
-	{.from=6,.to=7},
-	{.from=6,.to=12},
-	{.from=7,.to=1},
-	{.from=7,.to=2},
-	{.from=7,.to=4},
-	{.from=7,.to=5},
-	{.from=7,.to=6},
-	{.from=7,.to=8},
-	{.from=7,.to=9},
-	{.from=7,.to=10},
-	{.from=7,.to=11},
-	{.from=8,.to=7},
-	{.from=9,.to=7},
-	{.from=10,.to=7},
-	{.from=11,.to=7},
-	{.from=12,.to=6},
-	{.from=12,.to=13},
-	{.from=13,.to=12},
-	{.from=13,.to=14},
-	{.from=14,.to=13}
-};
+	.logical_edges = {
+		{.from=0,.to=3},
+		{.from=1,.to=7},
+		{.from=2,.to=7},
+		{.from=3,.to=0},
+		{.from=3,.to=4},
+		{.from=4,.to=3},
+		{.from=4,.to=7},
+		{.from=5,.to=7},
+		{.from=6,.to=7},
+		{.from=6,.to=12},
+		{.from=7,.to=1},
+		{.from=7,.to=2},
+		{.from=7,.to=4},
+		{.from=7,.to=5},
+		{.from=7,.to=6},
+		{.from=7,.to=8},
+		{.from=7,.to=9},
+		{.from=7,.to=10},
+		{.from=7,.to=11},
+		{.from=8,.to=7},
+		{.from=9,.to=7},
+		{.from=10,.to=7},
+		{.from=11,.to=7},
+		{.from=12,.to=6},
+		{.from=12,.to=13},
+		{.from=13,.to=12},
+		{.from=13,.to=14},
+		{.from=14,.to=13}
+	}
+}};
 
 
 struct TranslationRangesTestContext
@@ -904,19 +916,17 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 };
 
 
-
-bool filter(const LogicalEdge& e){
-
-	int dist = rect_distance(input_rectangles[e.from], input_rectangles[e.to]);
-	return dist <= 20;
-};
-
-
-vector<int> compute_connected_components(size_t n,
+vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 					const vector<LogicalEdge>& logical_edges)
 {
 	assert(ranges::is_sorted(logical_edges));
+	int n = input_rectangles.size();
 	vector<int> connected_component(n, -1);
+
+	auto filter=[&](const LogicalEdge& e){
+        	int dist = rect_distance(input_rectangles[e.from], input_rectangles[e.to]);
+        	return dist <= 20;
+	};
 
 	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
 		connected_component[i] = c;
@@ -1508,7 +1518,8 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-								const vector<MyRect>& input_rectangles)
+								const vector<MyRect>& input_rectangles,
+								const vector<LogicalEdge>& logical_edges)
 {
 	vector<MyRect> input_emplacements;
 	vector<RectHole> holes = compute_holes(input_rectangles);
@@ -2142,8 +2153,12 @@ void test_fit()
 	{
 		vector<MyRect> rectangles = input_rectangles;
 		int dm1 = dim_max(compute_frame(input_rectangles));
-		for (const Job& job : pipeline)
-			apply_job(job, logical_edges, rectangles);
+		for (const auto& [algo, update_direction] : pipeline)
+		{
+			assert(algo == SPREAD);
+			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			spread(update_direction, rect_links, rectangles);
+		}
 
 		int n=rectangles.size();
 		auto rg = views::iota(0, n) |
@@ -2164,10 +2179,13 @@ void test_fit()
 
 void test_translations()
 {
+	const auto& [testid, input_rectangles, logical_edges] = test_input[0];
+
 	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
 	{
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree,
-                        	                                        			input_rectangles);
+                        	                                        			input_rectangles,
+												logical_edges);
 		bool bOK = translation_ranges == expected_translation_ranges;
 		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		if (bOK == false)
@@ -2287,7 +2305,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	ranges::sort(topological_edges);
 
-	vector<int> connected_component = compute_connected_components(input_rectangles.size(), logical_edges);
+	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges);
 
 //	fmt::print("connected_component: {}\n", connected_component);
 
@@ -2605,6 +2623,9 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
+for (const auto& [testid, input_rectangles, logical_edges] : test_input)
+{
+
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
 	{
 		vector<MyRect> emplacements;
@@ -2616,7 +2637,7 @@ int main(int argc, char* argv[])
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles);
+		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges);
 
 		if(FILE* f = fopen("translation_ranges.dat", "wb")) {
 			fwrite(&translation_ranges[0], sizeof translation_ranges[0], translation_ranges.size(), f);
@@ -2656,6 +2677,7 @@ int main(int argc, char* argv[])
 
                 vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
         }
+}
 
 	if (argc == 1)
 	{
