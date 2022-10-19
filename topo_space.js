@@ -183,6 +183,7 @@ function print_html()
 
 function print_emplacement(i_emplacement_destination)
 {
+        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	if (i_emplacement_destination >= logical_graph.input_rectangles.length)
 		return `h${i_emplacement_destination - logical_graph.input_rectangles.length}`;
 	else
