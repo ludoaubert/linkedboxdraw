@@ -30,6 +30,7 @@ export function PreviousTest()
 	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	window.main();
 }
+window.PreviousTest = PreviousTest;
 
 export function NextTest()
 {
@@ -38,6 +39,8 @@ export function NextTest()
 	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	window.main();
 }
+
+window.NextTest = NextTest;
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
