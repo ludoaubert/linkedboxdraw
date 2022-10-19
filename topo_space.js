@@ -62,9 +62,6 @@ function compute_center_frame_translation(rectangles)
 	return translation;
 }
 
-console.log(logical_graph);
-console.log(holes);
-
 // supposed to find the index of the first element that matches the predicate.
 // expects that ALL elements after that also match!
 function binarySearch(array, predicate) {
