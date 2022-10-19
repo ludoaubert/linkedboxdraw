@@ -23,7 +23,7 @@ const tests = [
 
 var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[0];
 
-function PreviousTest()
+export function PreviousTest()
 {
 	if (testIndex > 0)
 		testIndex--;
@@ -31,7 +31,7 @@ function PreviousTest()
 	window.main();
 }
 
-function NextTest()
+export function NextTest()
 {
 	if (testIndex + 1 < tests.length)
 		testIndex++;
