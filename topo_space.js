@@ -21,20 +21,20 @@ const tests = [
 	{logical_graph:logical_graph1, holes:holes1, decision_tree:decision_tree1, translation_ranges:translation_ranges_1, translation_ranges2:translation_ranges2_1, scores:scores1}
 ];
 
-[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[0];
+var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[0];
 
 function PreviousTest()
 {
 	if (testIndex > 0)
 		testIndex--;
-	[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[testIndex];
+	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 }
 
 function NextTest()
 {
 	if (testIndex + 1 < tests.length)
 		testIndex++;
-	[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[testIndex];
+	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 }
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
