@@ -14,20 +14,17 @@ import translation_ranges2_1 from './translation_ranges2_1.json' assert {type: '
 import scores1 from './scores1.json' assert {type: 'json'};
 
 var testIndex=0;
-var logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores;
 
 const tests = [
 	{logical_graph:logical_graph0, holes:holes0, decision_tree:decision_tree0, translation_ranges:translation_ranges_0, translation_ranges2:translation_ranges2_0, scores:scores0},
 	{logical_graph:logical_graph1, holes:holes1, decision_tree:decision_tree1, translation_ranges:translation_ranges_1, translation_ranges2:translation_ranges2_1, scores:scores1}
 ];
 
-var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[0];
 
 export function PreviousTest()
 {
 	if (testIndex > 0)
 		testIndex--;
-	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	window.main();
 }
 window.PreviousTest = PreviousTest;
@@ -36,7 +33,6 @@ export function NextTest()
 {
 	if (testIndex + 1 < tests.length)
 		testIndex++;
-	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	window.main();
 }
 
@@ -118,6 +114,7 @@ const tf = (rectangles, translations) => {
 
 function translation_range_print_html(id)
 {
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
 	const translations = equal_range(translation_ranges, id);
@@ -148,6 +145,7 @@ function print_html()
 {
 	var innerHTML = "";
 
+        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
         const tr = compute_center_frame_translation(input_rectangles);
@@ -199,6 +197,7 @@ var selected = null;
 function select_id(event)
 {
 	let tr = event.target.parentNode;
+        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 
 	if ( tr.className !== 'clicked' ) {
 // Clear previous selection
@@ -260,6 +259,7 @@ function select_id(event)
 
 
 window.main = function main(){
+        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	let div = document.getElementById("main_svg");
 	const innerHTML = print_html();
 	console.log(innerHTML);
