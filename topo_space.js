@@ -28,6 +28,7 @@ function PreviousTest()
 	if (testIndex > 0)
 		testIndex--;
 	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	window.main();
 }
 
 function NextTest()
@@ -35,6 +36,7 @@ function NextTest()
 	if (testIndex + 1 < tests.length)
 		testIndex++;
 	var {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	window.main();
 }
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
