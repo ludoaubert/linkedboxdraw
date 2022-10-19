@@ -1,10 +1,41 @@
 
-import logical_graph from './logical_graph.json' assert {type: 'json'};
-import holes from './holes.json' assert {type: 'json'};
-import decision_tree from './decision_tree.json' assert {type: 'json'};
-import translation_ranges from './translation_ranges.json' assert {type: 'json'};
-import translation_ranges2 from './translation_ranges2.json' assert {type: 'json'};
-import scores from './scores.json' assert {type: 'json'};
+import logical_graph0 from './logical_graph0.json' assert {type: 'json'};
+import holes0 from './holes0.json' assert {type: 'json'};
+import decision_tree0 from './decision_tree0.json' assert {type: 'json'};
+import translation_ranges_0 from './translation_ranges_0.json' assert {type: 'json'};
+import translation_ranges2_0 from './translation_ranges2_0.json' assert {type: 'json'};
+import scores0 from './scores0.json' assert {type: 'json'};
+
+import logical_graph1 from './logical_graph1.json' assert {type: 'json'};
+import holes1 from './holes1.json' assert {type: 'json'};
+import decision_tree1 from './decision_tree1.json' assert {type: 'json'};
+import translation_ranges_1 from './translation_ranges_1.json' assert {type: 'json'};
+import translation_ranges2_1 from './translation_ranges2_1.json' assert {type: 'json'};
+import scores1 from './scores1.json' assert {type: 'json'};
+
+var testIndex=0;
+var logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores;
+
+const tests = [
+	{logical_graph:logical_graph0, holes:holes0, decision_tree:decision_tree0, translation_ranges:translation_ranges_0, translation_ranges2:translation_ranges2_0, scores:scores0},
+	{logical_graph:logical_graph1, holes:holes1, decision_tree:decision_tree1, translation_ranges:translation_ranges_1, translation_ranges2:translation_ranges2_1, scores:scores1}
+];
+
+[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[0];
+
+function PreviousTest()
+{
+	if (testIndex > 0)
+		testIndex--;
+	[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[testIndex];
+}
+
+function NextTest()
+{
+	if (testIndex + 1 < tests.length)
+		testIndex++;
+	[logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores] = tests[testIndex];
+}
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
