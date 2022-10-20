@@ -2678,11 +2678,13 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 
 // ./holes2 --dt --skip | awk '/begin cmpt_tr2 id=4 /,/end cmpt_tr2 id=4 /'
+// ./holes2 --dt | awk '/begin testid=1 /,/end testid=1 /'
 
 int main(int argc, char* argv[])
 {
 for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 {
+	printf("begin testid=%d \n", testid);
 	char file_name[50];
 
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
@@ -2758,6 +2760,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
                 vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
         }
+        printf("end testid=%d \n", testid);
 }
 
 	if (argc == 1)
