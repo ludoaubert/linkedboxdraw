@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -944,7 +944,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 					MyRect rec = rect(pt, pt + value*dir);
 					auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) /*|| is_inside(r, rec)*/;});
 					(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-					printf("{.i=%d, .RectCorner=%s, .direction={.x=%.0f, .y=%.0f} [.m=%d .M=%d]}\n", i, RectCornerString[rc], dir.x, dir.y, m, M);
+					D(printf("{.i=%d, .RectCorner=%s, .direction={.x=%.0f, .y=%.0f} [.m=%d .M=%d]}\n", i, RectCornerString[rc], dir.x, dir.y, m, M));
 				}
 
 				if (m > 2)
@@ -2308,7 +2308,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
 	{
-		printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom);
+		D(printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom));
 	}
 	vector<RectHole> holes = compute_holes(input_rectangles);
 
