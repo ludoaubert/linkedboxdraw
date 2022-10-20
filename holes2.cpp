@@ -2678,7 +2678,7 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 
 // ./holes2 --dt --skip | awk '/begin cmpt_tr2 id=4 /,/end cmpt_tr2 id=4 /'
-// ./holes2 --dt | awk '/begin testid=1 /,/end testid=1 /' | awk '/begin compute_decision_tree/,/end compute_decision_tree/'
+// ./holes2 --dt | awk '/begin testid=1 /,/end testid=1 /' | awk '/begin compute_decision_tree/,/end compute_decision_tree/' > holes2.log
 
 int main(int argc, char* argv[])
 {
