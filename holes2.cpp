@@ -2678,20 +2678,22 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 
 // ./holes2 --dt --skip | awk '/begin cmpt_tr2 id=4 /,/end cmpt_tr2 id=4 /'
-// ./holes2 --dt | awk '/begin testid=1 /,/end testid=1 /'
+// ./holes2 --dt | awk '/begin testid=1 /,/end testid=1 /' | awk '/begin compute_decision_tree/,/end compute_decision_tree/'
 
 int main(int argc, char* argv[])
 {
 for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 {
-	printf("begin testid=%d \n", testid);
+	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
 
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
 	{
 		vector<MyRect> emplacements;
 
+		D(printf("begin compute_decision_tree()\n"));
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
+                D(printf("end compute_decision_tree()\n"));
 
 		sprintf(file_name, "logical_graph%d.json", testid);
 		fs::copy("logical_graph.json", file_name, fs::copy_options::update_existing);
@@ -2760,7 +2762,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
                 vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
         }
-        printf("end testid=%d \n", testid);
+        D(printf("end testid=%d \n", testid));
 }
 
 	if (argc == 1)
