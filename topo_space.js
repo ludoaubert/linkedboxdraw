@@ -118,9 +118,9 @@ function translation_range_print_html(id)
 	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
 
-        const translations2 = equal_range(translation_ranges2, id);
-        const rectangles2 = tf(rectangles, translations2);
-        const frame2 = compute_frame(rectangles2);
+	const translations2 = equal_range(translation_ranges2, id);
+	const rectangles2 = tf(rectangles, translations2);
+	const frame2 = compute_frame(rectangles2);
 
 	const svg = (frame, rectangles) => {
 	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
@@ -142,17 +142,17 @@ function print_html()
 {
 	var innerHTML = "";
 
-        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
-        const tr = compute_center_frame_translation(input_rectangles);
+	const tr = compute_center_frame_translation(input_rectangles);
 
-        const rectangles = input_rectangles.map(r => translated_rectangle(r, tr));
+	const rectangles = input_rectangles.map(r => translated_rectangle(r, tr));
 
-        const frame = compute_frame(rectangles);
+	const frame = compute_frame(rectangles);
 
-        const width = (r) => r.m_right-r.m_left;
-        const height = (r) => r.m_bottom-r.m_top;
+	const width = (r) => r.m_right-r.m_left;
+	const height = (r) => r.m_bottom-r.m_top;
 
 	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
 		rectangles.map((r, index) =>
@@ -183,7 +183,7 @@ function print_html()
 
 function print_emplacement(i_emplacement_destination)
 {
-        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	if (i_emplacement_destination >= logical_graph.input_rectangles.length)
 		return `h${i_emplacement_destination - logical_graph.input_rectangles.length}`;
 	else
@@ -195,7 +195,7 @@ var selected = null;
 function select_id(event)
 {
 	let tr = event.target.parentNode;
-        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 
 	if ( tr.className !== 'clicked' ) {
 // Clear previous selection
@@ -257,7 +257,7 @@ function select_id(event)
 
 
 window.main = function main(){
-        const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	let div = document.getElementById("main_svg");
 	const innerHTML = print_html();
 	console.log(innerHTML);
