@@ -258,12 +258,9 @@ function select_id(event)
 
 window.main = function main(){
 	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
-	let divr = document.getElementById("range_svg");
-	divr.innerHTML = "";
-	let div = document.getElementById("main_svg");
-	const innerHTML = print_html();
-	console.log(innerHTML);
-	div.innerHTML = innerHTML;
+	document.getElementById("range_svg").innerHTML = "";
+	document.getElementById("chemin").getElementsByTagName("tbody")[0].innerHTML = "";
+	document.getElementById("main_svg").innerHTML = print_html();
 
 	for (const [json_source, id] of [[decision_tree, "decision_tree"], [scores, "scores"]])
 	{
