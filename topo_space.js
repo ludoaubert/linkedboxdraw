@@ -258,6 +258,8 @@ function select_id(event)
 
 window.main = function main(){
 	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	let divr = document.getElementById("range_svg");
+	divr.innerHTML = "";
 	let div = document.getElementById("main_svg");
 	const innerHTML = print_html();
 	console.log(innerHTML);
