@@ -2367,9 +2367,11 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 //	fmt::print("connected_component: {}\n", connected_component);
 
-	printf("connected_component: ");
+	D(printf("connected_component: "));
 	for (int c : connected_component)
-		printf("%d, ", c);
+		D(printf("%d, ", c));
+	for (int i=0; i < n; i++)
+		D(printf("connected_component[%d] = %d\n", i, connected_component[i]));
 	printf("\n");
 
 	int nb = ranges::max(connected_component);
@@ -2422,7 +2424,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			}
 			else
 			{
-				D(printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, cmax, depth, i));
+				D(printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, connected_component[i], depth, i));
 				continue;
 			}
 
