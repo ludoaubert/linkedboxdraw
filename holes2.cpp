@@ -2372,7 +2372,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		D(printf("%d, ", c));
 	for (int i=0; i < n; i++)
 		D(printf("connected_component[%d] = %d\n", i, connected_component[i]));
-	printf("\n");
+	D(printf("\n"));
 
 	int nb = ranges::max(connected_component);
 	vector<int> cc_size(nb, 0);
