@@ -979,15 +979,14 @@ vector<float> compute_page_rank(const int n,
 				const vector<TopologicalEdge>& topological_edges)
 {
 	const int nr_rec = 40;
-	vector<vector<float> > pr(40, vector<float>(1, 1.0f / n));
+	vector<vector<float> > m(40, vector<float>(1, 1.0f / n));
 
 	D(printf("\n"));
-	for (float& value : pr[0])
+	for (float& value : m[0])
 		D(printf("%.2f\t", value));
 	auto topological_edges_ = topological_edges | views::transform([](const TopologicalEdge& e){return LogicalEdge{e.from, e.to};});
-	vector<LogicalEdge> inter, diff;
+	vector<LogicalEdge> inter;
 	ranges::set_intersection(logical_edges, topological_edges_, back_inserter(inter));
-	ranges::set_difference(logical_edges, topological_edges_, back_inserter(diff));
 
 	const float d = 0.85f;
 
@@ -1000,11 +999,7 @@ vector<float> compute_page_rank(const int n,
 						auto rg = ranges::equal_range(logical_edges, e.to, {}, &LogicalEdge::from);
 						return pr[e.to] / ranges::size(rg) ;
 					});
-/*
-				auto rg2 = ranges::equal_range(diff, i, {}, &LogicalEdge::from) |
-					views::transform([&](const LogicalEdge& e){return pr[e.to];});
-*/
-				return (1.0f - d) + d * accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f) /*- accumulate(ranges::begin(rg2), ranges::end(rg2), 0.0f)*/;
+				return (1.0f - d) + d * accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f);
 			});
 		vector<float> result(ranges::begin(rg), ranges::end(rg));
 		D(printf("\n"));
@@ -1013,14 +1008,14 @@ vector<float> compute_page_rank(const int n,
 		return result;
 	};
 
-	partial_sum(pr.begin(), pr.end(), pr.begin(),
+	partial_sum(m.begin(), m.end(), m.begin(),
 		[&](const vector<float>& prev, const vector<float>&){
 					return next(prev);}
 				);
         D(printf("\n"));
 	for (int i : views::iota(0,n))
 		D(printf("%d .00\t", i));
-	return pr[nr_rec - 1];
+	return m[nr_rec - 1];
 }
 
 
