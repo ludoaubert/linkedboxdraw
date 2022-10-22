@@ -979,30 +979,37 @@ vector<float> compute_page_rank(const int n,
 				const vector<TopologicalEdge>& topological_edges)
 {
 	const int nr_rec = 40;
-	vector<vector<float> > pr(40, vector<float>(1, n));
+	vector<vector<float> > pr(40, vector<float>(1, 1.0f / n));
+	D(printf("\n"));
+	for (float& value : pr[0])
+		D(printf("%.2f\t", value));
 	auto topological_edges_ = topological_edges | views::transform([](const TopologicalEdge& e){return LogicalEdge{e.from, e.to};});
 	vector<LogicalEdge> inter, diff;
 	ranges::set_intersection(logical_edges, topological_edges_, back_inserter(inter));
 	ranges::set_difference(logical_edges, topological_edges_, back_inserter(diff));
 
-	auto next=[&](const vector<float>& prev)->vector<float>
+	const float d = 0.85f;
+
+	auto next=[&](const vector<float>& pr)->vector<float>
 	{
 		auto rg = views::iota(0,n) |
-			views::transform([&](int i){
+			views::transform([&](int i)->float{
 				auto rg1 = ranges::equal_range(inter, i, {}, &LogicalEdge::from) |
-					views::transform([&](const LogicalEdge& e){return prev[e.to];});
+					views::transform([&](const LogicalEdge& e)->float{
+						auto rg = ranges::equal_range(logical_edges, e.to, {}, &LogicalEdge::from);
+						return pr[e.to] / ranges::size(rg) ;
+					});
+/*
 				auto rg2 = ranges::equal_range(diff, i, {}, &LogicalEdge::from) |
-					views::transform([&](const LogicalEdge& e){return prev[e.to];});
-				return accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f) - accumulate(ranges::begin(rg2), ranges::end(rg2), 0.0f);
+					views::transform([&](const LogicalEdge& e){return pr[e.to];});
+*/
+				return (1.0f - d) + d * accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f) /*- accumulate(ranges::begin(rg2), ranges::end(rg2), 0.0f)*/;
 			});
-		vector<float> pr(ranges::begin(rg), ranges::end(rg));
-		float mean = accumulate(pr.begin(), pr.end(), 0.0f);
-		for (float& value : pr)
-			value /= mean;
+		vector<float> result(ranges::begin(rg), ranges::end(rg));
 		D(printf("\n"));
-		for (float& value : pr)
+		for (float& value : result)
 			D(printf("%.2f\t", value));
-		return pr;
+		return result;
 	};
 
 	partial_sum(pr.begin(), pr.end(), pr.begin(),
