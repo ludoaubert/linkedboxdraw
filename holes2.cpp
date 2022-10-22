@@ -1010,8 +1010,6 @@ vector<float> compute_page_rank(const int n,
 		D(printf("\n"));
 		for (float& value : result)
 			D(printf("%.2f\t", value));
-		for (int i : views::iota(0,n))
-			D(printf("%d.00\t", i));
 		return result;
 	};
 
@@ -1019,7 +1017,9 @@ vector<float> compute_page_rank(const int n,
 		[&](const vector<float>& prev, const vector<float>&){
 					return next(prev);}
 				);
-
+        D(printf("\n"));
+	for (int i : views::iota(0,n))
+		D(printf("%d .00\t", i));
 	return pr[nr_rec - 1];
 }
 
