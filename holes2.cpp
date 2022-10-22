@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -2417,6 +2417,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	D(printf("page rank:\n"));
 	vector<float> page_rank = compute_page_rank(n, logical_edges, topological_edges);
+	D(printf("\n"));
 
 	int nb = ranges::max(connected_component);
 	vector<int> cc_size(nb, 0);
