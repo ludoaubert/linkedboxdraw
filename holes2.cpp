@@ -19,7 +19,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -972,6 +972,45 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	return holes;
 };
+
+
+vector<float> compute_page_rank(const int n,
+				const vector<LogicalEdge>& logical_edges,
+				const vector<TopologicalEdge>& topological_edges)
+{
+	const int nr_rec = 40;
+	vector<vector<float> > pr(40, vector<float>(1, n));
+	auto topological_edges_ = topological_edges | views::transform([](const TopologicalEdge& e){return LogicalEdge{e.from, e.to};});
+	vector<LogicalEdge> inter, diff;
+	ranges::set_intersection(logical_edges, topological_edges_, back_inserter(inter));
+	ranges::set_difference(logical_edges, topological_edges_, back_inserter(diff));
+
+	auto next=[&](const vector<float>& prev)->vector<float>
+	{
+		auto rg = views::iota(0,n) |
+			views::transform([&](int i){
+				auto rg1 = ranges::equal_range(inter, i, {}, &LogicalEdge::from) |
+					views::transform([&](const LogicalEdge& e){return prev[e.to];});
+				auto rg2 = ranges::equal_range(diff, i, {}, &LogicalEdge::from) |
+					views::transform([&](const LogicalEdge& e){return prev[e.to];});
+				return accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f) - accumulate(ranges::begin(rg2), ranges::end(rg2), 0.0f);
+			});
+		vector<float> pr(ranges::begin(rg), ranges::end(rg));
+		float mean = accumulate(pr.begin(), pr.end(), 0.0f);
+		for (float& value : pr)
+			value /= mean;
+		for (float& value : pr)
+			D(printf("%.2f\t", value));
+		return pr;
+	};
+
+	partial_sum(pr.begin(), pr.end(), pr.begin(),
+		[&](const vector<float>& prev, const vector<float>&){
+					return next(prev);}
+				);
+
+	return pr[nr_rec - 1];
+}
 
 
 vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
@@ -2370,9 +2409,13 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	D(printf("connected_component: "));
 	for (int c : connected_component)
 		D(printf("%d, ", c));
+        D(printf("\n"));
 	for (int i=0; i < n; i++)
 		D(printf("connected_component[%d] = %d\n", i, connected_component[i]));
 	D(printf("\n"));
+
+	D(printf("page rank:\n"));
+	vector<float> page_rank = compute_page_rank(n, logical_edges, topological_edges);
 
 	int nb = ranges::max(connected_component);
 	vector<int> cc_size(nb, 0);
