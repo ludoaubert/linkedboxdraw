@@ -999,6 +999,7 @@ vector<float> compute_page_rank(const int n,
 		float mean = accumulate(pr.begin(), pr.end(), 0.0f);
 		for (float& value : pr)
 			value /= mean;
+		D(printf("\n"));
 		for (float& value : pr)
 			D(printf("%.2f\t", value));
 		return pr;
