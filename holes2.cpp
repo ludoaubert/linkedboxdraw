@@ -979,7 +979,7 @@ vector<float> compute_page_rank(const int n,
 				const vector<TopologicalEdge>& topological_edges)
 {
 	const int nr_rec = 40;
-	vector<vector<float> > m(40, vector<float>(1, 1.0f / n));
+	vector<vector<float> > m(40, vector<float>(n, 1.0f / n));
 
 	D(printf("\n"));
 	for (float& value : m[0])
