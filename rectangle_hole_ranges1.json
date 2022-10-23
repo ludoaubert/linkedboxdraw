@@ -1,8 +1,6 @@
 [
 	{"id":1, "ri":7, "r":{"m_left":368, "m_right":562, "m_top":-10, "m_bottom":118}},
 	{"id":4, "ri":7, "r":{"m_left":368, "m_right":562, "m_top":-10, "m_bottom":118}},
-	{"id":7, "ri":7, "r":{"m_left":368, "m_right":562, "m_top":-10, "m_bottom":118}},
-	{"id":11, "ri":14, "r":{"m_left":350, "m_right":459, "m_top":358, "m_bottom":486}},
-	{"id":14, "ri":14, "r":{"m_left":350, "m_right":459, "m_top":358, "m_bottom":486}},
-	{"id":17, "ri":14, "r":{"m_left":350, "m_right":459, "m_top":358, "m_bottom":486}},
+	{"id":7, "ri":14, "r":{"m_left":350, "m_right":459, "m_top":358, "m_bottom":486}},
+	{"id":10, "ri":14, "r":{"m_left":350, "m_right":459, "m_top":358, "m_bottom":486}},
 ]

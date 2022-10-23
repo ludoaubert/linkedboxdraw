@@ -970,6 +970,10 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		}
 	}
 
+	bool stop=false;
+while (stop==false)
+{
+	const int nn = holes.size();
 	int nh = holes.size();
 
 	auto rg = views::iota(0,nh) |
@@ -1016,6 +1020,8 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	ranges::copy(rng3, back_inserter(tmp));
 	holes = tmp;
 
+	stop = holes.size() == nn;
+}
 	return holes;
 };
 
