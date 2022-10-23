@@ -981,16 +981,40 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	holes = vector<RectHole>(ranges::begin(rg), ranges::end(rg));
 	nh = holes.size();
 
+//TODO use C++23 cartesian_product()
+	struct Match{int hi; int hj;};
+	vector<Match> cp;
 	for (int hi=0; hi < nh; hi++)
-        {
-                for (int hj=hi+1; hj < nh; hj++)
-                {
-			MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
-			bool b = ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-			if (b)
-				D(printf("enveloppe(h%d, h%d) is valid\n", hi, hj));
-		}
-	}
+		for (int hj=hi+1; hj < nh; hj++)
+			cp.push_back({hi, hj});
+
+	auto rng = cp | views::filter([&](const Match& m){
+				const auto [hi, hj] = m;
+				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
+				return ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
+		});
+
+	vector<int> v1, v2, v3, v4;
+	ranges::copy(rng | views::transform(&Match::hi), back_inserter(v1));
+	ranges::copy(rng | views::transform(&Match::hj), back_inserter(v2));
+	ranges::sort(v1);
+	ranges::sort(v2);
+	ranges::set_union(v1, v2, back_inserter(v3));
+
+	ranges::set_difference(views::iota(0, nh), v3, back_inserter(v4));
+
+	auto rng2 = v4 | views::transform([&](int hi){return holes[hi];});
+	auto rng3 = rng | views::transform([&](const Match& m){
+				const auto [hi, hj] = m;
+				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
+				RectHole rh = holes[hi];
+				rh.rec = h;
+				return rh;});
+
+	vector<RectHole> tmp;
+	ranges::copy(rng2, back_inserter(tmp));
+	ranges::copy(rng3, back_inserter(tmp));
+	holes = tmp;
 
 	return holes;
 };
