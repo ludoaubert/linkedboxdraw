@@ -131,6 +131,16 @@ void expand_by(MyRect& r, int border)
 	r.m_bottom += border ;
 }
 
+MyRect expanded_by(const MyRect& r, int border)
+{
+	MyRect rec = r;
+        rec.m_left -= border ;
+        rec.m_right += border ;
+        rec.m_top -= border ;
+        rec.m_bottom += border ;
+	return rec;
+}
+
 int16_t dim_max(const MyRect& r)
 {
 	return max(height(r), width(r)) ;

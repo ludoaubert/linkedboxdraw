@@ -976,7 +976,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	auto rg = views::iota(0,nh) |
 		views::filter([&](int hi){
 			auto rng = views::iota(0,nh) | views::filter([&](int hj){return hj != hi;});
-			return ranges::none_of(rng, [&](int hj){return is_inside(holes[hi].rec, holes[hj].rec);});
+			return ranges::none_of(rng, [&](int hj){return is_inside(holes[hi].rec, expanded_by(holes[hj].rec, +1));});
 		}) |
 		views::transform([&](int hi){return holes[hi];});
 	holes = vector<RectHole>(ranges::begin(rg), ranges::end(rg));

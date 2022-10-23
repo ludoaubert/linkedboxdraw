@@ -412,6 +412,7 @@ MyPoint min(const MyRect& r) ;
 MyPoint max(const MyRect& r) ;
 MyPoint center(const MyRect& r) ;
 void expand_by(MyRect& r, int border) ;
+MyRect expanded_by(const MyRect& r, int border);
 void rect_swap_dimensions(MyRect& r) ;
 
 bool check_rectangle(const MyRect& r) ;
