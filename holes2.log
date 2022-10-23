@@ -884,13 +884,6 @@ begin compute_decision_tree()
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=1} [.m=2 .M=3]}
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=-1} [.m=2 .M=4]}
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=-1} [.m=2 .M=3]}
-h3 is inside h2
-h5 is inside h2
-h6 is inside h4
-h12 is inside h14
-h13 is inside h15
-h27 is inside h29
-h28 is inside h26
 enveloppe(h0, h3) is valid
 enveloppe(h1, h2) is valid
 enveloppe(h4, h6) is valid

@@ -972,22 +972,11 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	int nh = holes.size();
 
-	vector<int> suppress_list(nh, 0);
-
-	for (int hi=0; hi < nh; hi++)
-	{
-		for (int hj=0; hj < nh; hj++)
-		{
-			if (hi != hj && is_inside(holes[hi].rec, holes[hj].rec))
-			{
-				D(printf("h%d is inside h%d\n", hi, hj));
-				suppress_list[hi] = 1;
-			}
-		}
-	}
-
 	auto rg = views::iota(0,nh) |
-		views::filter([&](int hi){return suppress_list[hi]==0;}) |
+		views::filter([&](int hi){
+			auto rng = views::iota(0,nh) | views::filter([&](int hj){return hj != hi;});
+			return ranges::none_of(rng, [&](int hj){return is_inside(holes[hi].rec, holes[hj].rec);});
+		}) |
 		views::transform([&](int hi){return holes[hi];});
 	holes = vector<RectHole>(ranges::begin(rg), ranges::end(rg));
 	nh = holes.size();
