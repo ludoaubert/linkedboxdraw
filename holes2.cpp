@@ -972,14 +972,25 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	int nh = holes.size();
 
-	auto rg = views::iota(0, nh) |
-		views::filter([&](int hi){
-			auto rng = views::iota(0, nh) |
-				views::filter([&](int hj){return hj != hi;}) |
-				views::filter([&](int hj){return is_inside(holes[hi].rec, holes[hj].rec);});
-			return ranges::empty(rng)==false;});
-	for (int hi : rg)
-		D(printf("h%d is inside another holes\n", hi));
+	for (int hi=0; hi < nh; hi++)
+	{
+		for (int hj=0; hj < nh; hj++)
+		{
+			if (hi != hj && is_inside(holes[hi].rec, holes[hj].rec))
+				D(printf("h%d is inside h%d\n", hi, hj));
+		}
+	}
+
+	for (int hi=0; hi < nh; hi++)
+        {
+                for (int hj=0; hj < nh; hj++)
+                {
+			MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
+			bool b = ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
+			if (b)
+				D(printf("enveloppe(h%d, h%d) is valid\n", hi, hj));
+		}
+	}
 
 	return holes;
 };
