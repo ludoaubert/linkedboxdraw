@@ -984,7 +984,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
         D(printf("holes.size()=%d after removing inside holes.\n", nh));
 
 //TODO use C++23 cartesian_product()
-/*
+
 	struct Match{int hi; int hj;};
 	vector<Match> cp;
 	for (int hi=0; hi < nh; hi++)
@@ -1002,12 +1002,20 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	ranges::copy(rng | views::transform(&Match::hj), back_inserter(v2));
 	ranges::sort(v1);
 	ranges::sort(v2);
-	ranges::set_union(v1, v2, back_inserter(v3));
+	ranges::merge(v1, v2, back_inserter(v3));
 
-	ranges::set_difference(views::iota(0, nh), v3, back_inserter(v4));
+//TODO: use C++23 views::chunk() or chunk_by()
+	auto rng1 = views::iota(0, nh) |
+		views::filter([&](int hi){return ranges::count(v3, hi)==1;});
+
+	ranges::set_difference(views::iota(0, nh), rng1, back_inserter(v4));
 
 	auto rng2 = v4 | views::transform([&](int hi){return holes[hi];});
-	auto rng3 = rng | views::transform([&](const Match& m){
+	auto rng3 = rng |
+		views::filter([&](const Match& m){
+                                const auto [hi, hj] = m;
+                                return ranges::binary_search(rng1, hi) && ranges::binary_search(rng1, hj);}) |
+		views::transform([&](const Match& m){
 				const auto [hi, hj] = m;
 				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
 				RectHole rh = holes[hi];
@@ -1018,7 +1026,9 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	ranges::copy(rng2, back_inserter(tmp));
 	ranges::copy(rng3, back_inserter(tmp));
 	holes = tmp;
-*/
+
+        D(printf("holes.size()=%d after merging holes.\n", nh));
+
 	return holes;
 };
 
