@@ -970,8 +970,8 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		}
 	}
 
-	const int nn = holes.size();
 	int nh = holes.size();
+	D(printf("holes.size()=%d.\n", nh));
 
 	auto rg = views::iota(0,nh) |
 		views::filter([&](int hi){
@@ -981,8 +981,10 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		views::transform([&](int hi){return holes[hi];});
 	holes = vector<RectHole>(ranges::begin(rg), ranges::end(rg));
 	nh = holes.size();
+        D(printf("holes.size()=%d after removing inside holes.\n", nh));
 
 //TODO use C++23 cartesian_product()
+/*
 	struct Match{int hi; int hj;};
 	vector<Match> cp;
 	for (int hi=0; hi < nh; hi++)
@@ -1016,7 +1018,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	ranges::copy(rng2, back_inserter(tmp));
 	ranges::copy(rng3, back_inserter(tmp));
 	holes = tmp;
-
+*/
 	return holes;
 };
 
