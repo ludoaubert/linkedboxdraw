@@ -987,7 +987,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
                 {
 			MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
 			bool b = ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-			if (b)
+			if (hi != hj && b)
 				D(printf("enveloppe(h%d, h%d) is valid\n", hi, hj));
 		}
 	}
