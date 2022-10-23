@@ -884,6 +884,13 @@ begin compute_decision_tree()
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=1} [.m=2 .M=3]}
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=-1} [.m=2 .M=4]}
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=-1} [.m=2 .M=3]}
+h3 is inside another holes
+h5 is inside another holes
+h6 is inside another holes
+h12 is inside another holes
+h13 is inside another holes
+h27 is inside another holes
+h28 is inside another holes
 connected_component: 0, 0, 0, 0, 1, 2, 3, 1, 1, 1, 1, 1, 1, 4, 1, 
 connected_component[0] = 0
 connected_component[1] = 0
