@@ -886,7 +886,7 @@ begin compute_decision_tree()
 {.i=14, .RectCorner=BOTTOM_RIGHT, .direction={.x=1, .y=-1} [.m=2 .M=3]}
 holes.size()=31.
 holes.size()=24 after removing inside holes.
-holes.size()=24 after merging holes.
+holes.size()=17 after merging holes.
 connected_component: 0, 0, 0, 0, 1, 2, 3, 1, 1, 1, 1, 1, 1, 4, 1, 
 connected_component[0] = 0
 connected_component[1] = 0

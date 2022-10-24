@@ -1036,7 +1036,7 @@ TODO; use C++23 views::concat()
 	ranges::copy(rng3, back_inserter(tmp));
 	holes = tmp;
 
-        D(printf("holes.size()=%d after merging holes.\n", nh));
+        D(printf("holes.size()=%zu after merging holes.\n", holes.size()));
 
 	return holes;
 };
