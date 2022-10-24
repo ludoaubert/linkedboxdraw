@@ -972,7 +972,9 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	int nh = holes.size();
 	D(printf("holes.size()=%d.\n", nh));
-
+/*
+TODO: use C++23 views::to<vector>()
+*/
 	auto rg = views::iota(0,nh) |
 		views::filter([&](int hi){
 			auto rng = views::iota(0,nh) | views::filter([&](int hj){return hj != hi;});
@@ -996,7 +998,13 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
 				return ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
 		});
-
+/*
+TODO; use C++23 views::concat()
+	auto rg3 = views::concat(
+			rng | views::transform(&Match::hi),
+			rng | views::transform(&Match::hj)
+		);
+*/
 	vector<int> v1, v2, v3, v4;
 	ranges::copy(rng | views::transform(&Match::hi), back_inserter(v1));
 	ranges::copy(rng | views::transform(&Match::hj), back_inserter(v2));
@@ -1008,6 +1016,7 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	auto rng1 = views::iota(0, nh) |
 		views::filter([&](int hi){return ranges::count(v3, hi)==1;});
 
+//TODO: use C++23 views::set_difference()
 	ranges::set_difference(views::iota(0, nh), rng1, back_inserter(v4));
 
 	auto rng2 = v4 | views::transform([&](int hi){return holes[hi];});
