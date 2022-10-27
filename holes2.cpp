@@ -973,6 +973,9 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	int nh = holes.size();
 	D(printf("holes.size()=%d.\n", nh));
+
+  for (int i=0; i<2; i++)
+  {
 /*
 TODO: use C++23 views::to<vector>()
 */
@@ -1035,7 +1038,7 @@ TODO; use C++23 views::concat()
 	holes = tmp;
 
         D(printf("holes.size()=%zu after merging holes.\n", holes.size()));
-
+  }
 	return holes;
 };
 
