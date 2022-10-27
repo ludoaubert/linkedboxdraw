@@ -1004,13 +1004,15 @@ TODO; use C++23 views::concat()
 	auto rg3 = views::concat()
 */
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
-	vector<int> v4;
 
-//TODO: use C++23 views::chunk() or chunk_by()
-	auto rng1 = rng |
+	auto rngf = rng |
                 views::filter([&](const Match& m){
                                 const auto [hi, hj] = m;
-                                return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;}) |
+                                return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;});
+
+	vector<int> v4;
+
+	auto rng1 = rngf |
 		views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) |
 		views::join ;
 
@@ -1018,10 +1020,7 @@ TODO; use C++23 views::concat()
 	ranges::set_difference(views::iota(0, nh), rng1, back_inserter(v4));
 
 	auto rng2 = v4 | views::transform([&](int hi){return holes[hi];});
-	auto rng3 = rng |
-                views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;}) |
+	auto rng3 = rngf |
 		views::transform([&](const Match& m){
 				const auto [hi, hj] = m;
 				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
