@@ -1002,10 +1002,7 @@ TODO: use C++23 views::to<vector>()
 				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
 				return ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
 		});
-/*
-TODO; use C++23 views::concat()
-	auto rg3 = views::concat()
-*/
+
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
 
 	auto rngf = rng |
@@ -1013,16 +1010,14 @@ TODO; use C++23 views::concat()
                                 const auto [hi, hj] = m;
                                 return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;});
 
-	vector<int> v4;
-
 	auto rng1 = rngf |
 		views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) |
 		views::join ;
 
-//TODO: use C++23 views::set_difference() and views::concat()
-	ranges::set_difference(views::iota(0, nh), rng1, back_inserter(v4));
+	auto rng2 = views::iota(0,nh) |
+		views::filter([&](int hi){return ranges::count(rng1,hi)!=1;}) |
+		views::transform([&](int hi){return holes[hi];});
 
-	auto rng2 = v4 | views::transform([&](int hi){return holes[hi];});
 	auto rng3 = rngf |
 		views::transform([&](const Match& m){
 				const auto [hi, hj] = m;
