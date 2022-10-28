@@ -2406,10 +2406,10 @@ void test_translations()
 
 enum RectStability {STABLE, UNSTABLE};
 
-const vector<vector<RectStability> > DTStrategy={
-        {STABLE,STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
-        {STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
-        {STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+const vector<vector<RectStability> > Strategies={
+        {STABLE,STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+        {STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+        {STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
         {UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE}
 };
 
@@ -2569,6 +2569,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 //TODO: use C++23 cartesian_product() to generate (i,j) and views::filter() to filter out i==j, ...upfront
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
+                        if (depth >= Strategies[strategy].size())
+                                continue;
+
 			D(printf("i=%d\n", i));
 
 			if (connected_component[i] == cmax && depth <= 2)
@@ -2584,9 +2587,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 				D(printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, connected_component[i], depth, i));
 				continue;
 			}
-
-			if (depth > 6)
-				continue;
 
 			if (mapping(i) != i)
 			{
