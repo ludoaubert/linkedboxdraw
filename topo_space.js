@@ -254,6 +254,7 @@ function select_id(event)
 		   document
 			.querySelectorAll(`[id^="g-h-"]`)
 			.forEach((element) => {element.style.visibility = "visible";});
+		   document.getElementById("range_svg").innerHTML = "";
 		   document.getElementById("chemin").getElementsByTagName("tbody")[0].innerHTML = "";
 	 }
 	 return true;
