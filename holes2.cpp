@@ -2404,6 +2404,15 @@ void test_translations()
 };
 
 
+enum RectStability {STABLE, UNSTABLE};
+
+const vector<vector<RectStability> > DTStrategy={
+        {STABLE,STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+        {STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+        {STABLE,UNSTABLE,UNSTABLE,UNSTABLE},
+        {UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE}
+};
+
 vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_rectangles,
 						const vector<LogicalEdge>& logical_edges,
 						vector<MyRect>& emplacements)
@@ -2535,6 +2544,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	vector<DecisionTreeNode> decision_tree;
 
 	const unsigned BITSET_MAX_SIZE=1024;
+
+	int strategy=0;
 
 //TODO: use C++23 deducing this.
 
