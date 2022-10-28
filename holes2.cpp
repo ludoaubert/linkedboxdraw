@@ -974,11 +974,9 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	int nh = holes.size();
 	D(printf("holes.size()=%d.\n", nh));
 
-  for (int i=0; i<2; i++)
+  for (int i=0; i<1; i++)
   {
-/*
-TODO: use C++23 views::to<vector>()
-*/
+//TODO: use C++23 views::to<vector>()
 	auto rg = views::iota(0,nh) |
 		views::filter([&](int hi){
 			auto rng = views::iota(0,nh) | views::filter([&](int hj){return hj != hi;});
@@ -999,8 +997,10 @@ TODO: use C++23 views::to<vector>()
 
 	auto rng = cp | views::filter([&](const Match& m){
 				const auto [hi, hj] = m;
-				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
-				return ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
+				MyRect ri = holes[hi].rec, rj = holes[hj].rec;
+				MyRect h = enveloppe(ri, rj);
+				return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
+					ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
 		});
 
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
@@ -1010,9 +1010,19 @@ TODO: use C++23 views::to<vector>()
                                 const auto [hi, hj] = m;
                                 return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;});
 
+	D(printf(".rngf={\n"));
+	for (const auto [hi, hj] : rngf)
+		D(printf("{.hi=%d, .hj=%d}\n", hi, hj));
+	D(printf("}\n"));
+
 	auto rng1 = rngf |
 		views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) |
 		views::join ;
+
+	D(printf(".rng1={"));
+	for (int hi : rng1)
+		D(printf("%d,", hi));
+        D(printf("}\n"));
 
 	auto rng2 = views::iota(0,nh) |
 		views::filter([&](int hi){return ranges::count(rng1,hi)!=1;}) |

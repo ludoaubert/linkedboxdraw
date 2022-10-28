@@ -170,6 +170,11 @@ const RectDimRange rectDimRanges[2] = {
 	{ TOP, BOTTOM }
 };
 
+struct MySegment {
+	int min, max;
+        bool operator==(const MySegment&) const = default;
+};
+
 
 struct MyRect
 {
@@ -177,6 +182,17 @@ struct MyRect
 	int16_t no_sequence=0 ;
 	int16_t i=-1 ;
 	bool selected=false ;
+
+	MySegment operator[](Direction direction) const
+	{
+		switch(direction)
+		{
+		case EAST_WEST:
+			return {m_left, m_right};
+		case NORTH_SOUTH:
+			return {m_top, m_bottom};
+		}
+	}
 
 	MyPoint operator[](RectCorner rc) const
 	{
