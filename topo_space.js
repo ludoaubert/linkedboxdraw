@@ -251,6 +251,10 @@ function select_id(event)
 	 else {
 		   tr.className='';
 		   selected = null;
+		   document
+			.querySelectorAll(`[id^="g-h-"]`)
+			.forEach((element) => {element.style.visibility = "visible";});
+		   document.getElementById("chemin").getElementsByTagName("tbody")[0].innerHTML = "";
 	 }
 	 return true;
 }
