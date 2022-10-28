@@ -2725,7 +2725,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 //1:OCCUPE, 0:LIBRE
 	const bitset<BITSET_MAX_SIZE> etat_emplacement(string(m-n,'0')+string(n,'1'));
-	build_decision_tree(-1, etat_emplacement, build_decision_tree);
+	for (strategy=0; strategy < Strategies.size(); strategy++)
+		build_decision_tree(-1, etat_emplacement, build_decision_tree);
 
 	D(printf("decision_tree.size()=%ld\n", decision_tree.size()));
 
