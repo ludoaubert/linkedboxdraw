@@ -2574,17 +2574,17 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 			D(printf("i=%d\n", i));
 
-			if (connected_component[i] == cmax && depth <= 2)
+			if (connected_component[i] == cmax && Strategies[strategy][depth] == STABLE)
 			{
-				D(printf("connected_component[%d] == cmax && depth=%d <= 2\n", i, depth));
+				D(printf("connected_component[%d] == cmax && Strategies[strategy=%d][depth=%d] == STABLE <= 2\n", i, strategy, depth));
 			}
-			else if (connected_component[i] != cmax && depth > 2)
+			else if (connected_component[i] != cmax && Strategies[strategy][depth] == UNSTABLE)
 			{
-				D(printf("connected_component[%d] != cmax && depth=%d > 2\n", i, depth));
+				D(printf("connected_component[%d] != cmax && Strategies[strategy=%d][depth=%d] == UNSTABLE\n", i, strategy, depth));
 			}
 			else
 			{
-				D(printf("connected_component[%d] == %d. depth=%d. skipping %d\n", i, connected_component[i], depth, i));
+				D(printf("connected_component[%d] == %d. strategy=%d. depth=%d. skipping %d\n", i, connected_component[i], strategy, depth, i));
 				continue;
 			}
 
