@@ -57,6 +57,8 @@ struct MyVector
 	operator MyPoint() const {
 		return {x, y};
 	}
+
+        friend bool operator==(const MyVector&, const MyVector&) = default;
 };
 
 inline MyVector operator*(int16_t value, const MyVector& vec)
@@ -1005,10 +1007,26 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
 
+	const MyVector matched_directions[4][2]={
+		{{.x=-1, .y=-1},{.x=-1, .y=+1}},
+		{{.x=+1, .y=-1},{.x=-1, .y=-1}},
+		{{.x=+1, .y=+1},{.x=+1, .y=-1}},
+		{{.x=-1, .y=+1},{.x=+1, .y=+1}}
+	};
+
 	auto rngf = rng |
                 views::filter([&](const Match& m){
                                 const auto [hi, hj] = m;
-                                return ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1;});
+				const MyVector md[2] = { holes[hi].direction, holes[hj].direction};
+                                return (ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1) ||
+					(holes[hi].ri == holes[hj].ri && ranges::any_of(
+										views::iota(0,4),
+										[&](int i){
+						const MyVector (&dir)[2]=matched_directions[i];
+						return (dir[0]== md[0] && dir[1]==md[1]) || (dir[0]== md[1] && dir[1]==md[0]);
+										}
+									)
+						);});
 
 	D(printf(".rngf={\n"));
 	for (const auto [hi, hj] : rngf)
