@@ -1007,11 +1007,16 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
 
-	const MyVector matched_directions[4][2]={
+	const MyVector matched_directions[8][2]={
 		{{.x=-1, .y=-1},{.x=-1, .y=+1}},
 		{{.x=+1, .y=-1},{.x=-1, .y=-1}},
 		{{.x=+1, .y=+1},{.x=+1, .y=-1}},
-		{{.x=-1, .y=+1},{.x=+1, .y=+1}}
+		{{.x=-1, .y=+1},{.x=+1, .y=+1}},
+// {a,b} => {b,a}
+                {{.x=-1, .y=+1},{.x=-1, .y=-1}},
+                {{.x=-1, .y=-1},{.x=+1, .y=-1}},
+                {{.x=+1, .y=-1},{.x=+1, .y=+1}},
+                {{.x=+1, .y=+1},{.x=-1, .y=+1}}
 	};
 
 	auto rngf = rng |
@@ -1020,10 +1025,9 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 				const MyVector md[2] = { holes[hi].direction, holes[hj].direction};
                                 return (ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1) ||
 					(holes[hi].ri == holes[hj].ri && ranges::any_of(
-										views::iota(0,4),
-										[&](int i){
-						const MyVector (&dir)[2]=matched_directions[i];
-						return (dir[0]== md[0] && dir[1]==md[1]) || (dir[0]== md[1] && dir[1]==md[0]);
+										matched_directions,
+										[&](const MyVector (&dir2)[2]){
+						return ranges::equal(dir2, md);
 										}
 									)
 						);});
