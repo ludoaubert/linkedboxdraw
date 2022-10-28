@@ -241,7 +241,7 @@ function select_id(event)
 		.map(({i_emplacement_destination}) => i_emplacement_destination)
 		.filter(i_emplacement_destination => i_emplacement_destination >= logical_graph.input_rectangles.length)
 		.map(i_emplacement_destination => i_emplacement_destination - logical_graph.input_rectangles.length)
-		.map(h => `[id^="g-h-${h}"]`)
+		.map(h => `[id="g-h-${h}"]`)
 		.join(', ');
 
 	   document
