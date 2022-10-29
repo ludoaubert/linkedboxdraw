@@ -989,6 +989,18 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	nh = holes.size();
         D(printf("holes.size()=%d after removing inside holes.\n", nh));
 
+        const MyVector matched_directions[8][2]={
+                {{.x=-1, .y=-1},{.x=-1, .y=+1}},
+                {{.x=+1, .y=-1},{.x=-1, .y=-1}},
+                {{.x=+1, .y=+1},{.x=+1, .y=-1}},
+                {{.x=-1, .y=+1},{.x=+1, .y=+1}},
+// {a,b} => {b,a}
+                {{.x=-1, .y=+1},{.x=-1, .y=-1}},
+                {{.x=-1, .y=-1},{.x=+1, .y=-1}},
+                {{.x=+1, .y=-1},{.x=+1, .y=+1}},
+                {{.x=+1, .y=+1},{.x=-1, .y=+1}}
+        };
+
 //TODO use C++23 cartesian_product()
 
 	struct Match{int hi; int hj;};
@@ -1006,18 +1018,6 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		});
 
 	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
-
-	const MyVector matched_directions[8][2]={
-		{{.x=-1, .y=-1},{.x=-1, .y=+1}},
-		{{.x=+1, .y=-1},{.x=-1, .y=-1}},
-		{{.x=+1, .y=+1},{.x=+1, .y=-1}},
-		{{.x=-1, .y=+1},{.x=+1, .y=+1}},
-// {a,b} => {b,a}
-                {{.x=-1, .y=+1},{.x=-1, .y=-1}},
-                {{.x=-1, .y=-1},{.x=+1, .y=-1}},
-                {{.x=+1, .y=-1},{.x=+1, .y=+1}},
-                {{.x=+1, .y=+1},{.x=-1, .y=+1}}
-	};
 
 	auto rngf = rng |
                 views::filter([&](const Match& m){
