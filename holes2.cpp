@@ -1009,6 +1009,28 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 		for (int hj=hi+1; hj < nh; hj++)
 			cp.push_back({hi, hj});
 
+	auto rng0 = cp | views::filter([&](const Match& m){
+                                const auto [hi, hj] = m;
+                                const MyVector md[2] = { holes[hi].direction, holes[hj].direction};
+                                return holes[hi].ri == holes[hj].ri &&
+					ranges::any_of(matched_directions,[&](const MyVector (&dir2)[2]){return ranges::equal(dir2, md);});
+			}) |
+			views::filter([&](const Match& m){
+                                const auto [hi, hj] = m;
+                                MyRect ri = holes[hi].rec, rj = holes[hj].rec;
+                                MyRect h = enveloppe(ri, rj);
+                                return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
+                                        ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
+                	});
+
+        D(printf(".rng0={\n"));
+        for (const auto [hi, hj] : rng0)
+	{
+		const MyVector diri = holes[hi].direction, dirj = holes[hj].direction;
+                D(printf("{.hi=%d, .dir={.x=%f, .y=%f} .hj=%d, .dir={.x=%f, .y=%f}\n", hi, diri.x, diri.y, hj, dirj.x, dirj.y));
+	}
+        D(printf("}\n"));
+
 	auto rng = cp | views::filter([&](const Match& m){
 				const auto [hi, hj] = m;
 				MyRect ri = holes[hi].rec, rj = holes[hj].rec;
