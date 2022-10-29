@@ -163,6 +163,13 @@ extern const char* RectDimString[4];
 const Direction RectDimDirection[4]={EAST_WEST,EAST_WEST,NORTH_SOUTH,NORTH_SOUTH};
 
 
+const RectDim RectCornerDims[4][2]={
+	{LEFT, TOP},
+	{LEFT, BOTTOM},
+	{RIGHT, TOP},
+	{RIGHT, BOTTOM}
+};
+
 struct RectDimRange{ RectDim min, max;};
 
 const RectDimRange rectDimRanges[2] = {
