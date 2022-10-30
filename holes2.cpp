@@ -904,6 +904,21 @@ struct HoleOrigin
 };
 
 
+const HoleOrigin hole_origins[12]={
+	{.corner=TOP_LEFT, .dir={.x=-1, .y=-1}},
+	{.corner=TOP_LEFT, .dir={.x=+1, .y=-1}},
+	{.corner=TOP_LEFT, .dir={.x=-1, .y=+1}},
+	{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=+1}},
+	{.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}},
+	{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}},
+	{.corner=TOP_RIGHT, .dir={.x=+1, .y=+1}},
+	{.corner=TOP_RIGHT, .dir={.x=+1, .y=-1}},
+	{.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}},
+	{.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}},
+	{.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=+1}},
+	{.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=-1}}
+};
+
 const HoleOrigin matched_origins[8][2]={
 	{{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}}, {.corner=TOP_LEFT, .dir={.x=-1, .y=+1}}},
 	{{.corner=TOP_LEFT, .dir={.x=+1, .y=-1}}, {.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}}},
