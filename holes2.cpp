@@ -945,51 +945,31 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
 	vector<RectHole> holes;
 
+//TODO: use C++23 views::cartesian_product()
+
 	for (int i=0; i<n; i++)
 	{
 		const MyRect& r = input_rectangles[i];
-/*
-	TOP_LEFT=0,
-	BOTTOM_LEFT,
-	TOP_RIGHT,
-	BOTTOM_RIGHT
-*/
-		const MyPoint rect_corners[4]={
-			{.x=r.m_left, .y=r.m_top},
-			{.x=r.m_left, .y=r.m_bottom},
-			{.x=r.m_right, .y=r.m_top},
-			{.x=r.m_right, .y=r.m_bottom}
-		};
 
-		const MyVector directions[4][3]={
-			{{.x=-1, .y=-1},{.x=+1, .y=-1},{.x=-1, .y=+1}},
-			{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=-1, .y=-1}},
-			{{.x=+1, .y=+1},{.x=+1, .y=-1},{.x=-1, .y=-1}},
-			{{.x=-1, .y=+1},{.x=+1, .y=+1},{.x=+1, .y=-1}}
-		};
-
-		for (int rc : views::iota(0,4))
+		for (const auto [corner, dir] : hole_origins)
 		{
-			const MyPoint& pt = rect_corners[rc] ;
+			const MyPoint pt = r[corner] ;
 
-			for (const MyVector& dir : directions[rc])
+			int intervalle[2]={2, INT16_MAX};
+			auto& [m, M] = intervalle;
+			while (M > 1+m)
 			{
-				int intervalle[2]={2, INT16_MAX};
-				auto& [m, M] = intervalle;
-				while (M > 1+m)
-				{
-					int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-					MyRect rec = rect(pt, pt + value*dir);
-					auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) /*|| is_inside(r, rec)*/;});
-					(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-					D(printf("{.i=%d, .RectCorner=%s, .direction={.x=%.0f, .y=%.0f} [.m=%d .M=%d]}\n", i, RectCornerString[rc], dir.x, dir.y, m, M));
-				}
+				int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
+				MyRect rec = rect(pt, pt + value*dir);
+				auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) /*|| is_inside(r, rec)*/;});
+				(rg.empty() && is_inside(rec,frame) ? m : M) = value;
+				D(printf("{.i=%d, .RectCorner=%s, .direction={.x=%.0f, .y=%.0f} [.m=%d .M=%d]}\n", i, RectCornerString[corner], dir.x, dir.y, m, M));
+			}
 
-				if (m > 2)
-				{
- 					MyRect rec = rect(pt, pt + m*dir);
-					holes.push_back({.ri=i, .corner=(RectCorner)rc, .direction=dir, .value=m, .rec=rec});
-				}
+			if (m > 2)
+			{
+ 				MyRect rec = rect(pt, pt + m*dir);
+				holes.push_back({.ri=i, .corner=corner, .direction=dir, .value=m, .rec=rec});
 			}
 		}
 	}
