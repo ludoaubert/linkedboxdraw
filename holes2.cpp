@@ -294,6 +294,31 @@ const vector<TestInput> test_input={
 		{.from=13, .to=9},
 		{.from=14, .to=9}
 	}
+},
+{
+        .testid=1,
+        .input_rectangles = {
+		{.m_left=750-RECT_BORDER, .m_right=960+RECT_BORDER, .m_top=282-RECT_BORDER, .m_bottom=434+RECT_BORDER},
+		{.m_left=23-RECT_BORDER, .m_right=163+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=434+RECT_BORDER},
+		{.m_left=1215-RECT_BORDER, .m_right=1341+RECT_BORDER, .m_top=90-RECT_BORDER, .m_bottom=226+RECT_BORDER},
+		{.m_left=1049-RECT_BORDER, .m_right=1175+RECT_BORDER, .m_top=122-RECT_BORDER, .m_bottom=242+RECT_BORDER},
+		{.m_left=1166-RECT_BORDER, .m_right=1341+RECT_BORDER, .m_top=298-RECT_BORDER, .m_bottom=386+RECT_BORDER},
+		{.m_left=1000-RECT_BORDER, .m_right=1126+RECT_BORDER, .m_top=282-RECT_BORDER, .m_bottom=418+RECT_BORDER},
+		{.m_left=203-RECT_BORDER, .m_right=336+RECT_BORDER, .m_top=154-RECT_BORDER, .m_bottom=274+RECT_BORDER},
+		{.m_left=708-RECT_BORDER, .m_right=876+RECT_BORDER, .m_top=154-RECT_BORDER, .m_bottom=242+RECT_BORDER},
+		{.m_left=370-RECT_BORDER, .m_right=475+RECT_BORDER, .m_top=10-RECT_BORDER, .m_bottom=114+RECT_BORDER},
+		{.m_left=204-RECT_BORDER, .m_right=330+RECT_BORDER, .m_top=10-RECT_BORDER, .m_bottom=114+RECT_BORDER},
+		{.m_left=10-RECT_BORDER, .m_right=164+RECT_BORDER, .m_top=10-RECT_BORDER, .m_bottom=114+RECT_BORDER},
+		{.m_left=85-RECT_BORDER, .m_right=162+RECT_BORDER, .m_top=154-RECT_BORDER, .m_bottom=210+RECT_BORDER},
+		{.m_left=376-RECT_BORDER, .m_right=474+RECT_BORDER, .m_top=201-RECT_BORDER, .m_bottom=273+RECT_BORDER},
+		{.m_left=708-RECT_BORDER, .m_right=869+RECT_BORDER, .m_top=10-RECT_BORDER, .m_bottom=114+RECT_BORDER},
+		{.m_left=514-RECT_BORDER, .m_right=668+RECT_BORDER, .m_top=154-RECT_BORDER, .m_bottom=258+RECT_BORDER},
+		{.m_left=203-RECT_BORDER, .m_right=386+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=418+RECT_BORDER},
+		{.m_left=514-RECT_BORDER, .m_right=641+RECT_BORDER, .m_top=298-RECT_BORDER, .m_bottom=370+RECT_BORDER}
+	},
+        .logical_edges = {
+
+	}
 }};
 
 
