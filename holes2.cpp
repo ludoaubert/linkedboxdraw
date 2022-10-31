@@ -317,7 +317,42 @@ const vector<TestInput> test_input={
 		{.m_left=514-RECT_BORDER, .m_right=641+RECT_BORDER, .m_top=298-RECT_BORDER, .m_bottom=370+RECT_BORDER}
 	},
         .logical_edges = {
-
+		{.from=0, .to=5},
+		{.from=0, .to=6},
+		{.from=1, .to=6},
+		{.from=2, .to=3},
+		{.from=3, .to=2},
+		{.from=3, .to=4},
+		{.from=3, .to=5},
+		{.from=4, .to=3},
+		{.from=5, .to=0},
+		{.from=5, .to=3},
+		{.from=5, .to=7},
+		{.from=6, .to=0},
+		{.from=6, .to=1},
+		{.from=6, .to=7},
+		{.from=6, .to=8},
+		{.from=6, .to=9},
+		{.from=6, .to=10},
+		{.from=6, .to=11},
+		{.from=6, .to=15},
+		{.from=7, .to=5},
+		{.from=7, .to=6},
+		{.from=8, .to=6},
+		{.from=9, .to=6},
+		{.from=10, .to=6},
+		{.from=11, .to=6},
+		{.from=12, .to=14},
+		{.from=12, .to=15},
+		{.from=12, .to=16},
+		{.from=13, .to=14},
+		{.from=14, .to=12},
+		{.from=14, .to=13},
+		{.from=14, .to=16},
+		{.from=15, .to=6},
+		{.from=15, .to=12},
+		{.from=16, .to=12},
+		{.from=16, .to=14}
 	}
 }};
 

@@ -13,11 +13,19 @@ import translation_ranges_1 from './translation_ranges_1.json' assert {type: 'js
 import translation_ranges2_1 from './translation_ranges2_1.json' assert {type: 'json'};
 import scores1 from './scores1.json' assert {type: 'json'};
 
+import logical_graph2 from './logical_graph2.json' assert {type: 'json'};
+import holes2 from './holes2.json' assert {type: 'json'};
+import decision_tree2 from './decision_tree2.json' assert {type: 'json'};
+import translation_ranges_2 from './translation_ranges_2.json' assert {type: 'json'};
+import translation_ranges2_2 from './translation_ranges2_2.json' assert {type: 'json'};
+import scores2 from './scores2.json' assert {type: 'json'};
+
 var testIndex=0;
 
 const tests = [
 	{logical_graph:logical_graph0, holes:holes0, decision_tree:decision_tree0, translation_ranges:translation_ranges_0, translation_ranges2:translation_ranges2_0, scores:scores0},
-	{logical_graph:logical_graph1, holes:holes1, decision_tree:decision_tree1, translation_ranges:translation_ranges_1, translation_ranges2:translation_ranges2_1, scores:scores1}
+	{logical_graph:logical_graph1, holes:holes1, decision_tree:decision_tree1, translation_ranges:translation_ranges_1, translation_ranges2:translation_ranges2_1, scores:scores1},
+        {logical_graph:logical_graph2, holes:holes2, decision_tree:decision_tree2, translation_ranges:translation_ranges_2, translation_ranges2:translation_ranges2_2, scores:scores2}
 ];
 
 
