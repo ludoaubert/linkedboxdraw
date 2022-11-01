@@ -296,7 +296,7 @@ const vector<TestInput> test_input={
 	}
 },
 {
-        .testid=1,
+        .testid=2,
         .input_rectangles = {
 		{.m_left=750-RECT_BORDER, .m_right=960+RECT_BORDER, .m_top=282-RECT_BORDER, .m_bottom=434+RECT_BORDER},
 		{.m_left=23-RECT_BORDER, .m_right=163+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=434+RECT_BORDER},
