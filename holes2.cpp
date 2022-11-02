@@ -354,6 +354,62 @@ const vector<TestInput> test_input={
 		{.from=16, .to=12},
 		{.from=16, .to=14}
 	}
+},
+{
+	.testid=3,
+        .input_rectangles = {
+                {.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=690+RECT_BORDER},
+                {.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=866+RECT_BORDER},
+                {.m_left=169-RECT_BORDER,.m_right=288+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=706+RECT_BORDER},
+                {.m_left=328-RECT_BORDER,.m_right=482+RECT_BORDER,.m_top=618-RECT_BORDER,.m_bottom=818+RECT_BORDER},
+                {.m_left=564-RECT_BORDER,.m_right=718+RECT_BORDER,.m_top=138-RECT_BORDER,.m_bottom=338+RECT_BORDER},
+                {.m_left=564-RECT_BORDER,.m_right=690+RECT_BORDER,.m_top=378-RECT_BORDER,.m_bottom=578+RECT_BORDER},
+		{.m_left=370-RECT_BORDER,.m_right=524+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
+		{.m_left=176-RECT_BORDER,.m_right=330+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=338+RECT_BORDER},
+		{.m_left=176-RECT_BORDER,.m_right=330+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
+		{.m_left=328-RECT_BORDER,.m_right=524+RECT_BORDER,.m_top=378-RECT_BORDER,.m_bottom=578+RECT_BORDER},
+		{.m_left=162-RECT_BORDER,.m_right=288+RECT_BORDER,.m_top=378-RECT_BORDER,.m_bottom=498+RECT_BORDER},
+		{.m_left=370-RECT_BORDER,.m_right=496+RECT_BORDER,.m_top=266-RECT_BORDER,.m_bottom=338+RECT_BORDER},
+		{.m_left=10-RECT_BORDER,.m_right=136+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=322+RECT_BORDER},
+		{.m_left=522-RECT_BORDER,.m_right=627+RECT_BORDER,.m_top=618-RECT_BORDER,.m_bottom=818+RECT_BORDER},
+		{.m_left=52-RECT_BORDER,.m_right=122+RECT_BORDER,.m_top=376-RECT_BORDER,.m_bottom=464+RECT_BORDER}
+	},
+	.logical_edges = {
+		{.from=0,.to=2},
+		{.from=1,.to=2},
+		{.from=2,.to=0},
+		{.from=2,.to=1},
+		{.from=2,.to=3},
+		{.from=2,.to=9},
+		{.from=3,.to=2},
+		{.from=4,.to=5},
+		{.from=4,.to=6},
+		{.from=4,.to=9},
+		{.from=4,.to=11},
+		{.from=5,.to=4},
+		{.from=6,.to=4},
+		{.from=6,.to=8},
+		{.from=7,.to=9},
+		{.from=8,.to=6},
+		{.from=8,.to=9},
+		{.from=8,.to=12},
+		{.from=9,.to=2},
+		{.from=9,.to=4},
+		{.from=9,.to=7},
+		{.from=9,.to=8},
+		{.from=9,.to=10},
+		{.from=9,.to=13},
+		{.from=9,.to=14},
+		{.from=10,.to=9},
+		{.from=10,.to=11},
+		{.from=10,.to=12},
+		{.from=11,.to=4},
+		{.from=11,.to=10},
+		{.from=12,.to=8},
+		{.from=12,.to=10},
+		{.from=13,.to=9},
+		{.from=14,.to=9}
+	}
 }};
 
 
