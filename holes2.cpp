@@ -410,6 +410,60 @@ const vector<TestInput> test_input={
 		{.from=13,.to=9},
 		{.from=14,.to=9}
 	}
+},
+{
+	.testid=4,
+	.input_rectangles = {
+		{.m_left=108-RECT_BORDER,.m_right=234+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
+		{.m_left=454-RECT_BORDER,.m_right=594+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
+		{.m_left=66-RECT_BORDER,.m_right=171+RECT_BORDER,.m_top=490-RECT_BORDER,.m_bottom=674+RECT_BORDER},
+		{.m_left=274-RECT_BORDER,.m_right=414+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
+		{.m_left=211-RECT_BORDER,.m_right=414+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=450+RECT_BORDER},
+		{.m_left=648-RECT_BORDER,.m_right=803+RECT_BORDER,.m_top=282-RECT_BORDER,.m_bottom=450+RECT_BORDER},
+		{.m_left=211-RECT_BORDER,.m_right=344+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=850+RECT_BORDER},
+		{.m_left=211-RECT_BORDER,.m_right=456+RECT_BORDER,.m_top=490-RECT_BORDER,.m_bottom=690+RECT_BORDER},
+		{.m_left=31-RECT_BORDER,.m_right=171+RECT_BORDER,.m_top=714-RECT_BORDER,.m_bottom=914+RECT_BORDER},
+		{.m_left=454-RECT_BORDER,.m_right=608+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=450+RECT_BORDER},
+		{.m_left=634-RECT_BORDER,.m_right=760+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=930+RECT_BORDER},
+		{.m_left=746-RECT_BORDER,.m_right=929+RECT_BORDER,.m_top=490-RECT_BORDER,.m_bottom=658+RECT_BORDER},
+		{.m_left=10-RECT_BORDER,.m_right=171+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=450+RECT_BORDER},
+		{.m_left=496-RECT_BORDER,.m_right=706+RECT_BORDER,.m_top=490-RECT_BORDER,.m_bottom=690+RECT_BORDER},
+		{.m_left=454-RECT_BORDER,.m_right=594+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=930+RECT_BORDER}
+	},
+	.logical_edges = {
+		{"from": 0,"to": 4},
+		{"from": 1,"to": 4},
+		{"from": 1,"to": 9},
+		{"from": 2,"to": 4},
+		{"from": 2,"to": 12},
+		{"from": 3,"to": 4},
+		{"from": 3,"to": 9},
+		{"from": 4,"to": 0},
+		{"from": 4,"to": 1},
+		{"from": 4,"to": 2},
+		{"from": 4,"to": 3},
+		{"from": 4,"to": 7},
+		{"from": 5,"to": 13},
+		{"from": 6,"to": 7},
+		{"from": 6,"to": 8},
+		{"from": 7,"to": 4},
+		{"from": 7,"to": 6},
+		{"from": 7,"to": 13},
+		{"from": 8,"to": 6},
+		{"from": 9,"to": 1},
+		{"from": 9,"to": 3},
+		{"from": 9,"to": 13},
+		{"from": 10,"to": 13},
+		{"from": 11,"to": 13},
+		{"from": 12,"to": 2},
+		{"from": 13,"to": 5},
+		{"from": 13,"to": 7},
+		{"from": 13,"to": 9},
+		{"from": 13,"to": 10},
+		{"from": 13,"to": 11},
+		{"from": 13,"to": 14},
+		{"from": 14,"to": 13}
+	}
 }};
 
 
