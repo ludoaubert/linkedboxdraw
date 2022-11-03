@@ -1090,14 +1090,9 @@ const HoleOrigin hole_origins[12]={
 };
 
 const HoleOrigin matched_origins[8][2]={
-	{{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}}, {.corner=TOP_LEFT, .dir={.x=-1, .y=+1}}},
 	{{.corner=TOP_LEFT, .dir={.x=+1, .y=-1}}, {.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}}},
 	{{.corner=TOP_RIGHT, .dir={.x=+1, .y=+1}}, {.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=-1}}},
-	{{.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}}, {.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}}},
-// {a,b} => {b,a}
 	{{.corner=TOP_LEFT, .dir={.x=-1, .y=+1}}, {.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}}},
-	{{.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}}, {.corner=TOP_LEFT, .dir={.x=+1, .y=-1}}},
-	{{.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=-1}}, {.corner=TOP_RIGHT, .dir={.x=+1, .y=+1}}},
 	{{.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}}, {.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}}}
 };
 
@@ -1158,23 +1153,28 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 
         D(printf("holes.size() after removing small ones=%zu.\n", holes.size()));
 
+	assert(ranges::all_of(matched_origins, [](const HoleOrigin (&ho2)[2]){return ho2[0].corner < ho2[1].corner;}));
+
 //TODO use C++23 cartesian_product()
 
         struct Match{int hi; int hj;};
 
         vector<Match> cp;
         for (int hi=0; hi < holes.size(); hi++)
-                for (int hj=hi+1; hj < holes.size(); hj++)
+                for (int hj=0; hj < holes.size(); hj++)
                         cp.push_back({hi, hj});
 
-        auto rn0 = cp | views::filter([&](const Match& m){
+        auto rn0 = cp | views::filter([&](const Match& m) {
+                                const auto [hi, hj] = m;
+				return holes[hi].ri == holes[hj].ri && holes[hi].corner < holes[hj].corner;
+			}) |
+			views::filter([&](const Match& m){
                                 const auto [hi, hj] = m;
                                 const HoleOrigin ho2[2] = {
 					{.corner=holes[hi].corner, .dir=holes[hi].direction},
 					{.corner=holes[hj].corner, .dir=holes[hj].direction}
 				};
-                                return holes[hi].ri == holes[hj].ri &&
-                                        ranges::any_of(matched_origins,	[&](const HoleOrigin (&mo2)[2]){return ranges::equal(ho2, mo2);});
+                                return ranges::any_of(matched_origins,[&](const HoleOrigin (&mo2)[2]){return ranges::equal(ho2, mo2);});
                         }) |
                         views::filter([&](const Match& m){
                                 const auto [hi, hj] = m;
@@ -1182,16 +1182,24 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
                                 MyRect h = enveloppe(ri, rj);
                                 return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
                                         ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-                        });
+                        }) |
+			views::transform([&](const Match& m){
+                                const auto [hi, hj] = m;
+                                MyRect ri = holes[hi].rec, rj = holes[hj].rec;
+                                MyRect h = enveloppe(ri, rj);
+                                RectHole rh = holes[hi];
+                                rh.rec = h;
+                                return rh;
+			});
 
-        D(printf(".rn0={\n"));
-        for (const auto [hi, hj] : rn0)
-        {
-                const MyVector diri = holes[hi].direction, dirj = holes[hj].direction;
-		const char *corneri = RectCornerString[holes[hi].corner], *cornerj = RectCornerString[holes[hj].corner];
-                D(printf("{.hi=%d, .ri=%d, .corner=%s, .dir={.x=%.0f, .y=%.0f} .hj=%d, .rj=%d, .corner=%s, .dir={.x=%.0f, .y=%.0f}}\n", hi, holes[hi].ri, corneri, diri.x, diri.y, hj, holes[hj].ri, cornerj, dirj.x, dirj.y));
-        }
-        D(printf("}\n"));
+        auto rg = holes |
+                views::filter([&](const RectHole& rhi){
+                        return ranges::none_of(rn0, [&](const RectHole& rhj){return is_inside(rhi.rec, expanded_by(rhj.rec, +1));});
+                }) |
+		views::filter([&](const RectHole& rhi){
+			return ranges::none_of(holes, [&](const RectHole& rhj){return is_inside(rhi.rec, expanded_by(rhj.rec, +1));});
+		});
+
 
 	ranges::sort(holes, {}, &RectHole::rec);
 	vector<RectHole> holes_dedup;
@@ -1221,31 +1229,6 @@ vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
 	for (int hi=0; hi < nh; hi++)
 		for (int hj=hi+1; hj < nh; hj++)
 			cp.push_back({hi, hj});
-
-	auto rng0 = cp | views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                const HoleOrigin ho2[2] = {
-                                        {.corner=holes[hi].corner, .dir=holes[hi].direction},
-                                        {.corner=holes[hj].corner, .dir=holes[hj].direction}
-                                };
-                                return holes[hi].ri == holes[hj].ri &&
-                                        ranges::any_of(matched_origins, [&](const HoleOrigin (&mo2)[2]){return ranges::equal(ho2, mo2);});
-                        }) |
-			views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                MyRect ri = holes[hi].rec, rj = holes[hj].rec;
-                                MyRect h = enveloppe(ri, rj);
-                                return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
-                                        ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-                	});
-
-        D(printf(".rng0={\n"));
-        for (const auto [hi, hj] : rng0)
-	{
-		const MyVector diri = holes[hi].direction, dirj = holes[hj].direction;
-                D(printf("{.hi=%d, .dir={.x=%.0f, .y=%.0f} .hj=%d, .dir={.x=%.0f, .y=%.0f}\n", hi, diri.x, diri.y, hj, dirj.x, dirj.y));
-	}
-        D(printf("}\n"));
 
 	auto rng = cp | views::filter([&](const Match& m){
 				const auto [hi, hj] = m;
