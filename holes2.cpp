@@ -1296,15 +1296,21 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
 		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
 	};
-	const vector<MyRect> rectangles = {
-		...input_rectangles,
+
+	const MyRect borders[4] = {
 		{.m_left=frame.m_left, .m_right=frame.m_left, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
 		{.m_left=frame.m_right, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
 		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_top},
 		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_bottom, .m_bottom=frame.m_bottom}
 	};
+	
+	vector<MyRect> rectangles;
+	ranges::copy(input_ranges, back_inserter(rectangles));
+	ranges::copy(borders, back_inserter(tmp));
+	
 	const Direction update_direction = EAST_WEST;
 	const Direction sweep_direction = NORTH_SOUTH;
+	
 	vector<RectLink> rect_links = sweep(update_direction, rectangles);
 	auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
 								const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
