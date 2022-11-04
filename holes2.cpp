@@ -1306,7 +1306,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	
 	vector<MyRect> rectangles;
 	ranges::copy(input_ranges, back_inserter(rectangles));
-	ranges::copy(borders, back_inserter(tmp));
+	ranges::copy(borders, back_inserter(rectangles));
 	
 	const Direction update_direction = EAST_WEST;
 	const Direction sweep_direction = NORTH_SOUTH;
