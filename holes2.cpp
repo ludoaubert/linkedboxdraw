@@ -1288,7 +1288,39 @@ const HoleOrigin matched_origins[8][2]={
 };
 
 
-vector<RectHole> compute_holes(const vector<MyRect>& input_rectangles)
+vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
+{
+	const MyRect frame={
+		.m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
+		.m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
+		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
+		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
+	};
+	const vector<MyRect> rectangles = {
+		...input_rectangles,
+		{.m_left=frame.m_left, .m_right=frame.m_left, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
+		{.m_left=frame.m_right, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
+		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_top},
+		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_bottom, .m_bottom=frame.m_bottom}
+	};
+	const Direction update_direction = EAST_WEST;
+	const Direction sweep_direction = NORTH_SOUTH;
+	vector<RectLink> rect_links = sweep(update_direction, rectangles);
+	auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
+								const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
+								const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
+								return {.m_left=ri.m_left, .m_right=rj.m_right, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
+						}) | views::filter([](const MyRect& r){
+								return r.m_left != r.m_right && r.m_top != r.m_bottom;
+						}) | views::filter([](const MyRect& r){
+								return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
+						});
+						
+	return vector<Rect>(ranges::begin(rg), ranges::end(rg));
+}
+
+
+vector<RectHole> compute_holes_(const vector<MyRect>& input_rectangles)
 {
 	MyRect frame={
 		.m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
@@ -1943,7 +1975,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 								const vector<LogicalEdge>& logical_edges)
 {
 	vector<MyRect> input_emplacements;
-	vector<RectHole> holes = compute_holes(input_rectangles);
+	vector<RectHole> holes = compute_holes_(input_rectangles);
 	for (const MyRect &r : input_rectangles)
 		input_emplacements.push_back(r);
 	for (const RectHole &rh : holes)
@@ -2682,7 +2714,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	{
 		D(printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom));
 	}
-	vector<RectHole> holes = compute_holes(input_rectangles);
+	vector<RectHole> holes = compute_holes_(input_rectangles);
 
 {
 	char buffer[100*1000];
