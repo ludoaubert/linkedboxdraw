@@ -1975,11 +1975,11 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 								const vector<LogicalEdge>& logical_edges)
 {
 	vector<MyRect> input_emplacements;
-	vector<RectHole> holes = compute_holes_(input_rectangles);
+	vector<MyRect> holes = compute_holes(input_rectangles);
 	for (const MyRect &r : input_rectangles)
 		input_emplacements.push_back(r);
-	for (const RectHole &rh : holes)
-		input_emplacements.push_back(rh.rec);
+	for (const MyRect &rec : holes)
+		input_emplacements.push_back(rec);
 
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
