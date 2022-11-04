@@ -2720,7 +2720,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	{
 		D(printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom));
 	}
-	vector<RectHole> holes = compute_holes_(input_rectangles);
+	vector<MyRect> holes = compute_holes(input_rectangles);
 
 {
 	char buffer[100*1000];
@@ -2728,25 +2728,25 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
         pos += sprintf(buffer + pos,"{\n\"holes\":[");
 	for (int hi=0; hi < holes.size(); hi++)
         {
-                const auto& [ri, RectCorner, direction, value, rec] = holes[hi];
-		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"ri\":%d, \"RectCorner\":%d, \"RectCornerString\":\"%s\", \"direction\":{\"x\":%.0f,\"y\":%.0f},\"value\":%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
-			hi, ri, RectCorner, RectCornerString[RectCorner], direction.x, direction.y, value, rec.m_left, rec.m_right, rec.m_top, rec.m_bottom);
+                const MyRect& rec = holes[hi];
+		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
+			hi, rec.m_left, rec.m_right, rec.m_top, rec.m_bottom);
 	}
 	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
 
 	for (int hi=0; hi < holes.size(); hi++)
 	{
-		RectHole& rh = holes[hi];
-                for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rh.rec, input_rectangles[rj]);}))
-                {
-                        pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
-                }
+		MyRect& rec = holes[hi];
+		for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+		{
+			pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
+		}
 	}
 	pos += sprintf(buffer + --pos, "\n]\n}");
 
-        FILE *f=fopen("holes.json", "w");
-        fprintf(f, "%s", buffer);
-        fclose(f);
+	FILE *f=fopen("holes.json", "w");
+	fprintf(f, "%s", buffer);
+	fclose(f);
 }
 
 //La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
@@ -2813,9 +2813,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 		auto mapping=[&](int i){
 			assert(i < n);
-                        for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
-                        {
-                                const auto& [i_emplacement_source, i_emplacement_destination]=decision_tree[pos].recmap;
+			for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
+			{
+				const auto& [i_emplacement_source, i_emplacement_destination]=decision_tree[pos].recmap;
 				if (i_emplacement_source == i)
 					return i_emplacement_destination;
 			}
@@ -2829,8 +2829,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 //TODO: use C++23 cartesian_product() to generate (i,j) and views::filter() to filter out i==j, ...upfront
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
-                        if (depth >= Strategies[strategy].size())
-                                continue;
+			if (depth >= Strategies[strategy].size())
+				continue;
 
 			D(printf("i=%d\n", i));
 
