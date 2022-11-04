@@ -1066,6 +1066,197 @@ void test_rect_trim()
 	}
 }
 
+
+vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectangles)
+{
+	FunctionTimer ft("sweep");
+
+	const int N=30;
+	int n = rectangles.size();
+
+	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
+
+	SweepLineItem sweep_line_buffer[2*N];
+	span sweep_line(sweep_line_buffer, 2*n);
+
+	ActiveLineItem active_line[N];
+	RectLink rect_links_buffer[256];
+
+//use the sweep_line that is not impacted by selected translation
+	Direction sweep_direction = Direction(1-update_direction);
+
+	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
+	auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
+{
+        FunctionTimer ft("cft_fill_sweepline");
+		//sweep_line.reserve(2*n);
+
+	for (int ri=0; ri < n; ri++)
+	{
+		sweep_line_buffer[2*ri]={.sweep_value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
+		sweep_line_buffer[2*ri+1]={.sweep_value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
+	}
+}
+
+	const MyPoint& translation = translation2[update_direction] ;
+{
+        FunctionTimer ft("cft_sort_sweepline");
+	ranges::sort(sweep_line, CustomLess());
+}
+	int active_line_size=0;
+	int rect_links_size=0;
+
+	auto cmp=[&](int i, int j){
+		return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];
+	};
+
+	auto erase=[&](SweepLineItem& sweep_line_item){
+
+		auto& [sweep_value, rectdim, i] = sweep_line_item;
+
+		ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
+		D(printf("lower = %d\n", lower.i));
+		int pos = distance(active_line, &lower);
+		D(printf("pos = %d\n", pos));
+
+		for (RectLink* rl : active_line[pos].links)
+		{
+			if (rl != 0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+		}
+
+		for (int ii=pos; ii<active_line_size; ii++)
+			swap(active_line[ii], active_line[ii+1]);
+		active_line_size -= 1;
+
+		if (pos > 0 && pos < active_line_size)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.i=active_line[pos-1].i,
+				.j=active_line[pos].i,
+				.min_sweep_value=sweep_value
+			};
+
+			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
+		}
+	};
+
+	auto insert=[&](SweepLineItem& sweep_line_item){
+
+		auto& [sweep_value, rectdim, i] = sweep_line_item;
+
+		ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
+		D(printf("upper = %d\n", upper.i));
+		int pos = distance(active_line, &upper);
+		D(printf("pos = %d\n", pos));
+
+		for (int ii=active_line_size-1; ii>=pos; ii--)
+			swap(active_line[ii],active_line[ii+1]);
+		active_line_size += 1;
+		active_line[pos].i=i;
+
+		if (pos > 0)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.i=active_line[pos-1].i,
+				.j=active_line[pos].i,
+				.min_sweep_value=sweep_value
+			};
+
+			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
+			active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
+		}
+		if (pos+1 < active_line_size)
+		{
+			rect_links_buffer[rect_links_size++] = {
+				.i=active_line[pos].i,
+				.j=active_line[pos+1].i,
+				.min_sweep_value=sweep_value
+			};
+
+			if (RectLink *rl=active_line[pos].links[1]; rl!=0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+			if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
+				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
+			active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
+		}
+	};
+
+	auto print_active_line=[&](){
+		char buffer[5000];
+		int pos=0;
+		pos += sprintf(buffer + pos, ".active_line={");
+		for (auto& [i, links] : span(active_line, active_line_size))
+		{
+			pos += sprintf(buffer + pos, " %d,", i);
+		}
+		pos += sprintf(buffer + --pos, "}\n");
+		buffer[pos]=0;
+		printf("%s", buffer);
+	};
+
+{
+        FunctionTimer ft("cft_sweep");
+	for (SweepLineItem& item : sweep_line)
+	{
+		const auto& [sweep_value, rectdim, ri] = item;
+		switch(rectdim)
+		{
+		case LEFT:
+		case TOP:
+			D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
+			D(printf("before insert\n"));
+//			print_active_line();
+			insert(item);
+			D(printf("after insert\n"));
+			D(print_active_line());
+			break;
+		case RIGHT:
+		case BOTTOM:
+			D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
+			D(printf("before erase\n"));
+//			print_active_line();
+			erase(item);
+			D(printf("after erase\n"));
+			D(print_active_line());
+			break;
+		}
+	}
+
+	for (const auto [sweep_value, rectdim, ri] : sweep_line)
+	{
+		D(printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri));
+	}
+}
+
+{
+        FunctionTimer ft("cft_rectlinks_sort");
+	sort(rect_links_buffer, rect_links_buffer + rect_links_size);
+}
+
+        auto rg = views::counted(rect_links_buffer, rect_links_size) |
+                views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
+#ifdef _TRACE_
+	D(printf("rect_links:\n"));
+	for (const auto& [i, j, min_sweep_value, max_sweep_value] : rg)
+	{
+		D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
+			RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
+	}
+#endif
+
+	// return rg | views::to<vector>; TODO C++23
+
+	return vector(ranges::begin(rg), ranges::end(rg));
+}
+
 struct HoleOrigin
 {
 	RectCorner corner;
@@ -1370,196 +1561,6 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 		rec_compute_connected_components(i, c++, rec_compute_connected_components);
 	}
 	return connected_component;
-}
-
-vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectangles)
-{
-	FunctionTimer ft("sweep");
-
-	const int N=30;
-	int n = rectangles.size();
-
-	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
-
-	SweepLineItem sweep_line_buffer[2*N];
-	span sweep_line(sweep_line_buffer, 2*n);
-
-	ActiveLineItem active_line[N];
-	RectLink rect_links_buffer[256];
-
-//use the sweep_line that is not impacted by selected translation
-	Direction sweep_direction = Direction(1-update_direction);
-
-	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
-	auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
-{
-        FunctionTimer ft("cft_fill_sweepline");
-		//sweep_line.reserve(2*n);
-
-	for (int ri=0; ri < n; ri++)
-	{
-		sweep_line_buffer[2*ri]={.sweep_value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
-		sweep_line_buffer[2*ri+1]={.sweep_value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
-	}
-}
-
-	const MyPoint& translation = translation2[update_direction] ;
-{
-        FunctionTimer ft("cft_sort_sweepline");
-	ranges::sort(sweep_line, CustomLess());
-}
-	int active_line_size=0;
-	int rect_links_size=0;
-
-	auto cmp=[&](int i, int j){
-		return rectangles[i][minCompactRectDim]<rectangles[j][minCompactRectDim];
-	};
-
-	auto erase=[&](SweepLineItem& sweep_line_item){
-
-		auto& [sweep_value, rectdim, i] = sweep_line_item;
-
-		ActiveLineItem& lower = *ranges::lower_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
-		D(printf("lower = %d\n", lower.i));
-		int pos = distance(active_line, &lower);
-		D(printf("pos = %d\n", pos));
-
-		for (RectLink* rl : active_line[pos].links)
-		{
-			if (rl != 0)
-				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-		}
-
-		for (int ii=pos; ii<active_line_size; ii++)
-			swap(active_line[ii], active_line[ii+1]);
-		active_line_size -= 1;
-
-		if (pos > 0 && pos < active_line_size)
-		{
-			rect_links_buffer[rect_links_size++] = {
-				.i=active_line[pos-1].i,
-				.j=active_line[pos].i,
-				.min_sweep_value=sweep_value
-			};
-
-			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			active_line[pos-1].links[1] = active_line[pos].links[0] = & rect_links_buffer[rect_links_size - 1];
-		}
-	};
-
-	auto insert=[&](SweepLineItem& sweep_line_item){
-
-		auto& [sweep_value, rectdim, i] = sweep_line_item;
-
-		ActiveLineItem& upper = *ranges::upper_bound(active_line,active_line+active_line_size, i, cmp, &ActiveLineItem::i);
-		D(printf("upper = %d\n", upper.i));
-		int pos = distance(active_line, &upper);
-		D(printf("pos = %d\n", pos));
-
-		for (int ii=active_line_size-1; ii>=pos; ii--)
-			swap(active_line[ii],active_line[ii+1]);
-		active_line_size += 1;
-		active_line[pos].i=i;
-
-		if (pos > 0)
-		{
-			rect_links_buffer[rect_links_size++] = {
-				.i=active_line[pos-1].i,
-				.j=active_line[pos].i,
-				.min_sweep_value=sweep_value
-			};
-
-			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value,rl->max_sweep_value);
-			active_line[pos].links[0] = active_line[pos-1].links[1] = & rect_links_buffer[rect_links_size - 1];
-		}
-		if (pos+1 < active_line_size)
-		{
-			rect_links_buffer[rect_links_size++] = {
-				.i=active_line[pos].i,
-				.j=active_line[pos+1].i,
-				.min_sweep_value=sweep_value
-			};
-
-			if (RectLink *rl=active_line[pos].links[1]; rl!=0)
-				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-			if (RectLink *rl=active_line[pos+1].links[0]; rl!=0)
-				rl->max_sweep_value = min(sweep_value, rl->max_sweep_value);
-			active_line[pos].links[1] = active_line[pos+1].links[0] = &rect_links_buffer[rect_links_size - 1];
-		}
-	};
-
-	auto print_active_line=[&](){
-		char buffer[5000];
-		int pos=0;
-		pos += sprintf(buffer + pos, ".active_line={");
-		for (auto& [i, links] : span(active_line, active_line_size))
-		{
-			pos += sprintf(buffer + pos, " %d,", i);
-		}
-		pos += sprintf(buffer + --pos, "}\n");
-		buffer[pos]=0;
-		printf("%s", buffer);
-	};
-
-{
-        FunctionTimer ft("cft_sweep");
-	for (SweepLineItem& item : sweep_line)
-	{
-		const auto& [sweep_value, rectdim, ri] = item;
-		switch(rectdim)
-		{
-		case LEFT:
-		case TOP:
-			D(printf("sweep reaching %d %s\n", ri, RectDimString[rectdim]));
-			D(printf("before insert\n"));
-//			print_active_line();
-			insert(item);
-			D(printf("after insert\n"));
-			D(print_active_line());
-			break;
-		case RIGHT:
-		case BOTTOM:
-			D(printf("sweep leaving %d %s\n", ri, RectDimString[rectdim]));
-			D(printf("before erase\n"));
-//			print_active_line();
-			erase(item);
-			D(printf("after erase\n"));
-			D(print_active_line());
-			break;
-		}
-	}
-
-	for (const auto [sweep_value, rectdim, ri] : sweep_line)
-	{
-		D(printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri));
-	}
-}
-
-{
-        FunctionTimer ft("cft_rectlinks_sort");
-	sort(rect_links_buffer, rect_links_buffer + rect_links_size);
-}
-
-        auto rg = views::counted(rect_links_buffer, rect_links_size) |
-                views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
-#ifdef _TRACE_
-	D(printf("rect_links:\n"));
-	for (const auto& [i, j, min_sweep_value, max_sweep_value] : rg)
-	{
-		D(printf("{.i=%d, .j=%d, .%s=%d, .%s=%d},\n", i, j,
-			RectDimString[minSweepRectDim], min_sweep_value, RectDimString[maxSweepRectDim], max_sweep_value));
-	}
-#endif
-
-	// return rg | views::to<vector>; TODO C++23
-
-	return vector(ranges::begin(rg), ranges::end(rg));
 }
 
 
