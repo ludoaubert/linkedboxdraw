@@ -1,30 +1,23 @@
 {
 "holes":[
-	{"hi":0, "ri":12, "RectCorner":1, "RectCornerString":"BOTTOM_LEFT", "direction":{"x":1,"y":1},"value":42, "rec":{"m_left":-10,"m_right":32,"m_top":342,"m_bottom":384}},
-	{"hi":1, "ri":0, "RectCorner":0, "RectCornerString":"TOP_LEFT", "direction":{"x":1,"y":-1},"value":42, "rec":{"m_left":-10,"m_right":32,"m_top":476,"m_bottom":518}},
-	{"hi":2, "ri":3, "RectCorner":3, "RectCornerString":"BOTTOM_RIGHT", "direction":{"x":1,"y":1},"value":48, "rec":{"m_left":502,"m_right":550,"m_top":838,"m_bottom":886}},
-	{"hi":3, "ri":13, "RectCorner":3, "RectCornerString":"BOTTOM_RIGHT", "direction":{"x":-1,"y":1},"value":48, "rec":{"m_left":599,"m_right":647,"m_top":838,"m_bottom":886}},
-	{"hi":4, "ri":13, "RectCorner":3, "RectCornerString":"BOTTOM_RIGHT", "direction":{"x":1,"y":1},"value":48, "rec":{"m_left":647,"m_right":695,"m_top":838,"m_bottom":886}},
-	{"hi":5, "ri":14, "RectCorner":0, "RectCornerString":"TOP_LEFT", "direction":{"x":-1,"y":1},"value":42, "rec":{"m_left":-10,"m_right":32,"m_top":356,"m_bottom":484}},
-	{"hi":6, "ri":8, "RectCorner":0, "RectCornerString":"TOP_LEFT", "direction":{"x":-1,"y":1},"value":166, "rec":{"m_left":-10,"m_right":156,"m_top":-10,"m_bottom":230}},
-	{"hi":7, "ri":3, "RectCorner":1, "RectCornerString":"BOTTOM_LEFT", "direction":{"x":1,"y":1},"value":48, "rec":{"m_left":308,"m_right":502,"m_top":838,"m_bottom":886}},
-	{"hi":8, "ri":6, "RectCorner":2, "RectCornerString":"TOP_RIGHT", "direction":{"x":1,"y":1},"value":128, "rec":{"m_left":544,"m_right":738,"m_top":-10,"m_bottom":118}},
-	{"hi":9, "ri":13, "RectCorner":2, "RectCornerString":"TOP_RIGHT", "direction":{"x":1,"y":1},"value":91, "rec":{"m_left":647,"m_right":738,"m_top":598,"m_bottom":838}}
+	{"hi":0, "rec":{"m_left":149,"m_right":308,"m_top":726,"m_bottom":838}},
+	{"hi":1, "rec":{"m_left":149,"m_right":738,"m_top":838,"m_bottom":886}},
+	{"hi":2, "rec":{"m_left":544,"m_right":738,"m_top":-10,"m_bottom":118}},
+	{"hi":3, "rec":{"m_left":647,"m_right":738,"m_top":598,"m_bottom":838}},
+	{"hi":4, "rec":{"m_left":0,"m_right":156,"m_top":-10,"m_bottom":230}}
 ],
 "topological_contact":[
-	{"hi":0, "rj":12},
-	{"hi":0, "rj":14},
-	{"hi":1, "rj":0},
-	{"hi":1, "rj":14},
-	{"hi":2, "rj":13},
+	{"hi":0, "rj":1},
+	{"hi":0, "rj":2},
+	{"hi":0, "rj":3},
+	{"hi":1, "rj":1},
+	{"hi":1, "rj":3},
+	{"hi":1, "rj":13},
+	{"hi":2, "rj":4},
+	{"hi":2, "rj":6},
+	{"hi":3, "rj":5},
 	{"hi":3, "rj":13},
-	{"hi":5, "rj":14},
-	{"hi":6, "rj":8},
-	{"hi":6, "rj":12},
-	{"hi":7, "rj":3},
-	{"hi":8, "rj":4},
-	{"hi":8, "rj":6},
-	{"hi":9, "rj":5},
-	{"hi":9, "rj":13}
+	{"hi":4, "rj":8},
+	{"hi":4, "rj":12}
 ]
 }
