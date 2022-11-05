@@ -8,7 +8,8 @@
 	{"m_left":406,"m_right":494,"m_top":294,"m_bottom":390},
 	{"m_left":661,"m_right":730,"m_top":278,"m_bottom":390},
 	{"m_left":0,"m_right":183,"m_top":230,"m_bottom":294},
-	{"m_left":0,"m_right":65,"m_top":134,"m_bottom":230}
+	{"m_left":0,"m_right":65,"m_top":134,"m_bottom":230},
+	{"m_left":1146,"m_right":1361,"m_top":406,"m_bottom":454}
 ],
 "topological_contact":[
 	{"hi":0, "rj":6},
@@ -36,6 +37,8 @@
 	{"hi":7, "rj":6},
 	{"hi":7, "rj":11},
 	{"hi":8, "rj":10},
-	{"hi":8, "rj":11}
+	{"hi":8, "rj":11},
+	{"hi":9, "rj":4},
+	{"hi":9, "rj":5}
 ]
 }
