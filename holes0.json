@@ -1,15 +1,15 @@
 {
 "holes":[
-	{"hi":0, "rec":{"m_left":774,"m_right":947,"m_top":20,"m_bottom":196}},
-	{"hi":1, "rec":{"m_left":463,"m_right":608,"m_top":164,"m_bottom":212}},
-	{"hi":2, "rec":{"m_left":283,"m_right":330,"m_top":340,"m_bottom":451}},
-	{"hi":3, "rec":{"m_left":345,"m_right":552,"m_top":451,"m_bottom":516}},
-	{"hi":4, "rec":{"m_left":0,"m_right":406,"m_top":20,"m_bottom":163}},
-	{"hi":5, "rec":{"m_left":0,"m_right":345,"m_top":627,"m_bottom":676}},
-	{"hi":6, "rec":{"m_left":0,"m_right":753,"m_top":676,"m_bottom":724}},
-	{"hi":7, "rec":{"m_left":0,"m_right":103,"m_top":163,"m_bottom":291}},
-	{"hi":8, "rec":{"m_left":0,"m_right":88,"m_top":291,"m_bottom":451}},
-	{"hi":9, "rec":{"m_left":0,"m_right":130,"m_top":451,"m_bottom":627}}
+	{"m_left":774,"m_right":947,"m_top":20,"m_bottom":196},
+	{"m_left":463,"m_right":608,"m_top":164,"m_bottom":212},
+	{"m_left":283,"m_right":330,"m_top":340,"m_bottom":451},
+	{"m_left":345,"m_right":552,"m_top":451,"m_bottom":516},
+	{"m_left":0,"m_right":406,"m_top":20,"m_bottom":163},
+	{"m_left":0,"m_right":345,"m_top":627,"m_bottom":676},
+	{"m_left":0,"m_right":753,"m_top":676,"m_bottom":724},
+	{"m_left":0,"m_right":103,"m_top":163,"m_bottom":291},
+	{"m_left":0,"m_right":88,"m_top":291,"m_bottom":451},
+	{"m_left":0,"m_right":130,"m_top":451,"m_bottom":627}
 ],
 "topological_contact":[
 	{"hi":0, "rj":3},

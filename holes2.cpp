@@ -2726,11 +2726,10 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	char buffer[100*1000];
 	int pos=0;
         pos += sprintf(buffer + pos,"{\n\"holes\":[");
-	for (int hi=0; hi < holes.size(); hi++)
+	for (const MyRect& r : holes)
 	{
-		const auto& rec = holes[hi];
-		pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rec\":{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d}},",
-			hi, rec.m_left, rec.m_right, rec.m_top, rec.m_bottom);
+		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
+			r.m_left, r.m_right, r.m_top, r.m_bottom);
 	}
 	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
 
