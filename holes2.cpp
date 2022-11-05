@@ -1315,7 +1315,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
 								const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
 								const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
-								return {.m_left=ri.m_left, .m_right=rj.m_right, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
+								return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
 						}) | views::filter([](const MyRect& r){
 								return r.m_left != r.m_right && r.m_top != r.m_bottom;
 						}) | views::filter([](const MyRect& r){
