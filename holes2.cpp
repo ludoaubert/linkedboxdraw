@@ -1287,6 +1287,11 @@ const HoleOrigin matched_origins[8][2]={
 	{{.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}}, {.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}}}
 };
 
+struct HoleMatch{
+	int i, j;
+        friend auto operator<=>(const HoleMatch&, const HoleMatch&) = default;
+};
+
 
 vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 {
@@ -1308,20 +1313,77 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	ranges::copy(input_rectangles, back_inserter(rectangles));
 	ranges::copy(borders, back_inserter(rectangles));
 
-	const Direction update_direction = EAST_WEST;
-	const Direction sweep_direction = NORTH_SOUTH;
+	struct SweepContext{Direction update_direction, sweep_direction;};
+	const SweepContext ctx2[2]={
+		{.update_direction=EAST_WEST, .sweep_direction=NORTH_SOUTH},
+		{.update_direction=NORTH_SOUTH, .sweep_direction=EAST_WEST}
+	};
+	vector<MyRect> holes;
+	int n2[2];
+	for (const auto [update_direction, sweep_direction] : ctx2)
+	{
+		vector<RectLink> rect_links = sweep(update_direction, rectangles);
+		auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
+									const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
+									const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
+									return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
+							}) | views::filter([](const MyRect& r){
+									return r.m_left != r.m_right && r.m_top != r.m_bottom;
+							}) | views::filter([](const MyRect& r){
+									return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
+							});
 
-	vector<RectLink> rect_links = sweep(update_direction, rectangles);
-	auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
-								const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
-								const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
-								return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
-						}) | views::filter([](const MyRect& r){
-								return r.m_left != r.m_right && r.m_top != r.m_bottom;
-						}) | views::filter([](const MyRect& r){
-								return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
-						});
+		ranges::copy(rg, back_inserter(holes));
+		n2[sweep_direction] = holes.size();
+	}
 
+	auto [m, n] = ranges::minmax(n2);
+
+	vector<HoleMatch> intersections;
+
+	for (int i=0; i < m; i++)
+	{
+		for (int j=m; j < n; j++)
+		{
+			if (intersect_strict(holes[i], holes[j]))
+			{
+				intersections.push_back({i,j});
+				intersections.push_back({j,i});
+			}
+		}
+	}
+
+	ranges::sort(intersections);
+
+	auto malformed = [](const MyRect& r)->float{
+		const float dim[2] = {width(r), height(r)};
+		auto [min,Max] = ranges::minmax(dim);
+		return (Max - min) / (Max + min);
+	};
+
+	vector<int> suppressed(holes.size(), 0);
+
+	while (true)
+	{
+		auto rg = intersections | views::filter([&](const HoleMatch& match){
+			auto [i,j]=match;
+			return suppressed[i]==0 && suppressed[j]==0;
+		});
+
+		if (ranges::empty(rg))
+			break;
+		int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
+					views::join, {}, [&](int i){
+				auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
+						views::transform(&HoleMatch::j) |
+						views::filter([&](int j){return suppressed[j]==0;});
+				return malformed(holes[i]) - ranges::min(rng, {}, [&](int j){return malformed(holes[j]);});
+			});
+		suppressed[i]=1;
+	}
+
+	auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
+				| views::transform([&](int i){return holes[i];});
 	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
 }
 
