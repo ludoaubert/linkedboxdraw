@@ -1298,10 +1298,10 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	};
 
 	const MyRect borders[4] = {
-		{.m_left=frame.m_left, .m_right=frame.m_left, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
-		{.m_left=frame.m_right, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
-		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_top, .m_bottom=frame.m_top},
-		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_bottom, .m_bottom=frame.m_bottom}
+		{.m_left=frame.m_left-10, .m_right=frame.m_left, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
+		{.m_left=frame.m_right, .m_right=frame.m_right+10, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
+		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_top-10, .m_bottom=frame.m_top},
+		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_bottom, .m_bottom=frame.m_bottom+10}
 	};
 
 	vector<MyRect> rectangles;
