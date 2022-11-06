@@ -1382,8 +1382,9 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 					views::join, {}, [&](int i){
 				auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
 						views::transform(&HoleMatch::j) |
-						views::filter([&](int j){return suppressed[j]==0;});
-				return malformed(holes[i]) - ranges::min(rng, {}, [&](int j){return malformed(holes[j]);});
+						views::filter([&](int j){return suppressed[j]==0;}) |
+						views::transform([&](int j){return malformed(holes[j]);}) ;
+				return malformed(holes[i]) - ranges::max(rng);
 			});
 		suppressed[i]=1;
 	}
