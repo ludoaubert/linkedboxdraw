@@ -1361,7 +1361,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 
 	ranges::sort(intersections);
 
-	auto malformed = [](const MyRect& r)->float{
+	auto dim_spread = [](const MyRect& r)->float{
 		const float dim[2] = {width(r), height(r)};
 		auto [min,Max] = ranges::minmax(dim);
 		return (Max - min) / (Max + min);
@@ -1383,8 +1383,8 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 				auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
 						views::transform(&HoleMatch::j) |
 						views::filter([&](int j){return suppressed[j]==0;}) |
-						views::transform([&](int j){return malformed(holes[j]);}) ;
-				return malformed(holes[i]) - ranges::max(rng);
+						views::transform([&](int j){return dim_spread(holes[j]);}) ;
+				return dim_spread(holes[i]) - ranges::max(rng);
 			});
 		suppressed[i]=1;
 	}
