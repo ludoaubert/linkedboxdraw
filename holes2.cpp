@@ -1367,27 +1367,40 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		return (Max - min) / (Max + min);
 	};
 
+	auto next=[&](const vector<int>& suppressed)->int{
+                auto rg = intersections | views::filter([&](const HoleMatch& match){
+                        auto [i,j]=match;
+                        return suppressed[i]==0 && suppressed[j]==0;
+                });
+
+                if (ranges::empty(rg))
+                        return -1;
+                int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
+                                        views::join, {}, [&](int i){
+                                auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
+                                                views::transform(&HoleMatch::j) |
+                                                views::filter([&](int j){return suppressed[j]==0;}) |
+                                                views::transform([&](int j){return dim_spread(holes[j]);}) ;
+                                return dim_spread(holes[i]) - ranges::max(rng);
+                        });
+		return i;
+	};
+
 	vector<int> suppressed(holes.size(), 0);
 
-	while (true)
-	{
-		auto rg = intersections | views::filter([&](const HoleMatch& match){
-			auto [i,j]=match;
-			return suppressed[i]==0 && suppressed[j]==0;
-		});
+	vector<vector<int> > vv(30);
+	vv[0] = suppressed;
+	partial_sum(vv.begin(), vv.end(), vv.begin(),
+			[&](const vector<int>& prev, const vector<int>&)->vector<int>{
+				if (prev.empty()) return {};
+				int i = next(prev);
+				if (i==-1)return {};
+				vector<int> next = prev;
+				next[i]=1;
+				return next;}
+			);
 
-		if (ranges::empty(rg))
-			break;
-		int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
-					views::join, {}, [&](int i){
-				auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
-						views::transform(&HoleMatch::j) |
-						views::filter([&](int j){return suppressed[j]==0;}) |
-						views::transform([&](int j){return dim_spread(holes[j]);}) ;
-				return dim_spread(holes[i]) - ranges::max(rng);
-			});
-		suppressed[i]=1;
-	}
+	suppressed = *(ranges::find(vv, vector<int>())-1);
 
 	auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
 				| views::transform([&](int i){return holes[i];});
