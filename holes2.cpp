@@ -1309,88 +1309,92 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_bottom, .m_bottom=frame.m_bottom+10}
 	};
 
-	vector<MyRect> rectangles;
-	ranges::copy(input_rectangles, back_inserter(rectangles));
-	ranges::copy(borders, back_inserter(rectangles));
+	auto next=[&](const vector<MyRect>& in_holes){
 
-	struct SweepContext{Direction update_direction, sweep_direction;};
-	const SweepContext ctx2[2]={
-		{.update_direction=EAST_WEST, .sweep_direction=NORTH_SOUTH},
-		{.update_direction=NORTH_SOUTH, .sweep_direction=EAST_WEST}
-	};
-	vector<MyRect> holes;
-	int n2[2];
-	for (const auto [update_direction, sweep_direction] : ctx2)
-	{
-		vector<RectLink> rect_links = sweep(update_direction, rectangles);
-		auto rg = rect_links | views::transform([&](const RectLink& lnk)->MyRect{
-									const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
-									const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
-									switch(update_direction)
-									{
-									case EAST_WEST:
-										return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
-									case NORTH_SOUTH:
-										return {.m_left=min_sweep_value, .m_right=max_sweep_value, .m_top=ri.m_bottom, .m_bottom=rj.m_top};
-									}
-							}) | views::filter([](const MyRect& r){
-									return r.m_left != r.m_right && r.m_top != r.m_bottom;
-							}) | views::filter([](const MyRect& r){
-									return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
-							});
+		vector<MyRect> rectangles;
+		ranges::copy(input_rectangles, back_inserter(rectangles));
+		ranges::copy(in_holes, back_inserter(rectangles));
+		ranges::copy(borders, back_inserter(rectangles));
 
-		ranges::copy(rg, back_inserter(holes));
-		n2[sweep_direction] = holes.size();
-	}
-
-	auto [m, n] = ranges::minmax(n2);
-
-	vector<HoleMatch> intersections;
-
-	for (int i=0; i < m; i++)
-	{
-		for (int j=m; j < n; j++)
+		struct SweepContext{Direction update_direction, sweep_direction;};
+		const SweepContext ctx2[2]={
+			{.update_direction=EAST_WEST, .sweep_direction=NORTH_SOUTH},
+			{.update_direction=NORTH_SOUTH, .sweep_direction=EAST_WEST}
+		};
+		vector<MyRect> holes;
+		int n2[2];
+		for (const auto [update_direction, sweep_direction] : ctx2)
 		{
-			if (intersect_strict(holes[i], holes[j]))
+			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			auto rg = rect_links |
+				views::transform([&](const RectLink& lnk)->MyRect{
+					const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
+					const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
+					switch(update_direction)
+					{
+					case EAST_WEST:
+						return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
+					case NORTH_SOUTH:
+						return {.m_left=min_sweep_value, .m_right=max_sweep_value, .m_top=ri.m_bottom, .m_bottom=rj.m_top};
+					}
+				}) | views::filter([](const MyRect& r){
+					return r.m_left != r.m_right && r.m_top != r.m_bottom;
+				}) | views::filter([](const MyRect& r){
+					return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
+				});
+
+			ranges::copy(rg, back_inserter(holes));
+			n2[sweep_direction] = holes.size();
+		}
+
+		auto [m, n] = ranges::minmax(n2);
+
+		vector<HoleMatch> intersections;
+
+		for (int i=0; i < m; i++)
+		{
+			for (int j=m; j < n; j++)
 			{
-				intersections.push_back({i,j});
-				intersections.push_back({j,i});
+				if (intersect_strict(holes[i], holes[j]))
+				{
+					intersections.push_back({i,j});
+					intersections.push_back({j,i});
+				}
 			}
 		}
-	}
 
-	ranges::sort(intersections);
+		ranges::sort(intersections);
 
-	auto dim_spread = [](const MyRect& r)->float{
-		const float dim[2] = {width(r), height(r)};
-		auto [min,Max] = ranges::minmax(dim);
-		return (Max - min) / (Max + min);
-	};
+		auto dim_spread = [](const MyRect& r)->float{
+			const float dim[2] = {width(r), height(r)};
+			auto [min,Max] = ranges::minmax(dim);
+			return (Max - min) / (Max + min);
+		};
 
-	auto next=[&](const vector<int>& suppressed)->int{
-                auto rg = intersections | views::filter([&](const HoleMatch& match){
-                        auto [i,j]=match;
-                        return suppressed[i]==0 && suppressed[j]==0;
-                });
+		auto next=[&](const vector<int>& suppressed)->int{
+                	auto rg = intersections | views::filter([&](const HoleMatch& match){
+                       		auto [i,j]=match;
+                        	return suppressed[i]==0 && suppressed[j]==0;
+                	});
 
-                if (ranges::empty(rg))
-                        return -1;
-                int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
-                                        views::join, {}, [&](int i){
-                                auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
+                	if (ranges::empty(rg))
+                        	return -1;
+                	int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
+                        	                views::join, {}, [&](int i){
+                                	auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
                                                 views::transform(&HoleMatch::j) |
                                                 views::filter([&](int j){return suppressed[j]==0;}) |
                                                 views::transform([&](int j){return dim_spread(holes[j]);}) ;
-                                return dim_spread(holes[i]) - ranges::max(rng);
-                        });
-		return i;
-	};
+                        		return dim_spread(holes[i]) - ranges::max(rng);
+                        	});
+			return i;
+		};
 
-	vector<int> suppressed(holes.size(), 0);
+		vector<int> suppressed(holes.size(), 0);
 
-	vector<vector<int> > vv(30);
-	vv[0] = suppressed;
-	partial_sum(vv.begin(), vv.end(), vv.begin(),
+		vector<vector<int> > vv(30);
+		vv[0] = suppressed;
+		partial_sum(vv.begin(), vv.end(), vv.begin(),
 			[&](const vector<int>& prev, const vector<int>&)->vector<int>{
 				if (prev.empty()) return {};
 				int i = next(prev);
@@ -1400,10 +1404,19 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 				return next;}
 			);
 
-	suppressed = *(ranges::find(vv, vector<int>())-1);
+		suppressed = *(ranges::find(vv, vector<int>())-1);
 
-	auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
+		auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
 				| views::transform([&](int i){return holes[i];});
+		return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
+	};
+
+	vector<vector<MyRect> > vv(2);
+	partial_sum(vv.begin(), vv.end(), vv.begin(),
+		[&](const vector<MyRect>& prev, const vector<MyRect>&){
+			return next(prev);
+		});
+	auto rg = vv | views::join;
 	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
 }
 
