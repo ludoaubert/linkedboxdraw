@@ -1347,6 +1347,9 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			n2[sweep_direction] = holes.size();
 		}
 
+		if (holes.empty())
+			return holes;
+
 		auto [m, n] = ranges::minmax(n2);
 
 		vector<HoleMatch> intersections;
@@ -1411,7 +1414,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
 	};
 
-	vector<vector<MyRect> > vv(2);
+	vector<vector<MyRect> > vv(3);
 	partial_sum(vv.begin(), vv.end(), vv.begin(),
 		[&](const vector<MyRect>& prev, const vector<MyRect>&){
 			return next(prev);
