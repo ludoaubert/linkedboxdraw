@@ -9,7 +9,8 @@
 	{"m_left":130,"m_right":345,"m_top":627,"m_bottom":724},
 	{"m_left":283,"m_right":406,"m_top":20,"m_bottom":164},
 	{"m_left":774,"m_right":947,"m_top":20,"m_bottom":196},
-	{"m_left":103,"m_right":283,"m_top":20,"m_bottom":163}
+	{"m_left":103,"m_right":283,"m_top":20,"m_bottom":163},
+	{"m_left":88,"m_right":130,"m_top":627,"m_bottom":724}
 ],
 "topological_contact":[
 	{"hi":0, "rj":1},
