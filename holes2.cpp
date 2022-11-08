@@ -1329,7 +1329,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			auto rg = rect_links |
 				views::transform([&](const RectLink& lnk)->MyRect{
 					const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
-					const MyRect &ri=input_rectangles[i], &rj=rectangles[j];
+					const MyRect &ri=rectangles[i], &rj=rectangles[j];
 					switch(update_direction)
 					{
 					case EAST_WEST:
