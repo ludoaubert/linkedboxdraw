@@ -8,8 +8,8 @@
 	{"m_left":-10,"m_right":156,"m_top":518,"m_bottom":598},
 	{"m_left":653,"m_right":798,"m_top":486,"m_bottom":598},
 	{"m_left":349,"m_right":459,"m_top":486,"m_bottom":598},
-	{"m_left":156,"m_right":350,"m_top":0,"m_bottom":54},
-	{"m_left":-10,"m_right":156,"m_top":0,"m_bottom":134}
+	{"m_left":156,"m_right":350,"m_top":-10,"m_bottom":54},
+	{"m_left":-10,"m_right":156,"m_top":-10,"m_bottom":134}
 ],
 "topological_contact":[
 	{"hi":0, "rj":3},
