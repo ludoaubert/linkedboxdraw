@@ -1357,6 +1357,8 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 
 		auto [m, n] = ranges::minmax(n2);
 
+		D(printf("[m, n] = [%d, %d]\n", m, n));
+
 		vector<HoleMatch> intersections;
 
 		for (int i=0; i < m; i++)
@@ -1372,6 +1374,11 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		}
 
 		ranges::sort(intersections);
+
+		D(printf("intersections={\n"));
+		for (const auto& [i, j] : intersections)
+			D(printf("{.i=%d, .j=%d}\n", i, j));
+		D(printf("}\n"));
 
 		auto dim_spread = [](const MyRect& r)->float{
 			const float dim[2] = {width(r), height(r)};
@@ -1399,9 +1406,16 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		};
 
 		vector<int> suppressed(holes.size(), 0);
+		D(printf("suppressed={"));
+		for (int i : suppressed)
+			D(printf("%d,", i));
+		D(printf("}\n"));
 
 		vector<vector<int> > vv(30);
 		vv[0] = suppressed;
+
+		D(printf("calling partial_sum()\n"));
+
 		partial_sum(vv.begin(), vv.end(), vv.begin(),
 			[&](const vector<int>& prev, const vector<int>&)->vector<int>{
 				if (prev.empty()) return {};
@@ -1411,6 +1425,8 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 				next[i]=1;
 				return next;}
 			);
+
+		D(printf("returned from partial_sum()\n"));
 
 		suppressed = *(ranges::find(vv, vector<int>())-1);
 		D(printf("suppressed={"));

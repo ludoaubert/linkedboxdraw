@@ -664,4 +664,30 @@ rect_links:
 {.i=13, .j=7, .LEFT=688, .RIGHT=889},
 {.i=14, .j=16, .LEFT=494, .RIGHT=661},
 {.i=14, .j=20, .LEFT=661, .RIGHT=688},
-{.i=15, .j=20, .L
+{.i=15, .j=20, .LEFT=183, .RIGHT=406},
+{.i=16, .j=20, .LEFT=494, .RIGHT=661},
+{.i=19, .j=0, .LEFT=896, .RIGHT=980},
+{.i=19, .j=2, .LEFT=1195, .RIGHT=1361},
+{.i=19, .j=3, .LEFT=1029, .RIGHT=1195},
+{.i=19, .j=5, .LEFT=980, .RIGHT=1029},
+{.i=19, .j=7, .LEFT=889, .RIGHT=896},
+{.i=19, .j=8, .LEFT=350, .RIGHT=495},
+{.i=19, .j=9, .LEFT=184, .RIGHT=350},
+{.i=19, .j=10, .LEFT=-10, .RIGHT=184},
+{.i=19, .j=13, .LEFT=688, .RIGHT=889},
+{.i=19, .j=14, .LEFT=495, .RIGHT=688},
+holes={
+{.m_left=356, .m_right=494, .top=134, .m_bottom=181}
+{.m_left=896, .m_right=1029, .top=134, .m_bottom=262}
+{.m_left=495, .m_right=688, .top=-10, .m_bottom=134}
+{.m_left=889, .m_right=1361, .top=-10, .m_bottom=70}
+{.m_left=406, .m_right=730, .top=390, .m_bottom=438}
+{.m_left=406, .m_right=494, .top=294, .m_bottom=390}
+{.m_left=661, .m_right=730, .top=278, .m_bottom=390}
+{.m_left=-10, .m_right=183, .top=230, .m_bottom=294}
+{.m_left=-10, .m_right=65, .top=134, .m_bottom=230}
+{.m_left=1146, .m_right=1361, .top=406, .m_bottom=454}
+{.m_left=688, .m_right=730, .top=262, .m_bottom=454}
+{.m_left=356, .m_right=494, .top=134, .m_bottom=181}
+{.m_left=3, .m_right=65, .top=134, .m_bottom=294}
+{.m_left=65, .m_right=
