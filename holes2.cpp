@@ -1351,6 +1351,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		for (const MyRect& r : holes)
 			D(printf("{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom));
 		D(printf("}\n"));
+		fflush(stdout);
 
 		if (holes.empty())
 			return holes;
@@ -1358,6 +1359,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		auto [m, n] = ranges::minmax(n2);
 
 		D(printf("[m, n] = [%d, %d]\n", m, n));
+		fflush(stdout);
 
 		vector<HoleMatch> intersections;
 
@@ -1379,6 +1381,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		for (const auto& [i, j] : intersections)
 			D(printf("{.i=%d, .j=%d}\n", i, j));
 		D(printf("}\n"));
+		fflush(stdout);
 
 		auto dim_spread = [](const MyRect& r)->float{
 			const float dim[2] = {width(r), height(r)};
@@ -1410,11 +1413,13 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		for (int i : suppressed)
 			D(printf("%d,", i));
 		D(printf("}\n"));
+		fflush(stdout);
 
 		vector<vector<int> > vv(30);
 		vv[0] = suppressed;
 
 		D(printf("calling partial_sum()\n"));
+		fflush(stdout);
 
 		partial_sum(vv.begin(), vv.end(), vv.begin(),
 			[&](const vector<int>& prev, const vector<int>&)->vector<int>{
@@ -1427,12 +1432,14 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			);
 
 		D(printf("returned from partial_sum()\n"));
+		fflush(stdout);
 
 		suppressed = *(ranges::find(vv, vector<int>())-1);
 		D(printf("suppressed={"));
 		for (int i : suppressed)
 			D(printf("%d,", i));
 		D(printf("}\n"));
+		fflush(stdout);
 
 		auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
 				| views::transform([&](int i){return holes[i];});
@@ -1445,6 +1452,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			return next(prev);
 		});
 	D(printf("returned from partial_sum()\n"));
+	fflush(stdout);
 
 	auto rg = vv | views::join;
 	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));

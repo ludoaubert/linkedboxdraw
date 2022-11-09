@@ -690,4 +690,51 @@ holes={
 {.m_left=688, .m_right=730, .top=262, .m_bottom=454}
 {.m_left=356, .m_right=494, .top=134, .m_bottom=181}
 {.m_left=3, .m_right=65, .top=134, .m_bottom=294}
-{.m_left=65, .m_right=
+{.m_left=65, .m_right=182, .top=230, .m_bottom=294}
+{.m_left=406, .m_right=494, .top=293, .m_bottom=454}
+{.m_left=494, .m_right=661, .top=390, .m_bottom=454}
+{.m_left=896, .m_right=980, .top=-10, .m_bottom=262}
+{.m_left=1195, .m_right=1361, .top=-10, .m_bottom=70}
+{.m_left=1029, .m_right=1195, .top=-10, .m_bottom=102}
+{.m_left=980, .m_right=1029, .top=-10, .m_bottom=262}
+{.m_left=495, .m_right=688, .top=-10, .m_bottom=134}
+}
+[m, n] = [9, 21]
+intersections={
+{.i=0, .j=11}
+{.i=1, .j=16}
+{.i=1, .j=19}
+{.i=2, .j=20}
+{.i=3, .j=16}
+{.i=3, .j=17}
+{.i=3, .j=18}
+{.i=3, .j=19}
+{.i=4, .j=10}
+{.i=4, .j=14}
+{.i=4, .j=15}
+{.i=5, .j=14}
+{.i=6, .j=10}
+{.i=7, .j=12}
+{.i=7, .j=13}
+{.i=8, .j=12}
+{.i=10, .j=4}
+{.i=10, .j=6}
+{.i=11, .j=0}
+{.i=12, .j=7}
+{.i=12, .j=8}
+{.i=13, .j=7}
+{.i=14, .j=4}
+{.i=14, .j=5}
+{.i=15, .j=4}
+{.i=16, .j=1}
+{.i=16, .j=3}
+{.i=17, .j=3}
+{.i=18, .j=3}
+{.i=19, .j=1}
+{.i=19, .j=3}
+{.i=20, .j=2}
+}
+suppressed={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
+calling partial_sum()
+returned from partial_sum()
+suppressed={1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,}
