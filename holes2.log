@@ -16,6 +16,7 @@ begin compute_decision_tree()
 {.m_left=494, .m_right=688, .m_top=134, .m_bottom=278}
 {.m_left=183, .m_right=406, .m_top=294, .m_bottom=438}
 {.m_left=494, .m_right=661, .m_top=278, .m_bottom=390}
+calling computation of next_holes
 sweep reaching 19 TOP
 before insert
 upper = 28
@@ -751,3 +752,4 @@ next_holes={
 {.m_left=1029, .m_right=1195, .top=-10, .m_bottom=102}
 {.m_left=495, .m_right=688, .top=-10, .m_bottom=134}
 }
+calling computation of next_holes
