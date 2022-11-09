@@ -738,3 +738,16 @@ suppressed={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,}
 calling partial_sum()
 returned from partial_sum()
 suppressed={1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,}
+next_holes={
+{.m_left=896, .m_right=1029, .top=134, .m_bottom=262}
+{.m_left=406, .m_right=494, .top=294, .m_bottom=390}
+{.m_left=661, .m_right=730, .top=278, .m_bottom=390}
+{.m_left=-10, .m_right=65, .top=134, .m_bottom=230}
+{.m_left=1146, .m_right=1361, .top=406, .m_bottom=454}
+{.m_left=356, .m_right=494, .top=134, .m_bottom=181}
+{.m_left=65, .m_right=182, .top=230, .m_bottom=294}
+{.m_left=494, .m_right=661, .top=390, .m_bottom=454}
+{.m_left=1195, .m_right=1361, .top=-10, .m_bottom=70}
+{.m_left=1029, .m_right=1195, .top=-10, .m_bottom=102}
+{.m_left=495, .m_right=688, .top=-10, .m_bottom=134}
+}

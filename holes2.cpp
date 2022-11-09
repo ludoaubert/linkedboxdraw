@@ -1449,7 +1449,13 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	vector<vector<MyRect> > vv(3);
 	partial_sum(vv.begin(), vv.end(), vv.begin(),
 		[&](const vector<MyRect>& prev, const vector<MyRect>&){
-			return next(prev);
+			vector<MyRect> next_holes = next(prev);
+			D(printf("next_holes={\n"));
+			for (const MyRect& r : next_holes)
+				D(printf("{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom));
+			D(printf("}\n"));
+			fflush(stdout);
+			return next_holes;
 		});
 	D(printf("returned from partial_sum()\n"));
 	fflush(stdout);
