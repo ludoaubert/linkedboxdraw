@@ -1071,8 +1071,14 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 {
 	FunctionTimer ft("sweep");
 
-	const int N=30;
+	const int N=100;
 	int n = rectangles.size();
+
+	if (n >= N)
+	{
+		D(printf("unsufficient compile time size. Will crash silently...\n"));
+                fflush(stdout);
+	}
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
 
