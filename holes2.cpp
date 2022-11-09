@@ -1347,6 +1347,11 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			n2[sweep_direction] = holes.size();
 		}
 
+		D(printf("holes={\n"));
+		for (const MyRect& r : holes)
+			D(printf("{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom));
+		D(printf("}\n"));
+
 		if (holes.empty())
 			return holes;
 
@@ -1408,6 +1413,10 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			);
 
 		suppressed = *(ranges::find(vv, vector<int>())-1);
+		D(printf("suppressed={"));
+		for (int i : suppressed)
+			D(printf("%d,", i));
+		D(printf("}\n"));
 
 		auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
 				| views::transform([&](int i){return holes[i];});
@@ -1419,6 +1428,8 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		[&](const vector<MyRect>& prev, const vector<MyRect>&){
 			return next(prev);
 		});
+	D(printf("returned from partial_sum()\n"));
+
 	auto rg = vv | views::join;
 	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
 }
