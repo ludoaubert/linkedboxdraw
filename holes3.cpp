@@ -2127,6 +2127,16 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges)
 {
+	int dt_height = 1 + ranges::max(decision_tree | views::transform(&DecisionTreeNode::depth));
+	vector<vector<TranslationRangeItem> > translation_ranges_by_floor(dt_height);
+	partial_sum(translation_ranges_by_floor.begin(),
+		translation_ranges_by_floor.end(),
+		translation_ranges_by_floor.begin(),
+		[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
+			vector<TranslationRangeItem> v;
+			return v;
+		});
+
 	vector<MyRect> input_emplacements;
 	vector<MyRect> holes = compute_holes(input_rectangles);
 	for (const MyRect &r : input_rectangles)
