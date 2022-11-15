@@ -17,6 +17,9 @@ add_executable(rect_union ${SOURCES})
 set (SOURCES holes2.cpp MyRect.cpp FunctionTimer.cpp)
 add_executable(holes2 ${SOURCES})
 
+set (SOURCES holes3.cpp MyRect.cpp FunctionTimer.cpp)
+add_executable(holes3 ${SOURCES})
+
 set (SOURCES snap.cpp MyRect.cpp)
 add_executable(snap ${SOURCES})
 
