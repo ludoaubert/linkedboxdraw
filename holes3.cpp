@@ -2137,6 +2137,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		translation_ranges_by_floor.end(),
 		translation_ranges_by_floor.begin(),
 		[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
+			int prev_depth = &prev - &translation_ranges_by_floor[0];
 			vector<TranslationRangeItem> v;
 			return v;
 		});
