@@ -1263,39 +1263,10 @@ vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectang
 	return vector(ranges::begin(rg), ranges::end(rg));
 }
 
-struct HoleOrigin
-{
-	RectCorner corner;
-	MyVector dir;
-        friend bool operator==(const HoleOrigin&, const HoleOrigin&) = default;
-};
-
-
-const HoleOrigin hole_origins[12]={
-	{.corner=TOP_LEFT, .dir={.x=-1, .y=-1}},
-	{.corner=TOP_LEFT, .dir={.x=+1, .y=-1}},
-	{.corner=TOP_LEFT, .dir={.x=-1, .y=+1}},
-	{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=+1}},
-	{.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}},
-	{.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}},
-	{.corner=TOP_RIGHT, .dir={.x=+1, .y=+1}},
-	{.corner=TOP_RIGHT, .dir={.x=+1, .y=-1}},
-	{.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}},
-	{.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}},
-	{.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=+1}},
-	{.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=-1}}
-};
-
-const HoleOrigin matched_origins[8][2]={
-	{{.corner=TOP_LEFT, .dir={.x=+1, .y=-1}}, {.corner=TOP_RIGHT, .dir={.x=-1, .y=-1}}},
-	{{.corner=TOP_RIGHT, .dir={.x=+1, .y=+1}}, {.corner=BOTTOM_RIGHT, .dir={.x=+1, .y=-1}}},
-	{{.corner=TOP_LEFT, .dir={.x=-1, .y=+1}}, {.corner=BOTTOM_LEFT, .dir={.x=-1, .y=-1}}},
-	{{.corner=BOTTOM_LEFT, .dir={.x=+1, .y=+1}}, {.corner=BOTTOM_RIGHT, .dir={.x=-1, .y=+1}}}
-};
 
 struct HoleMatch{
 	int i, j;
-        friend auto operator<=>(const HoleMatch&, const HoleMatch&) = default;
+	friend auto operator<=>(const HoleMatch&, const HoleMatch&) = default;
 };
 
 
@@ -1471,200 +1442,6 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	auto rg = vv | views::join;
 	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
 }
-
-
-vector<RectHole> compute_holes_(const vector<MyRect>& input_rectangles)
-{
-	MyRect frame={
-		.m_left=ranges::min(input_rectangles | views::transform(&MyRect::m_left)),
-		.m_right=ranges::max(input_rectangles | views::transform(&MyRect::m_right)),
-		.m_top=ranges::min(input_rectangles | views::transform(&MyRect::m_top)),
-		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
-	};
-
-	int n = input_rectangles.size();
-
-	vector<RectHole> holes;
-
-//TODO: use C++23 views::cartesian_product()
-
-	for (int i=0; i<n; i++)
-	{
-		const MyRect& r = input_rectangles[i];
-
-		for (const auto [corner, dir] : hole_origins)
-		{
-			const MyPoint pt = r[corner] ;
-
-			int intervalle[2]={2, INT16_MAX};
-			auto& [m, M] = intervalle;
-			while (M > 1+m)
-			{
-				int value = M==INT16_MAX ? 2*m : (m+M)/2 ;
-				MyRect rec = rect(pt, pt + value*dir);
-				auto rg = input_rectangles | views::filter([&](const MyRect& r){return intersect_strict(rec,r) /*|| is_inside(r, rec)*/;});
-				(rg.empty() && is_inside(rec,frame) ? m : M) = value;
-				D(printf("{.i=%d, .RectCorner=%s, .direction={.x=%.0f, .y=%.0f} [.m=%d .M=%d]}\n", i, RectCornerString[corner], dir.x, dir.y, m, M));
-			}
-
-			if (m > 2)
-			{
- 				MyRect rec = rect(pt, pt + m*dir);
-				holes.push_back({.ri=i, .corner=corner, .direction=dir, .value=m, .rec=rec});
-			}
-		}
-	}
-
-        D(printf("original holes.size()=%zu.\n", holes.size()));
-
-	vector<RectHole> dd;
-        for (const auto& [ri, corner, direction, value, rec] : holes)
-        {
-                if (5*value >= RECTANGLE_BOTTOM_CAP)
-                {
-                        dd.push_back({ri, corner, direction, value, rec});
-                }
-        }
-	holes = dd;
-
-        D(printf("holes.size() after removing small ones=%zu.\n", holes.size()));
-
-	assert(ranges::all_of(matched_origins, [](const HoleOrigin (&ho2)[2]){return ho2[0].corner < ho2[1].corner;}));
-
-//TODO use C++23 cartesian_product()
-
-        struct Match{int hi; int hj;};
-
-        vector<Match> cp;
-        for (int hi=0; hi < holes.size(); hi++)
-                for (int hj=0; hj < holes.size(); hj++)
-                        cp.push_back({hi, hj});
-
-        auto rn0 = cp | views::filter([&](const Match& m) {
-                                const auto [hi, hj] = m;
-				return holes[hi].ri == holes[hj].ri && holes[hi].corner < holes[hj].corner;
-			}) |
-			views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                const HoleOrigin ho2[2] = {
-					{.corner=holes[hi].corner, .dir=holes[hi].direction},
-					{.corner=holes[hj].corner, .dir=holes[hj].direction}
-				};
-                                return ranges::any_of(matched_origins,[&](const HoleOrigin (&mo2)[2]){return ranges::equal(ho2, mo2);});
-                        }) |
-                        views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                MyRect ri = holes[hi].rec, rj = holes[hj].rec;
-                                MyRect h = enveloppe(ri, rj);
-                                return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
-                                        ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-                        }) |
-			views::transform([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                MyRect ri = holes[hi].rec, rj = holes[hj].rec;
-                                MyRect h = enveloppe(ri, rj);
-                                RectHole rh = holes[hi];
-                                rh.rec = h;
-                                return rh;
-			});
-
-        auto rg = holes |
-                views::filter([&](const RectHole& rhi){
-                        return ranges::none_of(rn0, [&](const RectHole& rhj){return is_inside(rhi.rec, expanded_by(rhj.rec, +1));});
-                }) |
-		views::filter([&](const RectHole& rhi){
-			return ranges::none_of(holes, [&](const RectHole& rhj){return is_inside(rhi.rec, expanded_by(rhj.rec, +1));});
-		});
-
-
-	ranges::sort(holes, {}, &RectHole::rec);
-	vector<RectHole> holes_dedup;
-	ranges::unique_copy(holes, back_inserter(holes_dedup), {}, &RectHole::rec);
-
-	holes = holes_dedup;
-
-	int nh = holes.size();
-	D(printf("holes.size()=%d.\n", nh));
-
-  for (int i=0; i<1; i++)
-  {
-//TODO: use C++23 views::to<vector>()
-	auto rg = views::iota(0,nh) |
-		views::filter([&](int hi){
-			auto rng = views::iota(0,nh) | views::filter([&](int hj){return hj != hi;});
-			return ranges::none_of(rng, [&](int hj){return is_inside(holes[hi].rec, expanded_by(holes[hj].rec, +1));});
-		}) |
-		views::transform([&](int hi){return holes[hi];});
-	holes = vector<RectHole>(ranges::begin(rg), ranges::end(rg));
-	nh = holes.size();
-        D(printf("holes.size()=%d after removing inside holes.\n", nh));
-
-//TODO use C++23 cartesian_product()
-
-	vector<Match> cp;
-	for (int hi=0; hi < nh; hi++)
-		for (int hj=hi+1; hj < nh; hj++)
-			cp.push_back({hi, hj});
-
-	auto rng = cp | views::filter([&](const Match& m){
-				const auto [hi, hj] = m;
-				MyRect ri = holes[hi].rec, rj = holes[hj].rec;
-				MyRect h = enveloppe(ri, rj);
-				return (ri[EAST_WEST]==rj[EAST_WEST] || ri[NORTH_SOUTH]==rj[NORTH_SOUTH]) &&
-					ranges::none_of(input_rectangles, [&](const MyRect& r){return intersect_strict(r,h);});
-		});
-
-	auto rg3 = rng | views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) | views::join ;
-
-	auto rngf = rng |
-                views::filter([&](const Match& m){
-                                const auto [hi, hj] = m;
-                                const HoleOrigin ho2[2] = {
-                                        {.corner=holes[hi].corner, .dir=holes[hi].direction},
-                                        {.corner=holes[hj].corner, .dir=holes[hj].direction}
-                                };
-                                return (ranges::count(rg3, hi)==1 && ranges::count(rg3, hj)==1) ||
-					(holes[hi].ri == holes[hj].ri &&
-                                        ranges::any_of(matched_origins, [&](const HoleOrigin (&mo2)[2]){return ranges::equal(ho2, mo2);})
-					);
-				});
-
-	D(printf(".rngf={\n"));
-	for (const auto [hi, hj] : rngf)
-		D(printf("{.hi=%d, .hj=%d}\n", hi, hj));
-	D(printf("}\n"));
-
-	auto rng1 = rngf |
-		views::transform([](const Match& m)->array<int,2>{return {m.hi, m.hj};}) |
-		views::join ;
-
-	D(printf(".rng1={"));
-	for (int hi : rng1)
-		D(printf("%d,", hi));
-        D(printf("}\n"));
-
-	auto rng2 = views::iota(0,nh) |
-		views::filter([&](int hi){return ranges::count(rng1,hi)!=1;}) |
-		views::transform([&](int hi){return holes[hi];});
-
-	auto rng3 = rngf |
-		views::transform([&](const Match& m){
-				const auto [hi, hj] = m;
-				MyRect h = enveloppe(holes[hi].rec, holes[hj].rec);
-				RectHole rh = holes[hi];
-				rh.rec = h;
-				return rh;});
-
-//TODO: use C++23 views::concat() and views::to<vector>
-	vector<RectHole> tmp;
-	ranges::copy(rng2, back_inserter(tmp));
-	ranges::copy(rng3, back_inserter(tmp));
-	holes = tmp;
-
-        D(printf("holes.size()=%zu after merging holes.\n", holes.size()));
-  }
-	return holes;
-};
 
 
 vector<float> compute_page_rank(const int n,
@@ -2121,6 +1898,7 @@ vector<ProcessSelector> cartesian_product()
 
 
 const vector<ProcessSelector> process_selectors = cartesian_product();
+
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
