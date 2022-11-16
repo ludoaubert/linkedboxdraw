@@ -48,28 +48,6 @@ struct TopologicalEdge {
 	friend auto operator<=>(const TopologicalEdge&, const TopologicalEdge&) = default;
 };
 
-
-struct MyVector
-{
-	float x=0.0f;
-	float y=0.0f;
-
-	operator MyPoint() const {
-		return {x, y};
-	}
-
-        friend bool operator==(const MyVector&, const MyVector&) = default;
-};
-
-inline MyVector operator*(int16_t value, const MyVector& vec)
-{
-	const auto& [x, y] = vec;
-	return {value*x, value*y};
-}
-
-
-struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
-
 //	lightweight node
 
 struct RectMap
