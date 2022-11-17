@@ -64,6 +64,22 @@ struct DecisionTreeNode
 	int match;
 };
 
+enum TransformType
+{
+	TRANSLATION,
+	RESIZE
+};
+
+struct TransformRangeItem
+{
+	int id;
+	int ri;
+	TransformType tt;
+	MyPoint tr;
+
+	friend bool operator==(const TransformRangeItem&, const TransformRangeItem&) = default;
+};
+
 struct TranslationRangeItem
 {
 	int id;
