@@ -1885,6 +1885,140 @@ vector<ProcessSelector> cartesian_product()
 
 const vector<ProcessSelector> process_selectors = cartesian_product();
 
+vector<TransformRangeItem> compute_decision_tree_translations_(const vector<DecisionTreeNode>& decision_tree,
+								const vector<MyRect>& input_rectangles,
+								const vector<LogicalEdge>& logical_edges)
+{
+        vector<MyRect> emplacements, rectangles = input_rectangles;
+        const vector<MyRect> holes = compute_holes(input_rectangles);
+        for (const MyRect &r : input_rectangles)
+                emplacements.push_back(r);
+        for (const MyRect &rec : holes)
+                emplacements.push_back(rec);
+
+        int m = emplacements.size();
+        int n = input_rectangles.size();
+
+	for (int i=0; i<m; i++)
+		emplacements[i].i = i;
+
+	const vector<MyRect> input_emplacements = emplacements;
+
+        vector<TransformRangeItem> transform_ranges;
+
+	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
+
+		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
+                const auto [RectDimX, RectDimY] = corners[match_corner];
+		const MyPoint tr = {
+			.x=r2[RectDimX] - r1[RectDimX],
+			.y=r2[RectDimY] - r1[RectDimY]
+		};
+		r1 += tr;
+		r2 -= tr;
+		swap(r1, r2);
+
+		auto rg = emplacements | views::filter([&](const MyRect& r){return r.i<n;});
+		vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
+
+		r2 = trimmed(r2, rectangles);
+
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
+		for (const auto& [algo, update_direction] : pipelines[pipeline])
+		{
+			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			assert(algo == SPREAD);
+			spread(update_direction, rect_links, rectangles);
+		}
+		for (const Mirror& mirror : mirrors[mirroring])
+			apply_mirror(mirror, rectangles);
+
+		ranges::for_each(rg, [&](MyRect& r){r = rectangles[r.i];});
+	};
+
+	for (int id=0; id < decision_tree.size(); id++)
+	{
+/*
+// TODO: use upcoming C++23 views::cartesian_product()
+	auto rg = views::cartesian_product( views::iota(0, NR_JOB_PIPELINES),
+										views::iota(0, NR_MIRRORING_OPTIONS),
+										views::iota(0, NR_RECT_CORNERS));
+	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{...
+*/
+
+		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
+			D(printf("pipeline=%u\n", ps.pipeline));
+			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
+			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
+
+			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+
+			auto rg1 = logical_edges |
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+
+			auto rg2 = views::iota(0,n) |
+				views::transform([&](int i)->TranslationRangeItem{
+					const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+					MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+					return {id, i, tr};}) |
+				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+				views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].recmap.i_emplacement_source;}) |
+				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
+
+			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
+			D(printf("sigma_translation = %d\n", sigma_translation));
+			D(printf("[.width=%d, .height=%d]\n", width, height));
+
+			int cost = width + height + sigma_edge_distance + sigma_translation ;
+
+			D(printf("cost=%d\n", cost));
+			return cost;
+		});
+
+		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner));
+
+		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
+		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
+
+		tf(id, pipeline, mirroring, match_corner);
+
+		for (const MyRect& r : rectangles)
+			emplacements[r.i] = r;
+
+		auto rg = views::iota(0,n) |
+			views::transform([&](int i)->TransformRangeItem{
+				const MyRect &ir = input_emplacements[i], &r = emplacements[i];
+				MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+				return {id, i, TRANSLATION, tr};}) |
+			views::filter([](const TransformRangeItem& item){return item.tr != MyPoint{0,0};});
+
+		for (TransformRangeItem item : rg)
+		{
+			transform_ranges.push_back(item);
+		}
+	}
+
+{
+	FILE *f=fopen("translation_ranges.json", "w");
+	fprintf(f, "[\n");
+	for (int i=0; i < transform_ranges.size(); i++)
+	{
+		const auto [id, ri, tt, tr] = transform_ranges[i];
+		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
+			i+1 == transform_ranges.size() ? "": ",");
+	}
+	fprintf(f, "]\n");
+	fclose(f);
+}
+
+	return transform_ranges;
+}
 
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
