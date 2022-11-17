@@ -73,14 +73,6 @@ struct TranslationRangeItem
 	friend bool operator==(const TranslationRangeItem&, const TranslationRangeItem&) = default;
 };
 
-struct RectangleHoleRangeItem
-{
-        int id;
-        int ri;
-        MyRect r;
-
-        friend bool operator==(const RectangleHoleRangeItem&, const RectangleHoleRangeItem&) = default;
-};
 
 enum EtatEmplacement
 {
