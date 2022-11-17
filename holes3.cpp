@@ -1908,6 +1908,22 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
 
+		int parent_index = decision_tree[id].parent_index;
+		if (parent_index != -1)
+		{
+			const span transforms = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
+			for (const auto [id, ri, tt, tr] : transforms)
+			{
+				switch (tt)
+				{
+				case TRANSLATION:
+					break;
+				case RESIZE:
+					break;
+				}
+			}
+		}
+
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
                 const auto [RectDimX, RectDimY] = corners[match_corner];
