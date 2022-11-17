@@ -1875,23 +1875,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges)
 {
-	vector<DecisionTreeNode> decision_tree_ = decision_tree;
-	ranges::sort(decision_tree_, {}, &DecisionTreeNode::depth);
-	int dt_height = 1 + ranges::max(decision_tree | views::transform(&DecisionTreeNode::depth));
-	auto rg = views::iota(0, dt_height) |
-		views::transform([&](int depth){return ranges::equal_range(decision_tree_, depth, {}, &DecisionTreeNode::depth);});
-	vector<vector<TranslationRangeItem> > translation_ranges_by_floor(dt_height);
-	partial_sum(translation_ranges_by_floor.begin(),
-		translation_ranges_by_floor.end(),
-		translation_ranges_by_floor.begin(),
-		[&](const vector<TranslationRangeItem>& prev, const vector<TranslationRangeItem>&){
-			int prev_depth = &prev - &translation_ranges_by_floor[0];
-			vector<TranslationRangeItem> v;
-			return v;
-		});
-
 	vector<MyRect> input_emplacements;
-	vector<MyRect> holes = compute_holes(input_rectangles);
+	const vector<MyRect> holes = compute_holes(input_rectangles);
 	for (const MyRect &r : input_rectangles)
 		input_emplacements.push_back(r);
 	for (const MyRect &rec : holes)
