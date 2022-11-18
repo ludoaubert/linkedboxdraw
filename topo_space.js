@@ -244,6 +244,7 @@ function select_id(event)
 				      "</tr>"])
 			.flat(2)
 			.join('\n');
+	document.getElementById("chemin").addEventListener('mousedown', select_id);
 
 	document
 		.querySelectorAll(`[id^="g-h-"]`)
