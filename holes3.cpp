@@ -1905,10 +1905,13 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 	const vector<MyRect> input_emplacements = emplacements;
 
+	const auto rng = views::iota(0,m);
+	vector<int> swapped_position(ranges::begin(rng), ranges::end(rng));
+
         vector<TransformRangeItem> transform_ranges;
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
-
+		vector<MyRect> emplacements = input_emplacements;
 		int parent_index = decision_tree[id].parent_index;
 		if (parent_index != -1)
 		{
@@ -1929,13 +1932,15 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 					emplacements[ri].m_bottom += y;
 					break;
 				case SWAP:
-					swap(emplacements[x], emplacements[y]);
+					swap(swapped_position[x], swapped_position[y]);
 					break;
 				}
 			}
 		}
 
-		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		i_emplacement_source = swapped_position[i_emplacement_source];
+		i_emplacement_destination = swapped_position[i_emplacement_destination];
 		MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
                 const auto [RectDimX, RectDimY] = corners[match_corner];
 		const MyPoint tr = {
@@ -1944,7 +1949,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		};
 		r1 += tr;
 		r2 -= tr;
-		swap(r1, r2);
 
 		auto rg = emplacements | views::filter([&](const MyRect& r){return r.i<n;});
 		vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
