@@ -67,7 +67,8 @@ struct DecisionTreeNode
 enum TransformType
 {
 	TRANSLATION,
-	RESIZE
+	RESIZE,
+	SWAP
 };
 
 struct TransformRangeItem
@@ -1911,14 +1912,24 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		int parent_index = decision_tree[id].parent_index;
 		if (parent_index != -1)
 		{
-			const span transforms = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
-			for (const auto [id, ri, tt, tr] : transforms)
+			const auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
+			for (const auto [id, ri, tt, tr] : rg)
 			{
+				const auto& [x, y] = tr;
 				switch (tt)
 				{
 				case TRANSLATION:
+					emplacements[ri].m_left += x;
+					emplacements[ri].m_right += x;
+					emplacements[ri].m_top += y;
+					emplacements[ri].m_bottom += y;
 					break;
 				case RESIZE:
+					emplacements[ri].m_right += x;
+					emplacements[ri].m_bottom += y;
+					break;
+				case SWAP:
+					swap(emplacements[x], emplacements[y]);
 					break;
 				}
 			}
