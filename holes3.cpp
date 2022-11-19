@@ -1967,6 +1967,28 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			apply_mirror(mirror, rectangles);
 
 		ranges::for_each(rg, [&](MyRect& r){r = rectangles[r.i];});
+
+		auto rng = views::iota(0,m) |
+			views::transform([&](int i){
+				const MyRect &r=emplacements[i], &ir=input_emplacements[i];
+				const TransformRangeItem tri1 = {.id=id, .ri=i, .tt=TRANSLATION, .tr={.x=r.m_left-ir.m_left, .y=r.m_top-ir.m_top}};
+				const TransformRangeItem tri2 = {.id=id, .ri=i, .tt=RESIZE, .tr={.x=width(r)-width(ir), .y=height(r)-height(ir)}};
+				return array<TransformRangeItem,2>{tri1, tri2};
+			}) |
+			views::join;
+
+		vector<TransformRangeItem> v;
+		for (const TransformRangeItem& tri : rng)
+			v.push_back(tri);
+                if (parent_index != -1)
+                {
+                        const auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
+			for (const TransformRangeItem& tri : rg)
+				v.push_back(tri);
+		}
+		const TransformRangeItem tri = {.id=id, .ri=-1, .tt=SWAP, .tr={.x=i_emplacement_source, .y=i_emplacement_destination}};
+		v.push_back(tri);
+		return v;
 	};
 
 	for (int id=0; id < decision_tree.size(); id++)
