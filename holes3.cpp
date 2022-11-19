@@ -1912,7 +1912,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
 		vector<MyRect> emplacements = input_emplacements;
-		int parent_index = decision_tree[id].parent_index;
+		const int parent_index = decision_tree[id].parent_index;
 		if (parent_index != -1)
 		{
 			const auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
@@ -1967,7 +1967,13 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			apply_mirror(mirror, rectangles);
 
 		ranges::for_each(rg, [&](MyRect& r){r = rectangles[r.i];});
+		return emplacements;
+	};
 
+	auto diff=[&](int id, const vector<MyRect>& emplacements)->vector<TransformRangeItem>
+	{
+                const int parent_index = decision_tree[id].parent_index;
+                const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		auto rng = views::iota(0,m) |
 			views::transform([&](int i){
 				const MyRect &r=emplacements[i], &ir=input_emplacements[i];
@@ -1975,14 +1981,16 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 				const TransformRangeItem tri2 = {.id=id, .ri=i, .tt=RESIZE, .tr={.x=width(r)-width(ir), .y=height(r)-height(ir)}};
 				return array<TransformRangeItem,2>{tri1, tri2};
 			}) |
-			views::join;
+			views::join |
+			views::filter([](const TransformRangeItem& tri){return tri.tr != MyPoint{.x=0,.y=0};}) ;
 
 		vector<TransformRangeItem> v;
 		for (const TransformRangeItem& tri : rng)
 			v.push_back(tri);
                 if (parent_index != -1)
                 {
-                        const auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) ;
+                        auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) |
+				views::filter([](const TransformRangeItem& tri){return tri.tt==SWAP;});
 			for (const TransformRangeItem& tri : rg)
 				v.push_back(tri);
 		}
