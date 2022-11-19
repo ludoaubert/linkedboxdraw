@@ -1890,7 +1890,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges)
 {
-        vector<MyRect> emplacements, rectangles = input_rectangles;
+        vector<MyRect> emplacements;
         const vector<MyRect> holes = compute_holes(input_rectangles);
         for (const MyRect &r : input_rectangles)
                 emplacements.push_back(r);
@@ -2014,7 +2014,9 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
-			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+			const vector<MyRect> emplacements = tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+                	auto rg = emplacements | views::filter([&](const MyRect& r){return r.i<n;});
+                	const vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
@@ -2047,19 +2049,10 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		tf(id, pipeline, mirroring, match_corner);
+		const vector<MyRect> emplacements = tf(id, pipeline, mirroring, match_corner);
+		const vector<TransformRangeItem> rg = diff(id, emplacements);
 
-		for (const MyRect& r : rectangles)
-			emplacements[r.i] = r;
-
-		auto rg = views::iota(0,n) |
-			views::transform([&](int i)->TransformRangeItem{
-				const MyRect &ir = input_emplacements[i], &r = emplacements[i];
-				MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-				return {id, i, TRANSLATION, tr};}) |
-			views::filter([](const TransformRangeItem& item){return item.tr != MyPoint{0,0};});
-
-		for (TransformRangeItem item : rg)
+		for (const TransformRangeItem &item : rg)
 		{
 			transform_ranges.push_back(item);
 		}
