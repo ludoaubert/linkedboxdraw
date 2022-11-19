@@ -1897,8 +1897,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
         for (const MyRect &rec : holes)
                 emplacements.push_back(rec);
 
-        int m = emplacements.size();
-        int n = input_rectangles.size();
+	const int m = emplacements.size();
+	const int n = input_rectangles.size();
 
 	for (int i=0; i<m; i++)
 		emplacements[i].i = i;
