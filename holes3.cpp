@@ -2030,6 +2030,12 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
 		const vector<MyRect> emplacements = tf(id, pipeline, mirroring, match_corner);
+		emplacements_by_id[id] = emplacements;
+	}
+
+	for (int id=0; id < decision_tree.size(); id++)
+	{
+		const vector<MyRect> &emplacements = emplacements_by_id[id];
 		const vector<TransformRangeItem> rg = diff(id, emplacements);
 
 		for (const TransformRangeItem &item : rg)
