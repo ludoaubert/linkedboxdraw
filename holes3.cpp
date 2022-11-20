@@ -1908,6 +1908,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	const auto rng = views::iota(0,m);
 	vector<int> swapped_position(ranges::begin(rng), ranges::end(rng));
 
+	vector<vector<MyRect> > emplacements_by_id(decision_tree.size());
+
         vector<TransformRangeItem> transform_ranges;
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
