@@ -2021,6 +2021,14 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 		const vector<MyRect> emplacements = tf(id, pipeline, mirroring, match_corner);
 		emplacements_by_id[id] = emplacements;
+
+		const int parent_index = decision_tree[id].parent_index;
+		vector<int> swapped_position = parent_index==-1 ? init_swapped_position : swapped_position_by_id[parent_index];
+		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		i_emplacement_source = swapped_position[i_emplacement_source];
+		i_emplacement_destination = swapped_position[i_emplacement_destination];
+		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
+		swapped_position_by_id[id] = swapped_position;
 	}
 
 	for (int id=0; id < decision_tree.size(); id++)
