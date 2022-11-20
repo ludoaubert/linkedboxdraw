@@ -1906,7 +1906,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	const vector<MyRect> input_emplacements = emplacements;
 
 	const auto rng = views::iota(0,m);
-	vector<int> swapped_position(ranges::begin(rng), ranges::end(rng));
+	const vector<int> init_swapped_position(ranges::begin(rng), ranges::end(rng));
 
 	vector<vector<MyRect> > emplacements_by_id(decision_tree.size());
 	vector<vector<int> > swapped_position_by_id(decision_tree.size());
@@ -1916,6 +1916,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
 		const int parent_index = decision_tree[id].parent_index;
                 vector<MyRect> emplacements = parent_index==-1 ? input_emplacements : emplacements_by_id[parent_index];
+		vector<int> swapped_position = parent_index==-1 ? init_swapped_position : swapped_position_by_id[parent_index];
 
 		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		i_emplacement_source = swapped_position[i_emplacement_source];
