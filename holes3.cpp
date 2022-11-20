@@ -67,8 +67,7 @@ struct DecisionTreeNode
 enum TransformType
 {
 	TRANSLATION,
-	RESIZE,
-	SWAP
+	RESIZE
 };
 
 struct TransformRangeItem
@@ -1967,15 +1966,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		vector<TransformRangeItem> v;
 		for (const TransformRangeItem& tri : rng)
 			v.push_back(tri);
-                if (parent_index != -1)
-                {
-                        auto rg = ranges::equal_range(transform_ranges, parent_index, {}, &TransformRangeItem::id) |
-				views::filter([](const TransformRangeItem& tri){return tri.tt==SWAP;});
-			for (const TransformRangeItem& tri : rg)
-				v.push_back(tri);
-		}
-		const TransformRangeItem tri = {.id=id, .ri=-1, .tt=SWAP, .tr={.x=i_emplacement_source, .y=i_emplacement_destination}};
-		v.push_back(tri);
 		return v;
 	};
 
