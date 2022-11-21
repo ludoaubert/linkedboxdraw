@@ -1053,7 +1053,7 @@ void test_rect_trim()
 }
 
 
-vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectangles)
+vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangles)
 {
 	FunctionTimer ft("sweep");
 
