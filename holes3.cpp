@@ -856,7 +856,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 /*
 TODO: use C++23 deducing this
 */
-MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
+MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 {
 	struct RectNode{int id; MyRect r; int parent_id;};
 	vector<RectNode> rect_tree;
@@ -1819,7 +1819,7 @@ const char* CornerStrings[NR_RECT_CORNERS]={
 
 //4 mirrors X 4 corners X 2 job pipelines
 
-void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
+void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 {
 	const auto& [mirroring_state, mirroring_direction] = mirror;
 
@@ -1929,8 +1929,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		r1 += tr;
 		r2 -= tr;
 
-		auto rg = emplacements | views::filter([&](const MyRect& r){return r.i<n;});
-		vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
+		span<MyRect> rectangles(begin(emplacements), n);
 
 		r2 = trimmed(r2, rectangles);
 
@@ -1945,7 +1944,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 
-		ranges::for_each(rg, [&](MyRect& r){r = rectangles[r.i];});
 		return emplacements;
 	};
 
