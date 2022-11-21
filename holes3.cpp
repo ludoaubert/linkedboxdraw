@@ -1512,7 +1512,7 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 }
 
 
-void spread(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+void spread(Direction update_direction, const vector<RectLink>& rect_links, span<MyRect> rectangles)
 {
 //TODO: use chunk_by C++23
 	const int N=30;
@@ -1573,11 +1573,11 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, vect
 }
 
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, span<MyRect> rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-	const vector<MyRect> rectangles_ = rectangles ;
+	const vector<MyRect> rectangles_(begin(rectangles), end(rectangles)) ;
 
 	int n = rectangles.size();
 
@@ -1737,7 +1737,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
                 );
 	D(printf("id=%d\n", id));
 
-	rectangles = rectangles_;
+	ranges::copy(rectangles_, begin(rectangles));
 	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 }
@@ -1845,7 +1845,7 @@ void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
 }
 
 
-void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
+void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, span<MyRect> rectangles)
 {
 	const auto& [algo, update_direction] = job;
 
