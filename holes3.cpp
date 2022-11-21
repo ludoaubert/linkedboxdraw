@@ -1955,6 +1955,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
                 const int parent_index = decision_tree[id].parent_index;
                 const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		auto rng = views::iota(0,m) |
+			views::filter([&](int i){return i<n;}) |
 			views::transform([&](int i){
 				const MyRect &r=emplacements[i], &ir=input_emplacements[i];
 				const TransformRangeItem tri1 = {.id=id, .ri=i, .tt=TRANSLATION, .tr={.x=r.m_left-ir.m_left, .y=r.m_top-ir.m_top}};
@@ -2322,7 +2323,7 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 //TODO: use views::chunk_by() C++23
 
 vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
-								const vector<TranslationRangeItem>& translation_ranges,
+								const vector<TransformRangeItem>& transform_ranges,
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges)
 {
@@ -2355,15 +2356,15 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 		D(printf("begin cmpt_tr2 id=%d \n", id));
 		ranges::copy(input_rectangles, begin(rectangles));
 
-		vector<TranslationRangeItem> ts;
+		vector<TransformRangeItem> ts;
 
 		ranges::set_union(
-			ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
-			views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
+			ranges::equal_range(transform_ranges, id, {}, &TransformRangeItem::id),
+			views::iota(0,n) | views::transform([&](int i){return TransformRangeItem{.id=id,.ri=i, .tt=TRANSLATION, .tr={.x=0,.y=0}}; }),
 			back_inserter(ts),
 			{},
-			&TranslationRangeItem::ri,
-			&TranslationRangeItem::ri);
+			&TransformRangeItem::ri,
+			&TransformRangeItem::ri);
 
 		auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
 		ranges::copy(rg, begin(rectangles));
@@ -3098,7 +3099,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 //TODO: use C++23 views::chunk_by() and  views::zip_transform(), views::to<vector>().
 vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
-			const vector<TranslationRangeItem>& translation_ranges,
+			const vector<TransformRangeItem>& transform_ranges,
 			const vector<MyRect>& input_rectangles,
 			const vector<LogicalEdge>& logical_edges)
 {
@@ -3108,15 +3109,15 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 	auto rg = views::iota(0, m) |
 		views::transform([&](int id)->Score{
 
-			vector<TranslationRangeItem> ts;
+			vector<TransformRangeItem> ts;
 
 			ranges::set_union(
-				ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
-				views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
+				ranges::equal_range(transform_ranges, id, {}, &TransformRangeItem::id),
+				views::iota(0,n) | views::transform([&](int i){return TransformRangeItem{.id=id,.ri=i, .tt=TRANSLATION, .tr={.x=0,.y=0}}; }),
 				back_inserter(ts),
 				{},
-				&TranslationRangeItem::ri,
-				&TranslationRangeItem::ri);
+				&TransformRangeItem::ri,
+				&TransformRangeItem::ri);
 
 			auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
 			vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
@@ -3187,23 +3188,23 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges);
+		vector<TransformRangeItem> transform_ranges = compute_decision_tree_translations_(decision_tree, input_rectangles, logical_edges);
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
 
 		sprintf(file_name, "translation_ranges%d.dat", testid);
 		if(FILE* f = fopen(file_name, "wb")) {
-			fwrite(&translation_ranges[0], sizeof translation_ranges[0], translation_ranges.size(), f);
+			fwrite(&transform_ranges[0], sizeof transform_ranges[0], transform_ranges.size(), f);
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
+		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, transform_ranges, input_rectangles, logical_edges);
 
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
-		vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
+		vector<Score> scores = compute_scores(decision_tree, transform_ranges, input_rectangles, logical_edges);
 
                 sprintf(file_name, "scores%d.json", testid);
 		fs::copy("scores.json", file_name, fs::copy_options::update_existing);
@@ -3223,21 +3224,21 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
                         fclose(f);
                 }
 
-                vector<TranslationRangeItem> translation_ranges ;
+                vector<TransformRangeItem> transform_ranges ;
 
                 sprintf(file_name, "translation_ranges%d.dat", testid);
                 if(FILE* f = fopen(file_name, "rb")) {
                         struct stat stat_buf;
                         int rc = stat(file_name, &stat_buf);
                         int n = stat_buf.st_size / sizeof(TranslationRangeItem);
-                        translation_ranges.resize(n);
-                        size_t ret_code = fread(&translation_ranges[0], sizeof (TranslationRangeItem), n, f);
+                        transform_ranges.resize(n);
+                        size_t ret_code = fread(&transform_ranges[0], sizeof (TransformRangeItem), n, f);
                         fclose(f);
                 }
 
-                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
+                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, transform_ranges, input_rectangles, logical_edges);
 
-                vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
+                vector<Score> scores = compute_scores(decision_tree, transform_ranges, input_rectangles, logical_edges);
         }
         D(printf("end testid=%d \n", testid));
 }
