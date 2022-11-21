@@ -1907,15 +1907,18 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	const auto rng = views::iota(0,m);
 	const vector<int> init_swapped_position(ranges::begin(rng), ranges::end(rng));
 
-	vector<vector<MyRect> > emplacements_by_id(decision_tree.size());
-	vector<vector<int> > swapped_position_by_id(decision_tree.size());
+	vector<MyRect> emplacements_by_id(m*decision_tree.size());
+	vector<int> swapped_position_by_id(m*decision_tree.size());
 
         vector<TransformRangeItem> transform_ranges;
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
-		const int parent_index = decision_tree[id].parent_index;
-                vector<MyRect> emplacements = parent_index==-1 ? input_emplacements : emplacements_by_id[parent_index];
-		vector<int> swapped_position = parent_index==-1 ? init_swapped_position : swapped_position_by_id[parent_index];
+                const int parent_index = decision_tree[id].parent_index;
+		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
+		ranges::copy(parent_index == -1 ? span(input_emplacements) : span(begin(emplacements_by_id)+m*parent_index,m), begin(emplacements));
+
+		span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
+		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position_by_id));
 
 		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		i_emplacement_source = swapped_position[i_emplacement_source];
@@ -1947,7 +1950,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		return emplacements;
 	};
 
-	auto diff=[&](int id, const vector<MyRect>& emplacements)->vector<TransformRangeItem>
+	auto diff=[&](int id, span<const MyRect> emplacements)->vector<TransformRangeItem>
 	{
                 const int parent_index = decision_tree[id].parent_index;
                 const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
@@ -1982,9 +1985,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
-			const vector<MyRect> emplacements = tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
-                	auto rg = emplacements | views::filter([&](const MyRect& r){return r.i<n;});
-                	const vector<MyRect> rectangles(ranges::begin(rg), ranges::end(rg));
+			span<const MyRect> emplacements = tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+                	const vector<MyRect> rectangles(begin(emplacements), begin(emplacements)+n);
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
@@ -2017,21 +2019,20 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		const vector<MyRect> emplacements = tf(id, pipeline, mirroring, match_corner);
-		emplacements_by_id[id] = emplacements;
+		span<const MyRect> emplacements = tf(id, pipeline, mirroring, match_corner);
 
 		const int parent_index = decision_tree[id].parent_index;
-		vector<int> swapped_position = parent_index==-1 ? init_swapped_position : swapped_position_by_id[parent_index];
+		span<int> swapped_position(begin(swapped_position_by_id)+m*id, m);
+		ranges::copy(parent_index==-1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
 		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		i_emplacement_source = swapped_position[i_emplacement_source];
 		i_emplacement_destination = swapped_position[i_emplacement_destination];
 		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
-		swapped_position_by_id[id] = swapped_position;
 	}
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-		const vector<MyRect> &emplacements = emplacements_by_id[id];
+		span<const MyRect> emplacements(begin(emplacements_by_id)+id*m, m);
 		const vector<TransformRangeItem> rg = diff(id, emplacements);
 
 		for (const TransformRangeItem &item : rg)
