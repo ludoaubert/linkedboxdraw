@@ -1910,8 +1910,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	vector<MyRect> emplacements_by_id(m*decision_tree.size());
 	vector<int> swapped_position_by_id(m*decision_tree.size());
 
-        vector<TransformRangeItem> transform_ranges;
-
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
                 const int parent_index = decision_tree[id].parent_index;
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
@@ -2030,6 +2028,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		i_emplacement_destination = swapped_position[i_emplacement_destination];
 		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
 	}
+
+        vector<TransformRangeItem> transform_ranges;
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
