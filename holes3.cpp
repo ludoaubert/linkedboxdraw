@@ -1916,11 +1916,11 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		ranges::copy(parent_index == -1 ? span(input_emplacements) : span(begin(emplacements_by_id)+m*parent_index,m), begin(emplacements));
 
 		span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
-		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position_by_id));
+		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
 
 		auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-		i_emplacement_source = swapped_position[i_emplacement_source];
 		i_emplacement_destination = swapped_position[i_emplacement_destination];
+		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
 		MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[i_emplacement_destination];
                 const auto [RectDimX, RectDimY] = corners[match_corner];
 		const MyPoint tr = {
