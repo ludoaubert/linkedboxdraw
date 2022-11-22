@@ -1889,22 +1889,22 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges)
 {
-        vector<MyRect> emplacements;
+        vector<MyRect> emplacements_;
         const vector<MyRect> holes = compute_holes(input_rectangles);
         for (const MyRect &r : input_rectangles)
-                emplacements.push_back(r);
+                emplacements_.push_back(r);
         for (const MyRect &rec : holes)
-                emplacements.push_back(rec);
+                emplacements_.push_back(rec);
 
-	const int m = emplacements.size();
+	const int m = emplacements_.size();
 	const int n = input_rectangles.size();
 
 	for (int i=0; i<m; i++)
-		emplacements[i].i = i;
+		emplacements_[i].i = i;
 
-	const vector<MyRect> input_emplacements = emplacements;
+	const vector<MyRect> input_emplacements = emplacements_;
 
-	const auto rng = views::iota(0,m);
+	auto rng = views::iota(0,m);
 	const vector<int> init_swapped_position(ranges::begin(rng), ranges::end(rng));
 
 	vector<MyRect> emplacements_by_id(m*decision_tree.size());
@@ -3188,7 +3188,9 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 			fclose(f);
 		}
 
+                D(printf("begin compute_decision_tree_translations_()\n"));
 		vector<TransformRangeItem> transform_ranges = compute_decision_tree_translations_(decision_tree, input_rectangles, logical_edges);
+                D(printf("end compute_decision_tree_translations_()\n"));
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
