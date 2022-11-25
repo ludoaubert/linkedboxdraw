@@ -161,7 +161,7 @@ function translation_range_print_html(id)
 				const r = input_holes[i-n];
 				const tr=translations.find(tr => tr.ri==i && tr.tt==0);
                 		const r2 = tr==undefined ? r : translated_rectangle(r, tr);
-				const rs=translations.find(tr => tr.ri==i && rs.tt==1);
+				const rs=translations.find(rs => rs.ri==i && rs.tt==1);
                 		const r3 = rs==undefined ? r : resized_rectangle(r, rs);
 				return r3;
 		     	      });
