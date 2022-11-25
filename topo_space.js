@@ -141,7 +141,7 @@ function translation_range_print_html(id)
 	};
 
 	const tf2 = (holes, translations) => {
-		int n = rectangles.length;
+		const n = rectangles.length;
 		const holes_ = holes.map((r, index) => {
 				const tr=translations.find(tr => tr.ri==index+n && tr.tt==0);
 				return tr==undefined ? r : translated_rectangle(r, tr);})
