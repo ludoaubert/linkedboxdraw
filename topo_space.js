@@ -156,7 +156,7 @@ function translation_range_print_html(id)
 	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
 	const n = input_rectangles.length;
-	const distinctHoleIndices = [...new Set(translations.transform(tr => tr.ri).filter(ri => ri>=n))];
+	const distinctHoleIndices = [...new Set(translations.map(tr => tr.ri).filter(ri => ri>=n))];
 	const selected_holes = distinctHoleIndices.map(i => {
 				const r = input_holes[i-n];
 				const tr=translations.find(tr => tr.ri==i && tr.tt==0);
