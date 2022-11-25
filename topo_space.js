@@ -127,9 +127,9 @@ const height = (r) => r.m_bottom-r.m_top;
 
 function translation_range_print_html(id)
 {
-	const {logical_graph, holes_, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
+	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
-	const {input_holes, topological_contact}=holes_;
+	const {input_holes, topological_contact}=holes;
 
 	const tf = (rectangles, translations) => {
 		const rectangles_ = rectangles.map((r, index) => {
@@ -157,14 +157,14 @@ function translation_range_print_html(id)
 	const frame = compute_frame(rectangles);
 	const n = input_rectangles.length;
 	const distinctHoleIndices = [...new Set(translations.transform(tr => tr.ri).filter(ri => ri>=n))];
-	const holes = distinctHoleIndices.map(i => {
-			const r = input_holes[i-n];
-			const tr=translations.find(tr => tr.ri==i && tr.tt==0);
-                	const r2 = tr==undefined ? r : translated_rectangle(r, tr);
-			const rs=translations.find(tr => tr.ri==i && rs.tt==1);
-                	const r3 = rs==undefined ? r : resized_rectangle(r, rs);
-			return r3;
-		     });
+	const selected_holes = distinctHoleIndices.map(i => {
+				const r = input_holes[i-n];
+				const tr=translations.find(tr => tr.ri==i && tr.tt==0);
+                		const r2 = tr==undefined ? r : translated_rectangle(r, tr);
+				const rs=translations.find(tr => tr.ri==i && rs.tt==1);
+                		const r3 = rs==undefined ? r : resized_rectangle(r, rs);
+				return r3;
+		     	      });
 
 	const translations2 = equal_range(translation_ranges2, id);
 	const rectangles2 = tf(rectangles, translations2);
@@ -190,7 +190,7 @@ function translation_range_print_html(id)
 			.join('\n');
 	};
 
-	return [svg(frame, rectangles, holes), svg(frame2, rectangles2, [])].join('\n');
+	return [svg(frame, rectangles, selected_holes), svg(frame2, rectangles2, [])].join('\n');
 }
 
 function print_html()
