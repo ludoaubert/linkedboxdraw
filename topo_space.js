@@ -154,7 +154,7 @@ function translation_range_print_html(id)
 	const translations = equal_range(translation_ranges, id);
 	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
-	const holes = tf2(holes.holes, translations);
+	const holes_ = tf2(holes.holes, translations);
 
 	const translations2 = equal_range(translation_ranges2, id);
 	const rectangles2 = tf(rectangles, translations2);
@@ -169,7 +169,7 @@ function translation_range_print_html(id)
                         logical_edges.filter(({from, to}) => from==index)
 			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			`</g>`]),
-		holes.map((r, index) =>
+		holes_.map((r, index) =>
                         [`<g transform="translate(${r.m_left} ${r.m_top})">`,
                         `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"hole\" />`,
                         `<text x="0" y="0" fill="red">h-${index}</text>`,
