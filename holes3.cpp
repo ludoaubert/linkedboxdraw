@@ -2785,7 +2785,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 {
 	char buffer[100*1000];
 	int pos=0;
-        pos += sprintf(buffer + pos,"{\n\"holes\":[");
+        pos += sprintf(buffer + pos,"{\n\"input_holes\":[");
 	for (const MyRect& r : holes)
 	{
 		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
