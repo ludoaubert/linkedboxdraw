@@ -112,33 +112,55 @@ function translated_rectangle(r, tr)
 	};
 }
 
+function resized_rectangle(r, tr)
+{
+	return {
+		m_left : r.m_left,
+		m_right : r.m_right + tr.x,
+		m_top : r.m_top,
+		m_bottom : r.m_bottom + tr.y
+	};
+}
+
 const width = (r) => r.m_right-r.m_left;
 const height = (r) => r.m_bottom-r.m_top;
-
-const tf = (rectangles, translations) => {
-        const rectangles_ = rectangles.map((r, index) => {
-                        const tr=translations.find(tr => tr.ri==index);
-                        return tr==undefined ? r : translated_rectangle(r, tr);
-                }
-        );
-        const tr = compute_center_frame_translation(rectangles_);
-        return rectangles_.map(r => translated_rectangle(r, tr));
-};
 
 function translation_range_print_html(id)
 {
 	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 
+	const tf = (rectangles, translations) => {
+		const rectangles_ = rectangles.map((r, index) => {
+				const tr=translations.find(tr => tr.ri==index);
+				return tr==undefined ? r : translated_rectangle(r, tr);
+			}
+		);
+		const tr = compute_center_frame_translation(rectangles_);
+		return rectangles_.map(r => translated_rectangle(r, tr));
+	};
+
+	const tf2 = (holes, translations) => {
+		int n = rectangles.length;
+		const holes_ = holes.map((r, index) => {
+				const tr=translations.find(tr => tr.ri==index+n && tr.tt==0);
+				return tr==undefined ? r : translated_rectangle(r, tr);})
+				    .map((r, index) => {
+				const tr=translations.find(tr => tr.ri==index+n && tr.tt==1);
+				return tr==undefined ? r : resized_rectangle(r, tr);});
+		return holes_;
+	};
+
 	const translations = equal_range(translation_ranges, id);
 	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
+	const holes = tf2(holes.holes, translations);
 
 	const translations2 = equal_range(translation_ranges2, id);
 	const rectangles2 = tf(rectangles, translations2);
 	const frame2 = compute_frame(rectangles2);
 
-	const svg = (frame, rectangles) => {
+	const svg = (frame, rectangles, holes) => {
 	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
                 rectangles.map((r, index) =>
                         [`<g transform="translate(${r.m_left} ${r.m_top})">`,
@@ -147,11 +169,18 @@ function translation_range_print_html(id)
                         logical_edges.filter(({from, to}) => from==index)
 			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			`</g>`]),
+		holes.map((r, index) =>
+                        [`<g transform="translate(${r.m_left} ${r.m_top})">`,
+                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"hole\" />`,
+                        `<text x="0" y="0" fill="red">h-${index}</text>`,
+                        holes.topological_contact.filter(({hi, rj}) => hi==index)
+                                .map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${rj}</text>`),
+                        `</g>`]),
 		"</svg>"].flat(3)
 			.join('\n');
 	};
 
-	return [svg(frame, rectangles), svg(frame2, rectangles2)].join('\n');
+	return [svg(frame, rectangles, holes), svg(frame2, rectangles2, [])].join('\n');
 }
 
 function print_html()
