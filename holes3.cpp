@@ -1953,7 +1953,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
                 const int parent_index = decision_tree[id].parent_index;
                 const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		auto rng = views::iota(0,m) |
-			views::filter([&](int i){return i<n;}) |
 			views::transform([&](int i){
 				const MyRect &r=emplacements[i], &ir=input_emplacements[i];
 				const TransformRangeItem tri1 = {.id=id, .ri=i, .tt=TRANSLATION, .tr={.x=r.m_left-ir.m_left, .y=r.m_top-ir.m_top}};
@@ -2048,7 +2047,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	for (int i=0; i < transform_ranges.size(); i++)
 	{
 		const auto [id, ri, tt, tr] = transform_ranges[i];
-		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
+		fprintf(f, "{\"id\":%d, \"ri\":%d, \"tt\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tt, tr.x, tr.y,
 			i+1 == transform_ranges.size() ? "": ",");
 	}
 	fprintf(f, "]\n");
