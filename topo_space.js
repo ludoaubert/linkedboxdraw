@@ -132,7 +132,6 @@ function translation_range_print_html(id)
 	const {input_holes, topological_contact}=holes;
 
 	const translations = equal_range(translation_ranges, id);
-	const rectangles = tf(input_rectangles, translations);
 	const rectangles_ = rectangles.map((r, index) => {
 				const tr=translations.find(tr => tr.ri==index);
 				return tr==undefined ? r : translated_rectangle(r, tr);});
