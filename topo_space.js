@@ -147,7 +147,7 @@ function translation_range_print_html(id)
 				const rs=translations.find(rs => rs.ri==i && rs.tt==1);
                 		const r3 = rs==undefined ? r2 : resized_rectangle(r2, rs);
 				const r4 = translated_rectangle(r3, cftr);
-				return {...r4, ri:i};
+				return {...r4, ri:i-n};
 		     	      });
 
 	const translations2 = equal_range(translation_ranges2, id);
