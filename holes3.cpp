@@ -1932,8 +1932,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 		span<MyRect> rectangles(begin(emplacements), n);
 
-		r2 = trimmed(r2, rectangles);
-
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 		for (const auto& [algo, update_direction] : pipelines[pipeline])
@@ -1944,6 +1942,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		}
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
+
+                r2 = trimmed(r2, rectangles);
 
 		return emplacements;
 	};
