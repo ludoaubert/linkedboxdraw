@@ -141,17 +141,6 @@ function translation_range_print_html(id)
 		return rectangles_.map(r => translated_rectangle(r, tr));
 	};
 
-	const tf2 = (input_holes, translations) => {
-		const n = input_rectangles.length;
-		const holes = input_holes.map((r, index) => {
-				const tr=translations.find(tr => tr.ri==index+n && tr.tt==0);
-				return tr==undefined ? r : translated_rectangle(r, tr);})
-				    .map((r, index) => {
-				const tr=translations.find(tr => tr.ri==index+n && tr.tt==1);
-				return tr==undefined ? r : resized_rectangle(r, tr);});
-		return holes;
-	};
-
 	const translations = equal_range(translation_ranges, id);
 	const rectangles = tf(input_rectangles, translations);
 	const frame = compute_frame(rectangles);
@@ -179,12 +168,10 @@ function translation_range_print_html(id)
                         logical_edges.filter(({from, to}) => from==index)
 			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
 			`</g>`]),
-		holes.map((r, index) =>
+		selected_holes.map((r, index) =>
                         [`<g transform="translate(${r.m_left} ${r.m_top})">`,
                         `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"hole\" />`,
                         `<text x="0" y="0" fill="red">h-${index}</text>`,
-                        topological_contact.filter(({hi, rj}) => hi==index)
-                                .map(({hi, rj}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${rj}</text>`),
                         `</g>`]),
 		"</svg>"].flat(3)
 			.join('\n');
