@@ -1950,8 +1950,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 	auto diff=[&](int id, span<const MyRect> emplacements)->vector<TransformRangeItem>
 	{
-                const int parent_index = decision_tree[id].parent_index;
-                const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 		auto rng = views::iota(0,m) |
 			views::transform([&](int i){
 				const MyRect &r=emplacements[i], &ir=input_emplacements[i];
