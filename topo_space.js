@@ -131,18 +131,13 @@ function translation_range_print_html(id)
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
 	const {input_holes, topological_contact}=holes;
 
-	const tf = (rectangles, translations) => {
-		const rectangles_ = rectangles.map((r, index) => {
-				const tr=translations.find(tr => tr.ri==index);
-				return tr==undefined ? r : translated_rectangle(r, tr);
-			}
-		);
-		const tr = compute_center_frame_translation(rectangles_);
-		return rectangles_.map(r => translated_rectangle(r, tr));
-	};
-
 	const translations = equal_range(translation_ranges, id);
 	const rectangles = tf(input_rectangles, translations);
+	const rectangles_ = rectangles.map((r, index) => {
+				const tr=translations.find(tr => tr.ri==index);
+				return tr==undefined ? r : translated_rectangle(r, tr);});
+	const cftr = compute_center_frame_translation(rectangles_);
+	const rectangles = rectangles_.map(r => translated_rectangle(r, cftr));
 	const frame = compute_frame(rectangles);
 	const n = input_rectangles.length;
 	const distinctHoleIndices = [...new Set(translations.map(tr => tr.ri).filter(ri => ri>=n))];
@@ -153,7 +148,8 @@ function translation_range_print_html(id)
 				const rs=translations.find(rs => rs.ri==i && rs.tt==1);
                 		const r3 = rs==undefined ? r2 : resized_rectangle(r2, rs);
 				return r3;
-		     	      });
+		     	      })
+				.map(r => translated_rectangle(r, cftr));
 
 	const translations2 = equal_range(translation_ranges2, id);
 	const rectangles2 = tf(rectangles, translations2);
