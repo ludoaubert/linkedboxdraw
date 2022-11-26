@@ -151,7 +151,7 @@ function translation_range_print_html(id)
 				const tr=translations.find(tr => tr.ri==i && tr.tt==0);
                 		const r2 = tr==undefined ? r : translated_rectangle(r, tr);
 				const rs=translations.find(rs => rs.ri==i && rs.tt==1);
-                		const r3 = rs==undefined ? r : resized_rectangle(r, rs);
+                		const r3 = rs==undefined ? r2 : resized_rectangle(r2, rs);
 				return r3;
 		     	      });
 
@@ -160,20 +160,20 @@ function translation_range_print_html(id)
 	const frame2 = compute_frame(rectangles2);
 
 	const svg = (frame, rectangles, holes) => {
-	return [`<svg width="${width(frame)}" height="${height(frame)}">`,
-                rectangles.map((r, index) =>
-                        [`<g transform="translate(${r.m_left} ${r.m_top})">`,
-                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"rect\" />`,
-                        `<text x="0" y="0" fill="red">r-${index}</text>`,
-                        logical_edges.filter(({from, to}) => from==index)
-			        .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
-			`</g>`]),
-		selected_holes.map((r, index) =>
-                        [`<g transform="translate(${r.m_left} ${r.m_top})">`,
-                        `<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"hole\" />`,
-                        `<text x="0" y="0" fill="red">h-${index}</text>`,
-                        `</g>`]),
-		"</svg>"].flat(3)
+		return [`<svg width="${width(frame)}" height="${height(frame)}">`,
+                	rectangles.map((r, index) =>
+                        	[`<g transform="translate(${r.m_left} ${r.m_top})">`,
+                        	`<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"rect\" />`,
+                        	`<text x="0" y="0" fill="red">r-${index}</text>`,
+                        	logical_edges.filter(({from, to}) => from==index)
+			        	     .map(({from, to}, line) => `<text x="8" y="${14*(line+1)}" class="logical_contact">r-${to}</text>`),
+				`</g>`]),
+			holes.map((r, index) =>
+                        	[`<g transform="translate(${r.m_left} ${r.m_top})">`,
+                        	`<rect x="0" y="0" width="${width(r)}" height="${height(r)}" class=\"hole\" />`,
+                        	`<text x="0" y="0" fill="red">h-${index}</text>`,
+                        	`</g>`]),
+			"</svg>"].flat(3)
 			.join('\n');
 	};
 
