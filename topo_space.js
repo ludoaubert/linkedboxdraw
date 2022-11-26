@@ -151,7 +151,11 @@ function translation_range_print_html(id)
 				.map(r => translated_rectangle(r, cftr));
 
 	const translations2 = equal_range(translation_ranges2, id);
-	const rectangles2 = tf(rectangles, translations2);
+        const rectangles2_ = rectangles.map((r, index) => {
+                                const tr=translations2.find(tr => tr.ri==index);
+                                return tr==undefined ? r : translated_rectangle(r, tr);});
+        const cftr2 = compute_center_frame_translation(rectangles2_);
+        const rectangles2 = rectangles2_.map(r => translated_rectangle(r, cftr2));
 	const frame2 = compute_frame(rectangles2);
 
 	const svg = (frame, rectangles, holes) => {
