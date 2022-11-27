@@ -1919,8 +1919,8 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			.x=r2[RectDimX] - r1[RectDimX],
 			.y=r2[RectDimY] - r1[RectDimY]
 		};
-		r1 += tr;
 		r2 = r1;
+		r1 += tr;
 
 		span<MyRect> rectangles(begin(emplacements), n);
 
