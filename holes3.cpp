@@ -689,7 +689,7 @@ void split(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
 
 void notch(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
 {
-	if (r.m_left <= by.m_left && by.m_right <= r.m_right && by.m_bottom >= r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
+	if (by.m_left <= r.m_left && r.m_right <= by.m_right && by.m_bottom >= r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
 	{
 		rects = {
 			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
