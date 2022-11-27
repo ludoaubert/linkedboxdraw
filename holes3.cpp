@@ -1837,24 +1837,6 @@ void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 }
 
 
-void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, span<MyRect> rectangles)
-{
-	const auto& [algo, update_direction] = job;
-
-	vector<RectLink> rect_links = sweep(update_direction, rectangles);
-
-	switch (algo)
-	{
-	case SPREAD:
-		spread(update_direction, rect_links, rectangles);
-		break;
-	case COMPACT:
-		compact(update_direction, rect_links, logical_edges, rectangles);
-		break;
-	}
-}
-
-
 struct ProcessSelector
 {
 	unsigned pipeline, mirroring, match_corner;
