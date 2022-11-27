@@ -1920,7 +1920,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			.y=r2[RectDimY] - r1[RectDimY]
 		};
 		r1 += tr;
-		r2 -= tr;
+		r2 = r1;
 
 		span<MyRect> rectangles(begin(emplacements), n);
 
@@ -1998,13 +1998,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			D(printf("sigma_translation = %d\n", sigma_translation));
 			D(printf("[.frame_width=%d, .frame_height=%d]\n", frame_width, frame_height));
 
-			span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
-			const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-			int swapped_i_emplacement_destination = swapped_position[i_emplacement_destination];
-			const MyRect &r2 = emplacements[swapped_i_emplacement_destination];
-			const int trimmed_hole_dim = width(r2) + height(r2);
-
-			int cost = frame_width + frame_height + sigma_edge_distance + sigma_translation - trimmed_hole_dim ;
+			int cost = frame_width + frame_height + sigma_edge_distance + sigma_translation;
 
 			D(printf("cost=%d\n", cost));
 			return cost;
