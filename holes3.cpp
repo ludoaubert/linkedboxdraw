@@ -1506,7 +1506,20 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 
 void spread(Direction update_direction, const vector<RectLink>& rect_links, span<MyRect> rectangles)
 {
+	D(printf("begin spread\n"));
+
 //TODO: use chunk_by C++23
+	auto rg = rectangles |
+		views::transform([](const MyRect& r)->string{
+			char buffer[258];
+			sprintf(buffer, "{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d},\n",
+				r.m_left, r.m_right, r.m_top, r.m_bottom);
+			return buffer;}) |
+		views::join;
+
+	for (char c : rg)
+		D(printf("%c", c));
+
 	const int N=30;
 	int n = rectangles.size();
 
@@ -1562,6 +1575,8 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 	{
 		rectangles[ri] += translations[ri];
 	}
+
+	D(printf("end spread\n"));
 }
 
 
@@ -2638,6 +2653,32 @@ const vector<TestContext> test_contexts={
                 },
                 .expected_translations={
                 }
+	},
+	{
+		.testid=7,
+		.input_rectangles = {
+			{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+			{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+			{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+			{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+			{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+			{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+			{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+			{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+			{.m_left=345, .m_right=553, .m_top=451, .m_bottom=611},
+			{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+			{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+			{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
+		},
+		.pipeline = {
+			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
+		},
+		.expected_translations={
+			{.i=8, .x=0, .y=65}
+		}
 	}
 };
 
@@ -3222,9 +3263,9 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 	if (argc == 1)
 	{
-		test_rect_trim();
-return 0;
 		test_fit();
+return 0;
+		test_rect_trim();
 
 		test_translations();
 	}
