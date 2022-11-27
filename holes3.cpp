@@ -866,9 +866,9 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
         fflush(stdout);
 	vector<vector<MyRect> > vv(n+1);
 	vv[0]={r};
+	int i=0;
 
 	auto next=[&](const vector<MyRect>& previous, const vector<MyRect>&){
-		const int i = &previous - &vv[0];
                 D(printf("recurrence i=%d\n", i));
 		fflush(stdout);
 		auto rg = previous |
@@ -882,6 +882,7 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 			v.push_back(r);
 		D(printf("recurrence i=%d, v.size()=%zu\n", i, v.size()));
 		fflush(stdout);
+		i++;
 		return v;
 	};
 
