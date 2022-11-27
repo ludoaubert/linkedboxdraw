@@ -858,29 +858,32 @@ TODO: use C++23 deducing this
 */
 MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 {
-	D(printf("recurrence\n"));
+	D(printf("begin trimmed\n"));
+	D(printf("r={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", r.m_left, r.m_right, r.m_bottom, r.m_top));
 	fflush(stdout);
 
 	const int n = rectangles.size();
-	D(printf("recurrence n=%d\n", n));
+
         fflush(stdout);
 	vector<vector<MyRect> > vv(n+1);
 	vv[0]={r};
 	int i=0;
 
 	auto next=[&](const vector<MyRect>& previous, const vector<MyRect>&){
-                D(printf("recurrence i=%d\n", i));
+		const MyRect& ri = rectangles[i];
+                D(printf("i=%d\n", i));
+		D(printf("ri={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", ri.m_left, ri.m_right, ri.m_bottom, ri.m_top));
 		fflush(stdout);
 		auto rg = previous |
 			views::transform([&](const MyRect& r){
-				const vector<MyRect> rects = trimmed(r, rectangles[i]);
+				const vector<MyRect> rects = trimmed(r, ri);
 				return rects.empty() ? vector{r} : rects;
 			}) |
 			views::join;
 		vector<MyRect> v;
 		for (const MyRect& r : rg)
 			v.push_back(r);
-		D(printf("recurrence i=%d, v.size()=%zu\n", i, v.size()));
+		D(printf("v.size()=%zu\n", v.size()));
 		fflush(stdout);
 		i++;
 		return v;
@@ -888,6 +891,7 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 
 	partial_sum(vv.begin(), vv.end(), vv.begin(), next);
 	return ranges::max(vv.back(), {}, [](const MyRect& r){return width(r)*height(r);});
+	D(printf("end trimmed\n"));
 }
 
 
