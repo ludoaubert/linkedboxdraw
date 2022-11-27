@@ -689,7 +689,7 @@ void split(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
 
 void notch(const MyRect& r, const MyRect& by, vector<MyRect>& rects)
 {
-	if (r.m_left < by.m_left && by.m_right < r.m_right && by.m_bottom > r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
+	if (r.m_left <= by.m_left && by.m_right <= r.m_right && by.m_bottom >= r.m_bottom && by.m_top < r.m_bottom && by.m_top > r.m_top)
 	{
 		rects = {
 			{.m_left=r.m_left, .m_right=by.m_left, .m_top=r.m_top, .m_bottom=r.m_bottom},
@@ -811,6 +811,9 @@ const vector<TrimProcessSelector> trim_process_selectors = cartesian_product_();
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
 {
+	D(printf("r={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", r.m_left, r.m_right, r.m_top, r.m_bottom));
+	D(printf("by={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", by.m_left, by.m_right, by.m_top, by.m_bottom));
+
 	vector<MyRect> rects;
 
 	for (const auto [trim_algo, mirroring] : trim_process_selectors)
@@ -872,7 +875,7 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 	auto next=[&](const vector<MyRect>& previous, const vector<MyRect>&){
 		const MyRect& ri = rectangles[i];
                 D(printf("i=%d\n", i));
-		D(printf("ri={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", ri.m_left, ri.m_right, ri.m_bottom, ri.m_top));
+		D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
 		fflush(stdout);
 		auto rg = previous |
 			views::transform([&](const MyRect& r){
@@ -1018,7 +1021,15 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
                         {.m_left=50, .m_right=150, .m_top=50, .m_bottom=300}//0
                 },
                 .expected={.m_left=150, .m_right=400, .m_top=100, .m_bottom=250}
-        }
+        },
+	{
+		.testid=5,
+		.r={.m_left=345, .m_right=552, .m_top=386, .m_bottom=451},
+		.input_rectangles={
+			{.m_left=330, .m_right=552, .m_top=405, .m_bottom=516}
+		},
+		.expected={.m_left=345, .m_right=552, .m_top=386, .m_bottom=405}
+	}
 };
 
 
@@ -3230,7 +3241,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 	if (argc == 1)
 	{
 		test_rect_trim();
-
+return 0;
 		test_fit();
 
 		test_translations();
