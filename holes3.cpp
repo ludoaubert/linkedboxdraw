@@ -2657,27 +2657,55 @@ const vector<TestContext> test_contexts={
 	{
 		.testid=7,
 		.input_rectangles = {
-			{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
-			{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
-			{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
-			{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
-			{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
-			{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
-			{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
-			{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
-			{.m_left=345, .m_right=553, .m_top=451, .m_bottom=611},
-			{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
-			{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
-			{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
-			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
-			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
-			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
+			{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},//0
+			{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},//1
+			{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},//2
+			{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},//3
+			{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},//4
+			{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},//5
+			{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},//6
+			{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},//7
+			{.m_left=345, .m_right=553, .m_top=451, .m_bottom=611},//8
+			{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},//9
+			{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},//10
+			{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},//11
+			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},//12
+			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},//13
+			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}//14
 		},
 		.pipeline = {
 			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
 		},
 		.expected_translations={
 			{.i=8, .x=0, .y=65}
+		}
+	},
+	{
+		.testid=8,
+		.input_rectangles = {
+			{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},//0
+			{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},//1
+			{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},//2
+			{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},//3
+			{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},//4
+			{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},//5
+			{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},//6
+			{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},//7
+			{.m_left=345, .m_right=553, .m_top=451, .m_bottom=611},//8
+			{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},//9
+			{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},//10
+			{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},//11
+			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},//12
+			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},//13
+			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}//14
+		},
+		.pipeline = {
+			{.algo=SPREAD,.update_direction=EAST_WEST}
+		},
+		.expected_translations={
+			{.i=5, .x=1, .y=0},
+			{.i=7, .x=1, .y=0},
+			{.i=10, .x=1, .y=0}
 		}
 	}
 };
