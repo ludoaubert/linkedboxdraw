@@ -7,6 +7,7 @@
 #include <numeric>
 #include <ranges>
 #include <span>
+#include <execution>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <filesystem>
@@ -1957,8 +1958,6 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		return v;
 	};
 
-	for (int id=0; id < decision_tree.size(); id++)
-	{
 /*
 // TODO: use upcoming C++23 views::cartesian_product()
 	auto rg = views::cartesian_product( views::iota(0, NR_JOB_PIPELINES),
@@ -1966,7 +1965,7 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 										views::iota(0, NR_RECT_CORNERS));
 	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{...
 */
-
+	auto process_node = [&](int id){
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
 			D(printf("pipeline=%u\n", ps.pipeline));
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
@@ -2018,6 +2017,16 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		i_emplacement_destination = swapped_position[i_emplacement_destination];
 		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
 */
+	};//process_node
+
+        for (int depth=0; depth < 10; depth++)
+        {
+                auto rg = views::iota(0, (int)decision_tree.size()) |
+                        views::filter([&](int id){return decision_tree[id].depth==depth;});
+		for_each(execution::par_unseq,
+			ranges::begin(rg),
+			ranges::end(rg),
+			process_node);
 	}
 
         vector<TransformRangeItem> transform_ranges;
