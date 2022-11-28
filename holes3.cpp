@@ -1939,12 +1939,11 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 		
 		swap(emplacements[n], emplacements[swapped_i_emplacement_destination]);
 		
-/*
 		D(printf("r2={m_left=%d, m_right=%d, m_top=%d, m_bottom=%d}\n", r2.m_left, r2.m_right, r2.m_top, r2.m_bottom));
 		span<MyRect> rectangles(begin(emplacements), n);
 		r2 = trimmed(r2, rectangles);
 		D(printf("trimmed(r2)={m_left=%d, m_right=%d, m_top=%d, m_bottom=%d}\n", r2.m_left, r2.m_right, r2.m_top, r2.m_bottom));
-*/
+
 		return emplacements;
 	};
 
