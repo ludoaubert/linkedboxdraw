@@ -1900,42 +1900,51 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 	vector<int> swapped_position_by_id(m*decision_tree.size());
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
-                const int parent_index = decision_tree[id].parent_index;
+		const int parent_index = decision_tree[id].parent_index;
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
 		ranges::copy(parent_index == -1 ? span(input_emplacements) : span(begin(emplacements_by_id)+m*parent_index,m), begin(emplacements));
 
+		//begin 0xa4f36 - duplicated lines
 		span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
 		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
 
 		const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
-		int swapped_i_emplacement_destination = swapped_position[i_emplacement_destination];
+		const int swapped_i_emplacement_destination = swapped_position[i_emplacement_destination];
 		swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
+		//end 0xa4f36 - duplicated lines
+
 		MyRect &r1 = emplacements[i_emplacement_source], &r2 = emplacements[swapped_i_emplacement_destination];
-                const auto [RectDimX, RectDimY] = corners[match_corner];
+		const auto [RectDimX, RectDimY] = corners[match_corner];
 		const MyPoint tr = {
 			.x=r2[RectDimX] - r1[RectDimX],
 			.y=r2[RectDimY] - r1[RectDimY]
 		};
 		r2 = r1;
 		r1 += tr;
+		
+		swap(emplacements[n], emplacements[swapped_i_emplacement_destination]);
 
-		span<MyRect> rectangles(begin(emplacements), n);
+		span<MyRect> rectangles_and_hole(begin(emplacements), n+1);
 
 		for (const Mirror& mirror : mirrors[mirroring])
-			apply_mirror(mirror, rectangles);
+			apply_mirror(mirror, rectangles_and_hole);
 		for (const auto& [algo, update_direction] : pipelines[pipeline])
 		{
-			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			vector<RectLink> rect_links = sweep(update_direction, rectangles_and_hole);
 			assert(algo == SPREAD);
-			spread(update_direction, rect_links, rectangles);
+			spread(update_direction, rect_links, rectangles_and_hole);
 		}
 		for (const Mirror& mirror : mirrors[mirroring])
-			apply_mirror(mirror, rectangles);
-
+			apply_mirror(mirror, rectangles_and_hole);
+		
+		swap(emplacements[n], emplacements[swapped_i_emplacement_destination]);
+		
+/*
 		D(printf("r2={m_left=%d, m_right=%d, m_top=%d, m_bottom=%d}\n", r2.m_left, r2.m_right, r2.m_top, r2.m_bottom));
-                r2 = trimmed(r2, rectangles);
-                D(printf("trimmed(r2)={m_left=%d, m_right=%d, m_top=%d, m_bottom=%d}\n", r2.m_left, r2.m_right, r2.m_top, r2.m_bottom));
-
+		span<MyRect> rectangles(begin(emplacements), n);
+		r2 = trimmed(r2, rectangles);
+		D(printf("trimmed(r2)={m_left=%d, m_right=%d, m_top=%d, m_bottom=%d}\n", r2.m_left, r2.m_right, r2.m_top, r2.m_bottom));
+*/
 		return emplacements;
 	};
 
@@ -1972,8 +1981,9 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
+			const int parent_index = decision_tree[id].parent_index;
 			span<const MyRect> emplacements = tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
-                	const vector<MyRect> rectangles(begin(emplacements), begin(emplacements)+n);
+			span<MyRect> rectangles(begin(emplacements), n);
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
@@ -1989,7 +1999,21 @@ vector<TransformRangeItem> compute_decision_tree_translations_(const vector<Deci
 
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
-			const auto [frame_width, frame_height] = dimensions(compute_frame(rectangles));
+			
+		//begin 0xa4f36 - duplicated lines
+			span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
+			ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
+
+			const auto [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+			const int swapped_i_emplacement_destination = swapped_position[i_emplacement_destination];
+			swap(swapped_position[i_emplacement_source], swapped_position[i_emplacement_destination]);
+		//end 0xa4f36 - duplicated lines
+
+	//compute frame dimensions including hole. It is easier to include it in the flow of movement.
+			swap(emplacements[n], emplacements[swapped_i_emplacement_destination]);
+			span<MyRect> rectangles_and_hole(begin(emplacements), n+1);
+			const auto [frame_width, frame_height] = dimensions(compute_frame(rectangles_and_hole));
+			swap(emplacements[n], emplacements[swapped_i_emplacement_destination]);
 
 			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
 			D(printf("sigma_translation = %d\n", sigma_translation));
