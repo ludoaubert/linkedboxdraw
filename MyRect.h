@@ -10,6 +10,7 @@
 
 
 #include <vector>
+#include <span>
 #include <stdint.h>
 #include <stdio.h>
 #include <algorithm>
@@ -418,7 +419,7 @@ float rectangle_diameter(const MyRect& r) ;
 float frame_diameter(const std::vector<MyRect>& rectangles) ;
 int16_t frame_dim_max(const std::vector<MyRect>& rectangles) ;
 
-MyRect compute_frame(const std::vector<MyRect>& rectangles) ;
+MyRect compute_frame(std::span<const MyRect> rectangles) ;
 
 MyPoint compute_center_frame_translation(const std::vector<MyRect>& rectangles);
 

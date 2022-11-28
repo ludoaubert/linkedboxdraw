@@ -99,7 +99,7 @@ int min = ranges::min(r);
 int max = ranges::max(r);
 */
 
-MyRect compute_frame(const vector<MyRect>& rectangles)
+MyRect compute_frame(span<const MyRect> rectangles)
 {
 	MyRect frame ;
 
