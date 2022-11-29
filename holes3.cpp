@@ -458,7 +458,7 @@ struct TranslationRangesTestContext
 {
 	int testid;
 	vector<DecisionTreeNode> decision_tree;
-	vector<TranslationRangeItem> expected_translation_ranges;
+	vector<TransformRangeItem> expected_translation_ranges;
 };
 
 
@@ -1743,16 +1743,11 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 }
 
 
-struct TranslationItem {
-	int i, x, y;
-	friend bool operator==(const TranslationItem&, const TranslationItem&) = default;
-};
-
 struct TestContext {
 	int testid;
 	vector<MyRect> input_rectangles;
 	vector<Job> pipeline;
-	vector<TransformItem> expected_translations;
+	vector<TransformRangeItem> expected_translations;
 };
 
 const vector<TestContext> test_contexts={
@@ -1784,7 +1779,7 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.i=5, .x=100, .y=0}
+			{.id=0, .ri=5, .tr={.x=100, .y=0}}
 		}
 	},
 /*
@@ -1817,8 +1812,8 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.i=1, .x=0, .y=50},
-			{.i=3, .x=0, .y=50}
+			{.id=0, .ri=1, .tr={.x=0, .y=50}},
+			{.id=0, .ri=3, .tr={.x=0, .y=50}}
 		}
 	},
 /*
@@ -1851,11 +1846,11 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
 		.expected_translations={
-			{.i=0, .x=50, .y=0},
-			{.i=1, .x=50, .y=0},
-			{.i=3, .x=50, .y=0},
-			{.i=4, .x=50, .y=0},
-			{.i=5, .x=50, .y=0}
+			{.id=0, .ri=0, .tr={.x=50, .y=0}},
+			{.id=0, .ri=1, .tr={.x=50, .y=0}},
+			{.id=0, .ri=3, .tr={.x=50, .y=0}},
+			{.id=0, .ri=4, .tr={.x=50, .y=0}},
+			{.id=0, .ri=5, .tr={.x=50, .y=0}}
 		}
 	},
 /*
@@ -1886,7 +1881,7 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.i=1, .x=0, .y=50}
+			{.id=0, .ri=1, .tr={.x=0, .y=50}}
 		}
 	},
 
@@ -1913,7 +1908,7 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-			{.i=1, .x=50, .y=0}
+			{.id=0, .ri=1, .tr={.x=50, .y=0}}
                 }
         },
 
@@ -1944,8 +1939,8 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-			{.i=0, .x=150, .y=0},
-			{.i=2, .x=150, .y=0}
+			{.id=0, .ri=0, .tr={.x=150, .y=0}},
+			{.id=0, .ri=2, .tr={.x=150, .y=0}}
                 }
         },
 	{
@@ -1996,7 +1991,7 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
 		},
 		.expected_translations={
-			{.i=8, .x=0, .y=65}
+			{.id=0, .ri=8, .tr={.x=0, .y=65}}
 		}
 	},
 	{
@@ -2022,9 +2017,9 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.i=5, .x=1, .y=0},
-			{.i=7, .x=1, .y=0},
-			{.i=10, .x=1, .y=0}
+			{.id=0, .ri=5, .tr={.x=1, .y=0}},
+			{.id=0, .ri=7, .tr={.x=1, .y=0}},
+			{.id=0, .ri=10, .tr={.x=1, .y=0}}
 		}
 	}
 };
@@ -2046,9 +2041,9 @@ void test_fit()
 		int n=rectangles.size();
 		auto rg = views::iota(0, n) |
 			views::filter([&](int i){return input_rectangles[i] != rectangles[i];}) |
-			views::transform([&](int i)->TranslationItem{
+			views::transform([&](int i)->TransformRangeItem{
 				const MyRect &r1 = input_rectangles[i], &r2 = rectangles[i];
-				return {.i=i,.x=r2.m_left - r1.m_left,.y=r2.m_top - r1.m_top};
+				return {.id=0, .ri=i, .tr={.x=r2.m_left - r1.m_left,.y=r2.m_top - r1.m_top}};
 			});
 
 		int dm2 = dim_max(compute_frame(rectangles));
