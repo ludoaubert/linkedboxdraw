@@ -1779,7 +1779,7 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.id=0, .ri=5, .tr={.x=100, .y=0}}
+			{.id=0, .ri=5, .tt=TRANSLATION, .tr={.x=100, .y=0}}
 		}
 	},
 /*
@@ -1812,8 +1812,8 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.id=0, .ri=1, .tr={.x=0, .y=50}},
-			{.id=0, .ri=3, .tr={.x=0, .y=50}}
+			{.id=0, .ri=1, .tt=TRANSLATION, .tr={.x=0, .y=50}},
+			{.id=0, .ri=3, .tt=TRANSLATION, .tr={.x=0, .y=50}}
 		}
 	},
 /*
@@ -1846,11 +1846,11 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
 		.expected_translations={
-			{.id=0, .ri=0, .tr={.x=50, .y=0}},
-			{.id=0, .ri=1, .tr={.x=50, .y=0}},
-			{.id=0, .ri=3, .tr={.x=50, .y=0}},
-			{.id=0, .ri=4, .tr={.x=50, .y=0}},
-			{.id=0, .ri=5, .tr={.x=50, .y=0}}
+			{.id=0, .ri=0, .tt=TRANSLATION, .tr={.x=50, .y=0}},
+			{.id=0, .ri=1, .tt=TRANSLATION, .tr={.x=50, .y=0}},
+			{.id=0, .ri=3, .tt=TRANSLATION, .tr={.x=50, .y=0}},
+			{.id=0, .ri=4, .tt=TRANSLATION, .tr={.x=50, .y=0}},
+			{.id=0, .ri=5, .tt=TRANSLATION, .tr={.x=50, .y=0}}
 		}
 	},
 /*
@@ -1881,7 +1881,7 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=NORTH_SOUTH}
                 },
 		.expected_translations={
-			{.id=0, .ri=1, .tr={.x=0, .y=50}}
+			{.id=0, .ri=1, .tt=TRANSLATION, .tr={.x=0, .y=50}}
 		}
 	},
 
@@ -1908,7 +1908,7 @@ const vector<TestContext> test_contexts={
                         {.algo=SPREAD,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-			{.id=0, .ri=1, .tr={.x=50, .y=0}}
+			{.id=0, .ri=1, .tt=TRANSLATION, .tr={.x=50, .y=0}}
                 }
         },
 
@@ -1939,8 +1939,8 @@ const vector<TestContext> test_contexts={
                         {.algo=COMPACT,.update_direction=EAST_WEST}
                 },
                 .expected_translations={
-			{.id=0, .ri=0, .tr={.x=150, .y=0}},
-			{.id=0, .ri=2, .tr={.x=150, .y=0}}
+			{.id=0, .ri=0, .tt=TRANSLATION, .tr={.x=150, .y=0}},
+			{.id=0, .ri=2, .tt=TRANSLATION, .tr={.x=150, .y=0}}
                 }
         },
 	{
@@ -1991,7 +1991,7 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=NORTH_SOUTH}
 		},
 		.expected_translations={
-			{.id=0, .ri=8, .tr={.x=0, .y=65}}
+			{.id=0, .ri=8, .tt=TRANSLATION, .tr={.x=0, .y=65}}
 		}
 	},
 	{
@@ -2017,9 +2017,9 @@ const vector<TestContext> test_contexts={
 			{.algo=SPREAD,.update_direction=EAST_WEST}
 		},
 		.expected_translations={
-			{.id=0, .ri=5, .tr={.x=1, .y=0}},
-			{.id=0, .ri=7, .tr={.x=1, .y=0}},
-			{.id=0, .ri=10, .tr={.x=1, .y=0}}
+			{.id=0, .ri=5, .tt=TRANSLATION, .tr={.x=1, .y=0}},
+			{.id=0, .ri=7, .tt=TRANSLATION, .tr={.x=1, .y=0}},
+			{.id=0, .ri=10, .tt=TRANSLATION, .tr={.x=1, .y=0}}
 		}
 	}
 };
@@ -2069,10 +2069,10 @@ void test_translations()
 		if (bOK == false)
 		{
         		auto rg = translation_ranges
-				| views::transform([](const TranslationRangeItem& item)->string{
-					const auto [id, ri, tr] = item;
+				| views::transform([](const TransformRangeItem& item)->string{
+					const auto [id, ri, tt, tr] = item;
 					char buffer[200];
-					sprintf(buffer, "\t\t{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y);
+					sprintf(buffer, "\t\t{.id=%d, .ri=%d, .tt=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tt, tr.x, tr.y);
 					return buffer;})
 				| views::join;
 			for (char const c : rg)
