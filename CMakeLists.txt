@@ -3,7 +3,7 @@ project (linkedboxdraw)
 set(CMAKE_BUILD_TYPE Release)
 
 SET(CMAKE_CXX_COMPILER "g++-12" )
-SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
+SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3 -ltbb" )
 
 add_executable(bombix bombix-origine.cpp)
 add_executable(bombix-experimental bombix-origine-experimental.cpp)
