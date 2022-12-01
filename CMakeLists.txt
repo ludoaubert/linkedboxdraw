@@ -3,7 +3,7 @@ project (linkedboxdraw)
 set(CMAKE_BUILD_TYPE Release)
 
 SET(CMAKE_CXX_COMPILER "g++-12" )
-SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3 -ltbb" )
+SET(CMAKE_CXX_FLAGS "-fmodules-ts -std=c++2b -fopenmp -O3" )
 
 add_executable(bombix bombix-origine.cpp)
 add_executable(bombix-experimental bombix-origine-experimental.cpp)
@@ -20,8 +20,12 @@ add_executable(holes2 ${SOURCES})
 set (SOURCES holes3.cpp MyRect.cpp FunctionTimer.cpp)
 add_executable(holes3 ${SOURCES})
 
+list(APPEND CMAKE_MODULE_PATH "deps/tbb/cmake/")
+find_package(TBB REQUIRED)
+
 set (SOURCES par_unseq.cpp)
 add_executable(par_unseq ${SOURCES})
+target_link_libraries(par_unseq PUBLIC TBB::tbb)
 
 set (SOURCES snap.cpp MyRect.cpp)
 add_executable(snap ${SOURCES})
