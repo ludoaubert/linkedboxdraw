@@ -2116,7 +2116,6 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
         int m = input_emplacements.size();
         int n = input_rectangles.size();
 
-	vector<ProcessSelector> selectors(decision_tree.size());
 	vector<TranslationRangeItem> translation_ranges;
 	vector<RectangleHoleRangeItem> rectangle_hole_ranges;
 
@@ -2222,8 +2221,6 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("cost=%d\n", cost));
 			return cost;
 		});
-
-		selectors[id] = {pipeline, mirroring, match_corner};
 
 		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner));
 
