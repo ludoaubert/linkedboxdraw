@@ -867,64 +867,43 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	return {};
 }
 
-/*
-TODO: use C++23 deducing this
-*/
-MyRect trimmed(const MyRect& r, const vector<MyRect> rectangles)
+
+MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 {
-	struct RectNode{int id; MyRect r; int parent_id;};
-	vector<RectNode> rect_tree;
+	D(printf("begin trimmed\n"));
+	D(printf("r={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", r.m_left, r.m_right, r.m_bottom, r.m_top));
+	fflush(stdout);
 
-	auto rec_trim=[&](int parent_id, int i, auto&& rec_trim)->void
-	{
-		const vector<MyRect> rects = trimmed(rect_tree[parent_id].r, rectangles[i]);
-		for (const MyRect& rec : rects)
-		{
-			int size = rect_tree.size();
-			rect_tree.push_back({.id=size, .r=rec, .parent_id=parent_id});
-			if (i+1 < rectangles.size())
-				rec_trim(size, i+1, rec_trim);
-		}
+	const int n = rectangles.size();
 
-		if (rects.empty())
-		{
-                        if (i+1 < rectangles.size())
-                                rec_trim(parent_id, i+1, rec_trim);
-		}
+        fflush(stdout);
+	vector<vector<MyRect> > vv(n+1);
+	vv[0]={r};
+	int i=0;
+
+	auto next=[&](const vector<MyRect>& previous, const vector<MyRect>&){
+		const MyRect& ri = rectangles[i];
+                D(printf("i=%d\n", i));
+		D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
+		fflush(stdout);
+		auto rg = previous |
+			views::transform([&](const MyRect& r){
+				const vector<MyRect> rects = trimmed(r, ri);
+				return rects.empty() ? vector{r} : rects;
+			}) |
+			views::join;
+		vector<MyRect> v;
+		for (const MyRect& r : rg)
+			v.push_back(r);
+		D(printf("v.size()=%zu\n", v.size()));
+		fflush(stdout);
+		i++;
+		return v;
 	};
 
-	rect_tree = {{.id=0, .r=r, .parent_id=-1}};
-
-	int parent_id=0;
-	int i=0;
-	rec_trim(parent_id, i, rec_trim);
-
-/*
-TODO : use views::set_difference
-auto v1 = std::vector<int> {3,4,5,6,7}; // sort!
-auto v2 = std::vector<int> {4,5}; // sort!
-ranges::sort(v1); // sort!
-ranges::sort(v2); // sort!
-auto rng = ranges::views::set_difference(v1,v2); // [3,6,7]
-*/
-
-	D(printf("building index:\n"));
-	vector<RectNode> index = rect_tree;
-	ranges::sort(index, {}, &RectNode::parent_id);
-	vector<int> leaves;
-	ranges::set_difference(rect_tree | views::transform(&RectNode::id),
-				index | views::transform(&RectNode::parent_id),
-				std::back_inserter(leaves));
-
-	D(printf("leaves: "));
-	for (int id : leaves)
-		D(printf("%d, ", id));
-	D(printf("\n"));
-
-	return ranges::max(leaves | views::transform([&](int id){return rect_tree[id].r;}),
-			{},
-			[](const MyRect& r){return width(r)*height(r);}
-		);
+	partial_sum(vv.begin(), vv.end(), vv.begin(), next);
+	return ranges::max(vv.back(), {}, [](const MyRect& r){return width(r)*height(r);});
+	D(printf("end trimmed\n"));
 }
 
 
@@ -1067,7 +1046,7 @@ void test_rect_trim()
 }
 
 
-vector<RectLink> sweep(Direction update_direction, const vector<MyRect>& rectangles)
+vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangles)
 {
 	FunctionTimer ft("sweep");
 
@@ -1749,7 +1728,7 @@ vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
 }
 
 
-void spread(Direction update_direction, const vector<RectLink>& rect_links, vector<MyRect>& rectangles)
+void spread(Direction update_direction, const vector<RectLink>& rect_links, span<MyRect> rectangles)
 {
 //TODO: use chunk_by C++23
 	const int N=30;
@@ -2056,7 +2035,7 @@ const char* CornerStrings[NR_RECT_CORNERS]={
 
 //4 mirrors X 4 corners X 2 job pipelines
 
-void apply_mirror(const Mirror& mirror, vector<MyRect>& rectangles)
+void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 {
 	const auto& [mirroring_state, mirroring_direction] = mirror;
 
@@ -2134,15 +2113,29 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	for (const MyRect &rec : holes)
 		input_emplacements.push_back(rec);
 
-	int m = input_emplacements.size();
-	int n = input_rectangles.size();
+        int m = input_emplacements.size();
+        int n = input_rectangles.size();
+
+	auto rng = views::iota(0,m);
+	const vector<int> init_swapped_position(ranges::begin(rng), ranges::end(rng));
+
 	vector<ProcessSelector> selectors(decision_tree.size());
 	vector<TranslationRangeItem> translation_ranges;
 	vector<RectangleHoleRangeItem> rectangle_hole_ranges;
-	vector<MyRect> emplacements(m);
-	vector<MyRect> rectangles(n);
+
+	vector<MyRect> emplacements_by_id(m*decision_tree.size());
+	vector<int> swapped_position_by_id(m*decision_tree.size());
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner, bool final){
+
+		const int parent_index = decision_tree[id].parent_index;
+		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
+		ranges::copy(parent_index == -1 ? span(input_emplacements) : span(begin(emplacements_by_id)+m*parent_index,m), begin(emplacements));
+
+		span<MyRect> rectangles(begin(emplacements), n);
+
+		span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
+		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
@@ -2214,48 +2207,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 	for (int id=0; id < decision_tree.size(); id++)
 	{
-
-//TODO: use C++23 Deducing this.
-		auto rec_tf=[&](int pid, auto&& rec_tf)->void{
-
-			if (int parent_index = decision_tree[pid].parent_index; parent_index != -1)
-			{
-				rec_tf(parent_index, rec_tf);
-			}
-
-			const auto [pipeline, mirroring, match_corner] = selectors[pid];
-
-			D(printf("[pipeline=%u, mirroring=%u, match_corner=%u] = selectors[id=%d]\n", pipeline, mirroring, match_corner, pid));
-
-//gather the rectangles of interest
-			rectangles.resize(n);
-			memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
-			for (int i=id; i != pid; i=decision_tree[i].parent_index)
-			{
-				const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[i].recmap;
-				if (i_emplacement_destination >= n)
-					rectangles.push_back( emplacements[i_emplacement_destination] );
-			}
-
-			const bool final=false;
-			tf(pid, pipeline, mirroring, match_corner, final);
-
-			for (const MyRect& r : rectangles)
-				emplacements[r.i] = r;
-		};
-
-		memcpy(&emplacements[0], &input_emplacements[0], sizeof(MyRect)*m);
-		for (int i=0; i<m; i++)
-			emplacements[i].i = i;
-
-		rectangles.resize(n);
-		memcpy(&rectangles[0], &emplacements[0], sizeof(MyRect)*n);
-
-		if (int parent_index = decision_tree[id].parent_index; parent_index != -1)
-		{
-			rec_tf(parent_index, rec_tf);
-		}
-
+                span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
+                span<MyRect> rectangles(begin(emplacements), n);
 /*
 // TODO: use upcoming C++23 views::cartesian_product()
 	auto rg = views::cartesian_product( views::iota(0, NR_JOB_PIPELINES),
@@ -2264,9 +2217,6 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	const auto& [pipeline, mirroring, match_corner] = ranges::min(rg, {}, [&](const auto [pipeline, mirroring, match_corner]{...
 
 */
-
-		rectangles.resize(n);
-
 		const auto [pipeline, mirroring, match_corner] = ranges::min(process_selectors, {}, [&](const ProcessSelector& ps){
 			D(printf("pipeline=%u\n", ps.pipeline));
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
