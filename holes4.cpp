@@ -2116,15 +2116,11 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
         int m = input_emplacements.size();
         int n = input_rectangles.size();
 
-	auto rng = views::iota(0,m);
-	const vector<int> init_swapped_position(ranges::begin(rng), ranges::end(rng));
-
 	vector<ProcessSelector> selectors(decision_tree.size());
 	vector<TranslationRangeItem> translation_ranges;
 	vector<RectangleHoleRangeItem> rectangle_hole_ranges;
 
 	vector<MyRect> emplacements_by_id(m*decision_tree.size());
-	vector<int> swapped_position_by_id(m*decision_tree.size());
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner, bool final){
 
@@ -2134,44 +2130,20 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		span<MyRect> rectangles(begin(emplacements), n);
 
-		span<int> swapped_position(begin(swapped_position_by_id)+m*id,m);
-		ranges::copy(parent_index == -1 ? span(init_swapped_position) : span(begin(swapped_position_by_id)+m*parent_index,m), begin(swapped_position));
-
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
-		auto rg = rectangles | views::transform([](const MyRect& r){return r.i;})
-					| views::transform([&](int i)->string{
-						char buffer[20];
-						if (i < n)
-							sprintf(buffer,"%d ", i);
-						else
-							sprintf(buffer,"h%d ", i-n);
-						return buffer;
-						}
-					 )
-					//| views::join_with(" ") ; TODO C++23
-					| views::join;
-
-		D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] rectangles[...r.i]=", id, pipeline, mirroring, match_corner));
-		for (char c : rg)
-			D(printf("%c", c));
-		D(printf("\n"));
-
-		for (MyRect& r : rectangles)
-			r = emplacements[r.i];
-
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+
+		MyRect &r1 = emplacements[i_emplacement_source],
+			r2 = i_emplacement_destination < n ? input_rectangles[i_emplacement_destination] : emplacements[i_emplacement_destination];
 		const auto [RectDimX, RectDimY] = corners[match_corner];
-		MyRect &r1 = rectangles[i_emplacement_source];
-		MyRect r2 = i_emplacement_destination < n ? input_rectangles[i_emplacement_destination] : emplacements[i_emplacement_destination];
-		if (i_emplacement_destination < n)
+
+		r2 = trimmed(r2, rectangles);
+		if (final)
 		{
-			r2 = trimmed(r2, rectangles);
-			if (final)
-			{
-				rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
-			}
+			rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
 		}
+
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
 		for (const Mirror& mirror : mirrors[mirroring])
