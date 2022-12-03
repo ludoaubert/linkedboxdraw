@@ -2135,7 +2135,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
 
 		MyRect &r1 = emplacements[i_emplacement_source],
-			r2 = i_emplacement_destination < n ? input_rectangles[i_emplacement_destination] : emplacements[i_emplacement_destination];
+			r2 = input_emplacements[i_emplacement_destination];
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 
 		r2 = trimmed(r2, rectangles);
