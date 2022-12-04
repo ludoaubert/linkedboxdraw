@@ -2313,7 +2313,8 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 								const vector<TranslationRangeItem>& translation_ranges,
 								const vector<MyRect>& input_rectangles,
-								const vector<LogicalEdge>& logical_edges)
+								const vector<LogicalEdge>& logical_edges,
+								vector<MyRect>& emplacements_by_id)
 {
 	int n = input_rectangles.size();
 
@@ -3192,7 +3193,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
+		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id);
 
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
@@ -3229,7 +3230,8 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
                         fclose(f);
                 }
 
-                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges);
+		vector<MyRect> emplacements_by_id;
+                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id);
 
                 vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
         }
