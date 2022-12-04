@@ -2229,33 +2229,37 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 		const bool final=true;
 		tf(id, pipeline, mirroring, match_corner, final);
-
-		for (const MyRect& r : rectangles)
-			emplacements[r.i] = r;
-
-		auto rg = views::iota(0,n) |
-					views::transform([&](int i)->TranslationRangeItem{
-                                        const MyRect &ir = input_emplacements[i], &r = emplacements[i];
-                                        MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-                                        return {id, i, tr};}) |
-					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
-
-		for (TranslationRangeItem item : rg)
-		{
-			translation_ranges.push_back(item);
-		}
 	}
 
+//TODO: views::cartesian_product()
 {
+	auto rg = views::iota(0, n * (int)decision_tree.size()) |
+		views::transform([&](int pos)->TranslationRangeItem{
+
+			int id = pos / n;
+			int i = pos % n;
+
+			span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
+			span<MyRect> rectangles(begin(emplacements), n);
+
+			const MyRect &ir = input_emplacements[i], &r = emplacements[i];
+			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+			return {id, i, tr};}) |
+		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+		views::transform([](const TranslationRangeItem& item)->string{
+			char buffer[100];
+                	const auto [id, ri, tr] = item;
+                	sprintf(buffer, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},\n", id, ri, tr.x, tr.y);
+			return buffer;
+		}) |
+		views::join ;
+
+//TODO: views::join_with(','), views::concat(), views::to<string>
+
 	FILE *f=fopen("translation_ranges.json", "w");
-	fprintf(f, "[\n");
-	for (int i=0; i < translation_ranges.size(); i++)
-	{
-		const auto [id, ri, tr] = translation_ranges[i];
-		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
-			i+1 == translation_ranges.size() ? "": ",");
-	}
-	fprintf(f, "]\n");
+	string buffer;
+	ranges::copy(rg, back_inserter(buffer));
+	fprintf(f, "[\n%s]\n", buffer.c_str());
 	fclose(f);
 }
 
