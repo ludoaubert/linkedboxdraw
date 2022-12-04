@@ -2117,11 +2117,10 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
         int n = input_rectangles.size();
 
 	vector<TranslationRangeItem> translation_ranges;
-	vector<RectangleHoleRangeItem> rectangle_hole_ranges;
 
 	vector<MyRect> emplacements_by_id(m*decision_tree.size());
 
-	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner, bool final){
+	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
 
 		const int parent_index = decision_tree[id].parent_index;
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
@@ -2138,11 +2137,6 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 
 		r2 = trimmed(r2, rectangles);
-		if (final)
-		{
-			rectangle_hole_ranges.push_back({.id=id, .ri=i_emplacement_destination, .r=r2});
-		}
-
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
 		for (const Mirror& mirror : mirrors[mirroring])
@@ -2193,8 +2187,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
 			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
 
-			const bool final=false;
-			tf(id, ps.pipeline, ps.mirroring, ps.match_corner, final);
+			tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
 
 			auto rg1 = logical_edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
@@ -2227,8 +2220,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		const bool final=true;
-		tf(id, pipeline, mirroring, match_corner, final);
+		tf(id, pipeline, mirroring, match_corner);
 	}
 
 //TODO: views::cartesian_product()
@@ -2260,20 +2252,6 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
 	fprintf(f, "[\n%s]\n", buffer.c_str());
-	fclose(f);
-}
-
-{
-	FILE* f=fopen("rectangle_hole_ranges.json", "w");
-	const int size = rectangle_hole_ranges.size();
-	fprintf(f, "[\n");
-	for (int i=0; i < size; i++)
-	{
-		const auto [id, ri, r] = rectangle_hole_ranges[i];
-		fprintf(f, "\t{\"id\":%d, \"ri\":%d, \"r\":{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d}}%s\n",
-			id, ri, r.m_left, r.m_right, r.m_top, r.m_bottom, i+1<n ? "," : "");
-	}
-	fprintf(f, "]\n");
 	fclose(f);
 }
 
