@@ -2104,7 +2104,8 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 vector<TranslationRangeItem> compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 								const vector<MyRect>& input_rectangles,
-								const vector<LogicalEdge>& logical_edges)
+								const vector<LogicalEdge>& logical_edges,
+								vector<MyRect>& emplacements_by_id)
 {
 	vector<MyRect> input_emplacements;
 	vector<MyRect> holes = compute_holes(input_rectangles);
@@ -2118,7 +2119,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 
 	vector<TranslationRangeItem> translation_ranges;
 
-	vector<MyRect> emplacements_by_id(m*decision_tree.size());
+	emplacements_by_id.resize(m*decision_tree.size());
 
 	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
 
@@ -2690,9 +2691,11 @@ void test_translations()
 
 	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
 	{
+		vector<MyRect> emplacements_by_id;
 		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree,
                         	                                        			input_rectangles,
-												logical_edges);
+												logical_edges,
+												emplacements_by_id);
 		bool bOK = translation_ranges == expected_translation_ranges;
 		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 		if (bOK == false)
@@ -3175,7 +3178,8 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges);
+		vector<MyRect> emplacements_by_id;
+		vector<TranslationRangeItem> translation_ranges = compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges, emplacements_by_id);
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
