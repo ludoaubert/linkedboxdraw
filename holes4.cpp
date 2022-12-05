@@ -1310,7 +1310,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		int n2[2];
 		for (const auto [update_direction, sweep_direction] : ctx2)
 		{
-			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			const vector<RectLink> rect_links = sweep(update_direction, rectangles);
 			auto rg = rect_links |
 				views::transform([&](const RectLink& lnk)->MyRect{
 					const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
@@ -1789,11 +1789,11 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 }
 
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, span<MyRect> rectangles)
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-	const vector<MyRect> rectangles_ = rectangles ;
+	const vector<MyRect> rectangles_(begin(rectangles), end(rectangles)) ;
 
 	int n = rectangles.size();
 
@@ -1802,7 +1802,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
-		vector<MyRect> rectangles = rectangles_;
+		ranges::copy(rectangles_, begin(rectangles));
 
 		id++;
 
@@ -1953,7 +1953,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
                 );
 	D(printf("id=%d\n", id));
 
-	rectangles = rectangles_;
+	ranges::copy(rectangles_, begin(rectangles));
 	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 }
@@ -2061,11 +2061,11 @@ void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 }
 
 
-void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, vector<MyRect>& rectangles)
+void apply_job(const Job& job, const vector<LogicalEdge>& logical_edges, span<MyRect> rectangles)
 {
 	const auto& [algo, update_direction] = job;
 
-	vector<RectLink> rect_links = sweep(update_direction, rectangles);
+	const vector<RectLink> rect_links = sweep(update_direction, rectangles);
 
 	switch (algo)
 	{
@@ -2144,7 +2144,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 			apply_mirror(mirror, rectangles);
 		for (const auto& [algo, update_direction] : pipelines[pipeline])
 		{
-			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			const vector<RectLink> rect_links = sweep(update_direction, rectangles);
 			assert(algo == SPREAD);
 			spread(update_direction, rect_links, rectangles);
 		}
@@ -2314,49 +2314,35 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 								const vector<TranslationRangeItem>& translation_ranges,
 								const vector<MyRect>& input_rectangles,
 								const vector<LogicalEdge>& logical_edges,
-								vector<MyRect>& emplacements_by_id)
+								const vector<MyRect>& emplacements_by_id,
+								vector<MyRect>& emplacements2_by_id)
 {
 	int n = input_rectangles.size();
+	int m = emplacements_by_id.size() / decision_tree.size();
 
-	vector<MyRect> rectangles(n), rectangles2(n);
+        for (int id=0; id < decision_tree.size(); id++)
+        {
+		span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
+		span<MyRect> rectangles2(begin(emplacements2_by_id)+m*id, n);
 
-	vector<TranslationRangeItem> translation_ranges2;
+		auto tf=[&](unsigned pipeline){
 
-	auto tf=[&](unsigned pipeline){
+			D(printf("calling tf(pipeline=%u)\n", pipeline));
 
-		D(printf("calling tf(pipeline=%u)\n", pipeline));
+			ranges::copy(rectangles, begin(rectangles2));
 
-		ranges::copy(rectangles, begin(rectangles2));
+			for (const auto& [job, mirror] : pipelines2[pipeline])
+			{
+				apply_mirror(mirror, rectangles2);
+				const auto& [algo, update_direction] = job;
+				const vector<RectLink> rect_links = sweep(update_direction, rectangles2);
+				assert(algo == COMPACT);
+				compact(update_direction, rect_links, logical_edges, rectangles2);
+				apply_mirror(mirror, rectangles2);
+			}
+		};
 
-		for (const auto& [job, mirror] : pipelines2[pipeline])
-		{
-			apply_mirror(mirror, rectangles2);
-			const auto& [algo, update_direction] = job;
-			vector<RectLink> rect_links = sweep(update_direction, rectangles2);
-			assert(algo == COMPACT);
-			compact(update_direction, rect_links, logical_edges, rectangles2);
-			apply_mirror(mirror, rectangles2);
-		}
-	};
-
-
-	for (int id=0; id < decision_tree.size(); id++)
-	{
 		D(printf("begin cmpt_tr2 id=%d \n", id));
-		ranges::copy(input_rectangles, begin(rectangles));
-
-		vector<TranslationRangeItem> ts;
-
-		ranges::set_union(
-			ranges::equal_range(translation_ranges, id, {}, &TranslationRangeItem::id),
-			views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
-			back_inserter(ts),
-			{},
-			&TranslationRangeItem::ri,
-			&TranslationRangeItem::ri);
-
-		auto rg = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
-		ranges::copy(rg, begin(rectangles));
 
 		const auto pipeline = ranges::min(views::iota(0,NR_JOB_PIPELINES2), {}, [&](int pipeline){
 			D(printf("pipeline=%u\n", pipeline));
@@ -2376,7 +2362,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
-			const auto [width, height] = dimensions(compute_frame(rectangles));
+			const auto [width, height] = dimensions(compute_frame(rectangles2));
 
 			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
 			D(printf("sigma_translation = %d\n", sigma_translation));
@@ -2392,34 +2378,38 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 
 		tf(pipeline);
 
-		auto rng = views::iota(0,n) |
-			views::transform([&](int i)->TranslationRangeItem{
-				const MyRect &ir = rectangles[i], &r = rectangles2[i];
-				MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-				return {id, i, tr};}) |
-			views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};});
-
-		for (TranslationRangeItem item : rng)
-		{
-			translation_ranges2.push_back(item);
-		}
-
                 D(printf("end cmpt_tr2 id=%d \n", id));
 	}
 
 {
+	auto rg = views::iota(0, n * (int)decision_tree.size()) |
+		views::transform([&](int pos)->TranslationRangeItem{
+
+			int id = pos / n;
+			int i = pos % n;
+
+			span<MyRect> emplacements2(begin(emplacements2_by_id)+m*id, m);
+			span<MyRect> rectangles2(begin(emplacements2), n);
+
+			const MyRect &ir = input_rectangles[i], &r = emplacements2[i];
+			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+			return {id, i, tr};}) |
+		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+		views::transform([](const TranslationRangeItem& item)->string{
+			char buffer[100];
+                	const auto [id, ri, tr] = item;
+                	sprintf(buffer, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},\n", id, ri, tr.x, tr.y);
+			return buffer;
+		}) |
+		views::join ;
+
 	FILE *f=fopen("translation_ranges2.json", "w");
-	fprintf(f, "[\n");
-	for (int i=0; i < translation_ranges2.size(); i++)
-	{
-		const auto [id, ri, tr] = translation_ranges2[i];
-		fprintf(f, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}%s\n", id, ri, tr.x, tr.y,
-			i+1 == translation_ranges2.size() ? "": ",");
-	}
-	fprintf(f, "]\n");
+	string buffer;
+	ranges::copy(rg, back_inserter(buffer));
+	fprintf(f, "[\n%s]\n", buffer.c_str());
 	fclose(f);
 }
-	return translation_ranges2;
+	return translation_ranges;
 }
 
 
@@ -2665,7 +2655,7 @@ void test_fit()
 		for (const auto& [algo, update_direction] : pipeline)
 		{
 			assert(algo == SPREAD);
-			vector<RectLink> rect_links = sweep(update_direction, rectangles);
+			const vector<RectLink> rect_links = sweep(update_direction, rectangles);
 			spread(update_direction, rect_links, rectangles);
 		}
 
@@ -3193,7 +3183,8 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 			fclose(f);
 		}
 
-		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id);
+		vector<MyRect> emplacements2_by_id = emplacements_by_id;
+		vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id,emplacements2_by_id);
 
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
@@ -3230,8 +3221,8 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
                         fclose(f);
                 }
 
-		vector<MyRect> emplacements_by_id;
-                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id);
+		vector<MyRect> emplacements_by_id, emplacements2_by_id;
+                vector<TranslationRangeItem> translation_ranges2 = compute_decision_tree_translations2(decision_tree, translation_ranges, input_rectangles, logical_edges, emplacements_by_id,emplacements2_by_id);
 
                 vector<Score> scores = compute_scores(decision_tree, translation_ranges, input_rectangles, logical_edges);
         }
