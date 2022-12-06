@@ -3076,10 +3076,10 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 }
 
 //TODO: use C++23 views::chunk_by() and  views::zip_transform(), views::to<vector>().
-vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
-			const vector<MyRect>& emplacements_by_id,
-			const vector<MyRect>& input_rectangles,
-			const vector<LogicalEdge>& logical_edges)
+void compute_scores(const vector<DecisionTreeNode>& decision_tree,
+		const vector<MyRect>& emplacements_by_id,
+		const vector<MyRect>& input_rectangles,
+		const vector<LogicalEdge>& logical_edges)
 {
 	int n = input_rectangles.size();
 	int m = emplacements_by_id.size() / decision_tree.size();
@@ -3101,26 +3101,23 @@ vector<Score> compute_scores(const vector<DecisionTreeNode>& decision_tree,
 				.height=height,
 				.total= width + height + sigma_edge_distance
 			};
-		});
+		}) |
+		views::transform([](const Score& score)->string{
+			const auto [id, sigma_edge_distance, width, height, total] = score;
+			char buffer[100];
+			sprintf(buffer, "\n{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d},",
+                        	id, sigma_edge_distance, width, height, total);
+			return buffer;
+		}) |
+		views::join ;
 
-//TODO: use C++23 views::join_with(",") and avoid allocation of 'vector<DiagramScore> scores'
+//TODO: use C++23 views::join_with(",")
 
-	vector<Score> scores(ranges::begin(rg), ranges::end(rg));
-{
 	FILE *f=fopen("scores.json", "w");
-	fprintf(f, "[\n");
-	for (int i=0; i < scores.size(); i++)
-	{
-		const auto [id, sigma_edge_distance, width, height, total] = scores[i];
-		fprintf(f, "{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}%s\n",
-			id, sigma_edge_distance, width, height, total,
-			i+1 == m ? "": ",");
-	}
-	fprintf(f, "]\n");
+	string buffer;
+	ranges::copy(rg, back_inserter(buffer));
+	fprintf(f, "[%s\n]", buffer.c_str());
 	fclose(f);
-}
-
-	return scores;
 }
 
 
@@ -3167,7 +3164,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
-		vector<Score> scores = compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
 
                 sprintf(file_name, "scores%d.json", testid);
 		fs::copy("scores.json", file_name, fs::copy_options::update_existing);
@@ -3202,7 +3199,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		vector<MyRect> emplacements_by_id, emplacements2_by_id;
                 compute_decision_tree_translations2(decision_tree, input_rectangles, logical_edges, emplacements_by_id,emplacements2_by_id);
 
-                vector<Score> scores = compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+                compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
         }
         D(printf("end testid=%d \n", testid));
 }
