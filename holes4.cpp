@@ -2251,7 +2251,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
                 	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},\n", id, ri, tr.x, tr.y);
+                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},", id, ri, tr.x, tr.y);
 			return buffer;
 		}) |
 		views::join ;
@@ -2261,7 +2261,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations(const vector<Dec
 	FILE *f=fopen("translation_ranges.json", "w");
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
-	fprintf(f, "[\n%s]\n", buffer.c_str());
+	buffer.pop_back();
+	fprintf(f, "[%s\n]\n", buffer.c_str());
 	fclose(f);
 }
 
@@ -2415,7 +2416,7 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
                 	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},\n", id, ri, tr.x, tr.y);
+                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},", id, ri, tr.x, tr.y);
 			return buffer;
 		}) |
 		views::join ;
@@ -2423,7 +2424,8 @@ vector<TranslationRangeItem> compute_decision_tree_translations2(const vector<De
 	FILE *f=fopen("translation_ranges2.json", "w");
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
-	fprintf(f, "[\n%s]\n", buffer.c_str());
+	buffer.pop_back();
+	fprintf(f, "[%s\n]\n", buffer.c_str());
 	fclose(f);
 }
 	return translation_ranges;
