@@ -3075,7 +3075,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	return decision_tree;
 }
 
-//TODO: use C++23 views::chunk_by() and  views::zip_transform(), views::to<vector>().
+//TODO: use C++23 views::to<vector>().
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<MyRect>& emplacements_by_id,
 		const vector<MyRect>& input_rectangles,
@@ -3116,6 +3116,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 	FILE *f=fopen("scores.json", "w");
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
+	buffer.pop_back();
 	fprintf(f, "[%s\n]", buffer.c_str());
 	fclose(f);
 }
