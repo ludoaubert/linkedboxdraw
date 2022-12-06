@@ -3160,8 +3160,6 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
-                sprintf(file_name, "rectangle_hole_ranges%d.json", testid);
-		fs::copy("rectangle_hole_ranges.json", file_name, fs::copy_options::update_existing);
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
 		compute_decision_tree_translations2(decision_tree, input_rectangles, logical_edges, emplacements_by_id, emplacements2_by_id);
