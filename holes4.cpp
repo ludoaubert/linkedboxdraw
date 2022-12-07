@@ -1562,8 +1562,6 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-	const vector<MyRect> rectangles_(begin(rectangles), end(rectangles)) ;
-
 	int n = rectangles.size();
 
 	vector<vector<TranslationRangeItem> > vv(10);
@@ -1571,7 +1569,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
-		ranges::copy(rectangles_, begin(rectangles));
+		ranges::copy(input_rectangles, begin(rectangles));
 
 		id++;
 
@@ -1587,7 +1585,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 			&TranslationRangeItem::ri,
 			&TranslationRangeItem::ri);
 
-		auto rects = views::iota(0,n) | views::transform([&](int i){return rectangles_[i]+ts[i].tr;});
+		auto rects = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
 		ranges::copy(rects, begin(rectangles));
 
 		bitset<30> partition;
@@ -1647,9 +1645,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != rectangles_[i][minCompactRectDim];})
+		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != input_rectangles[i][minCompactRectDim];})
 						| views::transform([&](int i){MyPoint tr;
-										tr[update_direction] = rectangles[i][minCompactRectDim] - rectangles_[i][minCompactRectDim];
+										tr[update_direction] = rectangles[i][minCompactRectDim] - input_rectangles[i][minCompactRectDim];
 										return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
 									});
 		for (const auto [id, ri, tr] : rg3)
@@ -1688,41 +1686,47 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 	const int nb = 1 + ranges::max(rg | views::transform(&TranslationRangeItem::id));
 
-	id = ranges::min( views::iota(0,nb), {}, [&](int id){
+	auto cost_fn=[&](int id){
 
-			vector<MyRect> rectangles = rectangles_;
-			ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
-							[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+		ranges::copy(input_rectangles, begin(rectangles));
+		ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
+				[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-			auto rg1 = logical_edges |
-				views::transform([&](const LogicalEdge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);	});
+		auto rg1 = logical_edges |
+				views::transform([&](const LogicalEdge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  });
 
-			auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
+		auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
-			auto rg3 = logical_edges |
-				views::transform([&](const LogicalEdge& le){	return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
+		auto rg3 = logical_edges |
+				views::transform([&](const LogicalEdge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
 
-			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
-			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
-			const auto [width, height] = dimensions(compute_frame(rectangles));
-			const int sigma_edge_overlap = accumulate(ranges::begin(rg3), ranges::end(rg3),0);
+		const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+		const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+		const auto [width, height] = dimensions(compute_frame(rectangles));
+		const int sigma_edge_overlap = accumulate(ranges::begin(rg3), ranges::end(rg3),0);
 
-			D(printf("id = %d\n", id));
-			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
-			D(printf("sigma_translation = %d\n", sigma_translation));
-			D(printf("[.width=%d, .height=%d]\n", width, height));
-			D(printf("sigma_edge_overlap = %d\n", sigma_edge_overlap));
+		D(printf("id = %d\n", id));
+		D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
+		D(printf("sigma_translation = %d\n", sigma_translation));
+		D(printf("[.width=%d, .height=%d]\n", width, height));
+		D(printf("sigma_edge_overlap = %d\n", sigma_edge_overlap));
 
-			int cost = width + height + width*height + sigma_edge_distance + sigma_translation - sigma_edge_overlap;
+		int cost = width + height + width*height + sigma_edge_distance + sigma_translation - sigma_edge_overlap;
 
-			D(printf("cost = %d\n", cost));
+		D(printf("cost = %d\n", cost));
 
-			return cost;}
-                );
+		return cost;
+	};
+
+	auto rng = views::iota(0,nb) |
+		views::transform(cost_fn);
+	vector<int> costs(rng.begin(), rng.end());
+	auto it = ranges::min_element(costs);
+	id = std::distance(costs.begin(), it);
 	D(printf("id=%d\n", id));
 
-	ranges::copy(rectangles_, begin(rectangles));
+	ranges::copy(input_rectangles, begin(rectangles));
 	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 }
