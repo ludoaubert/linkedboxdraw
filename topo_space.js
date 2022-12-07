@@ -185,7 +185,7 @@ function print_html()
 
 	const {logical_graph, holes, decision_tree, translation_ranges, translation_ranges2, scores} = tests[testIndex];
 	const {input_rectangles, logical_edges, topological_edges}=logical_graph;
-	const {input_holes, topological_contact}=holes;
+	const {holes, topological_contact}=holes;
 
 	const tr = compute_center_frame_translation(input_rectangles);
 
@@ -206,8 +206,7 @@ function print_html()
 			topological_edges.filter(({from, to}) => from==index)
 					.map(({from, to}, line) => `<text x="30" y="${14*(line+1)}" class="topological_contact">r-${to}</text>`),
 			`</g>`]),
-		input_holes.map(r => {return translated_rectangle(r, tr);})
-			   .map((r, index) =>
+		holes.map((r, index) =>
 				[`<g id="g-h-${index}" transform="translate(${r.m_left} ${r.m_top})">`,
 				`<rect x="0" y="0" width="${r.m_right-r.m_left}" height="${r.m_bottom-r.m_top}" class="hole" />`,
 				`<text x="0" y="0" fill="black">hole-${index}</text>`,
