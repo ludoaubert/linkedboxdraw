@@ -2055,12 +2055,11 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 //TODO: use views::chunk_by() C++23
 
 void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
-					const vector<MyRect>& input_rectangles,
+					int n,
 					const vector<LogicalEdge>& logical_edges,
 					vector<MyRect> emplacements_by_id,
 					vector<MyRect>& emplacements2_by_id)
 {
-	int n = input_rectangles.size();
 	int m = emplacements_by_id.size() / decision_tree.size();
 
         for (int id=0; id < decision_tree.size(); id++)
@@ -2140,9 +2139,10 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 			int id = pos / n;
 			int i = pos % n;
 
-			span<const MyRect> rectangles2(begin(emplacements2_by_id)+m*id, n);
+			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n),
+					rectangles2(begin(emplacements2_by_id)+m*id, n);
 
-			const MyRect &ir = input_rectangles[i], &r = rectangles2[i];
+			const MyRect &ir = rectangles[i], &r = rectangles2[i];
 			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
 			return {id, i, tr};
 		}) |
@@ -2901,7 +2901,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
-		compute_decision_tree_translations2(decision_tree, input_rectangles, logical_edges, emplacements_by_id, emplacements2_by_id);
+		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
 
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
@@ -2939,7 +2939,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
                 }
 
 		vector<MyRect> emplacements_by_id, emplacements2_by_id;
-                compute_decision_tree_translations2(decision_tree, input_rectangles, logical_edges, emplacements_by_id,emplacements2_by_id);
+                compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id,emplacements2_by_id);
 
                 compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
         }
