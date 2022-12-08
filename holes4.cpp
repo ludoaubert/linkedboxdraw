@@ -2138,12 +2138,12 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 			int id = pos / n;
 			int i = pos % n;
 
-			span<MyRect> emplacements2(begin(emplacements2_by_id)+m*id, m);
-			span<MyRect> rectangles2(begin(emplacements2), n);
+			span<const MyRect> rectangles2(begin(emplacements2_by_id)+m*id, n);
 
-			const MyRect &ir = input_rectangles[i], &r = emplacements2[i];
+			const MyRect &ir = input_rectangles[i], &r = rectangles2[i];
 			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-			return {id, i, tr};}) |
+			return {id, i, tr};
+		}) |
 		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
