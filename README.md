@@ -5,7 +5,7 @@ Edition of relational diagrams, web based, serverless.
 Typical use case:
 
 Just been hired on a new software or data project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
-To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
+To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
 In the case of relational diagrams, there are some SQL scripts that are available to produce a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
 
@@ -33,7 +33,7 @@ The process to compute this geometric information is :
 This geometric information file contains cluster numbers, box translations and polylines.
 Both files have a json format.
 
-https://ludoaubert.github.io/linkedboxdraw/connected_rectangles.html
+https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
 Is where you can view the diagram itself. It is also possible to edit the geometric information in two ways.
 1) by moving a box (click and drag), which will also trigger a recomputation of the geometric links.
