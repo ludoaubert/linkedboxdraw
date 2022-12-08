@@ -1560,6 +1560,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 
 void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, span<const MyRect> input_rectangles, span<MyRect> rectangles)
 {
+	D(printf("begin compact\n"));
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
 	const int n = rectangles.size();
@@ -1656,7 +1657,10 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	}
 
 	if (ranges::empty(rg))
+	{
+		D(printf("end compact\n"));
 		return ;
+	}
 
 //TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
 // Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
@@ -1708,6 +1712,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	ranges::copy(input_rectangles, begin(rectangles));
 	ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 			[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
+	D(printf("end compact\n"));
 }
 
 
