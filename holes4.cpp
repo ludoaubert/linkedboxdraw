@@ -2057,7 +2057,7 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 					const vector<MyRect>& input_rectangles,
 					const vector<LogicalEdge>& logical_edges,
-					const vector<MyRect>& emplacements_by_id,
+					vector<MyRect> emplacements_by_id,
 					vector<MyRect>& emplacements2_by_id)
 {
 	int n = input_rectangles.size();
@@ -2065,8 +2065,8 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
         for (int id=0; id < decision_tree.size(); id++)
         {
-		span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
-		span<MyRect> rectangles2(begin(emplacements2_by_id)+m*id, n);
+		span<MyRect> rectangles(begin(emplacements_by_id)+m*id, n),
+				rectangles2(begin(emplacements2_by_id)+m*id, n);
 
 		auto tf=[&](unsigned pipeline){
 
@@ -2076,11 +2076,13 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 			for (const auto& [job, mirror] : pipelines2[pipeline])
 			{
+				apply_mirror(mirror, rectangles);
 				apply_mirror(mirror, rectangles2);
 				const auto& [algo, update_direction] = job;
 				const vector<RectLink> rect_links = sweep(update_direction, rectangles2);
 				assert(algo == COMPACT);
 				compact(update_direction, rect_links, logical_edges, rectangles, rectangles2);
+				apply_mirror(mirror, rectangles);
 				apply_mirror(mirror, rectangles2);
 			}
 		};
