@@ -9,9 +9,9 @@ To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/connec
 
 In the case of relational diagrams, there are some SQL scripts that are available to produce a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
 
-SQL Server : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_SQLServer.sql
+SQL Server : https://ludoaubert.github.io/linkedboxdraw/SelectMetaData_SQLServer.sql
 
-MySQL : https://ludoaubert.github.io/linkedboxdraw/ExtractMetaData_MySQL.sql
+MySQL : https://ludoaubert.github.io/linkedboxdraw/SelectMetaData_MySQL.sql
 
 other engines : you can create your own script and share it. The scripts are standard SQL with possibly a few vendor specific details.
 
