@@ -32,7 +32,7 @@ WITH cte_fk AS (
 ) , cte_table_list AS (
 	SELECT table_name, ROW_NUMBER() OVER (ORDER BY table_name) AS rn
 	FROM INFORMATION_SCHEMA.TABLES
-	WHERE EXISTS (SELECT * FROM cte_fk WHERE TABLE_NAME IN ([table], [referenced_table]))
+	--WHERE EXISTS (SELECT * FROM cte_fk WHERE TABLE_NAME IN ([table], [referenced_table]))
 ) , cte_table_column_list AS (
 	SELECT c.table_name, c.column_name, tl.rn AS rn_table,
 		ROW_NUMBER() OVER (PARTITION BY c.table_name ORDER BY MAX(pk.pk_name) DESC, MAX(fk_dest.FK_NAME) DESC, MAX(fk_orig.FK_NAME) DESC, c.column_name) AS rn_column
