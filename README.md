@@ -17,7 +17,7 @@ other engines : you can create your own script and share it. The scripts are sta
 
 
 You can load your diagdata.json equivalent file in https://ludoaubert.github.io/linkedboxdraw/tableinput.html by pressing Data File Input.
-Then press "Compute Save and Load" button in COMPUTE GEOMETRY FILE FROM DATA FILE area to generate te geomtry information file.
+Then press "Compute Save and Load" button in COMPUTE GEOMETRY FILE FROM DATA FILE area to generate the geometry information file.
 
 Or you can enter the information (box titles, box fields and links) manually.
 
