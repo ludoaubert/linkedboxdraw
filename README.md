@@ -17,7 +17,9 @@ other engines : you can create your own script and share it. The scripts are sta
 
 
 You can load your diagdata.json equivalent file in https://ludoaubert.github.io/linkedboxdraw/tableinput.html by pressing Data File Input.
-Then press "Compute Save and Load" button in COMPUTE GEOMETRY FILE FROM DATA FILE area to generate the geometry information file.
+Then press "Compute Save and Load" button in COMPUTE GEOMETRY FILE FROM DATA FILE area to generate the layout. The diagram should be visible now.
+You can save the geometry information file (which will contain the computed layout geometric information) to a json file by pressing the "Save File As" in the GEOMETRY FILE OUTPUT area. If you modify the geometry, for example by moving a rectangle (left click and drag), you can save the updated layout by pressing the same button.
+When you have a layout geomtry information file, you can load it by pressing "Choose a File" in the GEOMETRY FILE INPUT area.
 
 Or you can enter the information (box titles, box fields and links) manually.
 
