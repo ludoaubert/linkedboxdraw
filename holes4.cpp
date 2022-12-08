@@ -1576,7 +1576,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		});
 
 		id++;
-		
+
 		auto rg = rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];});
 		const int frame_min = ranges::min(rg);
 		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
@@ -1585,24 +1585,26 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		D(printf("next_min=%d\n", next_min));
 
 		bitset<30> partition;
-		
+
 		auto selected_rect_links = rect_links | views::filter([&](const RectLink& lnk){return rectangles[lnk.i][maxCompactRectDim] == rectangles[lnk.j][minCompactRectDim];});
 		vector<vector<int> > vv(20);
 		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
 		ranges::copy(rng, back_inserter(vv[0]));
-	
+
 		partial_sum(vv.begin(), vv.end(), vv.begin(),
 				[&](const vector<int>& prev, const vector<int>&){
 						auto r = prev | views::transform([&](int i){
 									auto r = ranges::equal_range(selected_rect_links, i, {}, &RectLink::i) |
 												views::transform(&RectLink::j);
-									return vector<int>(r.begin, r.end);
-								} |
+									return vector<int>(r.begin(), r.end());
+								}) |
 								views::join ;
-						return vector<int>(r.begin, r.end);
+						vector<int> next;
+						ranges::copy(r, back_inserter(next));
+						return next;
 					}
 				);
-				
+
 		ranges::for_each(vv | views::join, [&](int i){partition[i]=1;});
 
 
