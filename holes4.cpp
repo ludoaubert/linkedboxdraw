@@ -1562,7 +1562,7 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 {
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-	int n = rectangles.size();
+	const int n = rectangles.size();
 
 	vector<vector<TranslationRangeItem> > vv(10);
 	int id=0;
@@ -1570,38 +1570,13 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 	auto next=[&](const vector<TranslationRangeItem>& prev)->vector<TranslationRangeItem>
 	{
 		ranges::copy(input_rectangles, begin(rectangles));
+		ranges::for_each(prev, [&](const TranslationRangeItem& item){
+			const auto& [id, ri, tr] = item;
+			rectangles[ri] += tr;
+		});
 
 		id++;
-
-		vector<TranslationRangeItem> ts;
-
-//TODO: views::set_union() and views::gzip_transform() and we wouldn't need to create so many variables.
-
-		ranges::set_union(
-			prev,
-			views::iota(0,n) | views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i, .tr={.x=0,.y=0}}; }),
-			back_inserter(ts),
-			{},
-			&TranslationRangeItem::ri,
-			&TranslationRangeItem::ri);
-
-		auto rects = views::iota(0,n) | views::transform([&](int i){return input_rectangles[i]+ts[i].tr;});
-		ranges::copy(rects, begin(rectangles));
-
-		bitset<30> partition;
-
-		auto rec_select_partition=[&](int ri, auto&& rec_select_partition)->void{
-
-			auto rg = ranges::equal_range(rect_links, ri, {}, &RectLink::i)
-						| views::filter([&](const RectLink& rl){return rectangles[ri][maxCompactRectDim] == rectangles[rl.j][minCompactRectDim];});
-
-			ranges::for_each(rg, [&](const RectLink& rl){
-					partition[rl.j]=1;
-					D(printf("partition[%d]=1\n", rl.j));
-					rec_select_partition(rl.j, rec_select_partition);
-			});
-		};
-
+		
 		auto rg = rectangles | views::transform([&](const MyRect& r){return r[minCompactRectDim];});
 		const int frame_min = ranges::min(rg);
 		const int next_min = ranges::min(rg | views::filter([&](int value){return value != frame_min;}));
@@ -1609,26 +1584,28 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		D(printf("frame_min=%d\n", frame_min));
 		D(printf("next_min=%d\n", next_min));
 
+		bitset<30> partition;
+		
+		auto selected_rect_links = rect_links | views::filter([&](const RectLink& lnk){return rectangles[lnk.i][maxCompactRectDim] == rectangles[lnk.j][minCompactRectDim];});
+		vector<vector<int> > vv(20);
 		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
+		copy(rng, back_inserter(vv[0]));
+	
+		partial_sum(vv.begin(), vv.end(), vv.begin(),
+				[&](const vector<int>& prev, const vector<int>&){
+						auto r = prev | views::transform([&](int i){
+									auto r = ranges::equal_range(selected_rect_links, i, {}, &RectLink::i) |
+												views::transform(&RectLink::j);
+									return vector<int>(r.begin, r.end);
+								} |
+								views::join ;
+						return vector<int>(r.begin, r.end);
+					}
+				);
+				
+		ranges::for_each(vv | views::join, [&](int i){partition[i]=1;});
 
-		for (int ri : rng)
-		{
-			partition[ri] = 1;
-			D(printf("partition[%d] = 1\n", ri));
-			rec_select_partition(ri, rec_select_partition);
-		}
 
-//TODO : use views::chunk_by() C++23
-/*
-		auto rng2 = views::iota(0,n) | views::filter([&](int ri){return partition[ri]==0;})
-									| views::filter([&](int ri){
-											auto rg = ranges::equal_range(logical_edges, ri, {}, &LogicalEdge::from) |
-														views::transform([&](const LogicalEdge& e){return partition[e.to];}) ;
-											return ranges::count(rg, 0)==0 && ranges::count(rg, 1) > 0; });
-
-		for (int ri : rng2)
-			partition[ri]=1;
-*/
 		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
 				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
