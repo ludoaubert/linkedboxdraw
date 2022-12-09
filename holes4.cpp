@@ -2057,32 +2057,43 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 					int n,
 					const vector<LogicalEdge>& logical_edges,
-					vector<MyRect> emplacements_by_id,
+					const vector<MyRect>& emplacements_by_id,
 					vector<MyRect>& emplacements2_by_id)
 {
+	vector<MyRect> emplacements1_by_id = emplacements_by_id;
+
 	int m = emplacements_by_id.size() / decision_tree.size();
 
-        for (int id=0; id < decision_tree.size(); id++)
-        {
-		span<MyRect> rectangles(begin(emplacements_by_id)+m*id, n),
-				rectangles2(begin(emplacements2_by_id)+m*id, n);
+	for (int id=0; id < decision_tree.size(); id++)
+	{
+	// rectangles holds the constant reference. rectangles1 holds the accumulation of selected changes during the pipeline.
+	// rectangles2 holds live output 
+		span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
+		span<MyRect> rectangles1(begin(emplacements1_by_id)+m*id, n),
+					rectangles2(begin(emplacements2_by_id)+m*id, n);
 
 		auto tf=[&](unsigned pipeline){
 
 			D(printf("calling tf(pipeline=%u)\n", pipeline));
 
-			ranges::copy(rectangles, begin(rectangles2));
+			ranges::copy(rectangles, begin(rectangles1));
 
 			for (const auto& [job, mirror] : pipelines2[pipeline])
 			{
-				apply_mirror(mirror, rectangles);
+				ranges::copy(rectangles1, begin(rectangles2));
+
+				apply_mirror(mirror, rectangles1);
 				apply_mirror(mirror, rectangles2);
+
 				const auto& [algo, update_direction] = job;
 				const vector<RectLink> rect_links = sweep(update_direction, rectangles2);
 				assert(algo == COMPACT);
-				compact(update_direction, rect_links, logical_edges, rectangles, rectangles2);
-				apply_mirror(mirror, rectangles);
+				compact(update_direction, rect_links, logical_edges, rectangles1, rectangles2);
+
+				apply_mirror(mirror, rectangles1);
 				apply_mirror(mirror, rectangles2);
+				
+				ranges::copy(rectangles2, begin(rectangles1));
 			}
 		};
 
