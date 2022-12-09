@@ -2141,7 +2141,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 		tf(pipeline);
 
-                D(printf("end cmpt_tr2 id=%d \n", id));
+		D(printf("end cmpt_tr2 id=%d \n", id));
 	}
 
 	auto rg = views::iota(0, n * (int)decision_tree.size()) |
