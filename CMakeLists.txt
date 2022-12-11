@@ -29,6 +29,7 @@ add_executable(holes4 ${SOURCES})
 
 set (SOURCES holes5.cpp MyRect.cpp FunctionTimer.cpp)
 add_executable(holes5 ${SOURCES})
+target_link_libraries(holes5 PUBLIC TBB::tbb)
 
 set (SOURCES par_unseq.cpp)
 add_executable(par_unseq ${SOURCES})

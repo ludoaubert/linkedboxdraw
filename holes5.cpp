@@ -7,6 +7,7 @@
 #include <numeric>
 #include <ranges>
 #include <span>
+#include <execution>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <filesystem>
@@ -1908,8 +1909,8 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
                 D(printf("\n"));
 	};
 
-	for (int id=0; id < decision_tree.size(); id++)
-	{
+	auto cdtt = [&](int id){
+
                 span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
                 span<MyRect> rectangles(begin(emplacements), n);
 /*
@@ -1968,7 +1969,14 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
 		tf(id, pipeline, mirroring, match_corner);
-	}
+	};
+
+	for (int depth=0; depth<10; depth++)
+	{
+		auto rng = views::iota(0, (int)decision_tree.size()) |
+			views::filter([&](int id){return decision_tree[id].depth==depth;});
+        	for_each(execution::par_unseq, rng.begin(), rng.end(), cdtt);
+        }
 
 //TODO: views::cartesian_product()
 
@@ -2062,12 +2070,12 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 {
 	vector<MyRect> emplacements1_by_id = emplacements_by_id;
 
-	int m = emplacements_by_id.size() / decision_tree.size();
+	const int m = emplacements_by_id.size() / decision_tree.size();
 
-	for (int id=0; id < decision_tree.size(); id++)
-	{
+	auto cdtt = [&](int id){
+
 	// rectangles holds the constant reference. rectangles1 holds the accumulation of selected changes during the pipeline.
-	// rectangles2 holds live output 
+	// rectangles2 holds live output
 		span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 		span<MyRect> rectangles1(begin(emplacements1_by_id)+m*id, n),
 					rectangles2(begin(emplacements2_by_id)+m*id, n);
@@ -2092,7 +2100,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 				apply_mirror(mirror, rectangles1);
 				apply_mirror(mirror, rectangles2);
-				
+
 				ranges::copy(rectangles2, begin(rectangles1));
 			}
 		};
@@ -2129,11 +2137,11 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
                         return cost;
                 };
 
-		vector<int> costs(NR_JOB_PIPELINES2);
+		int costs[NR_JOB_PIPELINES2];
 		auto rng = views::iota(0,NR_JOB_PIPELINES2);
-		transform(ranges::begin(rng), ranges::end(rng), costs.begin(), cost_fn);
-		auto it = ranges::min_element(costs);
-		int pipeline = &*it - &costs[0];
+		transform(rng.begin(), rng.end(), costs, cost_fn);
+		int *it = ranges::min_element(costs);
+		int pipeline = it - costs;
 
 //		const auto pipeline = ranges::min(views::iota(0,NR_JOB_PIPELINES2), {}, cost_fn);
 
@@ -2142,7 +2150,10 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 		tf(pipeline);
 
 		D(printf("end cmpt_tr2 id=%d \n", id));
-	}
+	};
+
+	auto rng = views::iota(0, (int)decision_tree.size());
+        for_each(execution::par_unseq, rng.begin(), rng.end(), cdtt);
 
 	auto rg = views::iota(0, n * (int)decision_tree.size()) |
 		views::transform([&](int pos)->TranslationRangeItem{
