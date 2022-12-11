@@ -1975,7 +1975,8 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 	{
 		auto rng = views::iota(0, (int)decision_tree.size()) |
 			views::filter([&](int id){return decision_tree[id].depth==depth;});
-        	for_each(execution::par_unseq, rng.begin(), rng.end(), cdtt);
+		vector<int> input(rng.begin(), rng.end());
+        	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
         }
 
 //TODO: views::cartesian_product()
@@ -2153,7 +2154,8 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 	};
 
 	auto rng = views::iota(0, (int)decision_tree.size());
-        for_each(execution::par_unseq, rng.begin(), rng.end(), cdtt);
+	vector<int> input(rng.begin(), rng.end());
+	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
 
 	auto rg = views::iota(0, n * (int)decision_tree.size()) |
 		views::transform([&](int pos)->TranslationRangeItem{
