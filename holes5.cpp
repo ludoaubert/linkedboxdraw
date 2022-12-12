@@ -21,7 +21,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -49,27 +49,6 @@ struct TopologicalEdge {
 	friend auto operator<=>(const TopologicalEdge&, const TopologicalEdge&) = default;
 };
 
-
-struct MyVector
-{
-	float x=0.0f;
-	float y=0.0f;
-
-	operator MyPoint() const {
-		return {x, y};
-	}
-
-        friend bool operator==(const MyVector&, const MyVector&) = default;
-};
-
-inline MyVector operator*(int16_t value, const MyVector& vec)
-{
-	const auto& [x, y] = vec;
-	return {value*x, value*y};
-}
-
-
-struct RectHole {int ri; RectCorner corner; MyVector direction; int value; MyRect rec;};
 
 //	lightweight node
 
