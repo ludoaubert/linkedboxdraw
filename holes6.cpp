@@ -52,6 +52,8 @@ struct TopologicalEdge {
 
 //	lightweight node
 
+const unsigned BITSET_MAX_SIZE=128;
+
 struct RectMap
 {
 	int i_emplacement_source, i_emplacement_destination;
@@ -64,7 +66,9 @@ struct DecisionTreeNode
 	int depth;
 	RectMap recmap;
 	int match;
+	bitset<BITSET_MAX_SIZE> etat_emplacement;
 };
+
 
 struct TranslationRangeItem
 {
@@ -2585,13 +2589,15 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	vector<DecisionTreeNode> decision_tree;
 
-	const unsigned BITSET_MAX_SIZE=1024;
-
 	int strategy=0;
 
 //TODO: use C++23 deducing this.
 
-	auto build_decision_tree = [&](int parent_index, const bitset<BITSET_MAX_SIZE>& etat_emplacement, auto&& build_decision_tree)->void{
+	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+
+		const bitset<BITSET_MAX_SIZE> etat_emplacement = parent_index==-1 ?
+			bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) ://1:OCCUPE, 0:LIBRE
+			decision_tree[parent_index].etat_emplacement;
 
 		auto mapping=[&](int i){
 			assert(i < n);
@@ -2738,15 +2744,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 					continue;
 				}
 
-				decision_tree.push_back({
-					.parent_index=parent_index,
-					.depth=depth,
-					.recmap={
-						.i_emplacement_source=i,
-						.i_emplacement_destination=j
-					}
-				});
-
 //1:OCCUPE, 0:LIBRE
 				auto bitset_swap=[&](int i, int j)->bitset<BITSET_MAX_SIZE>{
 					bitset<BITSET_MAX_SIZE> etat_emplacement_ =  etat_emplacement;
@@ -2760,15 +2757,23 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 					return etat_emplacement_;
 				};
 
-				build_decision_tree(decision_tree.size()-1, bitset_swap(i, j), build_decision_tree);
+                                decision_tree.push_back({
+                                        .parent_index=parent_index,
+                                        .depth=depth,
+                                        .recmap={
+                                                .i_emplacement_source=i,
+                                                .i_emplacement_destination=j
+                                        },
+					.etat_emplacement=bitset_swap(i, j)
+                                });
+
+				build_decision_tree(decision_tree.size()-1, build_decision_tree);
 			}
 		}
 	};
 
-//1:OCCUPE, 0:LIBRE
-	const bitset<BITSET_MAX_SIZE> etat_emplacement(string(m-n,'0')+string(n,'1'));
 	for (strategy=0; strategy < Strategies.size(); strategy++)
-		build_decision_tree(-1, etat_emplacement, build_decision_tree);
+		build_decision_tree(-1, build_decision_tree);
 
 	D(printf("decision_tree.size()=%ld\n", decision_tree.size()));
 
@@ -2807,7 +2812,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
         fprintf(f, "[\n");
         for (int i=0; i < decision_tree.size(); i++)
         {
-                const auto& [_, parent_index, depth, recmap, match] = decision_tree[i];
+                const auto& [_, parent_index, depth, recmap, match, etat_emplacement] = decision_tree[i];
                 const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
                 fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source\":%d, \"i_emplacement_destination\":%d, \"match\":%d}%s\n",
                         i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match,
