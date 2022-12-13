@@ -2776,12 +2776,13 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 
 	for (strategy=0; strategy < Strategies.size(); strategy++)
 	{
+		int size = decision_tree.size();
 		vector<DecisionTreeNode> floor = decision_tree_list_node_children(-1);
 		ranges::copy(floor, back_inserter(decision_tree));
 
 		for (int depth=0; depth<10; depth++)
 		{
-			auto rg = views::iota(0, (int)decision_tree.size()) |
+			auto rg = views::iota(size, (int)decision_tree.size()) |
 				views::filter([&](int id){return decision_tree[id].depth==depth;});
 			vector<int> input(rg.begin(), rg.end());
 			vector<vector<DecisionTreeNode> > floor(input.size());
