@@ -2616,12 +2616,12 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
 			depth++;
 
+		if (depth >= Strategies[strategy].size())
+			return child_nodes;
+
 //TODO: use C++23 cartesian_product() to generate (i,j) and views::filter() to filter out i==j, ...upfront
 		for (int i=0; i < input_rectangles.size(); i++)
 		{
-			if (depth >= Strategies[strategy].size())
-				continue;
-
 			D(printf("i=%d\n", i));
 
 			if (connected_component[i] == cmax && Strategies[strategy][depth] == STABLE)
@@ -2779,7 +2779,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		vector<DecisionTreeNode> floor = decision_tree_list_node_children(-1);
 		ranges::copy(floor, back_inserter(decision_tree));
 
-		for (int depth=1; depth<10; depth++)
+		for (int depth=0; depth<10; depth++)
 		{
 			auto rg = views::iota(0, (int)decision_tree.size()) |
 				views::filter([&](int id){return decision_tree[id].depth==depth;});
