@@ -27,12 +27,12 @@ import translation_ranges_3 from './translation_ranges_3.json' assert {type: 'js
 import translation_ranges2_3 from './translation_ranges2_3.json' assert {type: 'json'};
 import scores3 from './scores3.json' assert {type: 'json'};
 
-import logical_graph3 from './logical_graph4.json' assert {type: 'json'};
-import holes3 from './holes4.json' assert {type: 'json'};
-import decision_tree3 from './decision_tree4.json' assert {type: 'json'};
-import translation_ranges_3 from './translation_ranges_4.json' assert {type: 'json'};
-import translation_ranges2_3 from './translation_ranges2_4.json' assert {type: 'json'};
-import scores3 from './scores4.json' assert {type: 'json'};
+import logical_graph4 from './logical_graph4.json' assert {type: 'json'};
+import holes4 from './holes4.json' assert {type: 'json'};
+import decision_tree4 from './decision_tree4.json' assert {type: 'json'};
+import translation_ranges_4 from './translation_ranges_4.json' assert {type: 'json'};
+import translation_ranges2_4 from './translation_ranges2_4.json' assert {type: 'json'};
+import scores4 from './scores4.json' assert {type: 'json'};
 
 var testIndex=0;
 
