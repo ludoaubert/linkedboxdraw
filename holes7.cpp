@@ -2901,7 +2901,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
-for (const auto& [testid, input_rectangles, logical_edges] : test_input | views::reverse)
+for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 {
 	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
