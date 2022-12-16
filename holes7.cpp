@@ -21,7 +21,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-//#define _TRACE_
+#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -2571,16 +2571,22 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 		D(printf("connected_component[%d] = %d\n", i, connected_component[i]));
 	D(printf("\n"));
 
-	D(printf("page rank:\n"));
-	vector<float> page_rank = compute_page_rank(n, logical_edges, topological_edges);
-	D(printf("\n"));
+	fflush(stdout);
 
-	int nb = ranges::max(connected_component);
+	D(printf("\n enter page rank\n"));
+	vector<float> page_rank = compute_page_rank(n, logical_edges, topological_edges);
+	D(printf("\n exit page rank\n"));
+
+	fflush(stdout);
+
+	int nb = 1 + ranges::max(connected_component);
+	D(printf("nb=%d\n", nb));
 	vector<int> cc_size(nb, 0);
 	for (int c : connected_component)
 		cc_size[c]++;
 	auto it = ranges::max_element(cc_size);
 	int cmax = ranges::distance(begin(cc_size), it);
+	D(printf("cmax=%d\n", cmax));
 // si connected_component[i]==cmax alors i ne doit pas etre deplacé.
 
 	vector<int> recmap(input_rectangles.size());
@@ -2778,6 +2784,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	{
 		int size = decision_tree.size();
 		vector<DecisionTreeNode> floor = decision_tree_list_node_children(-1);
+		D(printf("floor size=%zu\n", floor.size()));
 		ranges::copy(floor, back_inserter(decision_tree));
 
 		for (int depth=0; depth<10; depth++)
@@ -2787,7 +2794,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 			vector<int> input(rg.begin(), rg.end());
 			vector<vector<DecisionTreeNode> > floor(input.size());
 			transform(execution::par_unseq, input.begin(), input.end(), floor.begin(), decision_tree_list_node_children);
+			size_t size = decision_tree.size();
 			ranges::copy(floor | views::join, back_inserter(decision_tree));
+			D(printf("floor.size()=%zu\n", decision_tree.size() - size));
 		}
 	}
 
@@ -2892,7 +2901,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
-for (const auto& [testid, input_rectangles, logical_edges] : test_input)
+for (const auto& [testid, input_rectangles, logical_edges] : test_input | views::reverse)
 {
 	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
