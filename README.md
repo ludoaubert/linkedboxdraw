@@ -1,6 +1,6 @@
 # linkedboxdraw
 
-Edition of relational diagrams, web based, serverless. 
+# Edition of relational diagrams, web based, serverless. 
 
 Typical use case:
 
