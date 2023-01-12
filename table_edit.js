@@ -203,55 +203,36 @@ function displayCurrent()
 		if (currentBoxIndex_ == -1 && boxCombo_.value != "")
 			currentBoxIndex_ = mydata.boxes.findIndex(box => box.title == boxCombo_.value);
 
-		const innerHTML = mydata.boxes
+		const boxComboInnerHTML = mydata.boxes
 								.concat()	//shallow copy
 								.sort((a, b) => a.title.localeCompare(b.title))
 								.map(box => "<option>" + box.title + "</option>")
 								.join('');
 
-		console.log(innerHTML);
-
-		if (boxCombo_.innerHTML != innerHTML)
+		if (boxCombo_.innerHTML != boxComboInnerHTML)
 		{
-			boxCombo_.innerHTML = innerHTML;
+			boxCombo_.innerHTML = boxComboInnerHTML;
 			if (currentBoxIndex_ == -1)
 				currentBoxIndex_ = mydata.boxes.length > 0 ? 0 : -1;
 		}
 
-		console.log({currentBoxIndex_});
-		if (currentBoxIndex_ == -1)
+		boxCombo_.value = mydata.boxes[currentBoxIndex_]?.title || "";
+
+		const fieldComboInnerHTML = mydata.boxes[currentBoxIndex_]
+									?.fields
+									?.concat() //shallow copy
+									?.sort((a, b) => a.name.localeCompare(b.name))
+									?.map(field => "<option>" + field.name + "</option>")
+									?.join('') || "";
+
+		if (fieldCombo_.innerHTML != fieldComboInnerHTML)
 		{
-			fieldCombo_.innerHTML = "";
-		}
-		else
-		{
-			const {title, id, fields} = mydata.boxes[currentBoxIndex_];
-			boxCombo_.value = title;
-
-			const innerHTML = mydata.boxes[currentBoxIndex_]
-									.fields
-									.concat() //shallow copy
-									.sort((a, b) => a.name.localeCompare(b.name))
-									.map(field => "<option>" + field.name + "</option>")
-									.join('');
-
-			console.log(innerHTML);
-
-			if (fieldCombo_.innerHTML != innerHTML)
-			{
-				fieldCombo_.innerHTML = innerHTML;
-				if (currentFieldIndex_ == -1)
-					currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.length > 0 ? 0 : -1; 
-			}
+			fieldCombo_.innerHTML = fieldComboInnerHTML;
+			if (currentFieldIndex_ == -1)
+				currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.length > 0 ? 0 : -1; 
 		}
 
-		console.log({currentBoxIndex_, currentFieldIndex_, boxComboValue: boxCombo_.value, fieldComboValue: fieldCombo_.value});
-
-		if (currentBoxIndex_ != -1 && currentFieldIndex_ == -1 && fieldCombo_.value != "")
-		{
-			currentFieldIndex_ = mydata.boxes[currentBoxIndex_].fields.findIndex(field => field.name == fieldCombo_.value);
-			console.log({currentFieldIndex_});
-		}
+		currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.findIndex(field => field.name == fieldCombo_.value) || -1;
 
 		contexts[index] = {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_};
 		index++;
@@ -266,72 +247,39 @@ function displayCurrent()
 	currentColorBoxIndex = contexts[3].currentBoxIndex_;
 	currentColorFieldIndex = contexts[3].currentFieldIndex_;
 
-	console.log(contexts);
-	console.log({currentBoxIndex, currentFieldIndex});
-
 	if (currentBoxIndex != -1 && currentFieldIndex != -1 && newFieldEditField.value == "")
 	{
-		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex].fields[currentFieldIndex];
-		console.log({name, isPrimaryKey, isForeignKey});
-		isPrimaryKeyCheckBox.checked = isPrimaryKey; 
-		isForeignKeyCheckBox.checked = isForeignKey;
+		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex];
+		isPrimaryKeyCheckBox.checked = isPrimaryKey || false; 
+		isForeignKeyCheckBox.checked = isForeignKey || false;
 	}
 
-	if (currentBoxIndex != -1 && currentFieldIndex != -1)
-	{
-		const boxTitle = mydata.boxes[currentBoxIndex].title;
-		const fieldName = mydata.boxes[currentBoxIndex].fields[currentFieldIndex].name;
+	const boxTitle = mydata.boxes[currentBoxIndex]?.title;
+	const fieldName = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.name;
 
-		const innerHTML = mydata.values.filter(({box, field, value}) => box == boxTitle && field == fieldName)
+	const valueComboInnerHTML = mydata.values.filter(({box, field, value}) => box == boxTitle && field == fieldName)
 										.map(({box, field, value}) => value)
 										.sort()
 										.map(value => '<option>' + value + '</option>')
 										.join('');
 
-		console.log(innerHTML);
+	if (valueCombo.innerHTML != valueComboInnerHTML)
+		valueCombo.innerHTML = valueComboInnerHTML;
 
-		if (valueCombo.innerHTML != innerHTML)
-			valueCombo.innerHTML = innerHTML;
+	const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
+
+	const boxComment = mydata.boxComments[currentBoxCommentIndex]?.comment || "" ;
+	if (boxComment != boxCommentTextArea.value)
+	{
+		boxCommentTextArea.value = boxComment ;
 	}
 
-	if (currentBoxIndex != -1)
-	{
-		const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
+	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 
-		if (currentBoxCommentIndex != -1)
-		{
-			const {box, comment} = mydata.boxComments[currentBoxCommentIndex] ;
-			if (comment != boxCommentTextArea.value)
-			{
-				boxCommentTextArea.value = comment ;
-			}
-		}
-		else
-			boxCommentTextArea.value = "";
-	}
-	else
+	const fieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
+	if (fieldComment != fieldCommentTextArea.value)
 	{
-		boxCommentTextArea.value = "";
-	}
-
-	if (currentBoxIndex != -1 && currentFieldIndex != -1)
-	{
-		const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-
-		if (currentFieldCommentIndex != -1)
-		{
-			const {box, field, comment} = mydata.fieldComments[currentFieldCommentIndex] ;
-			if (comment != fieldCommentTextArea.value)
-			{
-				fieldCommentTextArea.value = comment ;
-			}
-		}
-		else
-			fieldCommentTextArea.value = "";
-	}
-	else
-	{
-		fieldCommentTextArea.value = "";
+		fieldCommentTextArea.value = fieldComment ;
 	}
 }
 
