@@ -247,12 +247,9 @@ function displayCurrent()
 	currentColorBoxIndex = contexts[3].currentBoxIndex_;
 	currentColorFieldIndex = contexts[3].currentFieldIndex_;
 
-	if (currentBoxIndex != -1 && currentFieldIndex != -1 && newFieldEditField.value == "")
-	{
-		const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex];
-		isPrimaryKeyCheckBox.checked = isPrimaryKey || false; 
-		isForeignKeyCheckBox.checked = isForeignKey || false;
-	}
+	const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex];
+	isPrimaryKeyCheckBox.checked = isPrimaryKey || false; 
+	isForeignKeyCheckBox.checked = isForeignKey || false;
 
 	const boxTitle = mydata.boxes[currentBoxIndex]?.title;
 	const fieldName = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.name;
