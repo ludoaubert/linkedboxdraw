@@ -247,7 +247,8 @@ function displayCurrent()
 	currentColorBoxIndex = contexts[3].currentBoxIndex_;
 	currentColorFieldIndex = contexts[3].currentFieldIndex_;
 
-	const {name, isPrimaryKey, isForeignKey} = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex];
+	const isPrimaryKey = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.isPrimaryKey;
+	const isForeignKey = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.isForeignKey;
 	isPrimaryKeyCheckBox.checked = isPrimaryKey || false; 
 	isForeignKeyCheckBox.checked = isForeignKey || false;
 
