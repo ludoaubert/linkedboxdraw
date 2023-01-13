@@ -468,22 +468,41 @@ const vector<TestInput> test_input={
 	.logical_edges = {
 		{.from=0,.to=1},
 		{.from=0,.to=2},
+		{.from=0,.to=19},
+		{.from=1,.to=0},
 		{.from=1,.to=3},
 		{.from=1,.to=4},
 		{.from=1,.to=5},
 		{.from=1,.to=6},
+		{.from=2,.to=0},
 		{.from=2,.to=7},
 		{.from=2,.to=8},
 		{.from=2,.to=11},
+		{.from=3,.to=1},
+		{.from=4,.to=1},
+		{.from=5,.to=1},
+		{.from=6,.to=1},
+		{.from=7,.to=2},
 		{.from=7,.to=14},
 		{.from=7,.to=15},
+		{.from=8,.to=2},
 		{.from=8,.to=9},
 		{.from=8,.to=10},
+		{.from=9,.to=8},
+		{.from=10,.to=8},
+		{.from=11,.to=2},
 		{.from=11,.to=12},
 		{.from=11,.to=13},
-		{.from=0,.to=19},
-		{.from=19,.to=17},
+		{.from=12,.to=11},
+		{.from=13,.to=11},
+		{.from=14,.to=7},
+		{.from=15,.to=7},
+		{.from=16,.to=19},
+		{.from=17,.to=19},
+		{.from=18,.to=19},
+		{.from=19,.to=0},
 		{.from=19,.to=16},
+		{.from=19,.to=17},
 		{.from=19,.to=18}
 	}
 }};
@@ -2947,7 +2966,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
-for (const auto& [testid, input_rectangles, logical_edges] : test_input)
+for (const auto& [testid, input_rectangles, logical_edges] : test_input | views::reverse)
 {
 	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
