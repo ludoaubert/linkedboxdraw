@@ -1,0 +1,10 @@
+[
+{"i":0, "parent_index":-1, "depth":0, "i_emplacement_source":7, "i_emplacement_destination":27, "match":16},
+{"i":1, "parent_index":-1, "depth":0, "i_emplacement_source":7, "i_emplacement_destination":27, "match":16},
+{"i":2, "parent_index":-1, "depth":0, "i_emplacement_source":7, "i_emplacement_destination":27, "match":16},
+{"i":3, "parent_index":2, "depth":1, "i_emplacement_source":0, "i_emplacement_destination":7, "match":15},
+{"i":4, "parent_index":2, "depth":1, "i_emplacement_source":0, "i_emplacement_destination":21, "match":15},
+{"i":5, "parent_index":2, "depth":1, "i_emplacement_source":0, "i_emplacement_destination":23, "match":15},
+{"i":6, "parent_index":-1, "depth":0, "i_emplacement_source":0, "i_emplacement_destination":21, "match":16},
+{"i":7, "parent_index":-1, "depth":0, "i_emplacement_source":0, "i_emplacement_destination":23, "match":16}
+]
