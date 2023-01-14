@@ -2150,9 +2150,10 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 {
 	vector<MyRect> emplacements1_by_id = emplacements_by_id;
 
-	const int m = emplacements_by_id.size() / decision_tree.size();
-
 	auto cdtt = [&](int id){
+
+	//decision_tree.size() can be zero, in which case the division will never execute.
+        	const int m = emplacements_by_id.size() / decision_tree.size();
 
 	// rectangles holds the constant reference. rectangles1 holds the accumulation of selected changes during the pipeline.
 	// rectangles2 holds live output
@@ -2239,6 +2240,9 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 	auto rg = views::iota(0, n * (int)decision_tree.size()) |
 		views::transform([&](int pos)->TranslationRangeItem{
 
+        //decision_tree.size() can be zero, in which case the division will never execute.
+                	const int m = emplacements_by_id.size() / decision_tree.size();
+
 			int id = pos / n;
 			int i = pos % n;
 
@@ -2261,7 +2265,9 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 	FILE *f=fopen("translation_ranges2.json", "w");
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
-	buffer.pop_back();
+//TODO: remove this wart when join_with() becomes available.
+	if (buffer.empty()==false)
+		buffer.pop_back();
 	fprintf(f, "[%s\n]\n", buffer.c_str());
 	fclose(f);
 }
@@ -2928,10 +2934,12 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<LogicalEdge>& logical_edges)
 {
 	int n = input_rectangles.size();
-	int m = emplacements_by_id.size() / decision_tree.size();
 
 	auto rg = views::iota(0, (int)decision_tree.size()) |
 		views::transform([&](int id)->Score{
+
+	//decision_tree.size() can be zero. In this case this instruction will not get executed
+        		const int m = emplacements_by_id.size() / decision_tree.size();
 
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 
@@ -2962,7 +2970,9 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 	FILE *f=fopen("scores.json", "w");
 	string buffer;
 	ranges::copy(rg, back_inserter(buffer));
-	buffer.pop_back();
+//TODO: remove this wart when views::join_with becomes available.
+	if (buffer.empty()==false)
+		buffer.pop_back();
 	fprintf(f, "[%s\n]", buffer.c_str());
 	fclose(f);
 }
@@ -2987,6 +2997,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		D(printf("begin compute_decision_tree()\n"));
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, holes, logical_edges, emplacements);
                 D(printf("end compute_decision_tree()\n"));
+		fflush(stdout);
 
 		sprintf(file_name, "logical_graph%d.json", testid);
 		fs::copy("logical_graph.json", file_name, fs::copy_options::update_existing);
@@ -2997,23 +3008,32 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		sprintf(file_name, "decision_tree%d.dat", testid);
 		if(FILE* f = fopen(file_name, "wb")) {
-			fwrite(&decision_tree[0], sizeof decision_tree[0], decision_tree.size(), f);
+			fwrite(decision_tree.data(), sizeof (DecisionTreeNode), decision_tree.size(), f);
 			fclose(f);
 		}
 
 		vector<MyRect> emplacements_by_id;
+                D(printf("begin compute_decision_tree_translations()\n"));
 		compute_decision_tree_translations(decision_tree, input_rectangles, holes, logical_edges, emplacements_by_id);
+                D(printf("end compute_decision_tree_translations()\n"));
+		fflush(stdout);
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
+                D(printf("begin compute_decision_tree_translations2()\n"));
 		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
+                D(printf("end compute_decision_tree_translations2()\n"));
+		fflush(stdout);
 
                 sprintf(file_name, "translation_ranges2_%d.json", testid);
                 fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
+		D(printf("begin compute_scores()\n"));
 		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+		D(printf("end compute_scores()\n"));
+		fflush(stdout);
 
                 sprintf(file_name, "scores%d.json", testid);
 		fs::copy("scores.json", file_name, fs::copy_options::update_existing);
