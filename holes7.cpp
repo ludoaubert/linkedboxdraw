@@ -21,7 +21,7 @@ namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
-#define _TRACE_
+//#define _TRACE_
 
 #ifdef _TRACE_
 #  define D(x) x
@@ -1460,7 +1460,37 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	fflush(stdout);
 
 	auto rg = vv | views::join;
-	return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
+	const vector<MyRect> holes(ranges::begin(rg), ranges::end(rg));
+
+{
+	char buffer[100*1000];
+	int pos=0;
+        pos += sprintf(buffer + pos,"{\n\"holes\":[");
+	for (const MyRect& r : holes)
+	{
+		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
+			r.m_left, r.m_right, r.m_top, r.m_bottom);
+	}
+	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
+
+	const int n = input_rectangles.size();
+
+	for (int hi=0; hi < holes.size(); hi++)
+	{
+		const MyRect& rec = holes[hi];
+		for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
+		{
+			pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
+		}
+	}
+	pos += sprintf(buffer + --pos, "\n]\n}");
+
+	FILE *f=fopen("holes.json", "w");
+	fprintf(f, "%s", buffer);
+	fclose(f);
+}
+
+	return holes;
 }
 
 
@@ -1892,11 +1922,12 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 					const vector<MyRect>& input_rectangles,
+					const vector<MyRect>& holes,
 					const vector<LogicalEdge>& logical_edges,
 					vector<MyRect>& emplacements_by_id)
 {
 	vector<MyRect> input_emplacements;
-	vector<MyRect> holes = compute_holes(input_rectangles);
+
 	for (const MyRect &r : input_rectangles)
 		input_emplacements.push_back(r);
 	for (const MyRect &rec : holes)
@@ -2505,9 +2536,11 @@ void test_translations()
 
 	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
 	{
+		const vector<MyRect> holes = compute_holes(input_rectangles);
 		vector<MyRect> emplacements_by_id;
 		compute_decision_tree_translations(decision_tree,
 						input_rectangles,
+						holes,
 						logical_edges,
 						emplacements_by_id);
 //		bool bOK = translation_ranges == expected_translation_ranges;
@@ -2526,6 +2559,7 @@ const vector<vector<RectStability> > Strategies={
 };
 
 vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_rectangles,
+						const vector<MyRect>& holes,
 						const vector<LogicalEdge>& logical_edges,
 						vector<MyRect>& emplacements)
 {
@@ -2572,33 +2606,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_recta
 	{
 		D(printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom));
 	}
-	vector<MyRect> holes = compute_holes(input_rectangles);
-
-{
-	char buffer[100*1000];
-	int pos=0;
-        pos += sprintf(buffer + pos,"{\n\"holes\":[");
-	for (const MyRect& r : holes)
-	{
-		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
-			r.m_left, r.m_right, r.m_top, r.m_bottom);
-	}
-	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
-
-	for (int hi=0; hi < holes.size(); hi++)
-	{
-		MyRect& rec = holes[hi];
-		for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-		{
-			pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
-		}
-	}
-	pos += sprintf(buffer + --pos, "\n]\n}");
-
-	FILE *f=fopen("holes.json", "w");
-	fprintf(f, "%s", buffer);
-	fclose(f);
-}
 
 //La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
 
@@ -2966,7 +2973,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
-for (const auto& [testid, input_rectangles, logical_edges] : test_input | views::reverse)
+for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 {
 	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
@@ -2975,8 +2982,10 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input | views:
 	{
 		vector<MyRect> emplacements;
 
+		const vector<MyRect> holes = compute_holes(input_rectangles);
+
 		D(printf("begin compute_decision_tree()\n"));
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, logical_edges, emplacements);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, holes, logical_edges, emplacements);
                 D(printf("end compute_decision_tree()\n"));
 
 		sprintf(file_name, "logical_graph%d.json", testid);
@@ -2993,7 +3002,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input | views:
 		}
 
 		vector<MyRect> emplacements_by_id;
-		compute_decision_tree_translations(decision_tree, input_rectangles, logical_edges, emplacements_by_id);
+		compute_decision_tree_translations(decision_tree, input_rectangles, holes, logical_edges, emplacements_by_id);
 
                 sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
