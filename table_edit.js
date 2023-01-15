@@ -295,9 +295,9 @@ function addNewBox()
 	displayCurrent();
 
 	const rec = compute_box_rectangle(box);
-	const id = mycontexts?.rectangles?.length;
-	mycontexts?.rectangles?.push(rec);
-	mycontexts?.contexts[0]?.translatedBoxes?.push({id, translation:{x:0,y:0}});
+	const id = mycontexts.rectangles.length;
+	mycontexts.rectangles.push(rec);
+	mycontexts.contexts[0]?.translatedBoxes?.push({id, translation:{x:0,y:0}});
 
 	drawDiag();
 }
@@ -368,7 +368,7 @@ function addNewFieldToBox()
 
 	mydata.boxes[currentBoxIndex].fields.push({
 			name: newFieldEditField.value,
-			isPrimaryKey: isPrimaryKeyCheckBox.checked, 
+			isPrimaryKey: isPrimaryKeyCheckBox.checked,
 			isForeignKey: isForeignKeyCheckBox.checked
 		}
 	);
@@ -379,6 +379,11 @@ function addNewFieldToBox()
 	isForeignKeyCheckBox.checked = false;
 
 	displayCurrent();
+
+        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+        mycontexts.rectangles[currentBoxIndex] = rec;
+
+        drawDiag();
 }
 
 function updateField()
@@ -388,7 +393,7 @@ function updateField()
 
 	mydata.boxes[currentBoxIndex].fields[currentFieldIndex] = {
 		name: fieldCombo.value,
-		isPrimaryKey: isPrimaryKeyCheckBox.checked, 
+		isPrimaryKey: isPrimaryKeyCheckBox.checked,
 		isForeignKey: isForeignKeyCheckBox.checked
 	} ;
 
