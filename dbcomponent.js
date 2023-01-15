@@ -175,8 +175,6 @@ function expressCutLinks(mydata, mycontexts){
 
 // listing unexpressed link targets - end
 
-	var sheet = document.createElement('style')
-
 	const style = [...fieldColors.map( ({index,box,field,color})=>({index, field, color}) ),
 			...cut_links.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
 				{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
@@ -190,7 +188,5 @@ function expressCutLinks(mydata, mycontexts){
 		})
 		.join('\n');
 
-	console.log(style);
-	sheet.innerHTML = style;
-	document.body.appendChild(sheet);
+	return style;
 }
