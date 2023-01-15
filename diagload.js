@@ -118,19 +118,19 @@ function compute_links(selectedContextIndex)
 				.map(tB => tB.id);
 
 	const slinks = mydata.links
-							.filter(lk => lk.from != lk.to)
-							.filter(lk => lk.category != "TR2")
-							.map(lk => ({from:lk.from, to:lk.to}))
-							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
-							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
-							.map(lk => JSON.stringify(lk))
-							.filter(function(lk, pos, self){
-										return self.indexOf(lk) == pos;}
-							) //removing duplicates
-							.map(lk => JSON.parse(lk))
-							.flat()
-							.map(i => hex(i,2))
-							.join('');
+				.filter(lk => lk.from != lk.to)
+				.filter(lk => lk.category != "TR2")
+				.map(lk => ({from:lk.from, to:lk.to}))
+				.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
+				.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
+				.map(lk => JSON.stringify(lk))
+				.filter(function(lk, pos, self){
+									return self.indexOf(lk) == pos;}
+					) //removing duplicates
+				.map(lk => JSON.parse(lk))
+				.flat()
+				.map(i => hex(i,2))
+				.join('');
 	console.log(slinks);
 
 //logging call input to produce test data for further investigations...
@@ -302,7 +302,7 @@ function ApplyRepartition()
 		const n = parseInt(row.cells[2].innerText);
 		repartition[id]=n;
 	}
-	
+
 	const translatedBoxes = mycontexts.contexts.map(({frame,translatedBoxes,links})=>translatedBoxes)
 											.flat();
 
