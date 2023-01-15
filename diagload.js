@@ -284,7 +284,11 @@ function drawDiag() {
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
 
-	document.getElementById("diagram").style = expressCutLinks(mydata, mycontexts);
+	const styles = expressCutLinks(mydata, mycontexts);
+
+	var style = document.createElement('style');
+	style.innerHTML = styles;
+	document.head.appendChild(style);
 }
 
 
