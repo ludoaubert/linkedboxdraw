@@ -527,6 +527,8 @@ function updateLink()
 
 	mydata.links[linkCombo.selectedIndex] = lk;
 
+	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
+
 	drawDiag();
 }
 
@@ -560,6 +562,8 @@ function dropLink()
 	console.log({lk});
 	mydata.links = mydata.links.filter((_, index) => index != linkCombo.selectedIndex);
 	linkComboOnClick();
+
+	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
 	drawDiag();
 }
