@@ -339,6 +339,10 @@ function dropBox()
 	currentBoxIndex = -1;
 
 	displayCurrent();
+
+        mycontexts.rectangles.splice(currentBoxIndex, 1);
+
+        drawDiag();
 }
 
 
@@ -347,6 +351,11 @@ function updateBox()
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	mydata.boxes[currentBoxIndex].title = newBoxEditField.value;
 	displayCurrent();
+
+        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+        mycontexts.rectangles[currentBoxIndex] = rec;
+
+        drawDiag();
 }
 
 
@@ -380,10 +389,10 @@ function addNewFieldToBox()
 
 	displayCurrent();
 
-        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
-        mycontexts.rectangles[currentBoxIndex] = rec;
+	const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+	mycontexts.rectangles[currentBoxIndex] = rec;
 
-        drawDiag();
+	drawDiag();
 }
 
 function updateField()
@@ -398,6 +407,11 @@ function updateField()
 	} ;
 
 	displayCurrent();
+
+        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+        mycontexts.rectangles[currentBoxIndex] = rec;
+
+        drawDiag();
 }
 
 
@@ -426,6 +440,11 @@ function dropFieldFromBox()
 	currentFieldIndex = -1;
 
 	displayCurrent();
+
+        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+        mycontexts.rectangles[currentBoxIndex] = rec;
+
+        drawDiag();
 }
 
 function editValueFromField()
@@ -502,6 +521,8 @@ function updateLink()
 	console.log(lk);
 
 	mydata.links[linkCombo.selectedIndex] = lk;
+
+        drawDiag();
 }
 
 function addNewLink()
@@ -524,6 +545,8 @@ function addNewLink()
 	console.log(lk);
 
 	mydata.links.push(lk);
+
+        drawDiag();
 }
 
 function dropLink()
@@ -532,6 +555,8 @@ function dropLink()
 	console.log({lk});
 	mydata.links = mydata.links.filter((_, index) => index != linkCombo.selectedIndex);
 	linkComboOnClick();
+
+        drawDiag();
 }
 
 
@@ -541,6 +566,7 @@ function dropBoxComment()
 	const currentCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
 	mydata.boxComments = mydata.boxComments.filter((_, index) => index != currentCommentIndex );
 	displayCurrent();
+        drawDiag();
 }
 
 function updateBoxComment()
@@ -554,6 +580,7 @@ function updateBoxComment()
 		mydata.boxComments.push(boxComment);
 
 	displayCurrent();
+        drawDiag();
 }
 
 function dropFieldComment()
@@ -561,6 +588,7 @@ function dropFieldComment()
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 	mydata.fieldComments = mydata.fieldComments.filter((_, index) => index != currentFieldCommentIndex );
 	displayCurrent();
+        drawDiag();
 }
 
 function updateFieldComment()
@@ -574,6 +602,7 @@ function updateFieldComment()
 		mydata.fieldComments.push(fieldComment);
 
 	displayCurrent();
+        drawDiag();
 }
 
 function colorsComboOnClick()
@@ -606,6 +635,8 @@ function addNewColor()
 
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
+
+        drawDiag();
 }
 
 function updateColor()
@@ -620,6 +651,7 @@ function updateColor()
 	};
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
+        drawDiag();
 }
 
 function dropColor()
@@ -628,4 +660,5 @@ function dropColor()
 	mydata.fieldColors = mydata.fieldColors.filter((_, index) => index != colorsCombo.selectedIndex );
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
+        drawDiag();
 }
