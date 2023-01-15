@@ -547,9 +547,9 @@ function addNewLink()
 		category:categoryCombo.value
 	};
 
-	console.log(lk);
-
 	mydata.links.push(lk);
+
+	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
 	drawDiag();
 }
