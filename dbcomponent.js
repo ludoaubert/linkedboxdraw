@@ -124,7 +124,7 @@ function drawComponent(id) {
 		prefix = prefix.substring(leading_blanks.length);
 
 		const titleAttribute= tooltip.length!=0 ? `title="${tooltip.join('\n')}"` : '';
-		innerHTML += `<tr id="$b${id}f${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+		innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 	}
 
 	innerHTML += `</tbody></table>`;
