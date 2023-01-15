@@ -40,7 +40,10 @@ var colorsCombo ;
 function newDiagram() {
 
 	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
-	mycontexts={contexts:[], rectangles:[]};
+	mycontexts={
+		contexts:[{frame:{left:0,right:1197,top:0,bottom:507}, translatedBoxes:[], links:[]}],
+		rectangles:[]
+	};
 
 	currentBoxIndex = -1;
 	currentFieldIndex = -1;
