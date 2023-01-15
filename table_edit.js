@@ -298,6 +298,8 @@ function addNewBox()
 	const id = mycontexts?.rectangles?.length;
 	mycontexts?.rectangles?.push(rec);
 	mycontexts?.contexts[0]?.translatedBoxes?.push({id, translation:{x:0,y:0}});
+
+	drawDiag();
 }
 
 
