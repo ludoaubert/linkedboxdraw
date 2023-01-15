@@ -340,9 +340,11 @@ function dropBox()
 
 	displayCurrent();
 
-        mycontexts.rectangles.splice(currentBoxIndex, 1);
+	mycontexts.rectangles.splice(currentBoxIndex, 1);
+	for (context of mycontexts.contexts)
+		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex);
 
-        drawDiag();
+	drawDiag();
 }
 
 
@@ -355,7 +357,7 @@ function updateBox()
         const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
         mycontexts.rectangles[currentBoxIndex] = rec;
 
-        drawDiag();
+	drawDiag();
 }
 
 
@@ -411,7 +413,7 @@ function updateField()
         const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
         mycontexts.rectangles[currentBoxIndex] = rec;
 
-        drawDiag();
+	drawDiag();
 }
 
 
@@ -444,7 +446,7 @@ function dropFieldFromBox()
         const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
         mycontexts.rectangles[currentBoxIndex] = rec;
 
-        drawDiag();
+	drawDiag();
 }
 
 function editValueFromField()
@@ -522,7 +524,7 @@ function updateLink()
 
 	mydata.links[linkCombo.selectedIndex] = lk;
 
-        drawDiag();
+	drawDiag();
 }
 
 function addNewLink()
@@ -546,7 +548,7 @@ function addNewLink()
 
 	mydata.links.push(lk);
 
-        drawDiag();
+	drawDiag();
 }
 
 function dropLink()
@@ -556,7 +558,7 @@ function dropLink()
 	mydata.links = mydata.links.filter((_, index) => index != linkCombo.selectedIndex);
 	linkComboOnClick();
 
-        drawDiag();
+	drawDiag();
 }
 
 
@@ -566,7 +568,7 @@ function dropBoxComment()
 	const currentCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
 	mydata.boxComments = mydata.boxComments.filter((_, index) => index != currentCommentIndex );
 	displayCurrent();
-        drawDiag();
+	drawDiag();
 }
 
 function updateBoxComment()
@@ -580,7 +582,7 @@ function updateBoxComment()
 		mydata.boxComments.push(boxComment);
 
 	displayCurrent();
-        drawDiag();
+	drawDiag();
 }
 
 function dropFieldComment()
@@ -588,7 +590,7 @@ function dropFieldComment()
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 	mydata.fieldComments = mydata.fieldComments.filter((_, index) => index != currentFieldCommentIndex );
 	displayCurrent();
-        drawDiag();
+	drawDiag();
 }
 
 function updateFieldComment()
@@ -602,7 +604,7 @@ function updateFieldComment()
 		mydata.fieldComments.push(fieldComment);
 
 	displayCurrent();
-        drawDiag();
+	drawDiag();
 }
 
 function colorsComboOnClick()
@@ -636,7 +638,7 @@ function addNewColor()
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
 
-        drawDiag();
+	drawDiag();
 }
 
 function updateColor()
@@ -651,7 +653,7 @@ function updateColor()
 	};
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
-        drawDiag();
+	drawDiag();
 }
 
 function dropColor()
@@ -660,5 +662,5 @@ function dropColor()
 	mydata.fieldColors = mydata.fieldColors.filter((_, index) => index != colorsCombo.selectedIndex );
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
-        drawDiag();
+	drawDiag();
 }
