@@ -307,7 +307,7 @@ function ApplyRepartition()
 											.flat();
 
 	const nb = 1 + Math.max(...repartition);
-	
+
 	mycontexts.contexts = [...Array(nb).keys()].map(i => ({
 			"frame":null,
 			"translatedBoxes":translatedBoxes.filter(({id,translation}) => repartition[id]==i),
@@ -333,7 +333,7 @@ function ApplyRepartition()
 // if a context has become empty, remove it.
 	mycontexts.contexts = mycontexts.contexts.filter(context => context.translatedBoxes.length != 0);
 
-	mycontexts.rectangles = compute_box_rectangles(mydata.boxes);
+	mycontexts.rectangles = mydata.boxes.map(box => compute_box_rectangle(box));
 
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{

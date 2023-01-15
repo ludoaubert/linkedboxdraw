@@ -17,7 +17,7 @@ var editTitle ;
 var boxCombo ;
 var fieldCombo ;
 var valueCombo ;
-var boxCommentTextArea ;	
+var boxCommentTextArea ;
 var fieldCommentTextArea ;
 var isPrimaryKeyCheckBox ;
 var isForeignKeyCheckBox ;
@@ -38,10 +38,10 @@ var colorCombo ;
 var colorsCombo ;
 
 function newDiagram() {
-	
+
 	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
 	mycontexts={contexts:[], rectangles:[]};
-	
+
 	currentBoxIndex = -1;
 	currentFieldIndex = -1;
 
@@ -62,15 +62,14 @@ function download2(filename) {
 	var element = document.createElement('a');
 
 	const {boxes, links} = mydata;
-	
-	const rectangles = compute_box_rectangles(boxes);
-	
+
+	const rectangles = boxes.map(box => compute_box_rectangles(box));
+
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
-	
-	const rectdim = rectangles
-						.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
+
+	const rectdim = rectangles.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
 	console.log(rectdim);
-						
+
 	const slinks = links.filter(lk => lk.from != lk.to)
 						.filter(lk => lk.category != "TR2")
 						.map(lk => [lk.from, lk.to])
@@ -83,18 +82,15 @@ function download2(filename) {
 						.map(i => hex(i,3))
 						.join('');
 	console.log(slinks);
-	
-	latuile = Module.cwrap("latuile","string",["string","string"]);
-	bombix = Module.cwrap("bombix","string",["string","string","string","string"]);	
 
+	latuile = Module.cwrap("latuile","string",["string","string"]);
+	bombix = Module.cwrap("bombix","string",["string","string","string","string"]);
 
 	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
-	
+
 	mycontexts = JSON.parse(jsonResponse);
-	
 	mycontexts.rectangles = rectangles;
-	
 	mycontexts.contexts = mycontexts.contexts.map(
 		({frame, translatedBoxes}) => {
 			const {left,right,top,bottom} = frame;
@@ -102,47 +98,45 @@ function download2(filename) {
 							.map(i => hex(i,4))
 							.join('');
 			console.log(sframe);
-			
+
 			const translations = translatedBoxes
 							.map(({id,translation})=>[translation.x,translation.y])
 							.flat()
 							.map(i => hex(i,3))
 							.join('');
 			console.log(translations);
-			
+
 			const ids = translatedBoxes.map(tB => tB.id);
-			
 			const rectdim_ = translatedBoxes
 							.map(({id}) => rectdim[id])
 							.join('');
 			console.log(rectdim_);
 			console.assert(rectdim_.size == translations.size);
 			console.log(links);
-			const links_ = links
-							.filter(lk => lk.from != lk.to)
-							.filter(lk => lk.category != "TR2")
-							.map(lk => ({from:lk.from, to:lk.to}))
-							.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
-							.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
-							.map(lk => JSON.stringify(lk))
-							.filter(function(lk, pos, self){
-										return self.indexOf(lk) == pos;}
+			const links_ = links.filter(lk => lk.from != lk.to)
+						.filter(lk => lk.category != "TR2")
+						.map(lk => ({from:lk.from, to:lk.to}))
+						.filter(lk => ids.indexOf(lk.from) != -1 && ids.indexOf(lk.to) != -1)
+						.map(lk => [ids.indexOf(lk.from), ids.indexOf(lk.to)])
+						.map(lk => JSON.stringify(lk))
+						.filter(function(lk, pos, self){
+								return self.indexOf(lk) == pos;}
 							) //removing duplicates
-							.map(lk => JSON.parse(lk))							
-							.flat()
-							.map(i => hex(i,2))
-							.join('');	
+						.map(lk => JSON.parse(lk))
+						.flat()
+						.map(i => hex(i,2))
+						.join('');
 			console.log(links_);
 			const json2 = bombix(rectdim_, translations, sframe, links_);
 			console.log(json2);
 			const polylines = JSON.parse(json2);
 			const polylines2 = polylines.map(({polyline,from,to})=>({polyline, from:ids[from], to:ids[to]}));
 			console.log(polylines2);
-			
+
 			return {frame, translatedBoxes, links:polylines2};
 		}
 	);
-	
+
 	download(filename, mycontexts);
 }
 
@@ -153,7 +147,7 @@ function init() {
 	boxCombo = document.getElementById("boxes");
 	fieldCombo = document.getElementById("fields");
 	valueCombo = document.getElementById("values");
-	boxCommentTextArea = document.getElementById("box comment");	
+	boxCommentTextArea = document.getElementById("box comment");
 	fieldCommentTextArea = document.getElementById("field comment");
 	isPrimaryKeyCheckBox = document.getElementById("PK");
 	isForeignKeyCheckBox = document.getElementById("FK");
@@ -229,7 +223,7 @@ function displayCurrent()
 		{
 			fieldCombo_.innerHTML = fieldComboInnerHTML;
 			if (currentFieldIndex_ == -1)
-				currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.length > 0 ? 0 : -1; 
+				currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.length > 0 ? 0 : -1;
 		}
 
 		currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.findIndex(field => field.name == fieldCombo_.value) || -1;
@@ -249,7 +243,7 @@ function displayCurrent()
 
 	const isPrimaryKey = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.isPrimaryKey;
 	const isForeignKey = mydata.boxes[currentBoxIndex]?.fields[currentFieldIndex]?.isForeignKey;
-	isPrimaryKeyCheckBox.checked = isPrimaryKey || false; 
+	isPrimaryKeyCheckBox.checked = isPrimaryKey || false;
 	isForeignKeyCheckBox.checked = isForeignKey || false;
 
 	const boxTitle = mydata.boxes[currentBoxIndex]?.title;
@@ -293,12 +287,17 @@ function addNewBox()
 	currentBoxIndex = mydata.boxes.length;
 	currentFieldIndex = -1;
 
-	mydata.boxes.push({title:newBoxEditField.value, id:currentBoxIndex, fields:[]});
-	console.log(mydata.boxes);
+	const box = {title:newBoxEditField.value, id:currentBoxIndex, fields:[]};
+	mydata.boxes.push(box);
 
 	newBoxEditField.value = "";
 
 	displayCurrent();
+
+	const rec = compute_box_rectangle(box);
+	const id = mycontexts?.rectangles?.length;
+	mycontexts?.rectangles?.push(rec);
+	mycontexts?.contexts[0]?.translatedBoxes?.push({id, translation:{x:0,y:0}});
 }
 
 
@@ -463,15 +462,14 @@ function selectLink()
 function linkComboOnClick()
 {
 	const innerHTML = mydata.links
-							.map(({from, fromField, to, toField}) => {
-									const fromBox = mydata.boxes[from] ;
-									const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
-									const toBox = mydata.boxes[to] ;
-									const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
-									return `<option>${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}</option>`;
-								}
-							)
-							.join('');
+				.map(({from, fromField, to, toField}) => {
+					const fromBox = mydata.boxes[from] ;
+					const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
+					const toBox = mydata.boxes[to] ;
+					const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
+			return `<option>${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}</option>`;
+				})
+				.join('');
 
 	if (linkCombo.innerHTML != innerHTML)
 		linkCombo.innerHTML = innerHTML;
