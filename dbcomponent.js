@@ -124,7 +124,7 @@ function drawComponent(id) {
 		prefix = prefix.substring(leading_blanks.length);
 
 		const titleAttribute= tooltip.length!=0 ? `title="${tooltip.join('\n')}"` : '';
-		innerHTML += `<tr id="${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+		innerHTML += `<tr id="$b{id}f{fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 	}
 
 	innerHTML += `</tbody></table>`;
@@ -186,7 +186,7 @@ function expressCutLinks(mydata, mycontexts){
 		.flat()
 		.map(({index, field, color}) => {
 			const fieldIndex = boxes[index].fields.findIndex(f => f.name == field);
-			return `foreignObject#box${index} > table > tbody > tr#${fieldIndex}{background-color: ${color};}`;
+			return `foreignObject#box${index} > table > tbody > tr#b{index}f${fieldIndex}{background-color: ${color};}`;
 		})
 		.join('\n');
 
