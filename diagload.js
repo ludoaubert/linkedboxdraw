@@ -279,16 +279,12 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 }
 
 
-function drawDiag() {
-
+function drawDiag()
+{
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
-	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
-
-	const styles = expressCutLinks(mydata, mycontexts);
-
-	var style = document.createElement('style');
-	style.innerHTML = styles;
-	document.head.appendChild(style);
+	const diagramHtml = drawDiagram(drawComponent);
+        const diagramStyles = expressCutLinks(mydata, mycontexts);
+	document.getElementById("diagram").innerHTML = `<span style='${diagramStyles}'>${diagramHtml}</span>`;
 }
 
 
