@@ -11,6 +11,8 @@ var currentToFieldIndex = -1;
 var currentColorBoxIndex = -1;
 var currentColorFieldIndex = -1;
 
+var currentPictureIndex = -1;
+
 var input ;
 var editTitle ;
 var boxCombo ;
