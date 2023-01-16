@@ -11,7 +11,6 @@ var currentToFieldIndex = -1;
 var currentColorBoxIndex = -1;
 var currentColorFieldIndex = -1;
 
-
 var input ;
 var editTitle ;
 var boxCombo ;
@@ -36,10 +35,14 @@ var colorBoxCombo ;
 var colorFieldCombo ;
 var colorCombo ;
 var colorsCombo ;
+var picturesCombo ;
+var pictureSourceEditField ;
+var newPictureNameEditField ;
+
 
 function newDiagram() {
 
-	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[]};
+	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[], pictures:[]};
 	mycontexts={
 		contexts:[{frame:{left:0,right:1197,top:0,bottom:507}, translatedBoxes:[], links:[]}],
 		rectangles:[]
@@ -169,6 +172,9 @@ function init() {
 	colorFieldCombo = document.getElementById("color fields");
 	colorCombo = document.getElementById("color");
 	colorsCombo = document.getElementById("colors");
+	picturesCombo = document.getElementById("pictures");
+	pictureSourceEditField = document.getElementById("pic source");
+	newPictureNameEditField = document.getElementById("new pic");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 															.join('');
@@ -670,4 +676,39 @@ function dropColor()
 	console.log(mydata.fieldColors);
 	colorsComboOnClick();
 	drawDiag();
+}
+
+const getBase64FromUrl = async (url) => {
+	const data = await fetch(url);
+	const blob = await data.blob();
+	return new Promise((resolve) => {
+		const reader = new FileReader();
+		reader.readAsDataURL(blob);
+		reader.onloadend = () => {
+			const base64data = reader.result;
+      			resolve(base64data);
+		}
+	});
+}
+
+function addNewPicture()
+{
+	currentPictureIndex = mydata.pictures.length;
+
+	const pic = {
+		name: newPictureNameEditField.value,
+		source: pictureSourceEditField.value,
+		base64: getBase64FromUrl(pictureSourceEditField.value)
+	};
+
+	mydata.pictures.push(pic);
+
+	newPictureNameEditField.value = "";
+
+	displayCurrent();
+}
+
+function dropPicture()
+{
+
 }
