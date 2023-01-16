@@ -121,6 +121,16 @@
 	
 </div>
 
+<button type="button" class="collapsible" onclick="switchCollapsible(this)">Pictures</button>
+<div class="content">
+        <fieldset>
+                <legend>Rip Picture From Web</legend>
+                Url: <input type="text" id="picture url" class="bigtextfield" onchange="updatePictureUrl()">
+		Name: <input type="text" id="picture name" onchange="updatePictureName()">
+                <button type="button" id="rip url" onclick="ripPictureFromUrl();">Rip</button>
+        </fieldset>
+</div>
+
 <button type="button" class="collapsible" onclick="switchCollapsible(this)">Table Edit</button>
 <div class="content">
 	<fieldset>
