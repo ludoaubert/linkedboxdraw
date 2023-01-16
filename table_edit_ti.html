@@ -124,20 +124,13 @@
 <button type="button" class="collapsible" onclick="switchCollapsible(this)">Pictures</button>
 <div class="content">
         <fieldset>
-                <legend>Picture Name</legend>
-                <input type="text" id="picture name" onchange="updatePictureName()">
-        </fieldset>
+                <legend>Picture Names</legend>
+                Names: <select id="picture names" onchange="currentPictureNameIndex = -1; displayCurrentPictureName()"></select>
 
-        <fieldset>
-                <legend>Rip Picture From Web</legend>
-                Url: <input type="text" id="picture url" class="bigtextfield" onchange="updatePictureUrl()">
-                <button type="button" id="rip url" onclick="ripPictureFromUrl();">Rip</button>
-        </fieldset>
-
-        <fieldset>
-                <legend>Load Picture From Filesystem</legend>
-                Absolute Path: <input type="text" id="picture url" class="bigtextfield" onchange="updatePictureAbsolutePath()">
-                <button type="button" id="load from fs" onclick="loadPictureFromFileSystem();">Load</button>
+                <input type="text" id="new pic name">
+                <button type="button" id="add pic name" onclick="addNewPicture()">Add New Picture</button>
+                <button type="button" id="drop pic name" onclick="dropPicture()">Drop Picture</button>
+                <button type="button" id="update pic name" title="update pic name" onclick="updatePictureName()">Update Picture Name</button>
         </fieldset>
 </div>
 
