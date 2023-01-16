@@ -175,18 +175,18 @@ function expressCutLinks(mydata, mycontexts){
 
 // listing unexpressed link targets - end
 
-	const style = [...fieldColors.map( ({index,box,field,color})=>({index, field, color}) ),
-			...cut_links.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
-				{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
-				{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}])
-					)
-			]
+	const styleMap = new Map(
+		[...fieldColors.map( ({index,box,field,color})=>({index, field, color}) ),
+		...cut_links.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
+			{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
+			{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}])
+			)
+		]
 		.flat()
 		.map(({index, field, color}) => {
 			const fieldIndex = boxes[index].fields.findIndex(f => f.name == field);
-			return `foreignObject#box${index} > table > tbody > tr#b${index}f${fieldIndex}{background-color: ${color};}`;
-		})
-		.join('\n');
+			return [`b${index}f${fieldIndex}`, color];
+		}));
 
-	return style;
+	return styleMap;
 }
