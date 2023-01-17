@@ -128,9 +128,8 @@
 		<input type="text" id="pic source" class="bigtextfield">
 		<br>
                 Names: <select id="pictures" onchange="currentPictureNameIndex = -1; displayCurrentPictureName()"></select>
-
                 <input type="text" id="new pic">
-                <button type="button" id="add pic" onclick="addNewPicture()">Add New Picture</button>
+				<input type="file" id="add pic" accept=".jpeg;.jpg;.png" value="Add New Picture" onchange="loadFile(this, handleReceiveMyPictureEvent)">
                 <button type="button" id="drop pic" onclick="dropPicture()">Drop Picture</button>
                 <button type="button" id="update pic name" title="update pic name" onclick="updatePictureName()">Update Picture Name</button>
 		<br>
