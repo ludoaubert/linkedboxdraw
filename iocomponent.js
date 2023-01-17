@@ -44,6 +44,24 @@ function handleReceiveMyDataEventTi(e) {
 }
 
 
+function handleReceiveMyPictureEvent()
+{
+	currentPictureIndex = mydata.pictures.length;
+
+	const pic = {
+		name: newPictureNameEditField.value,
+		source: pictureSourceEditField.value,
+		base64: getBase64FromUrl(pictureSourceEditField.value)
+	};
+
+	mydata.pictures.push(pic);
+
+	newPictureNameEditField.value = "";
+
+	displayCurrent();
+}
+
+
 function loadFile(element, handleReceiveEvent) {
 	
 	if (element.files && element.files[0]) {
