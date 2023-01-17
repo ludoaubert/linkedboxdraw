@@ -232,7 +232,7 @@ function displayCurrent()
 			if (currentFieldIndex_ == -1)
 				currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.length > 0 ? 0 : -1;
 		}
-
+B
 		currentFieldIndex_ = mydata.boxes[currentBoxIndex_]?.fields?.findIndex(field => field.name == fieldCombo_.value) || -1;
 
 		contexts[index] = {boxCombo_, fieldCombo_, currentBoxIndex_, currentFieldIndex_};
@@ -680,4 +680,11 @@ function dropColor()
 function dropPicture()
 {
 
+}
+
+function displayCurrentPicture()
+{
+	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	const pic = mydata.pictures[currentPictureIndex];
+	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
 }
