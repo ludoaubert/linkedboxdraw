@@ -64,6 +64,7 @@ function handleReceiveMyPictureEvent(e)
 					.join('');
 
 	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+	document.getElementById("pictures").value = name;
 }
 
 
