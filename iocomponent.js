@@ -10,8 +10,8 @@ function handleReceiveMyDataEvent(e) {
 	displayCurrent();
 }
 
-function handleReceiveMyContextsEvent2(e) {
-	
+function handleReceiveMyContextsEvent2(e)
+{
 	contexts = e.target.result;
 	mycontexts = JSON.parse(e.target.result);
 	if (mydata != null && mycontexts != null)
@@ -26,7 +26,7 @@ function handleReceiveMyDataEvent2(e) {
 		data=null;
 		contexts=null;
 		drawDiag();
-	}		
+	}
 }
 
 
@@ -39,7 +39,7 @@ function handleReceiveMyDataEventTi(e) {
 		contexts=null;
 		drawDiag();
 	}
-	currentBoxIndex = -1;	
+	currentBoxIndex = -1;
 	displayCurrent();
 }
 
@@ -48,35 +48,33 @@ function handleReceiveMyPictureEvent(e)
 {
 	data = e.target.result;
 	currentPictureIndex = mydata.pictures.length;
-	
+
 	const name = document.getElementById("add pic").value;
 	const base64 = btoa(e.target.result);
 
 	const pic = {name, base64};
 
 	mydata.pictures.push(pic);
-	
+
 	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
-	
+
 	const pictureComboInnerHTML = mydata.pictures
-										.sort((a, b) => a.name.localeCompare(b.name))
-										.map(pic => "<option>" + pic.name + "</option>")
-										.join('');
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.map(pic => "<option>" + pic.name + "</option>")
+					.join('');
 
 	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
 }
 
 
-function loadFile(element, handleReceiveEvent) {
-	
-	if (element.files && element.files[0]) {
+function loadFile(element, handleReceiveEvent)
+{
 
+	if (element.files && element.files[0]) {
 		var reader = new FileReader();
-		
 		reader.addEventListener('load', handleReceiveEvent);
-		
 		reader.readAsBinaryString(element.files[0]);
-	}   
+	}
 }
 
 

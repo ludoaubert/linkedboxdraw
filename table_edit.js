@@ -679,7 +679,14 @@ function dropColor()
 
 function dropPicture()
 {
+        currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	mydata.pictures.splice(currentPictureIndex, 1);
+	const pictureComboInnerHTML = mydata.pictures
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.map(pic => "<option>" + pic.name + "</option>")
+					.join('');
 
+	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
 }
 
 function displaySelectedPicture()
