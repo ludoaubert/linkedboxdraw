@@ -51,13 +51,15 @@ function handleReceiveMyPictureEvent(e)
 
 	const pic = {
 		name: newPictureNameEditField.value,
-		source: pictureSourceEditField.value,
-		base64: getBase64FromUrl(pictureSourceEditField.value)
+		source: 'titi',
+		base64: btoa(e.target.result)
 	};
 
 	mydata.pictures.push(pic);
 
 	newPictureNameEditField.value = "";
+	
+	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
 
 	displayCurrent();
 }
