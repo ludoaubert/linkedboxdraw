@@ -681,17 +681,19 @@ function dropPicture()
 {
         currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
 	mydata.pictures.splice(currentPictureIndex, 1);
+	if (currentPictureIndex >= mydata.pictures.length)
+		currentPictureIndex--;
 	const pictureComboInnerHTML = mydata.pictures
 					.sort((a, b) => a.name.localeCompare(b.name))
 					.map(pic => "<option>" + pic.name + "</option>")
 					.join('');
 
 	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+        document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
 
 function displaySelectedPicture()
 {
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
-	const pic = mydata.pictures[currentPictureIndex];
-	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
+	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
