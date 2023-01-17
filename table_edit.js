@@ -679,7 +679,7 @@ function dropColor()
 
 function dropPicture()
 {
-        currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
 	mydata.pictures.splice(currentPictureIndex, 1);
 	if (currentPictureIndex >= mydata.pictures.length)
 		currentPictureIndex--;
@@ -689,7 +689,7 @@ function dropPicture()
 					.join('');
 
 	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
-        document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
+	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
 
 function displaySelectedPicture()
