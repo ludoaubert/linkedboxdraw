@@ -48,6 +48,8 @@ function handleReceiveMyPictureEvent(e)
 {
 	data = e.target.result;
 	currentPictureIndex = mydata.pictures.length;
+	
+	const name = document.getElementById("add pic").value;
 
 	const pic = {
 		name: newPictureNameEditField.value,
