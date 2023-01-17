@@ -38,7 +38,6 @@ var colorFieldCombo ;
 var colorCombo ;
 var colorsCombo ;
 var picturesCombo ;
-var pictureSourceEditField ;
 
 
 function newDiagram() {
@@ -174,7 +173,6 @@ function init() {
 	colorCombo = document.getElementById("color");
 	colorsCombo = document.getElementById("colors");
 	picturesCombo = document.getElementById("pictures");
-	pictureSourceEditField = document.getElementById("pic source");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 															.join('');
