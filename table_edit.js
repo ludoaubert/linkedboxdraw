@@ -682,7 +682,7 @@ function dropPicture()
 
 }
 
-function displayCurrentPicture()
+function displaySelectedPicture()
 {
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
 	const pic = mydata.pictures[currentPictureIndex];
