@@ -44,7 +44,7 @@ function handleReceiveMyDataEventTi(e) {
 }
 
 
-function handleReceiveMyPictureEvent(a)
+function handleReceiveMyPictureEvent(e)
 {
 	data = e.target.result;
 	currentPictureIndex = mydata.pictures.length;
