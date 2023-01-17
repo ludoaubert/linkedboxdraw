@@ -57,8 +57,13 @@ function handleReceiveMyPictureEvent(e)
 	mydata.pictures.push(pic);
 	
 	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
+	
+	const pictureComboInnerHTML = mydata.pictures
+										.sort((a, b) => a.name.localeCompare(b.name))
+										.map(pic => "<option>" + pic.name + "</option>")
+										.join('');
 
-	displayCurrent();
+	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
 }
 
 
