@@ -697,3 +697,24 @@ function displaySelectedPicture()
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
 	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
+
+
+function addPictureToSelectedBox()
+{
+	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	mydata.boxes[currentBoxIndex].fields.push(
+		{
+			name: mydata.pictures[currentPictureIndex].name,
+			isPrimaryKey: false,
+			isForeignKey: false,
+			type:"image"
+		}
+	);
+	
+	displayCurrent();
+
+	const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+	mycontexts.rectangles[currentBoxIndex] = rec;
+
+	drawDiag();
+}
