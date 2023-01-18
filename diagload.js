@@ -147,20 +147,18 @@ function deselectElement()
 {
 	console.assert(g.parentElement.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
-	console.log("id=" + id);
 	const selectedContextIndex = g.parentElement.id;
-	console.log("selectedContextIndex=" + selectedContextIndex);
-
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
 	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
-	console.log("tB=" + JSON.stringify(tB));
 
 	const xForms = g.transform.baseVal;// an SVGTransformList
 	const firstXForm = xForms.getItem(0); //an SVGTransform
 	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
 	const translateX = firstXForm.matrix.e;
 	const translateY = firstXForm.matrix.f;
+
+	if (tB.translation.x == translateX && tB.translation.y == translateY)
+		return;
 
 	tB.translation = {"x": translateX, "y": translateY};
 
