@@ -22,7 +22,7 @@ function compute_key_distrib(fields)
 
 function drawComponent(id) {
 
-	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors} = mydata;
+	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors, pictures} = mydata;
 
 	let field2values = {};
 	for (let {box, field, value} of values)
@@ -124,7 +124,17 @@ function drawComponent(id) {
 		prefix = prefix.substring(leading_blanks.length);
 
 		const titleAttribute= tooltip.length!=0 ? `title="${tooltip.join('\n')}"` : '';
-		innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+		
+		if (field?.type == "image")
+		{
+			const pictureIndex = pictures.findIndex(picture => picture.name == field.name);
+			const base64 = pictures[pictureIndex].base64;
+			innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${titleAttribute}><img src="data:image/jpg;base64, ${base64}"></td></tr>`;
+		}
+		else
+		{
+			innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+		}
 	}
 
 	innerHTML += `</tbody></table>`;
