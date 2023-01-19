@@ -168,7 +168,7 @@ function deselectElement()
 {
 	console.assert(g.parentElement.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
-	const selectedContextIndex = g.parentElement.id;
+	const selectedContextIndex = parseInt(g.parentElement.id);
 
 	let tB = mycontexts.contexts[selectedContextIndex].translatedBoxes.find(tB => tB.id == id);
 
