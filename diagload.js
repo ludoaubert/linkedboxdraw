@@ -167,9 +167,10 @@ function deselectElement()
 	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);
 
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-
-	mycontexts.contexts[selectedContextIndex].links = compute_links(selectedContextIndex);
-	drawDiag();
+	
+	const links = compute_links(selectedContextIndex);
+	mycontexts.contexts[selectedContextIndex].links = links;
+	document.getElementById("links_${selectedContextIndex}").innerHTML = drawLinks(links);
 }
 
 
@@ -264,7 +265,7 @@ Elements in an SVG document fragment have an implicit drawing order, with the fi
 Subsequent elements are painted on top of previously painted elements.
 Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted over a small part of the link (after the marker actually).
 */
-	innerHTML += `<g id="links">`;
+	innerHTML += `<g id="links_${selectedContextIndex}">`;
 	innerHTML += drawLinks(links);
 	innerHTML += `</g>`;
 
