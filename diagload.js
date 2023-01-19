@@ -193,6 +193,52 @@ const ZERO_PADDING_SIZE = 4;
 const RECT_STROKE_WIDTH = 6;
 
 
+function drawLinks(links)
+{
+	var innerHTML = "";
+	
+	for (const {from, to, polyline} of links)
+	{
+		let points = [];
+		for (var k=0; k < polyline.length; k++)
+		{
+			const point = polyline[k];
+			if (k == 0)
+				points[k] = "M";
+			else
+				points[k] = "L";
+			points[k] += `${point.x},${point.y}`;
+		}
+		innerHTML += `<path id="${zeroPad(from,ZERO_PADDING_SIZE)}${zeroPad(to,ZERO_PADDING_SIZE)}" d="${points.join(" ")}" fill="none" stroke="black" stroke-width="100"  marker-end="url(#markerArrow)" />`;
+
+		const p1 = polyline[0];
+		const p2 = polyline[1];
+		const p3 = polyline[polyline.length - 2];
+		const p4 = polyline[polyline.length - 1];
+
+		if (p1.y==p2.y && p1.x > p2.x)	// left
+			innerHTML += `<text x="${p1.x-5}" y="${p1.y-5}"></text>`;
+		else if (p1.y==p2.y && p1.x < p2.x) // right
+			innerHTML += `<text x="${p1.x+5}" y="${p1.y-5}"></text>`;
+		else if (p1.x==p2.x && p1.y > p2.y) // up
+			innerHTML += `<text x="${p1.x}" y="${p1.y-5}"></text>`;
+		else if (p1.x==p2.x && p1.y < p2.y) // down
+			innerHTML += `<text x="${p1.x}" y="${p1.y+10+5}"></text>`;
+
+		if (p4.y==p3.y && p4.x > p3.x)	// right
+			innerHTML += `<text x="${p4.x-5}" y="${p4.y+10+5}"></text>`;
+		else if (p4.y==p3.y && p4.x < p3.x) // left
+			innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
+		else if (p4.x==p3.x && p4.y > p3.y) // down
+			innerHTML += `<text x="${p4.x+5}" y="${p4.y-5}"></text>`;
+		else if (p4.x==p3.x && p4.y < p3.y) // up
+			innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
+	}
+
+	return innerHTML;
+}
+
+
 function drawDiagram(drawBoxComponent) {
 
 	const {rectangles} = mycontexts;
@@ -219,45 +265,7 @@ Subsequent elements are painted on top of previously painted elements.
 Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted over a small part of the link (after the marker actually).
 */
 	innerHTML += `<g id="links">`;
-
-		for (const {from, to, polyline} of links)
-		{
-			let points = [];
-			for (var k=0; k < polyline.length; k++)
-			{
-				const point = polyline[k];
-				if (k == 0)
-					points[k] = "M";
-				else
-					points[k] = "L";
-				points[k] += `${point.x},${point.y}`;
-			}
-			innerHTML += `<path id="${zeroPad(from,ZERO_PADDING_SIZE)}${zeroPad(to,ZERO_PADDING_SIZE)}" d="${points.join(" ")}" fill="none" stroke="black" stroke-width="100"  marker-end="url(#markerArrow)" />`;
-
-			const p1 = polyline[0];
-			const p2 = polyline[1];
-			const p3 = polyline[polyline.length - 2];
-			const p4 = polyline[polyline.length - 1];
-
-			if (p1.y==p2.y && p1.x > p2.x)	// left
-				innerHTML += `<text x="${p1.x-5}" y="${p1.y-5}"></text>`;
-			else if (p1.y==p2.y && p1.x < p2.x) // right
-				innerHTML += `<text x="${p1.x+5}" y="${p1.y-5}"></text>`;
-			else if (p1.x==p2.x && p1.y > p2.y) // up
-				innerHTML += `<text x="${p1.x}" y="${p1.y-5}"></text>`;
-			else if (p1.x==p2.x && p1.y < p2.y) // down
-				innerHTML += `<text x="${p1.x}" y="${p1.y+10+5}"></text>`;
-
-			if (p4.y==p3.y && p4.x > p3.x)	// right
-				innerHTML += `<text x="${p4.x-5}" y="${p4.y+10+5}"></text>`;
-			else if (p4.y==p3.y && p4.x < p3.x) // left
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
-			else if (p4.x==p3.x && p4.y > p3.y) // down
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y-5}"></text>`;
-			else if (p4.x==p3.x && p4.y < p3.y) // up
-				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
-		}
-
+	innerHTML += drawLinks(links);
 	innerHTML += `</g>`;
 
 		for (const {id, translation} of translatedBoxes)
