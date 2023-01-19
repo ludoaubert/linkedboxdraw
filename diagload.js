@@ -170,7 +170,7 @@ function deselectElement()
 	
 	const links = compute_links(selectedContextIndex);
 	mycontexts.contexts[selectedContextIndex].links = links;
-	document.getElementById("links_${selectedContextIndex}").innerHTML = drawLinks(links);
+	document.getElementById(`links_${selectedContextIndex}`).innerHTML = drawLinks(links);
 }
 
 
