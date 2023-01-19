@@ -59,6 +59,8 @@ function newDiagram() {
 
 	currentColorBoxIndex = -1;
 	currentColorFieldIndex = -1;
+	
+	currentPictureIndex = -1;
 }
 
 
@@ -280,6 +282,21 @@ function displayCurrent()
 	{
 		fieldCommentTextArea.value = fieldComment ;
 	}
+	
+	const picturesComboInnerHTML = mydata.pictures
+									.sort((a, b) => a.name.localeCompare(b.name))
+									.map(pic => "<option>" + pic.name + "</option>")
+									.join('');
+
+	if (picturesCombo.innerHTML != picturesComboInnerHTML)
+	{
+		picturesCombo.innerHTML = picturesComboInnerHTML;
+		if (currentPictureIndex == -1)
+			currentPictureIndex = mydata.pictures.length > 0 ? 0 : -1;
+	}
+
+	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value) || -1;
+
 }
 
 
@@ -688,7 +705,7 @@ function dropPicture()
 					.map(pic => "<option>" + pic.name + "</option>")
 					.join('');
 
-	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+	picturesCombo.innerHTML = pictureComboInnerHTML;
 	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
 
