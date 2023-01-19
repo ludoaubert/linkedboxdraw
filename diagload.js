@@ -92,7 +92,7 @@ function enforce_bounding_rectangle(selectedContextIndex)
 		translation.y += dy;
 	}
 
-	let matches = document.querySelectorAll(`svg[id="${selectedContextIndex}"] > g[id^="g_"]`);
+	let matches = document.querySelectorAll(`svg[id="${selectedContextIndex}"] > g[id^="g_"].draggable`);
 	for (let g of matches)
 		translate_draggable(g, dx, dy);
 
