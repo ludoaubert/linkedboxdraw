@@ -296,6 +296,8 @@ function displayCurrent()
 	}
 
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value) || -1;
+	
+	displaySelectedPicture();
 
 }
 
