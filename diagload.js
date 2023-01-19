@@ -30,13 +30,33 @@ function selectElement(elmnt,clr)
 
 }
 
+/*
+<svg id="0"
+  <g id="g_0"
+    <rect id="rect_0"
+    <foreignObject id="box0"
+      <table id="0"
+*/
+
+function translate_draggable(g, dx, dy)
+{
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+
+	g.transform.baseVal.getItem(0).setTranslate(translateX+dx, translateY+dy);
+}
+
 
 function moveElement(evt) {
 
 	if (g == 0)
 		return;
 
-	console.log('moveElement');
+	console.assert(g.class == "draggable");
+
 	if (currentX==0 && currentY==0)
 	{
 		currentX = evt.clientX;
@@ -46,20 +66,16 @@ function moveElement(evt) {
 	const dx = evt.clientX - currentX;
 	const dy = evt.clientY - currentY;
 
-	const xForms = g.transform.baseVal;// an SVGTransformList
-	const firstXForm = xForms.getItem(0); //an SVGTransform
-	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
-	const translateX = firstXForm.matrix.e;
-	const translateY = firstXForm.matrix.f;
-
-	g.transform.baseVal.getItem(0).setTranslate(translateX+dx, translateY+dy);
+	translate_draggable(g, dx, dy);
 
 	currentX = evt.clientX;
 	currentY = evt.clientY;
 }
 
-function enforce_bounding_rectangle(context)
+function enforce_bounding_rectangle(selectedContextIndex)
 {
+	let context = mycontexts.contexts[selectedContextIndex];
+
 	const bounding_rectangle = {
 		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].left + tB.translation.x)),
 		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].right + tB.translation.x)),
@@ -67,13 +83,18 @@ function enforce_bounding_rectangle(context)
 		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
 	}
 
-	console.log(JSON.stringify(bounding_rectangle));
+	const dx = - bounding_rectangle.left;
+	const dy = - bounding_rectangle.top;
 
 	for (let {id,translation} of context.translatedBoxes)
 	{
-		translation.x -= bounding_rectangle.left;
-		translation.y -= bounding_rectangle.top;
+		translation.x += dx;
+		translation.y += dy;
 	}
+
+	let matches = document.querySelectorAll(`svg#${selectedContextIndex} > g[id^="g_"]`);
+	for (let g of matches)
+		translate_draggable(g, dx, dy);
 
 	context.frame = {
 			left:0,
@@ -164,10 +185,10 @@ function deselectElement()
 
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
-	enforce_bounding_rectangle(mycontexts.contexts[selectedContextIndex]);
+	enforce_bounding_rectangle(selectedContextIndex);
 
 	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-	
+
 	const links = compute_links(selectedContextIndex);
 	mycontexts.contexts[selectedContextIndex].links = links;
 	document.getElementById(`links_${selectedContextIndex}`).innerHTML = drawLinks(links);
@@ -351,7 +372,7 @@ function ApplyRepartition()
 
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
-		enforce_bounding_rectangle(context);
+		enforce_bounding_rectangle(selectedContextIndex);
 		context.links = compute_links(selectedContextIndex);
 	}
 
