@@ -218,6 +218,8 @@ Elements in an SVG document fragment have an implicit drawing order, with the fi
 Subsequent elements are painted on top of previously painted elements.
 Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted over a small part of the link (after the marker actually).
 */
+	innerHTML += `<g id="links">`;
+
 		for (const {from, to, polyline} of links)
 		{
 			let points = [];
@@ -255,6 +257,8 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			else if (p4.x==p3.x && p4.y < p3.y) // up
 				innerHTML += `<text x="${p4.x+5}" y="${p4.y+10+5}"></text>`;
 		}
+
+	innerHTML += `</g>`;
 
 		for (const {id, translation} of translatedBoxes)
 		{
