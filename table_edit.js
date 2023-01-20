@@ -720,7 +720,7 @@ function displaySelectedPicture()
 }
 
 
-function addPictureToSelectedBox()
+function addSelectedPictureToSelectedBox()
 {
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
 	mydata.boxes[currentBoxIndex].fields.push(
@@ -729,8 +729,8 @@ function addPictureToSelectedBox()
 			isPrimaryKey: false,
 			isForeignKey: false,
 			type:"image",
-			height: currentImageDisplay.style.height,
-			width: currentImageDisplay.style.width
+			height: currentImageDisplay.height,
+			width: currentImageDisplay.width
 		}
 	);
 
