@@ -55,7 +55,7 @@ function moveElement(evt) {
 	if (g == 0)
 		return;
 
-	console.assert(g.class == "draggable");
+	console.assert(g.getAttribute("class") == "draggable");
 
 	if (currentX==0 && currentY==0)
 	{
