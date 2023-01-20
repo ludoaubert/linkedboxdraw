@@ -106,7 +106,7 @@ function enforce_bounding_rectangle(selectedContextIndex)
 			bottom: height
 	};
 	
-	let svgElement = document.getElementById(`svg[id="${selectedContextIndex}"]`);
+	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 	svgElement.setAttribute("viewbox",`0 0 ${width} ${height}`);
 }
 
