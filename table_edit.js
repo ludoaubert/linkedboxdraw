@@ -38,6 +38,7 @@ var colorFieldCombo ;
 var colorCombo ;
 var colorsCombo ;
 var picturesCombo ;
+var currentImageDisplay ;
 
 
 function newDiagram() {
@@ -59,7 +60,7 @@ function newDiagram() {
 
 	currentColorBoxIndex = -1;
 	currentColorFieldIndex = -1;
-	
+
 	currentPictureIndex = -1;
 }
 
@@ -175,6 +176,7 @@ function init() {
 	colorCombo = document.getElementById("color");
 	colorsCombo = document.getElementById("colors");
 	picturesCombo = document.getElementById("pictures");
+	currentImageDisplay = document.getElementById("cid");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 															.join('');
@@ -282,7 +284,7 @@ function displayCurrent()
 	{
 		fieldCommentTextArea.value = fieldComment ;
 	}
-	
+
 	const picturesComboInnerHTML = mydata.pictures
 									.sort((a, b) => a.name.localeCompare(b.name))
 									.map(pic => "<option>" + pic.name + "</option>")
@@ -296,7 +298,7 @@ function displayCurrent()
 	}
 
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value) || -1;
-	
+
 	displaySelectedPicture();
 
 }
@@ -708,13 +710,13 @@ function dropPicture()
 					.join('');
 
 	picturesCombo.innerHTML = pictureComboInnerHTML;
-	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
+	currentImageDisplay.src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
 
 function displaySelectedPicture()
 {
 	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
-	document.getElementById("cid").src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
+	currentImageDisplay.src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
 }
 
 
@@ -726,10 +728,12 @@ function addPictureToSelectedBox()
 			name: mydata.pictures[currentPictureIndex].name,
 			isPrimaryKey: false,
 			isForeignKey: false,
-			type:"image"
+			type:"image",
+			height: currentImageDisplay.style.height,
+			width: currentImageDisplay.style.width
 		}
 	);
-	
+
 	displayCurrent();
 
 	const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
