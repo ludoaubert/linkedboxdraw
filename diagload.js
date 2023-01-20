@@ -95,13 +95,19 @@ function enforce_bounding_rectangle(selectedContextIndex)
 	let matches = document.querySelectorAll(`svg[id="${selectedContextIndex}"] > g[id^="g_"].draggable`);
 	for (let g of matches)
 		translate_draggable(g, dx, dy);
+	
+	const width = bounding_rectangle.right - bounding_rectangle.left ;
+	const height = bounding_rectangle.bottom - bounding_rectangle.top ;
 
 	context.frame = {
 			left:0,
-			right: bounding_rectangle.right - bounding_rectangle.left,
+			right: width,
 			top:0,
-			bottom: bounding_rectangle.bottom - bounding_rectangle.top
+			bottom: height
 	};
+	
+	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
+	svgElement.setAttribute("viewbox",`0 0 ${width} &{height}`);
 }
 
 
