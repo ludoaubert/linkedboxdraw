@@ -55,7 +55,7 @@ function moveElement(evt) {
 	if (g == 0)
 		return;
 
-	console.assert(g.getAttribute("class") == "draggable");
+	console.assert(g.class == "draggable");
 
 	if (currentX==0 && currentY==0)
 	{
@@ -83,33 +83,17 @@ function enforce_bounding_rectangle(selectedContextIndex)
 		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
 	}
 
-	const dx = - bounding_rectangle.left;
-	const dy = - bounding_rectangle.top;
+	context.frame = bounding_rectangles;
 
-	for (let {id,translation} of context.translatedBoxes)
-	{
-		translation.x += dx;
-		translation.y += dy;
-	}
+	const width = width(bounding_rectangles);
+	const height = height(bounding_rectangles);
+	const x = bounding_rectangles.left;
+	const y = bounding_rectangles.top;
 
-	let matches = document.querySelectorAll(`svg[id="${selectedContextIndex}"] > g[id^="g_"].draggable`);
-	for (let g of matches)
-		translate_draggable(g, dx, dy);
-	
-	const width = bounding_rectangle.right - bounding_rectangle.left ;
-	const height = bounding_rectangle.bottom - bounding_rectangle.top ;
-
-	context.frame = {
-			left:0,
-			right: width,
-			top:0,
-			bottom: height
-	};
-	
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 	svgElement.setAttribute("width", `${width}`);
 	svgElement.setAttribute("height", `${height}`);
-	svgElement.setAttribute("viewbox",`0 0 ${width} ${height}`);
+	svgElement.setAttribute("viewbox",`${x} ${y} ${width} ${height}`);
 }
 
 
@@ -191,11 +175,7 @@ function deselectElement()
 
 	tB.translation = {"x": translateX, "y": translateY};
 
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
-
 	enforce_bounding_rectangle(selectedContextIndex);
-
-	console.log(JSON.stringify(mycontexts.contexts[selectedContextIndex].translatedBoxes));
 
 	const links = compute_links(selectedContextIndex);
 	mycontexts.contexts[selectedContextIndex].links = links;
@@ -205,18 +185,18 @@ function deselectElement()
 
 function zeroPad(num, places)
 {
-  const zero = places - num.toString().length + 1;
-  return Array(+(zero > 0 && zero)).join("0") + num;
+	const zero = places - num.toString().length + 1;
+	return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
 function width(rectangle)
 {
-  return rectangle.right - rectangle.left;
+	return rectangle.right - rectangle.left;
 }
 
 function height(rectangle)
 {
-  return rectangle.bottom - rectangle.top;
+	return rectangle.bottom - rectangle.top;
 }
 
 const ZERO_PADDING_SIZE = 4;
@@ -226,7 +206,7 @@ const RECT_STROKE_WIDTH = 6;
 function drawLinks(links)
 {
 	var innerHTML = "";
-	
+
 	for (const {from, to, polyline} of links)
 	{
 		let points = [];
