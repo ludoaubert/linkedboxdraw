@@ -83,12 +83,12 @@ function enforce_bounding_rectangle(selectedContextIndex)
 		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
 	}
 
-	context.frame = bounding_rectangles;
+	context.frame = bounding_rectangle;
 
-	const width = width(bounding_rectangles);
-	const height = height(bounding_rectangles);
-	const x = bounding_rectangles.left;
-	const y = bounding_rectangles.top;
+	const width = width(bounding_rectangle);
+	const height = height(bounding_rectangle);
+	const x = bounding_rectangle.left;
+	const y = bounding_rectangle.top;
 
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 	svgElement.setAttribute("width", `${width}`);
