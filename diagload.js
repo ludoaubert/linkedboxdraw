@@ -72,6 +72,16 @@ function moveElement(evt) {
 	currentY = evt.clientY;
 }
 
+function width(rectangle)
+{
+	return rectangle.right - rectangle.left;
+}
+
+function height(rectangle)
+{
+	return rectangle.bottom - rectangle.top;
+}
+
 function enforce_bounding_rectangle(selectedContextIndex)
 {
 	let context = mycontexts.contexts[selectedContextIndex];
@@ -85,15 +95,15 @@ function enforce_bounding_rectangle(selectedContextIndex)
 
 	context.frame = bounding_rectangle;
 
-	const width = width(bounding_rectangle);
-	const height = height(bounding_rectangle);
+	const width_ = width(bounding_rectangle);
+	const height_ = height(bounding_rectangle);
 	const x = bounding_rectangle.left;
 	const y = bounding_rectangle.top;
 
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
-	svgElement.setAttribute("width", `${width}`);
-	svgElement.setAttribute("height", `${height}`);
-	svgElement.setAttribute("viewbox",`${x} ${y} ${width} ${height}`);
+	svgElement.setAttribute("width", `${width_}`);
+	svgElement.setAttribute("height", `${height_}`);
+	svgElement.setAttribute("viewbox",`${x} ${y} ${width_} ${height_}`);
 }
 
 
@@ -189,15 +199,6 @@ function zeroPad(num, places)
 	return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
-function width(rectangle)
-{
-	return rectangle.right - rectangle.left;
-}
-
-function height(rectangle)
-{
-	return rectangle.bottom - rectangle.top;
-}
 
 const ZERO_PADDING_SIZE = 4;
 const RECT_STROKE_WIDTH = 6;
