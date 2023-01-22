@@ -134,16 +134,21 @@ function enforce_bounding_rectangle(selectedContextIndex)
 
 function compute_links(selectedContextIndex)
 {
-	const frame = mycontexts.contexts[selectedContextIndex].frame;
-	const rectangles = Array.from(mycontexts.contexts[selectedContextIndex].translatedBoxes, (tB, index) => ({
-			id: index,
-			name: mydata.boxes[tB.id].title, //of interest for test data investigations
-			left: mycontexts.rectangles[tB.id].left + tB.translation.x,
-			right: mycontexts.rectangles[tB.id].right + tB.translation.x,
-			top: mycontexts.rectangles[tB.id].top + tB.translation.y,
-			bottom: mycontexts.rectangles[tB.id].bottom + tB.translation.y
-		})
-	);
+	let context = mycontexts.contexts[selectedContextIndex];
+
+	const rectangles = context.translatedBoxes
+				.map(tB => {
+					const r = mycontexts.rectangles[tB.id];
+					const {x, y} = tB.translation;
+					return {
+						left: r.left + x,
+						right: r.right + x,
+						top: r.top + y,
+						bottom: r.bottom + y
+					};
+				});
+
+	const frame = context.frame;
 
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
 
