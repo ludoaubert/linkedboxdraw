@@ -110,10 +110,10 @@ function enforce_bounding_rectangle(selectedContextIndex)
 				});
 
 	const frame_ = {
-		left: Math.min(rectangles.map(r => r.left)),
-		right: Math.max(rectangles.map(r => r.right)),
-		top: Math.min(rectangles.map(r => r.top)),
-		bottom: Math.max(rectangles.map(r => r.bottom))
+		left: Math.min(...rectangles.map(r => r.left)),
+		right: Math.max(...rectangles.map(r => r.right)),
+		top: Math.min(...rectangles.map(r => r.top)),
+		bottom: Math.max(...rectangles.map(r => r.bottom))
 	};
 
 	const frame = expand_by(frame_, FRAME_MARGIN/2);
