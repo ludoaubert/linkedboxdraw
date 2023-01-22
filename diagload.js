@@ -128,7 +128,7 @@ function enforce_bounding_rectangle(selectedContextIndex)
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 	svgElement.setAttribute("width", `${width_}`);
 	svgElement.setAttribute("height", `${height_}`);
-	svgElement.setAttribute("viewbox",`${x} ${y} ${width_} ${height_}`);
+	svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);
 }
 
 
