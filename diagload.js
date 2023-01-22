@@ -7,6 +7,7 @@ var g = 0;
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
+const RECT_BORDER = 20;
 
 
 function selectElement(elmnt,clr)
@@ -82,23 +83,47 @@ function height(rectangle)
 	return rectangle.bottom - rectangle.top;
 }
 
+function expand_by(rect, margin)
+{
+	return {
+		left: rect.left - margin,
+		right: rect.right + margin,
+		top: rect.top - margin,
+		bottom: rect.bottom + margin
+	};
+}
+
 function enforce_bounding_rectangle(selectedContextIndex)
 {
 	let context = mycontexts.contexts[selectedContextIndex];
 
-	const bounding_rectangle = {
-		left:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].left + tB.translation.x)),
-		right:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].right + tB.translation.x)),
-		top:-FRAME_MARGIN/2 + Math.min(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].top + tB.translation.y)),
-		bottom:+FRAME_MARGIN/2 + Math.max(...Array.from(context.translatedBoxes, tB => mycontexts.rectangles[tB.id].bottom + tB.translation.y))
-	}
+	const rectangles = context.translatedBoxes
+				.map(tB => {
+					const r = mycontexts.rectangles[tB.id];
+					const {x, y} = tB.translation;
+					return {
+						left: r.left + x,
+						right: r.right + x,
+						top: r.top + y,
+						bottom: r.bottom + y
+					};
+				});
 
-	context.frame = bounding_rectangle;
+	const frame_ = {
+		left: Math.min(rectangles.map(r => r.left)),
+		right: Math.max(rectangles.map(r => r.right)),
+		top: Math.min(rectangles.map(r => r.top)),
+		bottom: Math.max(rectangles.map(r => r.bottom))
+	};
 
-	const width_ = width(bounding_rectangle);
-	const height_ = height(bounding_rectangle);
-	const x = bounding_rectangle.left;
-	const y = bounding_rectangle.top;
+	const frame = expand_by(frame_, FRAME_MARGIN/2);
+
+	context.frame = frame;
+
+	const width_ = width(frame);
+	const height_ = height(frame);
+	const x = frame.left;
+	const y = frame.top;
 
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 	svgElement.setAttribute("width", `${width_}`);
