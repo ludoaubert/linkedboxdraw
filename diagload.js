@@ -116,7 +116,7 @@ function enforce_bounding_rectangle(selectedContextIndex)
 		bottom: Math.max(...rectangles.map(r => r.bottom))
 	};
 
-	const frame = expand_by(frame_, FRAME_MARGIN/2);
+	const frame = expand_by(frame_, RECT_BORDER + FRAME_MARGIN/2);
 
 	context.frame = frame;
 
