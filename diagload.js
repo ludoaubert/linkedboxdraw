@@ -17,7 +17,7 @@ function selectElement(elmnt)
 
 function deselectElement(elmnt)
 {
-	deselectElement();
+	handleDeselectElement();
 	currentX=0;
 	currentY=0;
 	g=0;
@@ -186,7 +186,7 @@ function compute_links(selectedContextIndex)
 }
 
 
-function deselectElement()
+function handleDeselectElement()
 {
 	console.assert(g.parentElement.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
