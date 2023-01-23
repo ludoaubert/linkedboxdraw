@@ -4,6 +4,7 @@ var mydata;
 var currentX = 0;
 var currentY = 0;
 var g = 0;
+var sizer = 0;
 
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
@@ -21,6 +22,44 @@ function deselectElement(elmnt)
 	currentX=0;
 	currentY=0;
 	g=0;
+}
+
+function selectSizer(elmnt)
+{
+	sizer = elmt;
+}
+
+function deselectSizer(elmnt)
+{
+	currentX=0;
+	currentY=0;
+	sizer = 0;
+}
+
+function moveSizer(evt)
+{
+        if (sizer == 0)
+                return;
+
+        if (currentX==0 && currentY==0)
+        {
+                currentX = evt.clientX;
+                currentY = evt.clientY;
+        }
+
+        const dx = evt.clientX - currentX;
+        const dy = evt.clientY - currentY;
+
+        i = sizer.id.substring("sizer_".length);
+	let fO = document.querySelector(`foreignObject[id=box${i}]`);
+	fO.width += dx;
+	fO.height += dy;
+	let rect = document.querySelector(`rect[id=rect_${i}]`);
+	rect.width += dx;
+	rect.height += dy;
+
+        currentX = evt.clientX;
+        currentY = evt.clientY;
 }
 
 /*
@@ -310,7 +349,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			innerHTML += drawBoxComponent(id);
 
 			innerHTML += `</foreignObject>`
-			innerHTML += `<rect id="sizer_${id}" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />`
+			innerHTML += `<rect id="sizer_${id}" onmousedown="selectSizer(this)" onmouseup="deselectSizer(this)" onmousemove="moveSizer(event)" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />`
 			innerHTML += `</g>`;
 		}
 
