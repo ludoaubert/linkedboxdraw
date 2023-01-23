@@ -311,7 +311,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 			innerHTML += `</foreignObject>`
 			innerHTML += `<rect id="sizer_${id}" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />`
-			`</g>`;
+			innerHTML += `</g>`;
 		}
 
 		innerHTML += `</svg>`;
