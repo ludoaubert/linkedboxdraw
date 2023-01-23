@@ -305,13 +305,13 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 			innerHTML += `<g id="g_${id}" onmousedown="selectElement(this)" onmouseup="deselectElement(this)" onmousemove="moveElement(event)" transform="translate(${translation.x},${translation.y})">
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
-			<rect id="sizer_${id}" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 
 			innerHTML += drawBoxComponent(id);
 
-			innerHTML += `</foreignObject>
-			</g>`;
+			innerHTML += `</foreignObject>`
+			innerHTML += `<rect id="sizer_${id}" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />`
+			`</g>`;
 		}
 
 		innerHTML += `</svg>`;
