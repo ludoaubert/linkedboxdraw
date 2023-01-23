@@ -12,6 +12,10 @@ svg > g {
     cursor: move;
 }
 
+rect[id^=sizer] {
+  cursor: se-resize;
+}
+
 ul{
  list-style-type:none;
  }
