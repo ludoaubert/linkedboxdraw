@@ -26,7 +26,7 @@ function deselectElement(elmnt)
 
 function selectSizer(elmnt)
 {
-	sizer = elmt;
+	sizer = elmnt;
 }
 
 function deselectSizer(elmnt)
@@ -50,7 +50,7 @@ function moveSizer(evt)
         const dx = evt.clientX - currentX;
         const dy = evt.clientY - currentY;
 
-        i = sizer.id.substring("sizer_".length);
+	const i = sizer.id.substring("sizer_".length);
 	let fO = document.querySelector(`foreignObject[id=box${i}]`);
 	fO.width += dx;
 	fO.height += dy;
@@ -58,8 +58,8 @@ function moveSizer(evt)
 	rect.width += dx;
 	rect.height += dy;
 
-        currentX = evt.clientX;
-        currentY = evt.clientY;
+	currentX = evt.clientX;
+	currentY = evt.clientY;
 }
 
 /*
