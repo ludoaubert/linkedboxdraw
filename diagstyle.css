@@ -8,7 +8,7 @@
 }
 
 
-.draggable {
+svg > g {
     cursor: move;
 }
 
