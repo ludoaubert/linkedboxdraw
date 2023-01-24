@@ -400,7 +400,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			innerHTML += drawBoxComponent(id);
 
 			innerHTML += `</foreignObject>`
-			innerHTML += `<rect id="sizer_${id}" onmousedown="selectSizer(this)" onmouseup="deselectSizer(this)" onmousemove="moveSizer(event)" x="${rectangle.right}" y="${rectangle.bottom}" width="5" height="5" />`
+			innerHTML += `<rect id="sizer_${id}" onmousedown="selectSizer(this)" onmouseup="deselectSizer(this)" onmousemove="moveSizer(event)" x="${rectangle.right-4}" y="${rectangle.bottom-4}" width="4" height="4" />`
 			innerHTML += `</g>`;
 		}
 
