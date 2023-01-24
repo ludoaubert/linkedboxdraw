@@ -64,6 +64,12 @@ function moveSizer(evt)
 	
 	rect.setAttribute("width", `${width+dx}`);
 	rect.setAttribute("height", `${height+dy}`);
+	
+	const x = parseInt(sizer.getAttribute("x"));
+	const y = parseInt(sizer.getAttribute("y"));
+	
+	sizer.setAttribute("x", `${x+dx}`);
+	sizer.setAttribute("y", `${y+dy}`);
 
 	currentX = evt.clientX;
 	currentY = evt.clientY;
