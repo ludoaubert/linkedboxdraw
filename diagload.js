@@ -31,6 +31,7 @@ function selectSizer(elmnt)
 
 function deselectSizer(elmnt)
 {
+	handleDeselectSizer();
 	currentX=0;
 	currentY=0;
 	sizer = 0;
@@ -80,7 +81,9 @@ function moveSizer(evt)
   <g id="g_0"
     <rect id="rect_0"
     <foreignObject id="box0"
-      <table id="0"
+      <table id="0"...>
+	<rect id="sizer_0"...>
+  </g>
 */
 
 function translate_draggable(g, dx, dy)
@@ -235,6 +238,41 @@ function compute_links(selectedContextIndex)
 	const links = JSON.parse(jsonResponse)
 						.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
 	return links;
+}
+
+
+function handleDeselectSizer()
+{
+	const i = parseInt(sizer.id.substring('sizer_'.length));
+	const g = sizer.parentElement;
+	const svg = g.parentElement;
+	const selectedContextIndex = parseInt(svg.id);
+	
+	const fO = document.querySelector(`foreignObject[id=box${i}]`);
+	
+	const width_ = parseInt(fO.getAttribute("width"));
+	const height_ = parseInt(fO.getAttribute("height"));
+	
+	const r = mycontexts.rectangles[i];
+
+	if (width(r) == width_ && height(r) == height_)
+		return;
+	
+	const dx = width_ - width(r);
+	const dy = height_ - height(r);
+
+	mycontexts.rectangles[i] = {
+		left: r.left,
+		right: r.right + dx,
+		top: r.top,
+		bottom: r.bottom + dy
+	};
+
+	enforce_bounding_rectangle(selectedContextIndex);
+
+	const links = compute_links(selectedContextIndex);
+	mycontexts.contexts[selectedContextIndex].links = links;
+	document.getElementById(`links_${selectedContextIndex}`).innerHTML = drawLinks(links);
 }
 
 
