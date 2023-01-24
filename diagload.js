@@ -38,25 +38,32 @@ function deselectSizer(elmnt)
 
 function moveSizer(evt)
 {
-        if (sizer == 0)
-                return;
+	if (sizer == 0)
+		return;
 
-        if (currentX==0 && currentY==0)
-        {
-                currentX = evt.clientX;
-                currentY = evt.clientY;
-        }
+	if (currentX==0 && currentY==0)
+	{
+		currentX = evt.clientX;
+		currentY = evt.clientY;
+	}
 
-        const dx = evt.clientX - currentX;
-        const dy = evt.clientY - currentY;
+	const dx = evt.clientX - currentX;
+	const dy = evt.clientY - currentY;
 
 	const i = sizer.id.substring("sizer_".length);
+	
 	let fO = document.querySelector(`foreignObject[id=box${i}]`);
-	fO.width += dx;
-	fO.height += dy;
+	
+	const width = parseInt(fO.getAttribute("width"));
+	const height = parseInt(fO.getAttribute("height"));
+	
+	fO.setAttribute("width", `${width+dx}`);
+	fO.setAttribute("height", `${height+dy}`);
+	
 	let rect = document.querySelector(`rect[id=rect_${i}]`);
-	rect.width += dx;
-	rect.height += dy;
+	
+	rect.setAttribute("width", `${width+dx}`);
+	rect.setAttribute("height", `${height+dy}`);
 
 	currentX = evt.clientX;
 	currentY = evt.clientY;
