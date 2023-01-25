@@ -72,7 +72,7 @@ function download2(filename) {
 
 	const {boxes, links} = mydata;
 
-	const rectangles = boxes.map(box => compute_box_rectangles(box));
+	const rectangles = boxes.map(box => compute_box_rectangle(box));
 
 	const hex = (i,n) => i.toString(16).padStart(n,'0');
 
