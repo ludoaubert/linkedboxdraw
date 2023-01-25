@@ -297,7 +297,7 @@ function displayCurrent()
 			currentPictureIndex = mydata.pictures.length > 0 ? 0 : -1;
 	}
 
-	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value) || -1;
+	currentPictureIndex = mydata?.pictures?.findIndex(picture => picture.name == picturesCombo.value) || -1;
 
 	displaySelectedPicture();
 
@@ -715,8 +715,8 @@ function dropPicture()
 
 function displaySelectedPicture()
 {
-	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
-	currentImageDisplay.src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
+	currentPictureIndex = mydata?.pictures?.findIndex(picture => picture.name == picturesCombo.value) || -1 ;
+	currentImageDisplay.src = "data:image/jpg;base64, " + mydata?.pictures[currentPictureIndex]?.base64 || "";
 }
 
 
