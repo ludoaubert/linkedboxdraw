@@ -285,10 +285,10 @@ function displayCurrent()
 		fieldCommentTextArea.value = fieldComment ;
 	}
 
-	const picturesComboInnerHTML = mydata.pictures
-									.sort((a, b) => a.name.localeCompare(b.name))
-									.map(pic => "<option>" + pic.name + "</option>")
-									.join('');
+	const picturesComboInnerHTML = mydata?.pictures
+									?.sort((a, b) => a.name.localeCompare(b.name))
+									?.map(pic => "<option>" + pic.name + "</option>")
+									?.join('') || "";
 
 	if (picturesCombo.innerHTML != picturesComboInnerHTML)
 	{
