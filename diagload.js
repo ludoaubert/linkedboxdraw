@@ -3,7 +3,7 @@ import sample_diagdata from './diagdata.json' assert {type: 'json'};
 
 
 var mycontexts = sample_contexts;
-var mydata = sample_diagdata;
+export var mydata = sample_diagdata;
 
 var currentX = 0;
 var currentY = 0;

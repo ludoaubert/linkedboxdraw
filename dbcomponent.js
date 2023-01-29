@@ -1,4 +1,4 @@
-
+import {mydata} from "diagload.js";
 
 
 /*TODO: this function is present also in tableinput.html */
