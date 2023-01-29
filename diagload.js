@@ -1,6 +1,5 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
-import {Module} from "./Module.js"
 
 import {init} from "./table_edit.js"
 
