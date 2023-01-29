@@ -532,5 +532,4 @@ function drawRepartition(mydata, mycontexts){
 window.main = function main(){
 	drawDiag();
 	init();
-	displayCurrent();
 }

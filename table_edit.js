@@ -189,6 +189,8 @@ function init() {
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
 				.join('');
+
+	displayCurrent();
 }
 
 
