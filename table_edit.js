@@ -1,4 +1,5 @@
 import { mydata, mycontexts } from "diagload.js";
+export {init};
 
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;

@@ -1,6 +1,8 @@
 import sample_contexts from './contexts.json' assert {type: 'json'};
 import sample_diagdata from './diagdata.json' assert {type: 'json'};
 
+import {init} from "table_edit.js"
+
 
 export var mycontexts = sample_contexts;
 export var mydata = sample_diagdata;
