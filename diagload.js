@@ -4,9 +4,12 @@ import {Module} from "./Module.js"
 
 import {init} from "./table_edit.js"
 
+export {mycontexts, mydata, Module};
 
-export var mycontexts = sample_contexts;
-export var mydata = sample_diagdata;
+var mycontexts = sample_contexts;
+var mydata = sample_diagdata;
+
+var Module;
 
 var currentX = 0;
 var currentY = 0;
@@ -549,6 +552,12 @@ function addEventListeners()
 
 
 window.main = function main(){
+
+	Module = {
+		'print': function(text) { console.log('stdout: ' + text) },
+		'printErr': function(text) { console.log('stderr: ' + text) }
+	};
+
 	drawDiag();
 	init();
 }
