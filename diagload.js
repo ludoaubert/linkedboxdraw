@@ -401,7 +401,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 
-			innerHTML += drawBoxComponent(id);
+			innerHTML += drawBoxComponent(id, mydata);
 
 			innerHTML += `</foreignObject>`
 			innerHTML += `<rect id="sizer_${id}" onmousedown="selectSizer(this)" onmouseup="deselectSizer(this)" onmousemove="moveSizer(event)" x="${rectangle.right-4}" y="${rectangle.bottom-4}" width="4" height="4" />`

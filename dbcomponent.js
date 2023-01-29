@@ -1,5 +1,3 @@
-import {mydata} from "diagload.js";
-
 
 /*TODO: this function is present also in tableinput.html */
 function compute_key_distrib(fields)
@@ -20,7 +18,7 @@ function compute_key_distrib(fields)
 }
 
 
-function drawComponent(id) {
+function drawComponent(id, mydata) {
 
 	const {documentTitle, boxes, values, boxComments, fieldComments, links, fieldColors, pictures} = mydata;
 
@@ -55,12 +53,11 @@ function drawComponent(id) {
 
 	let innerHTML = `<table id="${id}" ${titleAttribute}>`;
 	innerHTML += `<thead>
-					<tr>
-						<th>${box.title}</th>
-					</tr>
-				  </thead>
-				  <tbody>
-				  `;
+			<tr>
+				<th>${box.title}</th>
+			</tr>
+		    </thead>
+		<tbody>`;
 	for (var fieldIndex=0; fieldIndex < box.fields.length; fieldIndex++)
 	{
 		const field = box.fields[fieldIndex];
@@ -124,7 +121,7 @@ function drawComponent(id) {
 		prefix = prefix.substring(leading_blanks.length);
 
 		const titleAttribute= tooltip.length!=0 ? `title="${tooltip.join('\n')}"` : '';
-		
+
 		if (field?.type == "image")
 		{
 			const pictureIndex = pictures.findIndex(picture => picture.name == field.name);
