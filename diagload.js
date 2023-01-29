@@ -399,14 +399,14 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 		{
 			const rectangle = rectangles[id];
 
-			innerHTML += `<g id="g_${id}" onmousedown="selectElement(this)" onmouseup="deselectElement(this)" onmousemove="moveElement(event)" transform="translate(${translation.x},${translation.y})">
+			innerHTML += `<g id="g_${id}" transform="translate(${translation.x},${translation.y})">
 			<rect id="rect_${id}" x="${rectangle.left}" y="${rectangle.top}" width="${width(rectangle)}" height="${height(rectangle)}" />
 			<foreignObject id="box${id}" width="${width(rectangle)}" height="${height(rectangle)}">`;
 
 			innerHTML += drawBoxComponent(id, mydata);
 
 			innerHTML += `</foreignObject>`
-			innerHTML += `<rect id="sizer_${id}" onmousedown="selectSizer(this)" onmouseup="deselectSizer(this)" onmousemove="moveSizer(event)" x="${rectangle.right-4}" y="${rectangle.bottom-4}" width="4" height="4" />`
+			innerHTML += `<rect id="sizer_${id}" x="${rectangle.right-4}" y="${rectangle.bottom-4}" width="4" height="4" />`
 			innerHTML += `</g>`;
 		}
 
@@ -528,8 +528,26 @@ function drawRepartition(mydata, mycontexts){
 	return innerHTML;
 }
 
+function addEventListeners()
+{
+	document.querySelectorAll("svg > g[id^=g_]")
+		.forEach(g => {
+			g.addEventListener("onmousedown", function(this){selectElement(this);});
+			g.addEventListener("onmouseup", function(this){deselectElement(this);});
+			g.addEventListener("onmousemove", function(this){moveElement(event);});
+		});
+
+	document.querySelectorAll("g > rect[id^=sizer_]")
+		.forEach(g => {
+			g.addEventListener("onmousedown", function(this){selectSizer(this);});
+			g.addEventListener("onmouseup", function(this){deselectSizer(this);});
+			g.addEventListener("onmousemove", function(this){moveSizer(event);});
+		});
+}
+
 
 window.main = function main(){
 	drawDiag();
+	addEventListeners();
 	init();
 }
