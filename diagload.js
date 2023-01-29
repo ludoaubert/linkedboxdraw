@@ -421,6 +421,7 @@ function drawDiag()
 {
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
+	addEventListeners();
 	const styleMap = expressCutLinks(mydata, mycontexts);
 	for (const [id, color] of styleMap)
 	{
@@ -548,6 +549,5 @@ function addEventListeners()
 
 window.main = function main(){
 	drawDiag();
-	addEventListeners();
 	init();
 }
