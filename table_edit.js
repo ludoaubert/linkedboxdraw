@@ -1,4 +1,4 @@
-import { mydata, mycontexts, Module } from "./diagload.js";
+import {mydata, mycontexts} from "./diagload.js";
 export {init};
 
 var currentBoxIndex = -1;
