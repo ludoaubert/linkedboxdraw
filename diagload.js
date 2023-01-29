@@ -1,3 +1,7 @@
+import sample_contexts from './contexts.json' assert {type: 'json'};
+import sample_diagdata from './diagdata.json' assert {type: 'json'};
+
+
 var mycontexts;
 var mydata;
 
