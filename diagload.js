@@ -2,7 +2,7 @@ import sample_contexts from './contexts.json' assert {type: 'json'};
 import sample_diagdata from './diagdata.json' assert {type: 'json'};
 
 
-var mycontexts;
+export var mycontexts;
 var mydata;
 
 var currentX = 0;
@@ -56,23 +56,23 @@ function moveSizer(evt)
 	const dy = evt.clientY - currentY;
 
 	const i = sizer.id.substring("sizer_".length);
-	
+
 	let fO = document.querySelector(`foreignObject[id=box${i}]`);
-	
+
 	const width = parseInt(fO.getAttribute("width"));
 	const height = parseInt(fO.getAttribute("height"));
-	
+
 	fO.setAttribute("width", `${width+dx}`);
 	fO.setAttribute("height", `${height+dy}`);
-	
+
 	let rect = document.querySelector(`rect[id=rect_${i}]`);
-	
+
 	rect.setAttribute("width", `${width+dx}`);
 	rect.setAttribute("height", `${height+dy}`);
-	
+
 	const x = parseInt(sizer.getAttribute("x"));
 	const y = parseInt(sizer.getAttribute("y"));
-	
+
 	sizer.setAttribute("x", `${x+dx}`);
 	sizer.setAttribute("y", `${y+dy}`);
 
@@ -251,17 +251,17 @@ function handleDeselectSizer()
 	const g = sizer.parentElement;
 	const svg = g.parentElement;
 	const selectedContextIndex = parseInt(svg.id);
-	
+
 	const fO = document.querySelector(`foreignObject[id=box${i}]`);
-	
+
 	const width_ = parseInt(fO.getAttribute("width"));
 	const height_ = parseInt(fO.getAttribute("height"));
-	
+
 	const r = mycontexts.rectangles[i];
 
 	if (width(r) == width_ && height(r) == height_)
 		return;
-	
+
 	const dx = width_ - width(r);
 	const dy = height_ - height(r);
 
@@ -415,7 +415,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 }
 
 
-function drawDiag()
+export function drawDiag()
 {
 	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
