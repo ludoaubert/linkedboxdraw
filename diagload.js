@@ -538,10 +538,10 @@ function addEventListeners()
 		});
 
 	document.querySelectorAll("g > rect[id^=sizer_]")
-		.forEach(g => {
-			g.addEventListener("onmousedown", function(event){selectSizer(g);});
-			g.addEventListener("onmouseup", function(event){deselectSizer(g);});
-			g.addEventListener("onmousemove", function(event){moveSizer(event);});
+		.forEach(sizer => {
+			sizer.addEventListener("onmousedown", function(event){selectSizer(sizer);});
+			sizer.addEventListener("onmouseup", function(event){deselectSizer(sizer);});
+			sizer.addEventListener("onmousemove", function(event){moveSizer(event);});
 		});
 }
 
