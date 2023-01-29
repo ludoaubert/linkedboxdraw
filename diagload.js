@@ -532,6 +532,5 @@ function drawRepartition(mydata, mycontexts){
 window.main = function main(){
 	drawDiag();
 	init();
-	currentBoxIndex = -1;
 	displayCurrent();
 }

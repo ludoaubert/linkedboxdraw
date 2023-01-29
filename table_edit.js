@@ -181,14 +181,14 @@ function init() {
 	currentImageDisplay = document.getElementById("cid");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
-															.join('');
+							.join('');
 	fromCardinalityCombo.innerHTML = innerHTML;
 	toCardinalityCombo.innerHTML = innerHTML;
 
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
-								.join('');
+				.join('');
 }
 
 
