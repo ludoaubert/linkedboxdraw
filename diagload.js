@@ -532,16 +532,16 @@ function addEventListeners()
 {
 	document.querySelectorAll("svg > g[id^=g_]")
 		.forEach(g => {
-			g.addEventListener("onmousedown", function(this){selectElement(this);});
-			g.addEventListener("onmouseup", function(this){deselectElement(this);});
-			g.addEventListener("onmousemove", function(this){moveElement(event);});
+			g.addEventListener("onmousedown", function(event){selectElement(g);});
+			g.addEventListener("onmouseup", function(event){deselectElement(g);});
+			g.addEventListener("onmousemove", function(event){moveElement(event);});
 		});
 
 	document.querySelectorAll("g > rect[id^=sizer_]")
 		.forEach(g => {
-			g.addEventListener("onmousedown", function(this){selectSizer(this);});
-			g.addEventListener("onmouseup", function(this){deselectSizer(this);});
-			g.addEventListener("onmousemove", function(this){moveSizer(event);});
+			g.addEventListener("onmousedown", function(event){selectSizer(g);});
+			g.addEventListener("onmouseup", function(event){deselectSizer(g);});
+			g.addEventListener("onmousemove", function(event){moveSizer(event);});
 		});
 }
 
