@@ -2,8 +2,8 @@ import sample_contexts from './contexts.json' assert {type: 'json'};
 import sample_diagdata from './diagdata.json' assert {type: 'json'};
 
 
-export var mycontexts;
-var mydata;
+var mycontexts = sample_contexts;
+var mydata = sample_diagdata;
 
 var currentX = 0;
 var currentY = 0;

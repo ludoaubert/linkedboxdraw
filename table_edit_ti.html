@@ -11,41 +11,11 @@
 		  'print': function(text) { console.log('stdout: ' + text) },
 		  'printErr': function(text) { console.log('stderr: ' + text) }
 		};
-		
-		var xmlhttp1 = new XMLHttpRequest();
-		var data_url = "diagdata.json";
 
-		xmlhttp1.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				mydata = JSON.parse(this.responseText);
-				if (mycontexts != null)
-					drawDiag();
-				init();
-				currentBoxIndex = -1;
-				displayCurrent();
-			}
-		};
-		xmlhttp1.open("GET", data_url, true);
-		xmlhttp1.send();
-		
-
-		var xmlhttp2 = new XMLHttpRequest();
-		var contexts_url = "contexts.json";
-
-		xmlhttp2.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				mycontexts = JSON.parse(this.responseText);
-				if (mydata != null)
-				{
-					drawDiag();
-					init();
-					currentBoxIndex = -1;
-					displayCurrent();
-				}
-			}
-		};
-		xmlhttp2.open("GET", contexts_url, true);
-		xmlhttp2.send();
+		drawDiag();
+		init();
+		currentBoxIndex = -1;
+		displayCurrent();
 	}
     </script>
 	<script type="text/javascript" src="latuile-origine.js"></script>
