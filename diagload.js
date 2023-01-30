@@ -1,8 +1,8 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
-import {createMyModule} from "./latuile-origine.js"
-import {init} from "./table_edit.js"
+import {createMyModule} from "./latuile-origine.js";
+import {init} from "./table_edit.js";
 
 export {mycontexts, mydata};
 
