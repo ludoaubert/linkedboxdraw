@@ -1,6 +1,7 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
+import {Module} from "./latuile-origine.js"
 import {init} from "./table_edit.js"
 
 export {mycontexts, mydata};
@@ -240,11 +241,13 @@ function compute_links(selectedContextIndex)
 
 //logging call input to produce test data for further investigations...
 	console.log({rectangles, frame});
-	bombix=Module.cwrap("bombix","string",["string","string","string","string"])
-	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
-	const links = JSON.parse(jsonResponse)
-						.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
-	return links;
+	Module().then(function(mymod) {
+		const bombix = mymod.cwrap("bombix","string",["string","string","string","string"])
+		const jsonResponse = bombix(rectdim, translations, sframe, slinks);
+		const links = JSON.parse(jsonResponse)
+				.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
+		return links;
+	});
 }
 
 
