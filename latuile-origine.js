@@ -1,10 +1,10 @@
 
-var Module = (function() {
+var createMyModule = (function() {
   var _scriptDir = import.meta.url;
   
   return (
-function(Module) {
-  Module = Module || {};
+function(createMyModule) {
+  createMyModule = createMyModule || {};
 
 
 
@@ -21,7 +21,7 @@ function(Module) {
 // after the generated code, you will need to define   var Module = {};
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
-var Module = typeof Module !== 'undefined' ? Module : {};
+var Module = typeof createMyModule !== 'undefined' ? createMyModule : {};
 
 // Set up the promise that indicates the Module is initialized
 var readyPromiseResolve, readyPromiseReject;
@@ -5578,8 +5578,8 @@ run();
 
 
 
-  return Module.ready
+  return createMyModule.ready
 }
 );
 })();
-export default Module;
+export default createMyModule;
