@@ -552,7 +552,9 @@ function addEventListeners()
 
 window.main = function main()
 {
-	var Module = createMyModule();
+	createMyModule().then(mod){
+		var Module = mod;
+	}
 	drawDiag();
 	init();
 }
