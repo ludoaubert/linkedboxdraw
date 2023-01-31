@@ -242,7 +242,6 @@ function compute_links(selectedContextIndex)
 //logging call input to produce test data for further investigations...
 	console.log({rectangles, frame});
 
-	let Module = createMyModule();
 	const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
 	const links = JSON.parse(jsonResponse)
@@ -553,6 +552,7 @@ function addEventListeners()
 
 window.main = function main()
 {
+	var Module = createMyModule();
 	drawDiag();
 	init();
 }
