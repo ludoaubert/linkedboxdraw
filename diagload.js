@@ -241,13 +241,13 @@ function compute_links(selectedContextIndex)
 
 //logging call input to produce test data for further investigations...
 	console.log({rectangles, frame});
-	createMyModule().then(function(Module) {
-		const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
-		const jsonResponse = bombix(rectdim, translations, sframe, slinks);
-		const links = JSON.parse(jsonResponse)
+
+	let Module = createMyModule();
+	const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
+	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
+	const links = JSON.parse(jsonResponse)
 				.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
-		return links;
-	});
+	return links;
 }
 
 
