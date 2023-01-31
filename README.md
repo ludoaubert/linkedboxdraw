@@ -4,7 +4,7 @@
 
 Typical use case:
 
-Just been hired on a software or data project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
+Just been hired on a software (or data) project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
 To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
 In the case of relational diagrams, there are some SQL scripts that are available to produce a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
