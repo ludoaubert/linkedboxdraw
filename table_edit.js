@@ -243,7 +243,7 @@ function init() {
 	gfi.addEventListener("change", (event) => loadFile(gfi, handleReceiveMyContextsEvent2));
 	let gfo = document.querySelector("input[id=gfo]");
 	gfo.addEventListener("click", (event) => download(gfo.previousElementSibling.value, mycontexts));
-	
+
 	picturesCombo.addEventListener("change", (event) => {currentPictureIndex = -1; displayCurrent();});
 	let add_pic = document.querySelector("input[id=add_pic]");
 	add_pic.addEventListener("change", (event) => loadFile(add_pic, handleReceiveMyPictureEvent));
@@ -251,41 +251,41 @@ function init() {
 	drop_pic.addEventListener("click", (event) => dropPicture());
 	let add_pic_to_box = document.querySelector("button[id=add_pic_to_box]");
 	add_pic_to_box.addEventListener("click", (event) => addSelectedPictureToSelectedBox());
-	
+
 	editTitle.addEventListener("change", (event) => updateTitle());
-	newDiagram.addEventListener("click", (event) => {newDiagram(); displayCurrent(); drawDiag();});
+	newDiagramButton.addEventListener("click", (event) => {newDiagram(); displayCurrent(); drawDiag();});
 	boxCombo.addEventListener("change", (event) => {currentBoxIndex = -1; displayCurrent();});
-	addBox.addEventListener("click", (event) => addNewBox());
-	dropBox.addEventListener("click", (event) => dropBox());
-	updateBox.addEventListener("click", (event) => updateBox());
-	updateBoxComment.addEventListener("click", (event) => updateBoxComment()) ;
-	dropBoxComment.addEventListener("click", (event) => dropBoxComment()) ;
+	addBoxButton.addEventListener("click", (event) => addNewBox());
+	dropBoxButton.addEventListener("click", (event) => dropBox());
+	updateBoxButton.addEventListener("click", (event) => updateBox());
+	updateBoxCommentButton.addEventListener("click", (event) => updateBoxComment()) ;
+	dropBoxCommentButton.addEventListener("click", (event) => dropBoxComment()) ;
 	fieldCombo.addEventListener("change", (event) => {currentFieldIndex = -1; displayCurrent();});
-	addField.addEventListener("click", (event) => addNewFieldToBox()) ;
-	dropField.addEventListener("click", (event) => dropFieldFromBox()) ;
-	updateField.addEventListener("click", (event) => updateField()) ;
-	addPicToBox2.addEventListener("click" => (event) => addSelectedPictureToSelectedBox()) ;
-	updateFieldComment.addEventListener("click", (event) => updateFieldComment());
-	dropFieldComment.addEventListener("click", (event) => dropFieldComment());
+	addFieldButton.addEventListener("click", (event) => addNewFieldToBox()) ;
+	dropFieldButton.addEventListener("click", (event) => dropFieldFromBox()) ;
+	updateFieldButton.addEventListener("click", (event) => updateField()) ;
+	addPicToBox2Button.addEventListener("click" => (event) => addSelectedPictureToSelectedBox()) ;
+	updateFieldCommentButton.addEventListener("click", (event) => updateFieldComment());
+	dropFieldCommentButton.addEventListener("click", (event) => dropFieldComment());
 	valueCombo.addEventListener("change", (event) => updateValueAttributes());
-	editValue.addEventListener("click", (event) => editValueFromField());
-	addValue.addEventListener("click", (event) => addNewValueToField());
-	dropValue.addEventListener("click", (event) => dropValueFromField());
-	updateValue.addEventListener("click", (event) => updateValue());
+	editValueButton.addEventListener("click", (event) => editValueFromField());
+	addValueButton.addEventListener("click", (event) => addNewValueToField());
+	dropValueButton.addEventListener("click", (event) => dropValueFromField());
+	updateValueButton.addEventListener("click", (event) => updateValue());
 	linkCombo.addEventListener("click", (event) => linkComboOnClick());
-	dropLink.addEventListener("click", (event) => {linkComboOnClick(); dropLink();});
+	dropLinkButton.addEventListener("click", (event) => {linkComboOnClick(); dropLink();});
 	fromBoxCombo.addEventListener("change", (event) => {currentFromBoxIndex = -1; displayCurrent();});
 	fromFieldCombo.addEventListener("change", (event) => {currentFromFieldIndex = -1; displayCurrent();});
 	toBoxCombo.addEventListener("change", (event) => {currentToBoxIndex = -1; displayCurrent();});
 	toFieldCombo.addEventListener("change", (event) => {currentToFieldIndex = -1; displayCurrent();});
-	addLink.addEventListener("click", (event) => addNewLink()) ;
-	updateLink.addEventListener("click", (event => updateLink()) ;
+	addLinkButton.addEventListener("click", (event) => addNewLink()) ;
+	updateLinkButton.addEventListener("click", (event => updateLink()) ;
 	colorsCombo.addEventListener("click", (event) => colorsComboOnClick());
-	dropColor.addEventListener("click", (event) => dropColor());
+	dropColorButton.addEventListener("click", (event) => dropColor());
 	colorBoxCombo.addEventListener("change", (event) => {currentColorBoxIndex = -1; displayCurrent();});
 	colorFieldCombo.addEventListener("change", (event) => {currentColorFieldIndex = -1; displayCurrent();});
-	addColor.addEventListener("click", (event) => addNewColor());
-	updateColor.addEventListener("click", (event) => updateColor());
+	addColorButton.addEventListener("click", (event) => addNewColor());
+	updateColorButton.addEventListener("click", (event) => updateColor());
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
