@@ -3835,7 +3835,7 @@ const char* bombix(const char *rectdim,
 }
 }
 /*
-/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix-origine.cpp -o bombix-origine.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1
+/var/www/projects/ludo$ emcc ~/linkedboxdraw/bombix-origine.cpp -o bombix-origine.html -s EXPORTED_FUNCTIONS='["_bombix"]' -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' -s ALLOW_MEMORY_GROWTH=1 -s EXPORT_ES6=1 -sMODULARIZE -s 'EXPORT_NAME="createMyModule"'
 puis dans https://dev.diskloud.fr/ludo/bombix.html
 
 bombix=Module.cwrap("bombix","string",["string","string","string","string"])
