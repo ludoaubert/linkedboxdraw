@@ -550,11 +550,13 @@ function addEventListeners()
 }
 
 
+export var Module;
+
 window.main = function main()
 {
-	createMyModule().then(mod){
-		var Module = mod;
-	}
+	createMyModule().then(function(mymod){
+		Module = mymod;
+	});
 	drawDiag();
 	init();
 }
