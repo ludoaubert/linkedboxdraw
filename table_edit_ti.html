@@ -39,18 +39,18 @@
       </li>
     </ul>
 
-<button type="button" class="collapsible" onclick="switchCollapsible(this)">Input Output</button>
+<button type="button" class="collapsible">Input Output</button>
 <div class="content">
 	<fieldset>
 		<legend>Data File Input</legend>
-		<input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyDataEventTi)">
+		<input id="dfi" type="file" accept=".json" value="Load">
 	</fieldset>
 
 	<fieldset>
 		<legend>Data File Output</legend>
 		<form onsubmit="return false">
 		  <input type="text" value="diagdata.json">
-		  <input type="submit" value="Save As" onclick="download(this.previousElementSibling.value, mydata)">
+		  <input id="dfo" type="submit" value="Save As">
 		</form>
 	</fieldset>
 
@@ -58,32 +58,32 @@
 		<legend>Compute Geometry File From Data File</legend>
 		<form onsubmit="return false">
 		  <input type="text" value="contexts.json">
-		  <input type="submit" value="Compute Save and Load" onclick="download2(this.previousElementSibling.value); drawDiag();">
+		  <input id="csl" type="submit" value="Compute Save and Load">
 		</form>
 	</fieldset>
 	
 	<fieldset>
 		<legend>Geometry File Input</legend>
-		<input type="file" accept=".json" value="Load" onchange="loadFile(this, handleReceiveMyContextsEvent2)"></li>
+		<input id="gfi" type="file" accept=".json" value="Load"></li>
 	</fieldset>
 
 	<fieldset>
 		<legend>Geometry File Output</legend>
 		<form onsubmit="return false">		
 		  <input type="text" name="name" value="contexts.json">
-		  <input type="submit" value="Save File As" onclick="download(this.previousElementSibling.value, mycontexts)">
+		  <input id="gfo" type="submit" value="Save File As">
 		</form>
 	</fieldset>
 	
 </div>
 
-<button type="button" class="collapsible" onclick="switchCollapsible(this)">Pictures</button>
+<button type="button" class="collapsible">Pictures</button>
 <div class="content">
         <fieldset>
-                Names: <select id="pictures" onchange="currentPictureIndex = -1; displayCurrent()"></select>
-				<input type="file" id="add pic" accept="image/*" value="Add New Picture" onchange="loadFile(this, handleReceiveMyPictureEvent)">
-                <button type="button" id="drop pic" onclick="dropPicture()">Drop Picture</button>
-				<button type="button" id="add pic to box" onclick="addSelectedPictureToSelectedBox()">Add Picture To Selected Box</button>
+                Names: <select id="pictures"></select>
+				<input type="file" id="add_pic" accept="image/*" value="Add New Picture">
+                <button type="button" id="drop_pic">Drop Picture</button>
+				<button type="button" id="add_pic_to_box">Add Picture To Selected Box</button>
 				<br>
 				<img id="cid" src="data:image/jpeg;
       data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQ
@@ -118,101 +118,101 @@
         </fieldset>
 </div>
 
-<button type="button" class="collapsible" onclick="switchCollapsible(this)">Table Edit</button>
+<button type="button" class="collapsible">Table Edit</button>
 <div class="content">
 	<fieldset>
 		<legend>Diagram Title</legend>
-		<input type="text" id="title" class="bigtextfield" onchange="updateTitle()">
-		<button type="button" id="new diagram" onclick="newDiagram(); displayCurrent(); drawDiag();">New Diagram</button>
+		<input type="text" id="title" class="bigtextfield">
+		<button type="button" id="new diagram">New Diagram</button>
 	</fieldset>
 
 	<fieldset>
 		<legend>Boxes</legend>
-		Boxes: <select id="boxes" onchange="currentBoxIndex = -1; displayCurrent();"></select>
+		Boxes: <select id="boxes"></select>
 
 		<input type="text" id="new box">
 
-		<button type="button" id="add box" onclick="addNewBox()">Add New Box</button>
-		<button type="button" id="drop box" onclick="dropBox()">Drop Box</button>
-		<button type="button" id="update box" title="update box name" onclick="updateBox()">Update Box</button>
+		<button type="button" id="add box">Add New Box</button>
+		<button type="button" id="drop box">Drop Box</button>
+		<button type="button" id="update box" title="update box name">Update Box</button>
 
 		<p>Box Comments</p>
 		<textarea id="box comment" cols="80" rows="5"></textarea>
 		<br>
-		<button type="button" id="update box comment" onclick="updateBoxComment()">Update Box Comment</button>
-		<button type="button" id="drop box comment" onclick="dropBoxComment()">Drop Box Comment</button>
+		<button type="button" id="update box comment">Update Box Comment</button>
+		<button type="button" id="drop box comment">Drop Box Comment</button>
 	</fieldset>
 
 	<fieldset>
 		<legend>Box Fields</legend>
-		Fields: <select id="fields" onchange="currentFieldIndex = -1; displayCurrent()"></select>
+		Fields: <select id="fields"></select>
 
 		<input type="text" id="new field">
 		<input type="checkbox" id="PK">Primary Key</input>
 		<input type="checkbox" id="FK">Foreign Key</input>
-		<button type="button" id="add field" onclick="addNewFieldToBox()">Add New Field To Box</button>
-		<button type="button" id="drop field" onclick="dropFieldFromBox()">Drop Field From Box</button>
-		<button type="button" id="update field" title="update field name" onclick="updateField()">Update Field</button>
-		<button type="button" id="add pic to box 2" onclick="addSelectedPictureToSelectedBox()">Add Selected Picture To Box</button>
+		<button type="button" id="add field">Add New Field To Box</button>
+		<button type="button" id="drop field">Drop Field From Box</button>
+		<button type="button" id="update field" title="update field name">Update Field</button>
+		<button type="button" id="add pic to box 2">Add Selected Picture To Box</button>
 		
 		<p>Field Comment</p>
 		<textarea id="field comment" cols="80" rows="5"></textarea>
 		<br>
-		<button type="button" id="update field comment" onclick="updateFieldComment()">Update Field Comment</button>
-		<button type="button" id="drop field comment" onclick="dropFieldComment()">Drop Field Comment</button>
+		<button type="button" id="update field comment">Update Field Comment</button>
+		<button type="button" id="drop field comment">Drop Field Comment</button>
 	</fieldset>
 		
 	<fieldset>
 		<legend>Field Values</legend>
 
-		Values: <select id="values" onchange="updateValueAttributes()"></select>
+		Values: <select id="values"></select>
 
 		<input type="text" id="new value">
-		<button type="button" id="edit value" title="load combo value into edit field" onclick="editValueFromField()">Edit Value From Field</button>
-		<button type="button" id="add value" onclick="addNewValueToField()">Add New Value To Field</button>
-		<button type="button" id="drop value" onclick="dropValueFromField()">Drop Value From Field</button>
-		<button type="button" id="update value" onclick="updateValue()">Update Value</button>
+		<button type="button" id="edit value" title="load combo value into edit field">Edit Value From Field</button>
+		<button type="button" id="add value">Add New Value To Field</button>
+		<button type="button" id="drop value">Drop Value From Field</button>
+		<button type="button" id="update value">Update Value</button>
 	</fieldset>
 
 
 	<fieldset>
 		<legend>Box Links</legend>
-		Links: <select id="links" onclick="linkComboOnClick()" class="bigselect"></select>
-		<button type="button" id="drop link" onclick="linkComboOnClick(); dropLink();">Drop Link</button>
+		Links: <select id="links" class="bigselect"></select>
+		<button type="button" id="drop link">Drop Link</button>
 		<br>
-		From Box: <select id="from boxes" onchange="currentFromBoxIndex = -1; displayCurrent();"></select>
-		From Field: <select id="from fields" onchange="currentFromFieldIndex = -1; displayCurrent();"></select>
+		From Box: <select id="from boxes"></select>
+		From Field: <select id="from fields"></select>
 		From Cardinality: <select id="from cardinality" class="cardinality_select"></select>
 		<br>
-		To Box: <select id="to boxes"  onchange="currentToBoxIndex = -1; displayCurrent();"></select>
-		To Field: <select id="to fields" onchange="currentToFieldIndex = -1; displayCurrent();"></select>
+		To Box: <select id="to boxes"></select>
+		To Field: <select id="to fields"></select>
 		To Cardinality: <select id="to cardinality" class="cardinality_select"></select>
 		<br>
 		Category: <select id="category"><option value=""></option><option value="TR2">TR2</option></select>
 		<br>
-		<button id="add link" type="button" onclick="addNewLink()">Add New Link</button>
-		<button id="update link" type="button" onclick="updateLink()">Update Link</button>
+		<button id="add link" type="button">Add New Link</button>
+		<button id="update link" type="button">Update Link</button>
 	</fieldset>
 
 	<fieldset>
 		<legend>Field Colors</legend>
-		Colors: <select id="colors" onclick="colorsComboOnClick()" class="bigselect"></select>
-		<button id="drop color" type="button" onclick="dropColor()">Drop Color</button>
+		Colors: <select id="colors" class="bigselect"></select>
+		<button id="drop color" type="button">Drop Color</button>
 		<br>
-		Box: <select id="color boxes" onchange="currentColorBoxIndex = -1; displayCurrent();"></select>
-		Field: <select id="color fields" onchange="currentColorFieldIndex = -1; displayCurrent();"></select>
+		Box: <select id="color boxes"></select>
+		Field: <select id="color fields"></select>
 		Color: <select id="color"></select>
 
-		<button id="add color" type="button" onclick="addNewColor()">Add New Color</button>
-		<button id="update color" type="button" onclick="updateColor()">Update Color</button>	
+		<button id="add color" type="button">Add New Color</button>
+		<button id="update color" type="button">Update Color</button>	
 	</fieldset>
 </div>
 
-<button type="button" class="collapsible" onclick="switchCollapsible(this)">Repartition</button>
+<button type="button" class="collapsible">Repartition</button>
 <div id="repartitionc" class="content">
 </div>
 
-<button type="button" class="collapsible active" onclick="switchCollapsible(this)">Diagram</button>
+<button type="button" class="collapsible active">Diagram</button>
 <div id="diagram" class="content">
 </div>
 	
