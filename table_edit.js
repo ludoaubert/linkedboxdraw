@@ -279,7 +279,7 @@ function init() {
 	toBoxCombo.addEventListener("change", (event) => {currentToBoxIndex = -1; displayCurrent();});
 	toFieldCombo.addEventListener("change", (event) => {currentToFieldIndex = -1; displayCurrent();});
 	addLinkButton.addEventListener("click", (event) => addNewLink()) ;
-	updateLinkButton.addEventListener("click", (event => updateLink()) ;
+	updateLinkButton.addEventListener("click", (event) => updateLink()) ;
 	colorsCombo.addEventListener("click", (event) => colorsComboOnClick());
 	dropColorButton.addEventListener("click", (event) => dropColor());
 	colorBoxCombo.addEventListener("change", (event) => {currentColorBoxIndex = -1; displayCurrent();});
