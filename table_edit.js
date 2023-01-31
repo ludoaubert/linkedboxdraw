@@ -264,7 +264,7 @@ function init() {
 	addFieldButton.addEventListener("click", (event) => addNewFieldToBox()) ;
 	dropFieldButton.addEventListener("click", (event) => dropFieldFromBox()) ;
 	updateFieldButton.addEventListener("click", (event) => updateField()) ;
-	addPicToBox2Button.addEventListener("click" => (event) => addSelectedPictureToSelectedBox()) ;
+	addPicToBox2Button.addEventListener("click", (event) => addSelectedPictureToSelectedBox()) ;
 	updateFieldCommentButton.addEventListener("click", (event) => updateFieldComment());
 	dropFieldCommentButton.addEventListener("click", (event) => dropFieldComment());
 	valueCombo.addEventListener("change", (event) => updateValueAttributes());
