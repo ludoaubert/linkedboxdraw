@@ -15,7 +15,11 @@ function handleReceiveMyContextsEvent2(e)
 	contexts = e.target.result;
 	mycontexts = JSON.parse(e.target.result);
 	if (mydata != null && mycontexts != null)
+	{
+		data=null;
+		contexts=null;
 		drawDiag();
+	}
 }
 
 function handleReceiveMyDataEvent2(e) {
