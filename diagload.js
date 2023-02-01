@@ -1,9 +1,9 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 
 import {default as createMyModule} from "./latuile-origine.js";
-import {mydata, init} from "./table_edit.js";
+import {mydata, data, init} from "./table_edit.js";
 
-export {mycontexts, drawDiag};
+export {mycontexts, contexts, drawDiag};
 
 var mycontexts = sample_contexts;
 
