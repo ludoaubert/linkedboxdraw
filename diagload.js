@@ -7,6 +7,8 @@ export {mycontexts, drawDiag};
 
 var mycontexts = sample_contexts;
 
+var contexts=null;
+
 var currentX = 0;
 var currentY = 0;
 var g = 0;

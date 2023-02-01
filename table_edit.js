@@ -9,6 +9,8 @@ export {init, mydata, displayCurrent};
 
 var mydata = sample_diagdata;
 
+var data=null;
+
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;
 

@@ -4,9 +4,6 @@ import {mycontexts, mydata, drawDiag} from "./diagload.js"
 export {handleReceiveMyDataEvent, handleReceiveMyContextsEvent2, handleReceiveMyDataEvent2, handleReceiveMyDataEventTi, handleReceiveMyPictureEvent, loadFile, download};
 export {getFileData};
 
-var data=null;
-var contexts=null;
-
 
 function handleReceiveMyDataEvent(e) {
 
