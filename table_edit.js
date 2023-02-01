@@ -263,10 +263,6 @@ function init() {
 	dfo.addEventListener("click", (event) => download(dfo.previousElementSibling.value, mydata));
 	let csl = document.querySelector("input[id=csl]");
 	csl.addEventListener("click", (event) => {download2(csl.previousElementSibling.value); drawDiag();});
-	let gfi = document.querySelector("input[id=gfi]");
-	gfi.addEventListener("change", (event) => loadFile(gfi, handleReceiveMyContextsEvent2));
-	let gfo = document.querySelector("input[id=gfo]");
-	gfo.addEventListener("click", (event) => download(gfo.previousElementSibling.value, mycontexts));
 
 	picturesCombo.addEventListener("change", (event) => {currentPictureIndex = -1; displayCurrent();});
 	let add_pic = document.querySelector("input[id=add_pic]");

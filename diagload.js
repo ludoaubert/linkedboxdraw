@@ -1,7 +1,8 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 
 import {default as createMyModule} from "./latuile-origine.js";
-import {mydata, data, init} from "./table_edit.js";
+import {init, mydata, data, displayCurrent} from "./table_edit.js";
+import {getFileData} from "./iocomponent.js";
 
 export {mycontexts, contexts, drawDiag};
 
@@ -554,6 +555,26 @@ export var Module;
 
 window.main = function main()
 {
+	let gfi = document.querySelector("input[id=gfi]");
+//	gfi.addEventListener("change", (event) => loadFile(gfi, handleReceiveMyContextsEvent2));
+	gfi.addEventListener("change", (event) => {
+		getFileData(gfi).then(function(result){
+			contexts = result;
+			mycontexts = JSON.parse(result);
+			if (data != null && contexts != null)
+			{
+				data=null;
+				contexts=null;
+				drawDiag();
+			}
+			currentBoxIndex = -1;
+			displayCurrent();			
+		});
+	});
+	let gfo = document.querySelector("input[id=gfo]");
+	gfo.addEventListener("click", (event) => download(gfo.previousElementSibling.value, mycontexts));	
+
+	
 	createMyModule().then(function(mymod){
 		Module = mymod;
 	});
