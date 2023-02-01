@@ -1,6 +1,6 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
-import {mycontexts, contexts, resetContexts, Module, drawDiag} from "./diagload.js";
+import {Module, mycontexts, contexts, resetContexts, Module, drawDiag} from "./diagload.js";
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
 

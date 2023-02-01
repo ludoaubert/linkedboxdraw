@@ -4,7 +4,9 @@ import {default as createMyModule} from "./latuile-origine.js";
 import {init, mydata, data, resetData, displayCurrent} from "./table_edit.js";
 import {getFileData} from "./iocomponent.js";
 
-export {mycontexts, contexts, resetContexts, drawDiag};
+export {Module, mycontexts, contexts, resetContexts, drawDiag};
+
+var Module;
 
 var mycontexts = sample_contexts;
 
@@ -555,8 +557,6 @@ function addEventListeners()
 		});
 }
 
-
-export var Module;
 
 window.main = function main()
 {
