@@ -1,40 +1,5 @@
-import {displayCurrent, mydata} from "./table_edit.js"
-import {mycontexts, drawDiag} from "./diagload.js"
-
-export {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, loadFile, download};
+export {download};
 export {getFileData};
-
-
-function handleReceiveMyDataEvent(e) {
-
-	data = e.target.result;
-	mydata = JSON.parse(e.target.result);
-	currentBoxIndex = -1;
-	displayCurrent();
-}
-
-
-function handleReceiveMyDataEvent2(e) {
-	data = e.target.result;
-	mydata = JSON.parse(e.target.result);
-	if (data != null && contexts != null)
-	{
-		data=null;
-		contexts=null;
-		drawDiag();
-	}
-}
-
-
-function loadFile(element, handleReceiveEvent)
-{
-
-	if (element.files && element.files[0]) {
-		var reader = new FileReader();
-		reader.addEventListener('load', handleReceiveEvent);
-		reader.readAsBinaryString(element.files[0]);
-	}
-}
 
 
 function download(filename, jsonData) {
