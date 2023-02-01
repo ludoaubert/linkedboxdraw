@@ -109,6 +109,6 @@ function getFileData(element)
 				resolve(e.target.result);
 			})
 			reader.readAsBinaryString(element.files[0]);
-		}
+		});
 	}	
 }
