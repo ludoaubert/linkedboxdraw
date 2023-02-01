@@ -1,5 +1,5 @@
 import {mydata, mycontexts, Module} from "./diagload.js";
-export {init};
+export {init, displayCurrent};
 
 var currentBoxIndex = -1;
 var currentFieldIndex = -1;

@@ -4,7 +4,7 @@ import sample_diagdata from "./diagdata.json" assert {type: "json"};
 import {default as createMyModule} from "./latuile-origine.js";
 import {init} from "./table_edit.js";
 
-export {mycontexts, mydata};
+export {mycontexts, mydata, drawDiag};
 
 var mycontexts = sample_contexts;
 var mydata = sample_diagdata;
