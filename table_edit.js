@@ -191,7 +191,7 @@ function loadPicture(blob)
 {
 	currentPictureIndex = mydata.pictures.length;
 
-	const name = document.getElementById("add pic").value;
+	const name = document.getElementById("add_pic").value;
 	const base64 = btoa(blob);
 
 	const pic = {name, base64};
