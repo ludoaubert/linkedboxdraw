@@ -240,7 +240,7 @@ function init() {
 	let dfi = document.querySelector("input[id=dfi]");
 //	dfi.addEventListener("change", (event) => loadFile(dfi, handleReceiveMyDataEventTi));
 	dfi.addEventListener("change", (event) => {
-		getFileData().then(function(result){
+		getFileData(dfi).then(function(result){
 			mydata = JSON.parse(result);
 			data = result;
 			if (data != null && contexts != null)
