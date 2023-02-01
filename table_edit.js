@@ -248,7 +248,7 @@ function init() {
 				button.addEventListener("click", (event) => switchCollapsible(button));
 			});
 	let dfi = document.querySelector("input[id=dfi]");
-//	dfi.addEventListener("change", (event) => loadFile(dfi, handleReceiveMyDataEventTi));
+
 	dfi.addEventListener("change", (event) => {
 		getFileData(dfi).then(function(result){
 			mydata = JSON.parse(result);

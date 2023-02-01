@@ -13,17 +13,6 @@ function handleReceiveMyDataEvent(e) {
 	displayCurrent();
 }
 
-function handleReceiveMyContextsEvent2(e)
-{
-	contexts = e.target.result;
-	mycontexts = JSON.parse(e.target.result);
-	if (mydata != null && mycontexts != null)
-	{
-		data=null;
-		contexts=null;
-		drawDiag();
-	}
-}
 
 function handleReceiveMyDataEvent2(e) {
 	data = e.target.result;
@@ -34,20 +23,6 @@ function handleReceiveMyDataEvent2(e) {
 		contexts=null;
 		drawDiag();
 	}
-}
-
-
-function handleReceiveMyDataEventTi(e) {
-	data = e.target.result;
-	mydata = JSON.parse(e.target.result);
-	if (data != null && contexts != null)
-	{
-		data=null;
-		contexts=null;
-		drawDiag();
-	}
-	currentBoxIndex = -1;
-	displayCurrent();
 }
 
 

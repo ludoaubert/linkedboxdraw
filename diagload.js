@@ -561,7 +561,7 @@ export var Module;
 window.main = function main()
 {
 	let gfi = document.querySelector("input[id=gfi]");
-//	gfi.addEventListener("change", (event) => loadFile(gfi, handleReceiveMyContextsEvent2));
+
 	gfi.addEventListener("change", (event) => {
 		getFileData(gfi).then(function(result){
 			contexts = result;
