@@ -1,7 +1,7 @@
 import {displayCurrent, mydata} from "./table_edit.js"
 import {mycontexts, drawDiag} from "./diagload.js"
 
-export {handleReceiveMyDataEvent, handleReceiveMyContextsEvent2, handleReceiveMyDataEvent2, handleReceiveMyDataEventTi, handleReceiveMyPictureEvent, loadFile, download};
+export {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, handleReceiveMyPictureEvent, loadFile, download};
 export {getFileData};
 
 
