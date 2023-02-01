@@ -1,7 +1,7 @@
 import {displayCurrent, mydata} from "./table_edit.js"
 import {mycontexts, drawDiag} from "./diagload.js"
 
-export {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, handleReceiveMyPictureEvent, loadFile, download};
+export {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, loadFile, download};
 export {getFileData};
 
 
@@ -23,30 +23,6 @@ function handleReceiveMyDataEvent2(e) {
 		contexts=null;
 		drawDiag();
 	}
-}
-
-
-function handleReceiveMyPictureEvent(e)
-{
-	data = e.target.result;
-	currentPictureIndex = mydata.pictures.length;
-
-	const name = document.getElementById("add pic").value;
-	const base64 = btoa(e.target.result);
-
-	const pic = {name, base64};
-
-	mydata.pictures.push(pic);
-
-	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
-
-	const pictureComboInnerHTML = mydata.pictures
-					.sort((a, b) => a.name.localeCompare(b.name))
-					.map(pic => "<option>" + pic.name + "</option>")
-					.join('');
-
-	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
-	document.getElementById("pictures").value = name;
 }
 
 
@@ -83,5 +59,5 @@ function getFileData(element)
 			})
 			reader.readAsBinaryString(element.files[0]);
 		});
-	}	
+	}
 }

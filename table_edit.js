@@ -1,7 +1,7 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
 import {mycontexts, contexts, resetContexts, Module, drawDiag} from "./diagload.js";
-import {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, handleReceiveMyPictureEvent, loadFile, download} from "./iocomponent.js";
+import {handleReceiveMyDataEvent, handleReceiveMyDataEvent2, loadFile, download} from "./iocomponent.js";
 //import {handleReceiveMyDataEvent} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
 
@@ -187,6 +187,28 @@ function download2(filename) {
 	download(filename, mycontexts);
 }
 
+function loadPicture(blob)
+{
+	currentPictureIndex = mydata.pictures.length;
+
+	const name = document.getElementById("add pic").value;
+	const base64 = btoa(blob);
+
+	const pic = {name, base64};
+
+	mydata.pictures.push(pic);
+
+	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
+
+	const pictureComboInnerHTML = mydata.pictures
+					.sort((a, b) => a.name.localeCompare(b.name))
+					.map(pic => "<option>" + pic.name + "</option>")
+					.join('');
+
+	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+	document.getElementById("pictures").value = name;
+}
+
 
 function init() {
 
@@ -270,7 +292,7 @@ function init() {
 
 	picturesCombo.addEventListener("change", (event) => {currentPictureIndex = -1; displayCurrent();});
 	let add_pic = document.querySelector("input[id=add_pic]");
-	add_pic.addEventListener("change", (event) => loadFile(add_pic, handleReceiveMyPictureEvent));
+	add_pic.addEventListener("change", (event) => getFileData(add_pic).then(loadPicture));
 	let drop_pic = document.querySelector("button[id=drop_pic]");
 	drop_pic.addEventListener("click", (event) => dropPicture());
 	let add_pic_to_box = document.querySelector("button[id=add_pic_to_box]");
