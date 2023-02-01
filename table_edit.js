@@ -237,7 +237,21 @@ function init() {
 				button.addEventListener("click", (event) => switchCollapsible(button));
 			});
 	let dfi = document.querySelector("input[id=dfi]");
-	dfi.addEventListener("change", (event) => loadFile(dfi, handleReceiveMyDataEventTi));
+//	dfi.addEventListener("change", (event) => loadFile(dfi, handleReceiveMyDataEventTi));
+	dfi.addEventListener("change", (event) => {
+		getFileData().then(function(result){
+			mydata = JSON.parse(result);
+			data = result;
+			if (data != null && contexts != null)
+			{
+				data=null;
+				contexts=null;
+				drawDiag();
+			}
+			currentBoxIndex = -1;
+			displayCurrent();
+		});
+	});
 	let dfo = document.querySelector("input[id=dfo]");
 	dfo.addEventListener("click", (event) => download(dfo.previousElementSibling.value, mydata));
 	let csl = document.querySelector("input[id=csl]");
