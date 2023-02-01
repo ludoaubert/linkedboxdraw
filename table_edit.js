@@ -1,4 +1,7 @@
 import {mydata, mycontexts, Module} from "./diagload.js";
+import {handleReceiveMyDataEvent, handleReceiveMyContextsEvent2, handleReceiveMyDataEvent2, handleReceiveMyDataEventTi, handleReceiveMyPictureEvent, loadFile, download} from "./iocomponent.js";
+//import {handleReceiveMyDataEvent} from "./iocomponent.js";
+
 export {init, displayCurrent};
 
 var currentBoxIndex = -1;
