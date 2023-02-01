@@ -1,3 +1,8 @@
+import {displayCurrent} from "./table_edit.js"
+import {drawDiag} from "./diagload.js"
+
+export {handleReceiveMyDataEvent, handleReceiveMyContextsEvent2, handleReceiveMyDataEvent2, handleReceiveMyDataEventTi, handleReceiveMyPictureEvent, loadFile, download};
+
 var data=null;
 var contexts=null;
 
