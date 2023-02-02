@@ -54,8 +54,8 @@ function download2(filename) {
 						.join('');
 	console.log(slinks);
 
-	bombix = Module.cwrap("bombix","string",["string","string","string","string"]);
-	latuile = Module.cwrap("latuile","string",["string","string"]);
+	const bombix = Module.cwrap("bombix","string",["string","string","string","string"]);
+	const latuile = Module.cwrap("latuile","string",["string","string"]);
 
 	const jsonResponse = latuile(rectdim.join(''), slinks);
 	console.log(jsonResponse);
