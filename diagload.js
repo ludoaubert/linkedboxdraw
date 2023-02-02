@@ -4,7 +4,9 @@ import {default as createMyModule} from "./latuile-origine.js";
 import {init, mydata, data, resetData, displayCurrent} from "./table_edit.js";
 import {getFileData} from "./iocomponent.js";
 
-export {Module, mycontexts, contexts, resetContexts, drawDiag};
+export {mycontexts, contexts, resetContexts, drawDiag};
+
+export default {Module};
 
 var Module;
 
