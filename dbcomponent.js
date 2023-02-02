@@ -51,7 +51,7 @@ function drawComponent(id, mydata) {
 
 	const titleAttribute = box.title in box2comment ? `title="${box2comment[box.title]}"` : '';
 
-	let innerHTML = `<table id="${id}" ${titleAttribute}>`;
+	let innerHTML = `<table id="${id}" contenteditable="true" spellcheck="false" ${titleAttribute}>`;
 	innerHTML += `<thead>
 			<tr>
 				<th>${box.title}</th>
