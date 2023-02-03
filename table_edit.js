@@ -5,7 +5,7 @@ import {mycontexts, contexts, resetContexts, drawDiag} from "./diagload.js";
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
 
-export {init, mydata, data, resetData, displayCurrent};
+export {init, mydata, data, resetData, displayCurrent, createMutationObserver};
 
 var mydata = sample_diagdata;
 
@@ -252,6 +252,32 @@ function init() {
 				.join('');
 
 	displayCurrent();
+}
+
+
+function createMutationObserver()
+{
+	var fnCallback = function (mutations)
+	{
+		mutations.forEach(function (mutation) {
+			alert("id:" + mutation.target.id);
+		});
+	};
+
+	const elTarget = document.querySelector("div#diagram.content");
+
+	var observer = new MutationObserver(fnCallback);
+
+	const objConfig = {
+		childList: false,
+		subtree : true,
+		attributes: false, 
+		characterData : true,
+		//attributeFilter : ['style', 'id'],
+		attributeOldValue : false
+	};
+
+    observer.observe(elTarget, objConfig);
 }
 
 
