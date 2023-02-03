@@ -263,7 +263,7 @@ function createMutationObserver()
 			const tagName = mutation.target.parentElement.tagName;
 			const id = mutation.target.parentElement.id;
 			const data = mutation.target.data;
-			if (tagName="TD")
+			if (tagName=="TD")
 			{
 				const regexpId = /b([0-9]+)f([0-9]+)/;
 				const match = id.match(regexpId);
