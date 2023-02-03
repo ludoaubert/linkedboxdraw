@@ -126,11 +126,11 @@ function drawComponent(id, mydata) {
 		{
 			const pictureIndex = pictures.findIndex(picture => picture.name == field.name);
 			const base64 = pictures[pictureIndex].base64;
-			innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${titleAttribute}><img src="data:image/jpg;base64, ${base64}"></td></tr>`;
+			innerHTML += `<tr id="b${id}f${fieldIndex}"><td id="b${id}f${fieldIndex}" ${titleAttribute}><img src="data:image/jpg;base64, ${base64}"></td></tr>`;
 		}
 		else
 		{
-			innerHTML += `<tr id="b${id}f${fieldIndex}"><td ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
+			innerHTML += `<tr id="b${id}f${fieldIndex}"><td id="b${id}f${fieldIndex}" ${font_weight} ${titleAttribute}>${leading_blanks}${prefix}${open_link}${field.name}${close_link}</td></tr>`;
 		}
 	}
 
