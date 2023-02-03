@@ -261,7 +261,7 @@ function createMutationObserver()
 	{
 		mutations.forEach(function (mutation) {
 			const id = mutation.target.id;
-			const nodeValue = mutation.target.nodeValue;
+			const data = mutation.target.data;
 		});
 	};
 
