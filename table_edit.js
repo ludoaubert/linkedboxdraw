@@ -260,7 +260,7 @@ function createMutationObserver()
 	var fnCallback = function (mutations)
 	{
 		mutations.forEach(function (mutation) {
-			alert("id:" + mutation.target.id);
+			const id = mutation.target.id;
 		});
 	};
 
