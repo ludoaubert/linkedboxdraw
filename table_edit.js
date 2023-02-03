@@ -260,14 +260,18 @@ function createMutationObserver()
 	var fnCallback = function (mutations)
 	{
 		mutations.forEach(function (mutation) {
+			const tagName = mutation.target.parentElement.tagName;
 			const id = mutation.target.parentElement.id;
 			const data = mutation.target.data;
-			const regexpId = /b([0-9]+)f([0-9]+)/;
-			const match = id.match(regexpId);
-			console.log(`box: ${match[1]} / field: ${match[2]}.`);
-			const boxIndex = parseInt(match[1]);
-			const fieldIndex = parseInt(match[2]);
-			mydata.boxes[boxIndex].fields[fieldIndex].name = data;
+			if (tagName="TD")
+			{
+				const regexpId = /b([0-9]+)f([0-9]+)/;
+				const match = id.match(regexpId);
+				console.log(`box: ${match[1]} / field: ${match[2]}.`);
+				const boxIndex = parseInt(match[1]);
+				const fieldIndex = parseInt(match[2]);
+				mydata.boxes[boxIndex].fields[fieldIndex].name = data;
+			}
 		});
 	};
 
