@@ -271,9 +271,9 @@ function createMutationObserver()
 	const objConfig = {
 		childList: false,
 		subtree : true,
-		attributes: false, 
+		attributes: true, 
 		characterData : true,
-		//attributeFilter : ['style', 'id'],
+		attributeFilter : ['style', 'id'],
 		attributeOldValue : false
 	};
 
