@@ -272,6 +272,14 @@ function createMutationObserver()
 				const fieldIndex = parseInt(match[2]);
 				mydata.boxes[boxIndex].fields[fieldIndex].name = data;
 			}
+			if (tagName=="TH")
+			{
+				const regexpId = /b([0-9]+)/;
+				const match = id.match(regexpId);
+				console.log(`box: ${match[1]}.`);
+				const boxIndex = parseInt(match[1]);
+				mydata.boxes[boxIndex].title = data;				
+			}
 		});
 	};
 

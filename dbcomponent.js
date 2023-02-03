@@ -54,7 +54,7 @@ function drawComponent(id, mydata) {
 	let innerHTML = `<table id="${id}" contenteditable="true" spellcheck="false" ${titleAttribute}>`;
 	innerHTML += `<thead>
 			<tr>
-				<th>${box.title}</th>
+				<th id="b${id}">${box.title}</th>
 			</tr>
 		    </thead>
 		<tbody>`;
