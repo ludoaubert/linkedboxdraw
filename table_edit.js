@@ -482,7 +482,7 @@ function dropBox()
 	displayCurrent();
 
 	mycontexts.rectangles.splice(currentBoxIndex, 1);
-	for (context of mycontexts.contexts)
+	for (let context of mycontexts.contexts)
 		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex);
 
 	drawDiag();
