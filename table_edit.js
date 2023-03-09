@@ -77,7 +77,7 @@ var addColorButton;
 var updateColorButton;
 var picturesCombo ;
 var currentImageDisplay ;
-var repartitionTable;
+var applyRepartitionButton;
 
 
 function newDiagram() {
@@ -176,7 +176,7 @@ function init() {
 	updateColorButton = document.getElementById("update color");
 	picturesCombo = document.getElementById("pictures");
 	currentImageDisplay = document.getElementById("cid");
-	repartitionTable = document.getElementById("repartition");
+	applyRepartitionButton = document.getElementById("apply repartition");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 							.join('');
@@ -248,7 +248,7 @@ function init() {
 	colorFieldCombo.addEventListener("change", (event) => {currentColorFieldIndex = -1; displayCurrent();});
 	addColorButton.addEventListener("click", (event) => addNewColor());
 	updateColorButton.addEventListener("click", (event) => updateColor());
-	repartitionTable.addEventListener("click", (event) => {ApplyRepartition(); drawDiag();});
+	applyRepartitionButton.addEventListener("click", (event) => {ApplyRepartition(); drawDiag();});
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
