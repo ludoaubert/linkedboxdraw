@@ -1,7 +1,7 @@
 import sample_contexts from "./contexts.json" assert {type: "json"};
 
 import {default as createMyModule} from "./latuile-origine.js";
-import {init, mydata, data, resetData, displayCurrent, createMutationObserver} from "./table_edit.js";
+import {init, mydata, data, resetData, displayCurrent, createMutationObserver, currentBoxIndex} from "./table_edit.js";
 import {getFileData, download} from "./iocomponent.js";
 
 export {mycontexts, contexts, resetContexts, drawDiag};
