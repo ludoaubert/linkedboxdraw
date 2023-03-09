@@ -1,6 +1,6 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
-import {mycontexts, contexts, resetContexts, drawDiag} from "./diagload.js";
+import {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepartition} from "./diagload.js";
 
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
@@ -77,6 +77,7 @@ var addColorButton;
 var updateColorButton;
 var picturesCombo ;
 var currentImageDisplay ;
+var repartitionTable;
 
 
 function newDiagram() {
@@ -175,6 +176,7 @@ function init() {
 	updateColorButton = document.getElementById("update color");
 	picturesCombo = document.getElementById("pictures");
 	currentImageDisplay = document.getElementById("cid");
+	repartitionTable = document.getElementById("repartition");
 
 	const innerHTML = ["","0","1","n","0,1","0,n","1,n"].map(c => '<option>' + c + '</option>')
 							.join('');
@@ -246,6 +248,7 @@ function init() {
 	colorFieldCombo.addEventListener("change", (event) => {currentColorFieldIndex = -1; displayCurrent();});
 	addColorButton.addEventListener("click", (event) => addNewColor());
 	updateColorButton.addEventListener("click", (event) => updateColor());
+	repartitionTable.addEventListener("click", (event) => {ApplyRepartition(); drawDiag();});
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')

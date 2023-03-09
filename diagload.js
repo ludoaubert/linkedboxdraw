@@ -4,7 +4,7 @@ import {default as createMyModule} from "./latuile-origine.js";
 import {init, mydata, data, resetData, displayCurrent, createMutationObserver} from "./table_edit.js";
 import {getFileData, download} from "./iocomponent.js";
 
-export {mycontexts, contexts, resetContexts, drawDiag};
+export {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepartition};
 
 var Module;
 
@@ -515,7 +515,7 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 
 function drawDiag()
 {
-	document.getElementById("repartitionc").innerHTML = drawRepartition(mydata, mycontexts);
+	document.getElementById("repartition").innerHTML = drawRepartition(mydata, mycontexts);
 	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
 	addEventListeners();
 	const styleMap = expressCutLinks(mydata, mycontexts);
@@ -585,7 +585,7 @@ function ApplyRepartition()
 
 function drawRepartition(mydata, mycontexts){
 
-	var innerHTML = `<table id="repartition">`;
+	var innerHTML = "";
 
 	var repartitionEntries = [];
 
@@ -617,10 +617,6 @@ function drawRepartition(mydata, mycontexts){
             </tr>
 			`
 	}
-
-    innerHTML += `</table>
-	  <button id="apply repartition" type="button" onclick="ApplyRepartition(); drawDiag();">Apply Repartition</button>
-`;
 
 	return innerHTML;
 }
