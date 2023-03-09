@@ -477,14 +477,13 @@ function dropBox()
 			fc.index--;
 	}
 
-	currentBoxIndex = -1;
-
-	displayCurrent();
-
 	mycontexts.rectangles.splice(currentBoxIndex, 1);
 	for (let context of mycontexts.contexts)
 		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex);
 
+	currentBoxIndex = -1;
+
+	displayCurrent();
 	drawDiag();
 }
 
