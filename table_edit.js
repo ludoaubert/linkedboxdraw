@@ -820,13 +820,15 @@ function dropPicture()
 					.join('');
 
 	picturesCombo.innerHTML = pictureComboInnerHTML;
-	currentImageDisplay.src = "data:image/jpg;base64, " + mydata.pictures[currentPictureIndex]?.base64;
+	const base64 = mydata?.pictures?.[currentPictureIndex]?.base64 ;
+	currentImageDisplay.src = base64 ? "data:image/jpg;base64, " + base64 : undefined ;
 }
 
 function displaySelectedPicture()
 {
 	currentPictureIndex = mydata?.pictures?.findIndex(picture => picture.name == picturesCombo.value) || -1 ;
-	currentImageDisplay.src = "data:image/jpg;base64, " + mydata?.pictures?.[currentPictureIndex]?.base64 ;
+	const base64 = mydata?.pictures?.[currentPictureIndex]?.base64 ;
+	currentImageDisplay.src = base64 ? "data:image/jpg;base64, " + base64 : undefined ;
 }
 
 
