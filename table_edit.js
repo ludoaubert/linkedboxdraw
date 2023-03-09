@@ -821,14 +821,14 @@ function dropPicture()
 
 	picturesCombo.innerHTML = pictureComboInnerHTML;
 	const base64 = mydata?.pictures?.[currentPictureIndex]?.base64 ;
-	currentImageDisplay.src = base64==undefined ? undefined : "data:image/jpg;base64, " + base64 ;
+	currentImageDisplay.src = base64==undefined ? "data:text/plain," : "data:image/jpg;base64, " + base64 ;
 }
 
 function displaySelectedPicture()
 {
 	currentPictureIndex = mydata?.pictures?.findIndex(picture => picture.name == picturesCombo.value) || -1 ;
 	const base64 = mydata?.pictures?.[currentPictureIndex]?.base64 ;
-	currentImageDisplay.src = base64==undefined ? undefined : "data:image/jpg;base64, " + base64 ;
+	currentImageDisplay.src = base64==undefined ? "data:text/plain," : "data:image/jpg;base64, " + base64 ;
 }
 
 
