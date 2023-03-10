@@ -508,9 +508,10 @@ function updateFieldAttributes()
 }
 
 
+var oldValueIsEmpty = false;
+	
 function onNewFieldUpdate()
 {
-	var oldValueIsEmpty = false;
 	if (oldValueIsEmpty && newFieldEditField.value.length > 0)
 	{
 		isPrimaryKeyCheckBox.checked = false;
@@ -535,6 +536,7 @@ function addNewFieldToBox()
 	newFieldEditField.value = "";
 	isPrimaryKeyCheckBox.checked = false;
 	isForeignKeyCheckBox.checked = false;
+	oldValueIsEmpty = true;
 
 	displayCurrent();
 
@@ -557,8 +559,8 @@ function updateField()
 
 	displayCurrent();
 
-        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
-        mycontexts.rectangles[currentBoxIndex] = rec;
+	const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+	mycontexts.rectangles[currentBoxIndex] = rec;
 
 	drawDiag();
 }
