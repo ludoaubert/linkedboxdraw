@@ -249,7 +249,7 @@ function init() {
 	addColorButton.addEventListener("click", (event) => addNewColor());
 	updateColorButton.addEventListener("click", (event) => updateColor());
 	applyRepartitionButton.addEventListener("click", (event) => {ApplyRepartition(); drawDiag();});
-	newFieldEditField.addEventListener("change", (event) => onNewFieldUpdate());
+	newFieldEditField.addEventListener("change", (event) => {onNewFieldUpdate();});
 	newFieldEditField.addEventListener("click", (event) => onNewFieldClicked());
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
