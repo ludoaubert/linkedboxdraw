@@ -249,6 +249,7 @@ function init() {
 	addColorButton.addEventListener("click", (event) => addNewColor());
 	updateColorButton.addEventListener("click", (event) => updateColor());
 	applyRepartitionButton.addEventListener("click", (event) => {ApplyRepartition(); drawDiag();});
+	newFieldEditField.addEventListener("change", (event) => onNewFieldUpdate());
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
@@ -507,9 +508,15 @@ function updateFieldAttributes()
 }
 
 
-function selectField()
+function onNewFieldUpdate()
 {
-
+	var oldValueIsEmpty = false;
+	if (oldValueIsEmpty && newFieldEditField.value.length > 0)
+	{
+		isPrimaryKeyCheckBox.checked = false;
+		isForeignKeyCheckBox.checked = false;
+	}
+	oldValueIsEmpty = newFieldEditField.value.length==0 ;
 }
 
 function addNewFieldToBox()
