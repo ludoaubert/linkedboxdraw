@@ -251,7 +251,6 @@ function init() {
 	applyRepartitionButton.addEventListener("click", () => {ApplyRepartition(); drawDiag();});
 	newFieldEditField.addEventListener("keypress", () => {onNewFieldUpdate();});
 	newFieldEditField.addEventListener("paste", () => {onNewFieldUpdate();});
-	newFieldEditField.addEventListener("click", () => onNewFieldClicked());
 
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
@@ -510,22 +509,15 @@ function updateFieldAttributes()
 }
 
 
-var oldValueIsEmpty = false;
-	
 function onNewFieldUpdate()
 {
-	if (oldValueIsEmpty && newFieldEditField.value.length > 0)
+	if (newFieldEditField.value.length == 0)
 	{
 		isPrimaryKeyCheckBox.checked = false;
 		isForeignKeyCheckBox.checked = false;
 	}
-	oldValueIsEmpty = newFieldEditField.value.length==0 ;
 }
 
-function onNewFieldClicked()
-{
-	oldValueIsEmpty = newFieldEditField.value.length==0 ;
-}
 
 function addNewFieldToBox()
 {
