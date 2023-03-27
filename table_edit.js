@@ -535,7 +535,6 @@ function addNewFieldToBox()
 	newFieldEditField.value = "";
 	isPrimaryKeyCheckBox.checked = false;
 	isForeignKeyCheckBox.checked = false;
-	oldValueIsEmpty = true;
 
 	displayCurrent();
 
