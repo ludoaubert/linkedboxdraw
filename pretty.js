@@ -19,6 +19,7 @@ function pretty(json) {
 			.replaceAll('{"from"','\n{"from"')
 			.replaceAll('"links"','\n"links"')
 			.replaceAll('"fieldColors"','\n"fieldColors"')
+			.replaceAll('"pictures"', '\n"pictures"')
 			.replaceAll('"values"', '\n"values"')
 			.replaceAll('{"box"', '\n{"box"')
 			.replaceAll('"fieldComments"', '\n"fieldComments"')
