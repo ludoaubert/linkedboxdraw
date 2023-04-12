@@ -1,32 +1,61 @@
-CREATE TABLE box(
+CREATE TABLE diagram(
     id INTEGER PRIMARY KEY,
     title VARCHAR(100),
-    deleted INTEGER
+    deleted INTEGER,
+    guid CHAR(16)
+);
+
+CREATE TABLE user(
+    id INTEGER PRIMARY KEY,
+    firstName VARCHAR(60),
+    lastName VARCHAR(60),
+    guid CHAR(16)
+);
+
+CREATE TABLE diagram_user(
+    id INTEGER PRIMARY KEY,
+    userId INTEGER,
+    diagramId INTEGER,
+    FOREIGN KEY (userId) REFERENCES user(id),
+    FOREIGN KEY (diagramId) REFERENCES diagram(id)
+);
+
+CREATE TABLE box(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    position INTEGER,
+    title VARCHAR(100),
+    deleted INTEGER,
+    UNIQUE(diagramId, position),
+    FOREIGN KEY (diagramId) REFERENCES diagram(id)
 );
 
 CREATE TABLE field(
     id INTEGER PRIMARY KEY,
     position INTEGER,
-    boxId INTEGER NOT NULL,
+    boxPosition INTEGER NOT NULL,
+    diagramId INTEGER NOT NULL,
     name varchar(100),
     isPrimaryKey INTEGER,
     isForeignKey INTEGER,
     deleted INTEGER,
-    UNIQUE (boxId, position),
-    FOREIGN KEY (boxId) REFERENCES box(id)
+    UNIQUE (diagramId, boxPosition, position),
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
 CREATE TABLE links(
-    fromBoxId INTEGER,
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    fromBox INTEGER,
     fromFieldPosition INTEGER,
     fromCardinality char,
-    toBoxId INTEGER,
+    toBox INTEGER,
     toFieldPosition INTEGER,
     toCardinality char,
     category varchar(3),
     deleted INTEGER,
-    FOREIGN KEY (fromBox) REFERENCES box(id),
-    FOREIGN KEY (toBox) REFERENCES box(id),
-    FOREIGN KEY (fromBoxId, fromFieldPosition) REFERENCES field(boxId, position),
-    FOREIGN KEY (toBoxId, toBoxPosition) REFERENCES field(boxId, position)
+    FOREIGN KEY (diagramId, fromBox) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, toBox) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, fromBox, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),
+    FOREIGN KEY (diagramId, toBox, toBoxPosition) REFERENCES field(diagramId, boxPosition, position)
 );
