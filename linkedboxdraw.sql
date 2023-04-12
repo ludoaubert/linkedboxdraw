@@ -46,16 +46,16 @@ CREATE TABLE field(
 CREATE TABLE links(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
-    fromBox INTEGER,
+    fromBoxPosition INTEGER,
     fromFieldPosition INTEGER,
     fromCardinality char,
-    toBox INTEGER,
+    toBoxPosition INTEGER,
     toFieldPosition INTEGER,
     toCardinality char,
     category varchar(3),
     deleted INTEGER,
-    FOREIGN KEY (diagramId, fromBox) REFERENCES box(diagramId, position),
-    FOREIGN KEY (diagramId, toBox) REFERENCES box(diagramId, position),
-    FOREIGN KEY (diagramId, fromBox, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),
-    FOREIGN KEY (diagramId, toBox, toBoxPosition) REFERENCES field(diagramId, boxPosition, position)
+    FOREIGN KEY (diagramId, fromBoxPosition) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, toBoxPosition) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, fromBoxPosition, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),
+    FOREIGN KEY (diagramId, toBoxPosition, toBoxPosition) REFERENCES field(diagramId, boxPosition, position)
 );
