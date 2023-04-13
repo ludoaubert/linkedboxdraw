@@ -38,9 +38,19 @@ CREATE TABLE field(
     name varchar(100),
     isPrimaryKey INTEGER,
     isForeignKey INTEGER,
+	fieldType varchar(10),
     deleted INTEGER,
     UNIQUE (diagramId, boxPosition, position),
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
+);
+
+CREATE TABLE picture(
+	id INTEGER PRIMARY KEY,
+	diagramId INTEGER,
+	height INTEGER,
+	width INTEGER,
+	name varchar(100),
+	base64 text NOT NULL
 );
 
 CREATE TABLE links(
