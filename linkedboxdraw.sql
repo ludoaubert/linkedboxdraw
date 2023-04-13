@@ -53,7 +53,7 @@ CREATE TABLE picture(
 	base64 text NOT NULL
 );
 
-CREATE TABLE links(
+CREATE TABLE link(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
     fromBoxPosition INTEGER,
@@ -69,3 +69,25 @@ CREATE TABLE links(
     FOREIGN KEY (diagramId, fromBoxPosition, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),
     FOREIGN KEY (diagramId, toBoxPosition, toBoxPosition) REFERENCES field(diagramId, boxPosition, position)
 );
+
+CREATE TABLE diagData(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    document text
+);
+
+
+SELECT id, diagramId, document->'$.documentTitle', document FROM diagData;
+SELECT id, diagramId, document->'$.boxes', document FROM diagData;
+
+WITH cte_box AS (
+    SELECT key AS boxPosition, value AS boxValue 
+    FROM json_each((SELECT document FROM diagData WHERE id=1), '$.boxes')
+)
+SELECT * FROM cte_box;
+
+SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1));
+
+SELECT json_array_length((SELECT document FROM diagData WHERE id=1), '$.boxes');
+
+SELECT value FROM generate_series(5,100,5); --error
