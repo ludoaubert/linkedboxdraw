@@ -91,3 +91,31 @@ SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1));
 SELECT json_array_length((SELECT document FROM diagData WHERE id=1), '$.boxes');
 
 SELECT value FROM generate_series(5,100,5); --error
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_bf AS (
+    SELECT cte_boxPosition.value AS boxPosition, cte_fieldPosition.value AS fieldPosition, '$.boxes[' || cte_boxPosition.value || '].fields[' || cte_fieldPosition.value || ']' AS path
+    FROM cte_series AS cte_boxPosition
+    CROSS JOIN cte_series AS cte_fieldPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+), cte_fields AS (
+    SELECT cte_tree.*, cte_bf.boxPosition, cte_bf.fieldPosition 
+    FROM cte_tree
+    JOIN cte_bf ON cte_tree.path = cte_bf.path
+), cte_fields_pivot AS (
+    SELECT boxPosition, fieldPosition,
+            MAX(case when key = 'name' then value end) as name,
+            MAX(case when key = 'isPrimaryKey' then value end) as isPrimaryKey,
+            MAX(case when key = 'isForeignKey' then value end) as isForeignKey,
+            MAX(case when key = 'type' then value end) as type            
+    FROM cte_fields
+    GROUP BY boxPosition, fieldPosition
+    ORDER BY boxPosition, fieldPosition
+)
+SELECT * FROM cte_fields_pivot;
