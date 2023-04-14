@@ -92,6 +92,32 @@ SELECT json_array_length((SELECT document FROM diagData WHERE id=1), '$.boxes');
 
 SELECT value FROM generate_series(5,100,5); --error
 
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_box AS (
+    SELECT cte_boxPosition.value AS boxPosition, '$.boxes[' || cte_boxPosition.value || ']' AS path
+    FROM cte_series AS cte_boxPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+), cte_boxes AS (
+    SELECT cte_tree.*, cte_box.boxPosition 
+    FROM cte_tree
+    JOIN cte_box ON cte_tree.path = cte_box.path
+), cte_boxes_pivot AS (
+    SELECT boxPosition,
+            MAX(case when key = 'title' then value end) as title        
+    FROM cte_boxes
+    GROUP BY boxPosition
+    ORDER BY boxPosition
+)
+SELECT * FROM cte_boxes_pivot;
+
+
 WITH cte_series(value) AS (
     SELECT 0 
     UNION ALL
@@ -119,3 +145,34 @@ WITH cte_series(value) AS (
     ORDER BY boxPosition, fieldPosition
 )
 SELECT * FROM cte_fields_pivot;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_link AS (
+    SELECT cte_linkPosition.value AS linkPosition, '$.links[' || cte_linkPosition.value || ']' AS path
+    FROM cte_series AS cte_linkPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+), cte_links AS (
+    SELECT cte_tree.*, cte_link.linkPosition 
+    FROM cte_tree
+    JOIN cte_link ON cte_tree.path = cte_link.path
+), cte_links_pivot AS (
+    SELECT linkPosition,
+            MAX(case when key = 'from' then value end) as from_,
+            MAX(case when key = 'fromField' then value end) as fromField,
+            MAX(case when key = 'fromCardinality' then value end) as fromCardinality,
+            MAX(case when key = 'to' then value end) as to_,
+            MAX(case when key = 'toField' then value end) as toField,
+            MAX(case when key = 'toCardinality' then value end) as toCardinality,
+            MAX(case when key = 'category' then value end) as category                    
+    FROM cte_links
+    GROUP BY linkPosition
+    ORDER BY linkPosition
+)
+SELECT * FROM cte_links_pivot;
