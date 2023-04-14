@@ -38,7 +38,7 @@ CREATE TABLE field(
     name varchar(100),
     isPrimaryKey INTEGER,
     isForeignKey INTEGER,
-	fieldType varchar(10),
+    fieldType varchar(10),
     deleted INTEGER,
     UNIQUE (diagramId, boxPosition, position),
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
@@ -93,6 +93,10 @@ SELECT json_array_length((SELECT document FROM diagData WHERE id=1), '$.boxes');
 SELECT value FROM generate_series(5,100,5); --error
 
 
+INSERT INTO diagram(id, title, deleted)
+VALUES(1, 'CV Ludovic Aubert', 0);
+
+
 WITH cte_series(value) AS (
     SELECT 0 
     UNION ALL
@@ -115,7 +119,9 @@ WITH cte_series(value) AS (
     GROUP BY boxPosition
     ORDER BY boxPosition
 )
-SELECT * FROM cte_boxes_pivot;
+INSERT INTO box(diagramId, position, title, deleted)
+SELECT 1 AS diagramId, boxPosition, title, 0 AS deleted 
+FROM cte_boxes_pivot;
 
 
 WITH cte_series(value) AS (
@@ -144,7 +150,9 @@ WITH cte_series(value) AS (
     GROUP BY boxPosition, fieldPosition
     ORDER BY boxPosition, fieldPosition
 )
-SELECT * FROM cte_fields_pivot;
+INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
+SELECT fieldPosition, boxPosition, 1 AS diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
+FROM cte_fields_pivot;
 
 
 WITH cte_series(value) AS (
@@ -175,4 +183,6 @@ WITH cte_series(value) AS (
     GROUP BY linkPosition
     ORDER BY linkPosition
 )
-SELECT * FROM cte_links_pivot;
+INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
+SELECT 1 AS diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
+FROM cte_links_pivot;
