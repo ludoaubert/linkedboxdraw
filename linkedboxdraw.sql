@@ -53,6 +53,7 @@ CREATE TABLE picture(
 	base64 text NOT NULL
 );
 
+
 CREATE TABLE link(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
@@ -67,10 +68,16 @@ CREATE TABLE link(
     FOREIGN KEY (diagramId, fromBoxPosition) REFERENCES box(diagramId, position),
     FOREIGN KEY (diagramId, toBoxPosition) REFERENCES box(diagramId, position),
     FOREIGN KEY (diagramId, fromBoxPosition, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),
-    FOREIGN KEY (diagramId, toBoxPosition, toBoxPosition) REFERENCES field(diagramId, boxPosition, position)
+    FOREIGN KEY (diagramId, toBoxPosition, toFieldPosition) REFERENCES field(diagramId, boxPosition, position)
 );
 
 CREATE TABLE diagData(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    document text
+);
+
+CREATE TABLE geoData(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
     document text
