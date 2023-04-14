@@ -103,6 +103,10 @@ SELECT value FROM generate_series(5,100,5); --error
 INSERT INTO diagram(id, title, deleted)
 VALUES(1, 'CV Ludovic Aubert', 0);
 
+UPDATE diagram SET guid='a8828ddfef224d36935a1c66ae86ebb3' WHERE id=1;
+
+SELECT * FROM diagram;
+
 
 WITH cte_series(value) AS (
     SELECT 0 
