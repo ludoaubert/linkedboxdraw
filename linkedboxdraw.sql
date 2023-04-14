@@ -193,3 +193,33 @@ WITH cte_series(value) AS (
 INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
 SELECT 1 AS diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
 FROM cte_links_pivot;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_picture AS (
+    SELECT cte_picturePosition.value AS picturePosition, '$.pictures[' || cte_picturePosition.value || ']' AS path
+    FROM cte_series AS cte_picturePosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+), cte_pictures AS (
+    SELECT cte_tree.*, cte_picture.picturePosition 
+    FROM cte_tree
+    JOIN cte_picture ON cte_tree.path = cte_picture.path
+) , cte_pictures_pivot AS (
+    SELECT picturePosition,
+            MAX(case when key = 'height' then value end) as height,
+            MAX(case when key = 'width' then value end) as width,
+            MAX(case when key = 'name' then value end) as name,
+            MAX(case when key = 'base64' then value end) as base64        
+    FROM cte_pictures
+    GROUP BY picturePosition
+    ORDER BY picturePosition
+)
+INSERT INTO picture(diagramId, height, width, name, base64)
+SELECT 1 AS diagramId, height, width, name, base64
+FROM cte_pictures_pivot;
