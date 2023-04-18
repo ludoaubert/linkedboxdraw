@@ -252,11 +252,11 @@ WITH cte_fields AS (
     FROM picture
     WHERE diagramId=1
 ), cte_doc AS (
-    SELECT json_object('documentTitle', diagram.title, 'boxes', cte_boxes.boxes, 'links', cte_links.links, 'pictures', cte_pictures.pictures)
+    SELECT json_object('documentTitle', diagram.title, 'boxes', cte_boxes.boxes, 'links', cte_links.links, 'pictures', cte_pictures.pictures) AS document
     FROM diagram 
     CROSS JOIN cte_boxes
     CROSS JOIN cte_links
     CROSS JOIN cte_pictures
     WHERE diagram.id=1
 )
-SELECT * FROM cte_doc;
+SELECT REPLACE(REPLACE(REPLACE(REPLACE(document,'\\\',''), '\"', '"'),'"[','['),']"',']') AS document FROM cte_doc;
