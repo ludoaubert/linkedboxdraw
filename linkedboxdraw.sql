@@ -239,14 +239,19 @@ WITH cte_fields AS (
     WHERE diagramId=1
     GROUP BY boxPosition
 ) , cte_boxes AS (
-    SELECT group_concat( json_object('title', title, 'id', position, 'fields', fields), ',') AS boxes  
+    SELECT '[' || group_concat( json_object('title', title, 'id', position, 'fields', fields), ',') || ']' AS boxes  
     FROM box
     JOIN cte_fields ON box.position=cte_fields.boxPosition
     WHERE box.diagramId=1
+) , cte_links AS (
+    SELECT '[' || group_concat( json_object('from',fromBoxPosition,'fromField',fromFieldPosition,'fromCardinality',fromCardinality,'to',toBoxPosition,'toField',toFieldPosition,'toCardinality',toCardinality,'category',category), ',') || ']' AS links
+    FROM link
+    WHERE diagramId=1
 ) , cte_doc AS (
-    SELECT json_object('documentTitle', diagram.title, 'boxes', cte_boxes.boxes)
+    SELECT json_object('documentTitle', diagram.title, 'boxes', cte_boxes.boxes, 'links', cte_links.links)
     FROM diagram 
     CROSS JOIN cte_boxes
+    CROSS JOIN cte_links
     WHERE diagram.id=1
 )
 SELECT * FROM cte_doc;
