@@ -1,3 +1,6 @@
+PRAGMA foreign_keys = ON;
+
+
 CREATE TABLE diagram(
     id INTEGER PRIMARY KEY,
     title VARCHAR(100),
@@ -71,31 +74,28 @@ CREATE TABLE link(
     FOREIGN KEY (diagramId, toBoxPosition, toFieldPosition) REFERENCES field(diagramId, boxPosition, position)
 );
 
-CREATE TABLE diagData(
+CREATE TABLE document(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
-    document text
+    diagData text,
+    geoData text
 );
 
-CREATE TABLE geoData(
-    id INTEGER PRIMARY KEY,
-    diagramId INTEGER,
-    document text
-);
+SELECT * FROM document;
 
 
-SELECT id, diagramId, document->'$.documentTitle', document FROM diagData;
-SELECT id, diagramId, document->'$.boxes', document FROM diagData;
+SELECT id, diagramId, diagData->'$.documentTitle', diagData FROM document;
+SELECT id, diagramId, diagData->'$.boxes', diagData FROM document;
 
 WITH cte_box AS (
     SELECT key AS boxPosition, value AS boxValue 
-    FROM json_each((SELECT document FROM diagData WHERE id=1), '$.boxes')
+    FROM json_each((SELECT diagData FROM document WHERE id=1), '$.boxes')
 )
 SELECT * FROM cte_box;
 
-SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1));
+SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1));
 
-SELECT json_array_length((SELECT document FROM diagData WHERE id=1), '$.boxes');
+SELECT json_array_length((SELECT diagData FROM document WHERE id=1), '$.boxes');
 
 SELECT value FROM generate_series(5,100,5); --error
 
@@ -118,7 +118,7 @@ WITH cte_series(value) AS (
     SELECT cte_boxPosition.value AS boxPosition, '$.boxes[' || cte_boxPosition.value || ']' AS path
     FROM cte_series AS cte_boxPosition
 ), cte_tree AS (
-    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_boxes AS (
     SELECT cte_tree.*, cte_box.boxPosition 
     FROM cte_tree
@@ -146,7 +146,7 @@ WITH cte_series(value) AS (
     FROM cte_series AS cte_boxPosition
     CROSS JOIN cte_series AS cte_fieldPosition
 ), cte_tree AS (
-    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_fields AS (
     SELECT cte_tree.*, cte_bf.boxPosition, cte_bf.fieldPosition 
     FROM cte_tree
@@ -176,7 +176,7 @@ WITH cte_series(value) AS (
     SELECT cte_linkPosition.value AS linkPosition, '$.links[' || cte_linkPosition.value || ']' AS path
     FROM cte_series AS cte_linkPosition
 ), cte_tree AS (
-    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_links AS (
     SELECT cte_tree.*, cte_link.linkPosition 
     FROM cte_tree
@@ -209,7 +209,7 @@ WITH cte_series(value) AS (
     SELECT cte_picturePosition.value AS picturePosition, '$.pictures[' || cte_picturePosition.value || ']' AS path
     FROM cte_series AS cte_picturePosition
 ), cte_tree AS (
-    SELECT * FROM json_tree((SELECT document FROM diagData WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_pictures AS (
     SELECT cte_tree.*, cte_picture.picturePosition 
     FROM cte_tree
@@ -227,3 +227,5 @@ WITH cte_series(value) AS (
 INSERT INTO picture(diagramId, height, width, name, base64)
 SELECT 1 AS diagramId, height, width, name, base64
 FROM cte_pictures_pivot;
+
+--reproducing JSON from tables:
