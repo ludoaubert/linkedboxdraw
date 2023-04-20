@@ -260,3 +260,47 @@ WITH cte_fields AS (
     WHERE diagram.id=1
 )
 SELECT REPLACE(REPLACE(REPLACE(REPLACE(document,'\\\',''), '\"', '"'),'"[','['),']"',']') AS document FROM cte_doc;
+
+
+CREATE TABLE translatedBoxes(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    boxPosition INTEGER,
+    translationX INTEGER,
+    translationY INTEGER,
+    UNIQUE(diagramId, boxPosition),
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+);
+
+
+CREATE TABLE polyline(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER
+    boxPosition INTEGER,
+    [FROM] INTEGER,
+    [TO] INTEGER,
+    UNIQUE(diagramId, boxPosition),
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+);
+
+CREATE TABLE point(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    boxPosition INTEGER,
+    X INTEGER,
+    Y INTEGER,
+    UNIQUE(diagramId, boxPosition),
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+);
+
+CREATE TABLE rectangle(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    boxPosition INTEGER,
+    [LEFT] INTEGER,
+    [RIGHT] INTEGER,
+    TOP INTEGER,
+    BOTTOM INTEGER,
+    UNIQUE(diagramId, boxPosition),
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+);
