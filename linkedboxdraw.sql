@@ -261,49 +261,64 @@ WITH cte_fields AS (
 )
 SELECT REPLACE(REPLACE(REPLACE(REPLACE(document,'\\\',''), '\"', '"'),'"[','['),']"',']') AS document FROM cte_doc;
 
+CREATE TABLE context(
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    contextPosition INTEGER,
+    UNIQUE(diagramId, contextPosition),
+    FOREIGN KEY (diagramId) REFERENCES diagram(id)
+);
+
 
 CREATE TABLE translatedBoxes(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
+    contextPosition INTEGER,
     boxPosition INTEGER,
     translationX INTEGER,
     translationY INTEGER,
     UNIQUE(diagramId, boxPosition),
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, contextPosition) REFERENCES context(diagramId, contextPosition)
 );
-
 
 CREATE TABLE polyline(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
-    boxPosition INTEGER,
-    [FROM] INTEGER,
-    [TO] INTEGER,
-    UNIQUE(diagramId, boxPosition),
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
+    contextPosition INTEGER,
+    polylinePosition INTEGER,
+    [from] INTEGER,
+    [to] INTEGER,
+    UNIQUE(diagramId, contextPosition, polylinePosition),
+    FOREIGN KEY (diagramId, [from]) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, [to]) REFERENCES box(diagramId, position),
+    FOREIGN KEY (diagramId, contextPosition) REFERENCES context(diagramId, contextPosition)
 );
+
 
 CREATE TABLE point(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
-    boxPosition INTEGER,
-    X INTEGER,
-    Y INTEGER,
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
+    contextPosition INTEGER,
+    polylinePosition INTEGER,
+    pointPosition INTEGER,
+    x INTEGER,
+    y INTEGER,
+    FOREIGN KEY (diagramId, contextPosition, polylinePosition) REFERENCES polyline(diagramId, contextPosition, polylinePosition)
 );
 
 CREATE TABLE frame(
-	id INTEGER PRIMARY KEY,
-	diagramId INTEGER,
+    id INTEGER PRIMARY KEY,
+    diagramId INTEGER,
+    contextPosition INTEGER,
     [LEFT] INTEGER,
     [RIGHT] INTEGER,
     TOP INTEGER,
     BOTTOM INTEGER,
-    UNIQUE(diagramId),
-    FOREIGN KEY (diagramId) REFERENCES diagram(id)	
+    UNIQUE(diagramId, contextPosition),
+    FOREIGN KEY (diagramId, contextPosition) REFERENCES context(diagramId, contextPosition)	
 );
 
-DROP TABLE rectangle;
 
 CREATE TABLE rectangle(
     id INTEGER PRIMARY KEY,
@@ -348,3 +363,155 @@ SELECT 1 AS diagramId, rectanglePosition, [left], [right], top, bottom
 FROM cte_rectangles_pivot;
 
 SELECT * FROM rectangle;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_context AS (
+    SELECT cte_contextPosition.value AS contextPosition, '$.contexts[' || cte_contextPosition.value || ']' AS path
+    FROM cte_series AS cte_contextPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_contexts AS (
+    SELECT *
+    FROM cte_context
+    WHERE EXISTS (SELECT * FROM cte_tree WHERE cte_tree.path = cte_context.path)
+) 
+INSERT INTO context(diagramId, contextPosition)
+SELECT 1 AS diagramId, contextPosition
+FROM cte_contexts;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_frame AS (
+    SELECT cte_contextPosition.value AS contextPosition, '$.contexts[' || cte_contextPosition.value || '].frame' AS path
+    FROM cte_series AS cte_contextPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_frames AS (
+    SELECT cte_tree.*, cte_frame.contextPosition 
+    FROM cte_tree
+    JOIN cte_frame ON cte_tree.path = cte_frame.path
+), cte_frames_pivot AS (
+    SELECT contextPosition,
+            MAX(case when key = 'left' then value end) as [left],
+            MAX(case when key = 'right' then value end) as [right],
+            MAX(case when key = 'top' then value end) as top,
+            MAX(case when key = 'bottom' then value end) as bottom        
+    FROM cte_frames
+    GROUP BY contextPosition
+    ORDER BY contextPosition
+)
+INSERT INTO frame(diagramId, contextPosition, [left], [right], top, bottom)
+SELECT 1 AS diagramId, contextPosition, [left], [right], top, bottom
+FROM cte_frames_pivot;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_tb AS (
+    SELECT cte_contextPosition.value AS contextPosition, cte_tbPosition.value AS tbPosition, '$.contexts[' || cte_contextPosition.value || '].translatedBoxes[' ||cte_tbPosition.value || ']' AS path
+    FROM cte_series AS cte_contextPosition
+    CROSS JOIN cte_series AS cte_tbPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_tbs AS (
+    SELECT cte_tree.*, cte_tb.contextPosition, cte_tb.tbPosition
+    FROM cte_tree
+    JOIN cte_tb ON cte_tree.path = cte_tb.path
+), cte_tbs_pivot AS (
+    SELECT contextPosition, tbPosition,
+            MAX(case when key = 'id' then value end) as [boxPosition],
+            MAX(case when key = 'translation' then value end) as [translation]
+    FROM cte_tbs
+    GROUP BY contextPosition, tbPosition
+    ORDER BY contextPosition, tbPosition
+)
+INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
+SELECT 1 AS diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
+FROM cte_tbs_pivot;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_polyline AS (
+    SELECT cte_contextPosition.value AS contextPosition, cte_polylinePosition.value AS polylinePosition, '$.contexts[' || cte_contextPosition.value || '].links[' ||cte_polylinePosition.value || ']' AS path
+    FROM cte_series AS cte_contextPosition
+    CROSS JOIN cte_series AS cte_polylinePosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_polylines AS (
+    SELECT cte_tree.*, cte_polyline.contextPosition, cte_polyline.polylinePosition
+    FROM cte_tree
+    JOIN cte_polyline ON cte_tree.path = cte_polyline.path
+), cte_polylines_pivot AS (
+    SELECT contextPosition, polylinePosition,
+            MAX(case when key = 'from' then value end) as [from],
+            MAX(case when key = 'to' then value end) as [to]
+    FROM cte_polylines
+    GROUP BY contextPosition, polylinePosition
+    ORDER BY contextPosition, polylinePosition
+)
+INSERT INTO polyline(diagramId, contextPosition, polylinePosition, [from], [to])
+SELECT 1 AS diagramId, contextPosition, polylinePosition, [from], [to]
+FROM cte_polylines_pivot;
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_short_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 10
+), cte_very_short_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 4
+), cte_point AS (
+    SELECT cte_contextPosition.value AS contextPosition, cte_polylinePosition.value AS polylinePosition, cte_pointPosition.value AS pointPosition, '$.contexts[' || cte_contextPosition.value || '].links[' ||cte_polylinePosition.value || '].polyline[' || cte_pointPosition.value ||']' AS path
+    FROM cte_very_short_series AS cte_contextPosition
+    CROSS JOIN cte_series AS cte_polylinePosition
+    CROSS JOIN cte_short_series AS cte_pointPosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_points AS (
+    SELECT cte_tree.*, cte_point.contextPosition, cte_point.polylinePosition, cte_point.pointPosition
+    FROM cte_tree
+    JOIN cte_point ON cte_tree.path = cte_point.path
+), cte_points_pivot AS (
+    SELECT contextPosition, polylinePosition, pointPosition,
+            MAX(case when key = 'x' then value end) as x,
+            MAX(case when key = 'y' then value end) as y
+    FROM cte_points
+    GROUP BY contextPosition, polylinePosition, pointPosition
+    ORDER BY contextPosition, polylinePosition, pointPosition
+)
+INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x, y)
+SELECT 1 AS diagramId, contextPosition, polylinePosition, pointPosition, x, y
+FROM cte_points_pivot;
+
