@@ -275,7 +275,7 @@ CREATE TABLE translatedBoxes(
 
 CREATE TABLE polyline(
     id INTEGER PRIMARY KEY,
-    diagramId INTEGER
+    diagramId INTEGER,
     boxPosition INTEGER,
     [FROM] INTEGER,
     [TO] INTEGER,
