@@ -289,7 +289,6 @@ CREATE TABLE point(
     boxPosition INTEGER,
     X INTEGER,
     Y INTEGER,
-    UNIQUE(diagramId, boxPosition),
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
 );
 
