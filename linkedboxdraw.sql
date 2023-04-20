@@ -292,6 +292,17 @@ CREATE TABLE point(
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
 );
 
+CREATE TABLE frame(
+	id INTEGER PRIMARY KEY,
+	diagramId INTEGER,
+    [LEFT] INTEGER,
+    [RIGHT] INTEGER,
+    TOP INTEGER,
+    BOTTOM INTEGER,
+    UNIQUE(diagramId),
+    FOREIGN KEY (diagramId) REFERENCES diagram(id)	
+);
+
 CREATE TABLE rectangle(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
