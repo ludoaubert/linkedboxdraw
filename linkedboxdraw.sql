@@ -269,7 +269,7 @@ CREATE TABLE translatedBoxes(
     translationX INTEGER,
     translationY INTEGER,
     UNIQUE(diagramId, boxPosition),
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
 
@@ -280,7 +280,7 @@ CREATE TABLE polyline(
     [FROM] INTEGER,
     [TO] INTEGER,
     UNIQUE(diagramId, boxPosition),
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
 CREATE TABLE point(
@@ -289,7 +289,7 @@ CREATE TABLE point(
     boxPosition INTEGER,
     X INTEGER,
     Y INTEGER,
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
 CREATE TABLE frame(
@@ -303,6 +303,8 @@ CREATE TABLE frame(
     FOREIGN KEY (diagramId) REFERENCES diagram(id)	
 );
 
+DROP TABLE rectangle;
+
 CREATE TABLE rectangle(
     id INTEGER PRIMARY KEY,
     diagramId INTEGER,
@@ -312,5 +314,37 @@ CREATE TABLE rectangle(
     TOP INTEGER,
     BOTTOM INTEGER,
     UNIQUE(diagramId, boxPosition),
-    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, boxPosition)
+    FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
+
+
+WITH cte_series(value) AS (
+    SELECT 0 
+    UNION ALL
+    SELECT value + 1
+    FROM cte_series
+    WHERE value + 1 <= 100
+), cte_rectangle AS (
+    SELECT cte_rectanglePosition.value AS rectanglePosition, '$.rectangles[' || cte_rectanglePosition.value || ']' AS path
+    FROM cte_series AS cte_rectanglePosition
+), cte_tree AS (
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+), cte_rectangles AS (
+    SELECT cte_tree.*, cte_rectangle.rectanglePosition 
+    FROM cte_tree
+    JOIN cte_rectangle ON cte_tree.path = cte_rectangle.path
+), cte_rectangles_pivot AS (
+    SELECT rectanglePosition,
+            MAX(case when key = 'left' then value end) as [left],
+            MAX(case when key = 'right' then value end) as [right],
+            MAX(case when key = 'top' then value end) as top,
+            MAX(case when key = 'bottom' then value end) as bottom        
+    FROM cte_rectangles
+    GROUP BY rectanglePosition
+    ORDER BY rectanglePosition
+)
+INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
+SELECT 1 AS diagramId, rectanglePosition, [left], [right], top, bottom
+FROM cte_rectangles_pivot;
+
+SELECT * FROM rectangle;
