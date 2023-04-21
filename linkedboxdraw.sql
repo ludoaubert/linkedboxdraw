@@ -516,26 +516,38 @@ SELECT 1 AS diagramId, contextPosition, polylinePosition, pointPosition, x, y
 FROM cte_points_pivot;
 
 --reproducing JSON from tables:
+--use json(cte_polylines.polyline) to avoid 
 WITH cte_rectangles AS (
     SELECT json_group_array( json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM)) AS rectangles
     FROM rectangle
     WHERE diagramId=1
     GROUP BY diagramId
 ), cte_polylines AS (
-    SELECT diagramId, contextPosition, polylinePosition, json_group_array( json_object('x',x,'y',y)) AS polyline
+    SELECT contextPosition, polylinePosition, json_group_array( json_object('x',x,'y',y)) AS polyline
     FROM point
-    GROUP BY diagramId, contextPosition, polylinePosition
+    WHERE diagramId=1
+    GROUP BY contextPosition, polylinePosition
 ), cte_links AS (
-    SELECT cte_polylines.diagramId, cte_polylines.contextPosition, json_group_array( json_object('polyline', cte_polylines.polyline, 'from', polyline.[from], 'to', polyline.[to])) AS link
+    SELECT cte_polylines.contextPosition, json_group_array( json_object('polyline', json(cte_polylines.polyline), 'from', polyline.[from], 'to', polyline.[to])) AS links
     FROM cte_polylines
-    JOIN polyline ON cte_polylines.diagramId=polyline.diagramId AND cte_polylines.contextPosition=polyline.contextPosition AND cte_polylines.polylinePosition=polyline.polylinePosition
-    GROUP BY cte_polylines.diagramId, cte_polylines.contextPosition
+    JOIN polyline ON cte_polylines.contextPosition=polyline.contextPosition AND cte_polylines.polylinePosition=polyline.polylinePosition
+    WHERE polyline.diagramId=1
+    GROUP BY cte_polylines.contextPosition
 ), cte_tb AS (
-    SELECT diagramId, contextPosition, json_group_array(json_object('id', boxPosition, 'translation', json_object('x', translationX, 'y', translationY)))
+    SELECT contextPosition, json_group_array(json_object('id', boxPosition, 'translation', json_object('x', translationX, 'y', translationY))) AS tb
     FROM translatedBoxes
     WHERE diagramId=1
-    GROUP BY diagramId, contextPosition
+    GROUP BY contextPosition
+), cte_frame AS (
+    SELECT contextPosition, json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM) AS frame
+    FROM frame
+    WHERE diagramId=1
+), cte_contexts AS (
+    SELECT json_group_array(json_object('frame', json(cte_frame.frame), 'translatedBoxes', json(cte_tb.tb), 'links', json(cte_links.links))) AS contexts
+    FROM cte_frame
+    JOIN cte_tb ON cte_tb.contextPosition = cte_frame.contextPosition
+    JOIN cte_links ON cte_links.contextPosition = cte_frame.contextPosition
 )
-SELECT * FROM cte_links
-
-SELECT * FROM rectangle;
+SELECT json_object('contexts', json(cte_contexts.contexts), 'rectangles', json(cte_rectangles.rectangles)) AS document
+FROM cte_contexts
+CROSS JOIN cte_rectangles
