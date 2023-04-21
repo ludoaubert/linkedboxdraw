@@ -515,3 +515,27 @@ INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x
 SELECT 1 AS diagramId, contextPosition, polylinePosition, pointPosition, x, y
 FROM cte_points_pivot;
 
+--reproducing JSON from tables:
+WITH cte_rectangles AS (
+    SELECT json_group_array( json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM)) AS rectangles
+    FROM rectangle
+    WHERE diagramId=1
+    GROUP BY diagramId
+), cte_polylines AS (
+    SELECT diagramId, contextPosition, polylinePosition, json_group_array( json_object('x',x,'y',y)) AS polyline
+    FROM point
+    GROUP BY diagramId, contextPosition, polylinePosition
+), cte_links AS (
+    SELECT cte_polylines.diagramId, cte_polylines.contextPosition, json_group_array( json_object('polyline', cte_polylines.polyline, 'from', polyline.[from], 'to', polyline.[to])) AS link
+    FROM cte_polylines
+    JOIN polyline ON cte_polylines.diagramId=polyline.diagramId AND cte_polylines.contextPosition=polyline.contextPosition AND cte_polylines.polylinePosition=polyline.polylinePosition
+    GROUP BY cte_polylines.diagramId, cte_polylines.contextPosition
+), cte_tb AS (
+    SELECT diagramId, contextPosition, json_group_array(json_object('id', boxPosition, 'translation', json_object('x', translationX, 'y', translationY)))
+    FROM translatedBoxes
+    WHERE diagramId=1
+    GROUP BY diagramId, contextPosition
+)
+SELECT * FROM cte_links
+
+SELECT * FROM rectangle;
