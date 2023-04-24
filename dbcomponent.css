@@ -1,6 +1,6 @@
 
 
-table[id^="box"] table{
+table[id^="box"]{
   display:block;
   overflow-x: hidden;  /* Hide the horizontal scroll */
   overflow-y:auto;
