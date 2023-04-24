@@ -1,6 +1,6 @@
 
 
-foreignObject table{
+table[id^="box"] table{
   display:block;
   overflow-x: hidden;  /* Hide the horizontal scroll */
   overflow-y:auto;
@@ -12,7 +12,7 @@ foreignObject table{
   height: 100%;
 }
 
-foreignObject td, foreignObject th{
+table[id^="box"] td, table[id^="box"] th{
   font-family: monospace;
   font-style: normal;
   font-size: 12px;
@@ -27,23 +27,23 @@ foreignObject td, foreignObject th{
 }
 
 
-foreignObject td {
+table[id^="box"] td {
   font-weight: normal;
 }
 
-foreignObject th {
+table[id^="box"] th {
   font-weight: bold;
   text-align: center;
 }
 
-foreignObject thead {
+table[id^="box"] thead {
 	position: sticky;
 	top:0;
 	display:block;
 	background-color: #eee;
 }
 
-foreignObject tbody {
+table[id^="box"] tbody {
     width: 100%;
     display: table;	
 }
