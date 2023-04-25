@@ -527,7 +527,7 @@ WITH cte_rectangles AS (
     FROM point
     WHERE diagramId=1
     GROUP BY contextPosition, polylinePosition
-), cte_links AS (
+), cte_geo_links AS (
     SELECT cte_polylines.contextPosition, json_group_array( json_object('polyline', json(cte_polylines.polyline), 'from', polyline.[from], 'to', polyline.[to])) AS links
     FROM cte_polylines
     JOIN polyline ON cte_polylines.contextPosition=polyline.contextPosition AND cte_polylines.polylinePosition=polyline.polylinePosition
@@ -543,10 +543,10 @@ WITH cte_rectangles AS (
     FROM frame
     WHERE diagramId=1
 ), cte_contexts AS (
-    SELECT json_group_array(json_object('frame', json(cte_frame.frame), 'translatedBoxes', json(cte_tb.tb), 'links', json(cte_links.links))) AS contexts
+    SELECT json_group_array(json_object('frame', json(cte_frame.frame), 'translatedBoxes', json(cte_tb.tb), 'links', json(cte_geo_links.links))) AS contexts
     FROM cte_frame
     JOIN cte_tb ON cte_tb.contextPosition = cte_frame.contextPosition
-    JOIN cte_links ON cte_links.contextPosition = cte_frame.contextPosition
+    JOIN cte_geo_links ON cte_geo_links.contextPosition = cte_frame.contextPosition
 )
 SELECT json_object('contexts', json(cte_contexts.contexts), 'rectangles', json(cte_rectangles.rectangles)) AS document
 FROM cte_contexts
