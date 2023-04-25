@@ -11,7 +11,7 @@ const server = http.createServer((req, res) => {
   exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read select_document.sql"`, (error, stdout, stderr) => {
     console.log("STDOUT:", stdout, ", STDERR:", stderr);
 	  res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', 'application/json');
   //res.end('Hello World');
       res.end(stdout);
 });
