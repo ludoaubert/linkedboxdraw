@@ -107,22 +107,13 @@ UPDATE diagram SET guid='a8828ddfef224d36935a1c66ae86ebb3' WHERE id=1;
 
 SELECT * FROM diagram;
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_box AS (
-    SELECT cte_boxPosition.value AS boxPosition, '$.boxes[' || cte_boxPosition.value || ']' AS path
-    FROM cte_series AS cte_boxPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
-), cte_boxes AS (
-    SELECT cte_tree.*, cte_box.boxPosition 
-    FROM cte_tree
-    JOIN cte_box ON cte_tree.path = cte_box.path
+) , cte_boxes AS (
+    SELECT box.key AS boxPosition, box_attr.key, box_attr.value
+    FROM cte_tree box
+    JOIN cte_tree box_attr ON box_attr.parent=box.id
+    WHERE box.path = '$.boxes' AND box_attr.key='title' 
 ), cte_boxes_pivot AS (
     SELECT boxPosition,
             MAX(case when key = 'title' then value end) as title        
@@ -133,6 +124,7 @@ WITH cte_series(value) AS (
 INSERT INTO box(diagramId, position, title, deleted)
 SELECT 1 AS diagramId, boxPosition, title, 0 AS deleted 
 FROM cte_boxes_pivot;
+
 
 
 WITH cte_series(value) AS (
