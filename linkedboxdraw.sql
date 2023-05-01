@@ -326,22 +326,13 @@ FROM cte_rectangles_pivot;
 SELECT * FROM rectangle;
 
 
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_context AS (
-    SELECT cte_contextPosition.value AS contextPosition, '$.contexts[' || cte_contextPosition.value || ']' AS path
-    FROM cte_series AS cte_contextPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
 ), cte_contexts AS (
-    SELECT *
-    FROM cte_context
-    WHERE EXISTS (SELECT * FROM cte_tree WHERE cte_tree.path = cte_context.path)
-) 
+    SELECT key AS contextPosition
+    FROM cte_tree array_index
+    WHERE path='$.contexts'
+)
 INSERT INTO context(diagramId, contextPosition)
 SELECT 1 AS diagramId, contextPosition
 FROM cte_contexts;
