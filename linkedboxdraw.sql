@@ -337,22 +337,14 @@ INSERT INTO context(diagramId, contextPosition)
 SELECT 1 AS diagramId, contextPosition
 FROM cte_contexts;
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_frame AS (
-    SELECT cte_contextPosition.value AS contextPosition, '$.contexts[' || cte_contextPosition.value || '].frame' AS path
-    FROM cte_series AS cte_contextPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
 ), cte_frames AS (
-    SELECT cte_tree.*, cte_frame.contextPosition 
-    FROM cte_tree
-    JOIN cte_frame ON cte_tree.path = cte_frame.path
+    SELECT context_array_index.key AS contextPosition, attr.key, attr.value
+    FROM cte_tree attr
+    JOIN cte_tree frame ON attr.parent=frame.id
+    JOIN cte_tree context_array_index ON frame.parent=context_array_index.id
+    WHERE context_array_index.path='$.contexts'
 ), cte_frames_pivot AS (
     SELECT contextPosition,
             MAX(case when key = 'left' then value end) as [left],
