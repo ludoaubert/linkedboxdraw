@@ -126,23 +126,15 @@ SELECT 1 AS diagramId, boxPosition, title, 0 AS deleted
 FROM cte_boxes_pivot;
 
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_bf AS (
-    SELECT cte_boxPosition.value AS boxPosition, cte_fieldPosition.value AS fieldPosition, '$.boxes[' || cte_boxPosition.value || '].fields[' || cte_fieldPosition.value || ']' AS path
-    FROM cte_series AS cte_boxPosition
-    CROSS JOIN cte_series AS cte_fieldPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_fields AS (
-    SELECT cte_tree.*, cte_bf.boxPosition, cte_bf.fieldPosition 
-    FROM cte_tree
-    JOIN cte_bf ON cte_tree.path = cte_bf.path
+    SELECT box_array_index.key AS boxPosition, field_array_index.key AS fieldPosition, field.key, field.value
+    FROM cte_tree field
+    JOIN cte_tree field_array_index ON field.parent = field_array_index.id
+    JOIN cte_tree field_array ON field_array_index.parent = field_array.id
+    JOIN cte_tree box_array_index ON field_array.parent = box_array_index.id
+    WHERE field.key IN ('name', 'isPrimaryKey', 'isForeignKey', 'type')
 ), cte_fields_pivot AS (
     SELECT boxPosition, fieldPosition,
             MAX(case when key = 'name' then value end) as name,
@@ -156,6 +148,7 @@ WITH cte_series(value) AS (
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
 SELECT fieldPosition, boxPosition, 1 AS diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
 FROM cte_fields_pivot;
+
 
 
 WITH cte_series(value) AS (
