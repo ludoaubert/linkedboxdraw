@@ -150,22 +150,13 @@ SELECT fieldPosition, boxPosition, 1 AS diagramId, name, isPrimaryKey, isForeign
 FROM cte_fields_pivot;
 
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_link AS (
-    SELECT cte_linkPosition.value AS linkPosition, '$.links[' || cte_linkPosition.value || ']' AS path
-    FROM cte_series AS cte_linkPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_links AS (
-    SELECT cte_tree.*, cte_link.linkPosition 
-    FROM cte_tree
-    JOIN cte_link ON cte_tree.path = cte_link.path
+    SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
+    FROM cte_tree link_attr
+    JOIN cte_tree link_array_index ON link_attr.parent=link_array_index.id
+    WHERE link_array_index.path='$.links'
 ), cte_links_pivot AS (
     SELECT linkPosition,
             MAX(case when key = 'from' then value end) as from_,
@@ -182,6 +173,7 @@ WITH cte_series(value) AS (
 INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
 SELECT 1 AS diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
 FROM cte_links_pivot;
+
 
 
 WITH cte_series(value) AS (
