@@ -301,22 +301,13 @@ CREATE TABLE rectangle(
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_rectangle AS (
-    SELECT cte_rectanglePosition.value AS rectanglePosition, '$.rectangles[' || cte_rectanglePosition.value || ']' AS path
-    FROM cte_series AS cte_rectanglePosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
 ), cte_rectangles AS (
-    SELECT cte_tree.*, cte_rectangle.rectanglePosition 
-    FROM cte_tree
-    JOIN cte_rectangle ON cte_tree.path = cte_rectangle.path
+    SELECT array_index.key AS rectanglePosition, attr.key, attr.value
+    FROM cte_tree array_index
+    JOIN cte_tree attr ON attr.parent=array_index.id
+    WHERE array_index.path='$.rectangles'
 ), cte_rectangles_pivot AS (
     SELECT rectanglePosition,
             MAX(case when key = 'left' then value end) as [left],
@@ -330,6 +321,7 @@ WITH cte_series(value) AS (
 INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
 SELECT 1 AS diagramId, rectanglePosition, [left], [right], top, bottom
 FROM cte_rectangles_pivot;
+
 
 SELECT * FROM rectangle;
 
