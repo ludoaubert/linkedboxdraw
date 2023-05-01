@@ -175,23 +175,14 @@ SELECT 1 AS diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition,
 FROM cte_links_pivot;
 
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_picture AS (
-    SELECT cte_picturePosition.value AS picturePosition, '$.pictures[' || cte_picturePosition.value || ']' AS path
-    FROM cte_series AS cte_picturePosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
 ), cte_pictures AS (
-    SELECT cte_tree.*, cte_picture.picturePosition 
-    FROM cte_tree
-    JOIN cte_picture ON cte_tree.path = cte_picture.path
-) , cte_pictures_pivot AS (
+    SELECT picture_array_index.key AS picturePosition, picture_attr.key, picture_attr.value
+    FROM cte_tree picture_array_index
+    JOIN cte_tree picture_attr ON picture_attr.parent=picture_array_index.id
+    WHERE picture_array_index.path='$.pictures'
+), cte_pictures_pivot AS (
     SELECT picturePosition,
             MAX(case when key = 'height' then value end) as height,
             MAX(case when key = 'width' then value end) as width,
@@ -204,6 +195,7 @@ WITH cte_series(value) AS (
 INSERT INTO picture(diagramId, height, width, name, base64)
 SELECT 1 AS diagramId, height, width, name, base64
 FROM cte_pictures_pivot;
+
 
 --reproducing JSON from tables:
 WITH cte_fields AS (
