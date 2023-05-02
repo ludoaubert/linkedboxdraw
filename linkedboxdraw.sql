@@ -360,22 +360,15 @@ SELECT 1 AS diagramId, contextPosition, [left], [right], top, bottom
 FROM cte_frames_pivot;
 
 
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_tb AS (
-    SELECT cte_contextPosition.value AS contextPosition, cte_tbPosition.value AS tbPosition, '$.contexts[' || cte_contextPosition.value || '].translatedBoxes[' ||cte_tbPosition.value || ']' AS path
-    FROM cte_series AS cte_contextPosition
-    CROSS JOIN cte_series AS cte_tbPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
 ), cte_tbs AS (
-    SELECT cte_tree.*, cte_tb.contextPosition, cte_tb.tbPosition
-    FROM cte_tree
-    JOIN cte_tb ON cte_tree.path = cte_tb.path
+    SELECT context_array_index.key AS contextPosition, tB_array_index.key AS tbPosition, attr.key, attr.value
+    FROM cte_tree context_array_index
+    JOIN cte_tree tB ON tB.parent=context_array_index.id
+    join cte_tree tB_array_index ON tB_array_index.parent=tB.id
+    join cte_tree attr ON attr.parent=tB_array_index.id
+    WHERE context_array_index.path='$.contexts' AND tB.key='translatedBoxes'
 ), cte_tbs_pivot AS (
     SELECT contextPosition, tbPosition,
             MAX(case when key = 'id' then value end) as [boxPosition],
@@ -387,6 +380,7 @@ WITH cte_series(value) AS (
 INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
 SELECT 1 AS diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
 FROM cte_tbs_pivot;
+
 
 
 WITH cte_series(value) AS (
