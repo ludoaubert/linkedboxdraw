@@ -404,36 +404,17 @@ SELECT 1 AS diagramId, contextPosition, polylinePosition, [from], [to]
 FROM cte_polylines_pivot;
 
 
-
-WITH cte_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 100
-), cte_short_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 10
-), cte_very_short_series(value) AS (
-    SELECT 0 
-    UNION ALL
-    SELECT value + 1
-    FROM cte_series
-    WHERE value + 1 <= 4
-), cte_point AS (
-    SELECT cte_contextPosition.value AS contextPosition, cte_polylinePosition.value AS polylinePosition, cte_pointPosition.value AS pointPosition, '$.contexts[' || cte_contextPosition.value || '].links[' ||cte_polylinePosition.value || '].polyline[' || cte_pointPosition.value ||']' AS path
-    FROM cte_very_short_series AS cte_contextPosition
-    CROSS JOIN cte_series AS cte_polylinePosition
-    CROSS JOIN cte_short_series AS cte_pointPosition
-), cte_tree AS (
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
 ), cte_points AS (
-    SELECT cte_tree.*, cte_point.contextPosition, cte_point.polylinePosition, cte_point.pointPosition
-    FROM cte_tree
-    JOIN cte_point ON cte_tree.path = cte_point.path
+    SELECT context_array_index.key AS contextPosition, lk_array_index.key AS polylinePosition, point_array_index.key AS pointPosition, attr.key, attr.value
+    FROM cte_tree context_array_index
+    JOIN cte_tree lk ON lk.parent=context_array_index.id
+    JOIN cte_tree lk_array_index ON lk_array_index.parent=lk.id
+    JOIN cte_tree polyline ON polyline.parent = lk_array_index.id
+    JOIN cte_tree point_array_index ON point_array_index.parent = polyline.id
+    JOIN cte_tree attr ON attr.parent=point_array_index.id
+    WHERE context_array_index.path='$.contexts' AND lk.key='links' AND polyline.key='polyline'
 ), cte_points_pivot AS (
     SELECT contextPosition, polylinePosition, pointPosition,
             MAX(case when key = 'x' then value end) as x,
@@ -445,6 +426,7 @@ WITH cte_series(value) AS (
 INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x, y)
 SELECT 1 AS diagramId, contextPosition, polylinePosition, pointPosition, x, y
 FROM cte_points_pivot;
+
 
 --reproducing JSON from tables:
 --use json(cte_polylines.polyline) to avoid 
