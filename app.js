@@ -14,6 +14,7 @@ const server = http.createServer((req, res) => {
           console.log("STDOUT:", stdout, ", STDERR:", stderr);
 	      res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json');
+		  res.setHeader('Access-Control-Allow-Origin', '*');
           res.end(stdout);
 		});
     }
