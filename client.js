@@ -15,6 +15,6 @@ async function initClient() {
 	loadOnlineDocButton = document.getElementById("load_online_doc");
 	
 	diagramCombo.innerHTML = await diagrams.map(diagram => diagram.title)
-											.map(title => `<option>$title</option>`)
+											.map(title => `<option>${title}</option>`)
 											.join('\n');
 }
