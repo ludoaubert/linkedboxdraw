@@ -11,6 +11,7 @@
 	<script type="module" src="diagload.js"></script>
 	<script type="module" src="table_edit.js"></script>
 	<script type="module" src="iocomponent.js"></script>
+	<script type="module" src="client.js"></script>
 	<script type="text/javascript" src="collapsible.js"></script>
 	<link rel="stylesheet" type="text/css" href="dbcomponent.css">
 	<link rel="stylesheet" type="text/css" href="diagstyle.css">
@@ -75,6 +76,14 @@
 		</form>
 	</fieldset>
 	
+</div>
+
+<button type="button" class="collapsible">Online</button>
+<div class="content">
+		<fieldset>
+				Documents: <select id="online_docs"></select>
+				<button type="button" id="load_online_doc">Load</button>
+		</fieldset>
 </div>
 
 <button type="button" class="collapsible">Pictures</button>
