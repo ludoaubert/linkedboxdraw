@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
 		});
     }
-	if (req.url=='/get_document')
+	else if (req.url=='/get_document')
 	{
 		const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8');
         exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
@@ -31,7 +31,7 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
 		});		
 	}
-	else
+	else if (req.url=='/')
     {
         exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read select_document.sql"`, (error, stdout, stderr) => {
           console.log("STDOUT:", stdout, ", STDERR:", stderr);
