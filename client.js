@@ -17,4 +17,9 @@ async function initClient() {
 	diagramCombo.innerHTML = await diagrams.map(diagram => diagram.title)
 											.map(title => `<option>${title}</option>`)
 											.join('\n');
+											
+	loadOnlineDocButton.onclick = () => {
+		const response = await fetch("http://127.0.0.1:3000/get_document");
+		const json = await response.json();
+	}
 }
