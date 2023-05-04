@@ -18,8 +18,8 @@ async function initClient() {
 											.map(title => `<option>${title}</option>`)
 											.join('\n');
 											
-	loadOnlineDocButton.onclick = () => {
+	loadOnlineDocButton.addEventListener("click", async () => {
 		const response = await fetch("http://127.0.0.1:3000/get_document");
 		const json = await response.json();
-	}
+	});
 }
