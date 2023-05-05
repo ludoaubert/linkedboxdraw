@@ -28,7 +28,7 @@ WITH cte_fields AS (
     CROSS JOIN cte_pictures
     WHERE diagram.id=1
 )
---diag-contexts
+/*diag-contexts*/
 , cte_rectangles AS (
     SELECT json_group_array( json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM)) AS rectangles
     FROM rectangle
