@@ -5,9 +5,15 @@ import {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepar
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
 
-export {init, mydata, data, resetData, displayCurrent, createMutationObserver};
+export {init, mydata, data, resetData, setData displayCurrent, createMutationObserver};
 
 var mydata = sample_diagdata;
+
+function setData(mydata_)
+{
+	mydata = mydata_;
+	data = JSON.stringify(mydata);
+}
 
 var data=null;
 function resetData()
