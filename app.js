@@ -23,6 +23,7 @@ const server = http.createServer((req, res) => {
 	else if (req.url=='/get_document')
 	{
 		const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8');
+		console.log(query);
         exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
           console.log("STDOUT:", stdout, ", STDERR:", stderr);
 	      res.statusCode = 200;
