@@ -642,10 +642,10 @@ function addEventListeners()
 
 function loadOnlineDoc(jsonDoc)
 {
-	contexts = jsonDoc.contexts;
-	mycontexts = JSON.parse(contexts);
-	data = jsonDoc.data;
-	mydata = JSON.parse(data);
+	mycontexts = jsonDoc.contexts;
+	contexts = JSON.stringify(mycontexts);
+	mydata = jsonDoc.data;
+	data = JSON.stringify(mydata);
 	resetData();
 	resetContexts();
 	drawDiag();
