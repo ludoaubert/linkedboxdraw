@@ -646,8 +646,6 @@ function loadOnlineDoc(jsonDoc)
 	contexts = JSON.stringify(mycontexts);
 	mydata = jsonDoc.data;
 	data = JSON.stringify(mydata);
-	resetData();
-	resetContexts();
 	drawDiag();
 	displayCurrent();
 }
