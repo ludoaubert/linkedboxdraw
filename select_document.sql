@@ -66,6 +66,6 @@ WITH cte_fields AS (
 ), cte_diag_data AS (
 	SELECT document FROM cte_doc
 )
-SELECT json_object('data', json(cte_diag_data.document), 'contexts', json(cte_diag_contexts.document))
+SELECT json_object('data', json(cte_diag_data.document), 'contexts', json(cte_diag_contexts.document)) AS document
 FROM cte_diag_data
 CROSS JOIN cte_diag_contexts;
