@@ -24,7 +24,7 @@ async function initClient() {
 		const response = await fetch("http://127.0.0.1:3000/get_document");
 		const json = await response.json();
 		setData(json.data);
-		setContexts(jsonDoc.contexts);
+		setContexts(json.contexts);
 		drawDiag();
 		displayCurrent();;
 	});
