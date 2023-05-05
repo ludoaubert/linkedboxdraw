@@ -26,6 +26,6 @@ async function initClient() {
 		setData(json.data);
 		setContexts(json.contexts);
 		drawDiag();
-		displayCurrent();;
+		displayCurrent();
 	});
 }
