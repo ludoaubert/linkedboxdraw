@@ -5,7 +5,7 @@ import {init, mydata, data, resetData, displayCurrent, createMutationObserver} f
 import {initClient} from "./client.js";
 import {getFileData, download} from "./iocomponent.js";
 
-export {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepartition};
+export {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepartition, loadOnlineDoc};
 
 var Module;
 
@@ -637,6 +637,19 @@ function addEventListeners()
 			sizer.addEventListener("mouseup", (event) => deselectSizer(sizer));
 			sizer.addEventListener("mousemove", (event) => moveSizer(event));
 		});
+}
+
+
+function loadOnlineDoc(jsonDoc)
+{
+	contexts = jsonDoc.contexts;
+	mycontexts = JSON.parse(contexts);
+	data = jsonDoc.data;
+	mydata = JSON.parse(data);
+	resetData();
+	resetContexts();
+	drawDiag();
+	displayCurrent();
 }
 
 

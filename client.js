@@ -1,4 +1,5 @@
 export {initClient};
+import {loadOnlineDoc} from "./diagload.js";
 
 var currentDigramIndex = -1;
 
@@ -21,5 +22,6 @@ async function initClient() {
 	loadOnlineDocButton.addEventListener("click", async () => {
 		const response = await fetch("http://127.0.0.1:3000/get_document");
 		const json = await response.json();
+		loadOnlineDoc(json);
 	});
 }
