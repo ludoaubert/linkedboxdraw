@@ -21,7 +21,13 @@ WITH cte_fields AS (
     FROM picture
     WHERE diagramId=1
 ), cte_doc AS (
-    SELECT json_object('documentTitle', diagram.title, 'boxes', json(cte_boxes.boxes), 'links', json(cte_links.links), 'pictures', json(cte_pictures.pictures)) AS document
+    SELECT json_object('documentTitle', diagram.title, 
+		       'boxes', json(cte_boxes.boxes), 
+		       'values', json_array(),
+		       'boxComments', json_array(),
+		       'fieldComments', json_array(),
+		       'links', json(cte_links.links), 
+		       'pictures', json(cte_pictures.pictures)) AS document
     FROM diagram 
     CROSS JOIN cte_boxes
     CROSS JOIN cte_links
