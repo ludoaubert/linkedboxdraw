@@ -1,6 +1,6 @@
 export {initClient};
-import {setData, displayCurrent} from "./table_edit.js";
-import {setContexts, drawDiag} from "./diagload.js";
+import {mydata, setData, displayCurrent} from "./table_edit.js";
+import {mycontexts, setContexts, drawDiag} from "./diagload.js";
 
 var currentDigramIndex = -1;
 
