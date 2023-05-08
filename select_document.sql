@@ -1,10 +1,19 @@
-WITH cte_fields AS (
+WITH cte_bool (bit, boolValue) AS (
+    SELECT 0, 'false' UNION ALL
+    SELECT 1, 'true'
+) ,cte_fields AS (
     SELECT boxPosition, 
-                        json_group_array(json_object('name',name,
-                                                'isPrimaryKey',json(CASE isPrimaryKey WHEN 0 THEN 'false' WHEN 1 THEN 'true' END),
-                                                'isForeignKey',json(CASE isForeignKey WHEN 0 THEN 'false' WHEN 1 THEN 'true' END))
-                                    ) AS fields
+                        json_group_array(
+                            CASE
+                                WHEN fieldType IS NULL THEN
+                                    json_object('name',name, 'isPrimaryKey', pk.boolValue, 'isForeignKey', fk.boolValue)
+                                ELSE
+                                    json_object('name',name, 'isPrimaryKey', pk.boolValue, 'isForeignKey', fk.boolValue, 'type', fieldType)
+                            END
+                        ) AS fields
     FROM field
+    JOIN cte_bool pk ON field.isPrimaryKey = pk.bit
+    JOIN cte_bool fk ON field.isForeignKey = fk.bit
     WHERE diagramId=1
     GROUP BY boxPosition
 ) , cte_boxes AS (
