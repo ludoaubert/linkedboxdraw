@@ -43,7 +43,7 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
         });
     }
-	else if (req.method=='POST')
+	else if (req.method='POST' && req.url=='/set_document')
 	{
 		console.log("POST");
 	}
