@@ -10,7 +10,7 @@ const DEPLOY_DIR='C:/tmp/linkedboxdraw-master';
 
 const server = http.createServer((req, res) => {
 
-    if (req.url=='/list_diagrams')
+    if (req.method='GET' && req.url=='/list_diagrams')
     {
         exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "SELECT json_group_array(json_object('title',title, 'deleted', deleted, 'guid', guid)) FROM diagram"`,(error, stdout, stderr) => {
           console.log("STDOUT:", stdout, ", STDERR:", stderr);
@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
 		});
     }
-	else if (req.url=='/get_document')
+	else if (req.method='GET' && req.url=='/get_document')
 	{
 		const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8')
 						.replace(/\s+/g, ' ');
@@ -33,7 +33,7 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
 		});		
 	}
-	else if (req.url=='/')
+	else if (req.method='GET' && req.url=='/')
     {
         exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read select_document.sql"`, (error, stdout, stderr) => {
           console.log("STDOUT:", stdout, ", STDERR:", stderr);
@@ -45,7 +45,9 @@ const server = http.createServer((req, res) => {
     }
 	else if (req.method='POST' && req.url=='/set_document')
 	{
-		console.log("POST");
+		console.log(req.body);
+		res.statusCode = 200;
+		res.end(stdout);
 	}
 
 });
