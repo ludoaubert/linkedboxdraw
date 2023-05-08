@@ -43,6 +43,10 @@ const server = http.createServer((req, res) => {
           res.end(stdout);
         });
     }
+	else if (req.method=='POST')
+	{
+		console.log("POST");
+	}
 
 });
 
