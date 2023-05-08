@@ -6,9 +6,9 @@ WITH cte_bool (bit, boolValue) AS (
                         json_group_array(
                             CASE
                                 WHEN fieldType IS NULL THEN
-                                    json_object('name',name, 'isPrimaryKey', pk.boolValue, 'isForeignKey', fk.boolValue)
+                                    json_object('name',name, 'isPrimaryKey', json(pk.boolValue), 'isForeignKey', json(fk.boolValue))
                                 ELSE
-                                    json_object('name',name, 'isPrimaryKey', pk.boolValue, 'isForeignKey', fk.boolValue, 'type', fieldType)
+                                    json_object('name',name, 'isPrimaryKey', json(pk.boolValue), 'isForeignKey', json(fk.boolValue), 'type', fieldType)
                             END
                         ) AS fields
     FROM field
