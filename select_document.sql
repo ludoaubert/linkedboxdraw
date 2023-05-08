@@ -35,7 +35,8 @@ WITH cte_bool (bit, boolValue) AS (
 		       'values', json_array(),
 		       'boxComments', json_array(),
 		       'fieldComments', json_array(),
-		       'links', json(cte_links.links), 
+		       'links', json(cte_links.links),
+		       'fieldColors', json_array(),
 		       'pictures', json(cte_pictures.pictures)) AS document
     FROM diagram 
     CROSS JOIN cte_boxes
