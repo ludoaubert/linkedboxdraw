@@ -5,7 +5,8 @@ import {setContexts, drawDiag} from "./diagload.js";
 var currentDigramIndex = -1;
 
 var diagramCombo ;
-var loadOnlineDocButton ;
+var downloadOnlineDocButton ;
+var uploadOnlineDocButton ;
 
 var diagrams=null;
 
@@ -14,18 +15,33 @@ async function initClient() {
     diagrams = await response.json();
 	
 	diagramCombo = document.getElementById("online_docs");
-	loadOnlineDocButton = document.getElementById("load_online_doc");
+	downloadOnlineDocButton = document.getElementById("download_online_doc");
+	uploadOnlineDocButton = document.getElementById("upload_online_doc");
 	
 	diagramCombo.innerHTML = await diagrams.map(diagram => diagram.title)
 											.map(title => `<option>${title}</option>`)
 											.join('\n');
 											
-	loadOnlineDocButton.addEventListener("click", async () => {
+	downloadOnlineDocButton.addEventListener("click", async () => {
 		const response = await fetch("http://127.0.0.1:3000/get_document");
 		const json = await response.json();
 		setData(json.data);
 		setContexts(json.contexts);
 		drawDiag();
 		displayCurrent();
+	});
+
+	uploadOnlineDocButton.addEventListener("click", async () => {
+		
+		const json = {data:mydata, contexts:mycontexts};
+		
+		fetch("/set_document", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(json),
+            });
+
 	});
 }
