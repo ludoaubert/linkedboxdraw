@@ -38,7 +38,7 @@ async function initClient() {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({data:mydata, contexts:mycontexts}),
+            body: JSON.stringify({data:mydata, contexts:mycontexts})
         });
 
 		const json = await response.json();
