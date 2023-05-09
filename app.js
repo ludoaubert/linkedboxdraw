@@ -1,10 +1,12 @@
 const express = require('express');
 const exec = require('node:child_process').exec;
 const fs = require('fs');
-const bodyParser = require('body-parser')
 
 const app = express();
 const port = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const SQLITE_TOOLS_DIR='C:/lulu/sqlite-tools-win32-x86-3410200';
 const DEPLOY_DIR='C:/tmp/linkedboxdraw-master';
@@ -34,13 +36,14 @@ app.get('/get_document', (req, res) => {
 });
 
 app.post('/set_document', (req, res) => {
+	console.log("POST hit!")
 	const data = req.body;
 	res.statusCode = 200;
+	res.setHeader('Content-Type', 'application/json');
+	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.send('Data Received: ' + JSON.stringify(data));
 });
 
-//app.use(bp.json())
-//app.use(bp.urlencoded({ extended: true }))
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}!`);
