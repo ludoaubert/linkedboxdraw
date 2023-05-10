@@ -1,8 +1,10 @@
 const express = require('express');
 const exec = require('node:child_process').exec;
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 const port = 3000;
 
 app.use(express.json());
@@ -10,6 +12,15 @@ app.use(express.urlencoded({ extended: true }));
 
 const SQLITE_TOOLS_DIR='C:/lulu/sqlite-tools-win32-x86-3410200';
 const DEPLOY_DIR='C:/tmp/linkedboxdraw-master';
+
+
+const corsOptions = {
+    origin: 'https://ludoaubert.github.io',
+    optionsSuccessStatus: 200, // For legacy browser support
+    methods: "GET, PUT"
+};
+
+app.use(cors(corsOptions));
 
 
 app.get('/list_diagrams', (req, res) => {
@@ -38,6 +49,7 @@ app.get('/get_document', (req, res) => {
 app.post('/set_document', (req, res) => {
 	console.log("POST hit!")
 	const data = req.body;
+	console.log(data);
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'application/json');
 	res.setHeader('Access-Control-Allow-Origin', '*');
