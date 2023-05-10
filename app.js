@@ -50,6 +50,9 @@ app.post('/set_document', (req, res) => {
 	console.log("POST hit!")
 	const data = req.body;
 	console.log(JSON.stringify(data));
+	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
+					.replace(/\s+/g, ' ');
+	console.log(query);
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'application/json');
 	res.setHeader('Access-Control-Allow-Origin', '*');
