@@ -1,30 +1,15 @@
-SELECT * FROM document;
-
-
+/*
 SELECT id, diagramId, diagData->'$.documentTitle', diagData FROM document;
 SELECT id, diagramId, diagData->'$.boxes', diagData FROM document;
+*/
 
-WITH cte_box AS (
-    SELECT key AS boxPosition, value AS boxValue 
-    FROM json_each((SELECT diagData FROM document WHERE id=1), '$.boxes')
-)
-SELECT * FROM cte_box;
 
-SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1));
+INSERT INTO diagram(/*id,*/ title, deleted, guid)
+VALUES(/*1,*/ 'CV Ludovic Aubert', 0, 'a8828ddfef224d36935a1c66ae86ebb3');
 
-SELECT json_array_length((SELECT diagData FROM document WHERE id=1), '$.boxes');
-
-SELECT value FROM generate_series(5,100,5); --error
-
-INSERT INTO diagram(id, title, deleted)
-VALUES(1, 'CV Ludovic Aubert', 0);
-
-UPDATE diagram SET guid='a8828ddfef224d36935a1c66ae86ebb3' WHERE id=1;
-
-SELECT * FROM diagram;
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ) , cte_boxes AS (
     SELECT box.key AS boxPosition, box_attr.key, box_attr.value
     FROM cte_tree box
@@ -36,14 +21,17 @@ WITH cte_tree AS (
     FROM cte_boxes
     GROUP BY boxPosition
     ORDER BY boxPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO box(diagramId, position, title, deleted)
-SELECT 1 AS diagramId, boxPosition, title, 0 AS deleted 
-FROM cte_boxes_pivot;
+SELECT diagramId, boxPosition, title, 0 AS deleted 
+FROM cte_boxes_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_fields AS (
     SELECT box_array_index.key AS boxPosition, field_array_index.key AS fieldPosition, field.key, field.value
     FROM cte_tree field
@@ -60,14 +48,17 @@ WITH cte_tree AS (
     FROM cte_fields
     GROUP BY boxPosition, fieldPosition
     ORDER BY boxPosition, fieldPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
-SELECT fieldPosition, boxPosition, 1 AS diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
-FROM cte_fields_pivot;
+SELECT fieldPosition, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
+FROM cte_fields_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_links AS (
     SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
     FROM cte_tree link_attr
@@ -85,14 +76,17 @@ WITH cte_tree AS (
     FROM cte_links
     GROUP BY linkPosition
     ORDER BY linkPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
-SELECT 1 AS diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
-FROM cte_links_pivot;
+SELECT diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
+FROM cte_links_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_pictures AS (
     SELECT picture_array_index.key AS picturePosition, picture_attr.key, picture_attr.value
     FROM cte_tree picture_array_index
@@ -107,14 +101,17 @@ WITH cte_tree AS (
     FROM cte_pictures
     GROUP BY picturePosition
     ORDER BY picturePosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO picture(diagramId, height, width, name, base64)
-SELECT 1 AS diagramId, height, width, name, base64
-FROM cte_pictures_pivot;
+SELECT diagramId, height, width, name, base64
+FROM cte_pictures_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_rectangles AS (
     SELECT array_index.key AS rectanglePosition, attr.key, attr.value
     FROM cte_tree array_index
@@ -129,28 +126,31 @@ WITH cte_tree AS (
     FROM cte_rectangles
     GROUP BY rectanglePosition
     ORDER BY rectanglePosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
-SELECT 1 AS diagramId, rectanglePosition, [left], [right], top, bottom
-FROM cte_rectangles_pivot;
-
-
-SELECT * FROM rectangle;
+SELECT diagramId, rectanglePosition, [left], [right], top, bottom
+FROM cte_rectangles_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_contexts AS (
     SELECT key AS contextPosition
     FROM cte_tree array_index
     WHERE path='$.contexts'
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO context(diagramId, contextPosition)
-SELECT 1 AS diagramId, contextPosition
-FROM cte_contexts;
+SELECT diagramId, contextPosition
+FROM cte_contexts
+CROSS JOIN cte_diagram;
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_frames AS (
     SELECT context_array_index.key AS contextPosition, attr.key, attr.value
     FROM cte_tree attr
@@ -166,14 +166,17 @@ WITH cte_tree AS (
     FROM cte_frames
     GROUP BY contextPosition
     ORDER BY contextPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO frame(diagramId, contextPosition, [left], [right], top, bottom)
-SELECT 1 AS diagramId, contextPosition, [left], [right], top, bottom
-FROM cte_frames_pivot;
+SELECT diagramId, contextPosition, [left], [right], top, bottom
+FROM cte_frames_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_tbs AS (
     SELECT context_array_index.key AS contextPosition, tB_array_index.key AS tbPosition, attr.key, attr.value
     FROM cte_tree context_array_index
@@ -188,14 +191,17 @@ WITH cte_tree AS (
     FROM cte_tbs
     GROUP BY contextPosition, tbPosition
     ORDER BY contextPosition, tbPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
-SELECT 1 AS diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
-FROM cte_tbs_pivot;
+SELECT diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
+FROM cte_tbs_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_polylines AS (
     SELECT context_array_index.key AS contextPosition, lk_array_index.key AS polylinePosition, attr.key, attr.value
     FROM cte_tree context_array_index
@@ -210,14 +216,17 @@ WITH cte_tree AS (
     FROM cte_polylines
     GROUP BY contextPosition, polylinePosition
     ORDER BY contextPosition, polylinePosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO polyline(diagramId, contextPosition, polylinePosition, [from], [to])
-SELECT 1 AS diagramId, contextPosition, polylinePosition, [from], [to]
-FROM cte_polylines_pivot;
+SELECT diagramId, contextPosition, polylinePosition, [from], [to]
+FROM cte_polylines_pivot
+CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE id=1))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_points AS (
     SELECT context_array_index.key AS contextPosition, lk_array_index.key AS polylinePosition, point_array_index.key AS pointPosition, attr.key, attr.value
     FROM cte_tree context_array_index
@@ -234,7 +243,10 @@ WITH cte_tree AS (
     FROM cte_points
     GROUP BY contextPosition, polylinePosition, pointPosition
     ORDER BY contextPosition, polylinePosition, pointPosition
+), cte_diagram AS (
+	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x, y)
-SELECT 1 AS diagramId, contextPosition, polylinePosition, pointPosition, x, y
-FROM cte_points_pivot;
+SELECT diagramId, contextPosition, polylinePosition, pointPosition, x, y
+FROM cte_points_pivot
+CROSS JOIN cte_diagram;

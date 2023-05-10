@@ -5,7 +5,7 @@ CREATE TABLE diagram(
     id INTEGER PRIMARY KEY,
     title VARCHAR(100),
     deleted INTEGER,
-    guid CHAR(16)
+    guid CHAR(16) UNIQUE
 );
 
 CREATE TABLE user(
@@ -76,9 +76,9 @@ CREATE TABLE link(
 
 CREATE TABLE document(
     id INTEGER PRIMARY KEY,
-    diagramId INTEGER,
     diagData text,
-    geoData text
+    geoData text,
+	guid char(16) UNIQUE
 );
 
 
