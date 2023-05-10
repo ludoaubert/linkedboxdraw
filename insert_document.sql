@@ -16,7 +16,6 @@ SELECT json_array_length((SELECT diagData FROM document WHERE id=1), '$.boxes');
 
 SELECT value FROM generate_series(5,100,5); --error
 
-
 INSERT INTO diagram(id, title, deleted)
 VALUES(1, 'CV Ludovic Aubert', 0);
 
