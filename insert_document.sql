@@ -28,7 +28,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO box(diagramId, position, title, deleted)
-SELECT diagramId, boxPosition, title, 0 AS deleted 
+SELECT cte_diagram.id, boxPosition, title, 0 AS deleted 
 FROM cte_boxes_pivot
 CROSS JOIN cte_diagram;
 
@@ -55,7 +55,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
-SELECT fieldPosition, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
+SELECT fieldPosition, boxPosition, cte_diagram.id, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
 FROM cte_fields_pivot
 CROSS JOIN cte_diagram;
 
@@ -83,7 +83,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
-SELECT diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
+SELECT cte_diagram.id, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
 FROM cte_links_pivot
 CROSS JOIN cte_diagram;
 
@@ -108,7 +108,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO picture(diagramId, height, width, name, base64)
-SELECT diagramId, height, width, name, base64
+SELECT cte_diagram.id, height, width, name, base64
 FROM cte_pictures_pivot
 CROSS JOIN cte_diagram;
 
@@ -133,7 +133,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
-SELECT diagramId, rectanglePosition, [left], [right], top, bottom
+SELECT cte_diagram.id, rectanglePosition, [left], [right], top, bottom
 FROM cte_rectangles_pivot
 CROSS JOIN cte_diagram;
 
@@ -148,7 +148,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO context(diagramId, contextPosition)
-SELECT diagramId, contextPosition
+SELECT cte_diagram.id, contextPosition
 FROM cte_contexts
 CROSS JOIN cte_diagram;
 
@@ -173,7 +173,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO frame(diagramId, contextPosition, [left], [right], top, bottom)
-SELECT diagramId, contextPosition, [left], [right], top, bottom
+SELECT cte_diagram.id, contextPosition, [left], [right], top, bottom
 FROM cte_frames_pivot
 CROSS JOIN cte_diagram;
 
@@ -198,7 +198,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
-SELECT diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
+SELECT cte_diagram.id, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
 FROM cte_tbs_pivot
 CROSS JOIN cte_diagram;
 
@@ -223,7 +223,7 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO polyline(diagramId, contextPosition, polylinePosition, [from], [to])
-SELECT diagramId, contextPosition, polylinePosition, [from], [to]
+SELECT cte_diagram.id, contextPosition, polylinePosition, [from], [to]
 FROM cte_polylines_pivot
 CROSS JOIN cte_diagram;
 
@@ -250,6 +250,6 @@ WITH cte_tree AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x, y)
-SELECT diagramId, contextPosition, polylinePosition, pointPosition, x, y
+SELECT cte_diagram.id, contextPosition, polylinePosition, pointPosition, x, y
 FROM cte_points_pivot
 CROSS JOIN cte_diagram;
