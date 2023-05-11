@@ -55,7 +55,7 @@ app.post('/set_document', (req, res) => {
 					.replace('a8828ddfef224d36935a1c66ae86ebb3', uuid.v4())
 					.replace('${diagData}', JSON.stringify(req.body.data))
 					.replace('${geoData}', JSON.stringify(req.body.contexts))
-					.replace('${title}', JSON.stringify(req.body.data.title));
+					.replace('${title}', JSON.stringify(req.body.data.documentTitle));
 	console.log(query);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
 		console.log(query);
