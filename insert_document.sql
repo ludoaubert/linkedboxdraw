@@ -25,7 +25,7 @@ WITH cte_tree AS (
     GROUP BY boxPosition
     ORDER BY boxPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO box(diagramId, position, title, deleted)
 SELECT diagramId, boxPosition, title, 0 AS deleted 
@@ -52,7 +52,7 @@ WITH cte_tree AS (
     GROUP BY boxPosition, fieldPosition
     ORDER BY boxPosition, fieldPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
 SELECT fieldPosition, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
@@ -80,7 +80,7 @@ WITH cte_tree AS (
     GROUP BY linkPosition
     ORDER BY linkPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
 SELECT diagramId, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
@@ -105,7 +105,7 @@ WITH cte_tree AS (
     GROUP BY picturePosition
     ORDER BY picturePosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO picture(diagramId, height, width, name, base64)
 SELECT diagramId, height, width, name, base64
@@ -130,7 +130,7 @@ WITH cte_tree AS (
     GROUP BY rectanglePosition
     ORDER BY rectanglePosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
 SELECT diagramId, rectanglePosition, [left], [right], top, bottom
@@ -145,7 +145,7 @@ WITH cte_tree AS (
     FROM cte_tree array_index
     WHERE path='$.contexts'
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO context(diagramId, contextPosition)
 SELECT diagramId, contextPosition
@@ -170,7 +170,7 @@ WITH cte_tree AS (
     GROUP BY contextPosition
     ORDER BY contextPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO frame(diagramId, contextPosition, [left], [right], top, bottom)
 SELECT diagramId, contextPosition, [left], [right], top, bottom
@@ -195,7 +195,7 @@ WITH cte_tree AS (
     GROUP BY contextPosition, tbPosition
     ORDER BY contextPosition, tbPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
 SELECT diagramId, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
@@ -220,7 +220,7 @@ WITH cte_tree AS (
     GROUP BY contextPosition, polylinePosition
     ORDER BY contextPosition, polylinePosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO polyline(diagramId, contextPosition, polylinePosition, [from], [to])
 SELECT diagramId, contextPosition, polylinePosition, [from], [to]
@@ -247,7 +247,7 @@ WITH cte_tree AS (
     GROUP BY contextPosition, polylinePosition, pointPosition
     ORDER BY contextPosition, polylinePosition, pointPosition
 ), cte_diagram AS (
-	SELECT diagramId FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO point(diagramId, contextPosition, polylinePosition, pointPosition, x, y)
 SELECT diagramId, contextPosition, polylinePosition, pointPosition, x, y
