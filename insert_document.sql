@@ -3,9 +3,12 @@ SELECT id, diagramId, diagData->'$.documentTitle', diagData FROM document;
 SELECT id, diagramId, diagData->'$.boxes', diagData FROM document;
 */
 
+INSERT INTO document(/*id,*/ diagData, geoData, guid)
+VALUES(/*1,*/ '${diagData}', '${geoData}', 'a8828ddfef224d36935a1c66ae86ebb3');
+
 
 INSERT INTO diagram(/*id,*/ title, deleted, guid)
-VALUES(/*1,*/ 'CV Ludovic Aubert', 0, 'a8828ddfef224d36935a1c66ae86ebb3');
+VALUES(/*1,*/ '${title}', 0, 'a8828ddfef224d36935a1c66ae86ebb3');
 
 
 WITH cte_tree AS (
