@@ -1,4 +1,6 @@
-WITH cte_bool (bit, boolValue) AS (
+WITH cte_diagram AS (
+	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+) ,cte_bool (bit, boolValue) AS (
     SELECT 0, 'false' UNION ALL
     SELECT 1, 'true'
 ) ,cte_fields AS (
@@ -14,21 +16,25 @@ WITH cte_bool (bit, boolValue) AS (
     FROM field
     JOIN cte_bool pk ON field.isPrimaryKey = pk.bit
     JOIN cte_bool fk ON field.isForeignKey = fk.bit
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
     GROUP BY boxPosition
 ) , cte_boxes AS (
     SELECT json_group_array( json_object('title', title, 'id', position, 'fields', json(fields))) AS boxes  
     FROM box
     JOIN cte_fields ON box.position=cte_fields.boxPosition
-    WHERE box.diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE box.diagramId=cte_diagram.id
 ) , cte_links AS (
     SELECT json_group_array( json_object('from',fromBoxPosition,'fromField',fromFieldPosition,'fromCardinality',fromCardinality,'to',toBoxPosition,'toField',toFieldPosition,'toCardinality',toCardinality,'category',category)) AS links
     FROM link
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
 ) ,cte_pictures AS (
     SELECT json_group_array( json_object('height', height, 'width', width, 'name', name, 'base64', base64)) AS pictures
     FROM picture
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
 ), cte_doc AS (
     SELECT json_object('documentTitle', diagram.title, 
 		       'boxes', json(cte_boxes.boxes), 
@@ -42,34 +48,40 @@ WITH cte_bool (bit, boolValue) AS (
     CROSS JOIN cte_boxes
     CROSS JOIN cte_links
     CROSS JOIN cte_pictures
-    WHERE diagram.id=1
+	CROSS JOIN cte_diagram
+    WHERE diagram.id=cte_diagram.id
 )
 /*diag-contexts*/
 , cte_rectangles AS (
     SELECT json_group_array( json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM)) AS rectangles
     FROM rectangle
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
     GROUP BY diagramId
 ), cte_polylines AS (
     SELECT contextPosition, polylinePosition, json_group_array( json_object('x',x,'y',y)) AS polyline
     FROM point
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
     GROUP BY contextPosition, polylinePosition
 ), cte_geo_links AS (
     SELECT cte_polylines.contextPosition, json_group_array( json_object('polyline', json(cte_polylines.polyline), 'from', polyline.[from], 'to', polyline.[to])) AS links
     FROM cte_polylines
     JOIN polyline ON cte_polylines.contextPosition=polyline.contextPosition AND cte_polylines.polylinePosition=polyline.polylinePosition
-    WHERE polyline.diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE polyline.diagramId=cte_diagram.id
     GROUP BY cte_polylines.contextPosition
 ), cte_tb AS (
     SELECT contextPosition, json_group_array(json_object('id', boxPosition, 'translation', json_object('x', translationX, 'y', translationY))) AS tb
     FROM translatedBoxes
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
     GROUP BY contextPosition
 ), cte_frame AS (
     SELECT contextPosition, json_object('left', [LEFT], 'right', [RIGHT], 'top', TOP, 'bottom', BOTTOM) AS frame
     FROM frame
-    WHERE diagramId=1
+	CROSS JOIN cte_diagram
+    WHERE diagramId=cte_diagram.id
 ), cte_contexts AS (
     SELECT json_group_array(json_object('frame', json(cte_frame.frame), 'translatedBoxes', json(cte_tb.tb), 'links', json(cte_geo_links.links))) AS contexts
     FROM cte_frame
