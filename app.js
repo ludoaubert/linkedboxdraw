@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const SQLITE_TOOLS_DIR='C:/lulu/sqlite-tools-win32-x86-3410200';
 const DEPLOY_DIR='C:/tmp/linkedboxdraw-master';
+const TEMP_DIR='C:/tmp';
 
 
 const corsOptions = {
@@ -50,14 +51,16 @@ app.get('/get_document', (req, res) => {
 
 app.post('/set_document', (req, res) => {
 	console.log("POST hit!");
+	const guid = uuid.v4();
 	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
-					.replace(/\s+/g, ' ')
-					.replace('a8828ddfef224d36935a1c66ae86ebb3', uuid.v4())
+					//.replace(/\s+/g, ' ')
+					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid)
 					.replace('${diagData}', JSON.stringify(req.body.data))
 					.replace('${geoData}', JSON.stringify(req.body.contexts))
-					.replace('${title}', JSON.stringify(req.body.data.documentTitle));
+					.replace('${title}', req.body.data.documentTitle);
 	console.log(query);
-    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
+	fs.writeFileSync(`${TEMP_DIR}/insert_document_${guid}.sql`, query);
+    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read ${TEMP_DIR}/insert_document_${guid}.sql"`,(error, stdout, stderr) => {
         console.log("STDOUT:", stdout, ", STDERR:", stderr);
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'application/json');
