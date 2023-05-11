@@ -49,15 +49,14 @@ app.get('/get_document', (req, res) => {
 
 
 app.post('/set_document', (req, res) => {
-	console.log("POST hit!")
-	const data = req.body;
-	console.log(JSON.stringify(data));
+	console.log("POST hit!");
 	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
 					.replace(/\s+/g, ' ')
 					.replace('a8828ddfef224d36935a1c66ae86ebb3', uuid.v4())
 					.replace('${diagData}', JSON.stringify(req.body.data))
 					.replace('${geoData}', JSON.stringify(req.body.contexts))
 					.replace('${title}', JSON.stringify(req.body.data.title));
+	console.log(query);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
 		console.log(query);
 		res.statusCode = 200;
