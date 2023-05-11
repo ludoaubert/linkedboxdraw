@@ -58,7 +58,6 @@ app.post('/set_document', (req, res) => {
 					.replace('${title}', JSON.stringify(req.body.data.documentTitle));
 	console.log(query);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
-		console.log(query);
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'application/json');
 		res.setHeader('Access-Control-Allow-Origin', '*');
