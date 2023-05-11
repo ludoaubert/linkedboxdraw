@@ -2,6 +2,7 @@ const express = require('express');
 const exec = require('node:child_process').exec;
 const fs = require('fs');
 const cors = require('cors');
+const uuid = require('uuid');
 
 const app = express();
 app.use(cors());
@@ -53,7 +54,7 @@ app.post('/set_document', (req, res) => {
 	console.log(JSON.stringify(data));
 	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
 					.replace(/\s+/g, ' ')
-					.replace('a8828ddfef224d36935a1c66ae86ebb3', uuid)
+					.replace('a8828ddfef224d36935a1c66ae86ebb3', uuid.v4())
 					.replace('${diagData}', JSON.stringify(req.body.data))
 					.replace('${geoData}', JSON.stringify(req.body.contexts))
 					.replace('${title}', JSON.stringify(req.body.data.title));
