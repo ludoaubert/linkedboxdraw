@@ -21,6 +21,7 @@ async function initClient() {
 	diagramCombo.innerHTML = await diagrams.map(diagram => diagram.title)
 											.map(title => `<option>${title}</option>`)
 											.join('\n');
+	currentDiagramIndex = await diagrams.length==0 ? -1 : 0;
 											
 	diagramCombo.addEventListener("click", ()=>{
 		currentDiagramIndex = diagramCombo.selectedIndex;
