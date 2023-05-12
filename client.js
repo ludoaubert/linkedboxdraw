@@ -22,6 +22,15 @@ async function initClient() {
 											.map(title => `<option>${title}</option>`)
 											.join('\n');
 											
+	diagramCombo.addEventListener("click", ()=>{
+		currentDiagramIndex = diagramCombo.selectedIndex;
+		const titi="titi";
+	});
+	diagramCombo.addEventListener("change", ()=>{
+		currentDiagramIndex = diagramCombo.selectedIndex;
+		const titi="titi";
+	});
+											
 	downloadOnlineDocButton.addEventListener("click", async () => {
 		const guid = 'a8828ddfef224d36935a1c66ae86ebb3';
 		const response = await fetch(`http://127.0.0.1:3000/get_document?guid=${guid}` , {
