@@ -23,14 +23,14 @@ async function initClient() {
 											.join('\n');
 											
 	downloadOnlineDocButton.addEventListener("click", async () => {
-		const response = await fetch("http://127.0.0.1:3000/get_document", {
+		const guid = 'a8828ddfef224d36935a1c66ae86ebb3';
+		const response = await fetch(`http://127.0.0.1:3000/get_document?guid=${guid}` , {
 			method: 'GET',
 			headers: {
 				'Accept': 'application/json',
                 'Content-Type': 'application/json',
 				'Access-Control-Allow-Origin': '*'				
-			},
-			body: JSON.stringify({guid:'a8828ddfef224d36935a1c66ae86ebb3'})
+			}
 		});
 		const json = await response.json();
 		setData(json.data);
