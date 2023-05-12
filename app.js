@@ -39,8 +39,10 @@ app.get('/get_document', (req, res) => {
 	const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8')
 					.replace(/\s+/g, ' ');
 	console.log(query);
+	console.log(req.query.guid);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
         console.log("STDOUT:", stdout, ", STDERR:", stderr);
+		console.log(req.query.guid);
 	    res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
 		res.setHeader('Access-Control-Allow-Origin', '*');
