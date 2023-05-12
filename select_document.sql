@@ -20,9 +20,9 @@ WITH cte_diagram AS (
     WHERE diagramId=cte_diagram.id
     GROUP BY boxPosition
 ) , cte_boxes AS (
-    SELECT json_group_array( json_object('title', title, 'id', position, 'fields', json(fields))) AS boxes  
+    SELECT json_group_array( json_object('title', title, 'id', position, 'fields', CASE WHEN fields IS NULL THEN json_array() ELSE json(fields) END)) AS boxes  
     FROM box
-    JOIN cte_fields ON box.position=cte_fields.boxPosition
+    LEFT JOIN cte_fields ON box.position=cte_fields.boxPosition
 	CROSS JOIN cte_diagram
     WHERE box.diagramId=cte_diagram.id
 ) , cte_links AS (
