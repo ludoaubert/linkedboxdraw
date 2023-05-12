@@ -36,14 +36,15 @@ app.get('/list_diagrams', (req, res) => {
 });
 	
 app.get('/get_document', (req, res) => {
+	const guid = req.query.guid;
 	const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8')
-					.replace(/\s+/g, ' ')
-					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', req.query.guid);
+					//.replace(/\s+/g, ' ')
+					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid);
 	console.log(query);
-	console.log(req.query.guid);
-    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
+	fs.writeFileSync(`${TEMP_DIR}/select_document_${guid}.sql`, query);
+    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read ${TEMP_DIR}/select_document_${guid}.sql"`,(error, stdout, stderr) => {
         console.log("STDOUT:", stdout, ", STDERR:", stderr);
-		console.log(req.query.guid);
+		console.log(guid);
 	    res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
 		res.setHeader('Access-Control-Allow-Origin', '*');
