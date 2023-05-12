@@ -41,7 +41,7 @@ WITH cte_tree AS (
     JOIN cte_tree field_array_index ON field.parent = field_array_index.id
     JOIN cte_tree field_array ON field_array_index.parent = field_array.id
     JOIN cte_tree box_array_index ON field_array.parent = box_array_index.id
-    WHERE field.key IN ('name', 'isPrimaryKey', 'isForeignKey', 'type')
+    WHERE field.key IN ('name', 'isPrimaryKey', 'isForeignKey', 'type') AND field_array.key='fields'
 ), cte_fields_pivot AS (
     SELECT boxPosition, fieldPosition,
             MAX(case when key = 'name' then value end) as name,
