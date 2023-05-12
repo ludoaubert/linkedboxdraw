@@ -2,7 +2,7 @@ export {initClient};
 import {mydata, setData, displayCurrent} from "./table_edit.js";
 import {mycontexts, setContexts, drawDiag} from "./diagload.js";
 
-var currentDigramIndex = -1;
+var currentDiagramIndex = -1;
 
 var diagramCombo ;
 var downloadOnlineDocButton ;
