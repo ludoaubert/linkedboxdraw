@@ -37,7 +37,8 @@ app.get('/list_diagrams', (req, res) => {
 	
 app.get('/get_document', (req, res) => {
 	const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8')
-					.replace(/\s+/g, ' ');
+					.replace(/\s+/g, ' ')
+					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', req.query.guid);
 	console.log(query);
 	console.log(req.query.guid);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db "${query}"`,(error, stdout, stderr) => {
