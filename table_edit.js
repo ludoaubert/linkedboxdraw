@@ -120,18 +120,19 @@ function loadPicture(blob)
 	const name = document.getElementById("add_pic").value;
 	const base64 = btoa(blob);
 
-	const pic = {name, base64};
+	currentImageDisplay.onload = () => {
+		const pic = {name, base64, this.width, this.height};
+		mydata.pictures.push(pic);
 
-	mydata.pictures.push(pic);
-
-	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
-
-	const pictureComboInnerHTML = mydata.pictures
+		const pictureComboInnerHTML = mydata.pictures
 					.map(pic => `<option>${pic.name}</option>`)
 					.join('');
 
-	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
-	document.getElementById("pictures").value = name;
+		document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+		document.getElementById("pictures").value = name;
+	};
+	
+	currentImageDisplay.src = "data:image/jpg;base64, " + base64;
 }
 
 
