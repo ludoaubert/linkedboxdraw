@@ -8,9 +8,6 @@ const app = express();
 app.use(cors());
 const port = 3000;
 
-//app.use(express.json());
-//app.use(express.urlencoded({ extended: true }));
-
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb',extended: true}));
 
@@ -41,7 +38,6 @@ app.get('/list_diagrams', (req, res) => {
 app.get('/get_document', (req, res) => {
 	const guid = req.query.guid;
 	const query = fs.readFileSync(`${DEPLOY_DIR}/select_document.sql`, 'utf8')
-					//.replace(/\s+/g, ' ')
 					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid);
 	console.log(query);
 	fs.writeFileSync(`${TEMP_DIR}/select_document_${guid}.sql`, query);
@@ -60,7 +56,6 @@ app.post('/set_document', (req, res) => {
 	console.log("POST hit!");
 	const guid = uuid.v4();
 	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
-					//.replace(/\s+/g, ' ')
 					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid)
 					.replace('${diagData}', JSON.stringify(req.body.data))
 					.replace('${geoData}', JSON.stringify(req.body.contexts))
@@ -72,7 +67,7 @@ app.post('/set_document', (req, res) => {
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'application/json');
 		res.setHeader('Access-Control-Allow-Origin', '*');
-		res.send('Data Received: ' + JSON.stringify(data));
+		res.send('Data Received: ' + JSON.stringify(req.body));
 	});
 });
 
