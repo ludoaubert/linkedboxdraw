@@ -59,7 +59,7 @@ function compute_box_rectangle(box)
 				.map(field => compute_column_width(field, key_distrib) * MONOSPACE_FONT_PIXEL_WIDTH),
 		fields.filter(field => field?.type == "image")
 				.map(field => field.name)
-				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].width);
+				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].width)
 	].flat();
 	
 	max_width = Math.max(...widths);
