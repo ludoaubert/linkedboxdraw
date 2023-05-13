@@ -63,7 +63,7 @@ function compute_box_rectangle(box)
 				.map(pic => pic.width)
 	].flat();
 	
-	max_width = Math.max(...widths);
+	const max_width = Math.max(...widths);
 	
 	const heights = [
 		8 + CHAR_RECT_HEIGHT,
