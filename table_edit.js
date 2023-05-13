@@ -409,8 +409,7 @@ function displayCurrent()
 	}
 
 	const picturesComboInnerHTML = mydata?.pictures
-									?.sort((a, b) => a.name.localeCompare(b.name))
-									?.map(pic => "<option>" + pic.name + "</option>")
+									?.map(pic => `<option>${pic.name}</option>`)
 									?.join('') || "";
 
 	if (picturesCombo.innerHTML != picturesComboInnerHTML)
