@@ -1,6 +1,6 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
-import {mycontexts, contexts, resetContexts, drawDiag, compute_links, ApplyRepartition} from "./diagload.js";
+import {mycontexts, contexts, resetContexts, setContexts, drawDiag, compute_links, ApplyRepartition} from "./diagload.js";
 
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
@@ -89,10 +89,12 @@ var applyRepartitionButton;
 function newDiagram() {
 
 	mydata={documentTitle:"", boxes:[], values:[], boxComments:[], fieldComments:[], links:[], fieldColors:[], pictures:[]};
-	mycontexts={
+	const mycontexts_={
 		contexts:[{frame:{left:0,right:1197,top:0,bottom:507}, translatedBoxes:[], links:[]}],
 		rectangles:[]
 	};
+	
+	setContexts(mycontexts_);
 
 	currentBoxIndex = -1;
 	currentFieldIndex = -1;
