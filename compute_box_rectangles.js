@@ -59,7 +59,8 @@ function compute_box_rectangle(box)
 				.map(field => compute_column_width(field, key_distrib) * MONOSPACE_FONT_PIXEL_WIDTH),
 		fields.filter(field => field?.type == "image")
 				.map(field => field.name)
-				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].width)
+				.map(name => mydata.pictures.find(pic => pic.name==name))
+				.map(pic => pic.width)
 	].flat();
 	
 	max_width = Math.max(...widths);
@@ -70,7 +71,8 @@ function compute_box_rectangle(box)
 				.map(field => CHAR_RECT_HEIGHT),
 		fields.filter(field => field?.type == "image")
 				.map(field => field.name)
-				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].height)
+				.map(name => mydata.pictures.find(pic => pic.name==name))
+				.map(pic => pic.height)
 	].flat()
 
 	const height = heights.reduce((a,b) => a + b, 0);
