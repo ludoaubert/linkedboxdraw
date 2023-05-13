@@ -1,4 +1,4 @@
-
+import {mydata} from "./table_edit.js";
 
 function compute_key_distrib(fields)
 {
@@ -57,7 +57,8 @@ function compute_box_rectangle(box)
 		fields.filter(field => field?.type == undefined)
 				.map(field => compute_column_width(field, key_distrib) * MONOSPACE_FONT_PIXEL_WIDTH),
 		fields.filter(field => field?.type == "image")
-				.map(field => field.width)
+				.map(field => field.name)
+				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].width);
 	].flat();
 	
 	max_width = Math.max(...widths);
@@ -67,7 +68,8 @@ function compute_box_rectangle(box)
 		fields.filter(field => field?.type == undefined)
 				.map(field => CHAR_RECT_HEIGHT),
 		fields.filter(field => field?.type == "image")
-				.map(field => field.height)
+				.map(field => field.name)
+				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].height);
 	].flat()
 
 	const height = heights.reduce((a,b) => a + b, 0);
