@@ -1,4 +1,5 @@
 import {mydata} from "./table_edit.js";
+export {compute_box_rectangle};
 
 function compute_key_distrib(fields)
 {
