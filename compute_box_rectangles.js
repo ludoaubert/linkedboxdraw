@@ -70,7 +70,7 @@ function compute_box_rectangle(box)
 				.map(field => CHAR_RECT_HEIGHT),
 		fields.filter(field => field?.type == "image")
 				.map(field => field.name)
-				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].height);
+				.map(name => mydata.pictures.filter(pic => pic.name==name)[0].height)
 	].flat()
 
 	const height = heights.reduce((a,b) => a + b, 0);
