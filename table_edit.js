@@ -126,8 +126,7 @@ function loadPicture(blob)
 	document.getElementById("cid").src = "data:image/jpg;base64, " + pic.base64;
 
 	const pictureComboInnerHTML = mydata.pictures
-					.sort((a, b) => a.name.localeCompare(b.name))
-					.map(pic => "<option>" + pic.name + "</option>")
+					.map(pic => `<option>${pic.name}</option>`)
 					.join('');
 
 	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
@@ -843,7 +842,7 @@ function dropPicture()
 
 function displaySelectedPicture()
 {
-	currentPictureIndex = mydata?.pictures?.findIndex(picture => picture.name == picturesCombo.value) || -1 ;
+	currentPictureIndex = picturesCombo.selectedIndex ;
 	const base64 = mydata?.pictures?.[currentPictureIndex]?.base64 ;
 	currentImageDisplay.src = base64==undefined ? "data:text/plain," : "data:image/jpg;base64, " + base64 ;
 }
@@ -851,7 +850,7 @@ function displaySelectedPicture()
 
 function addSelectedPictureToSelectedBox()
 {
-	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	currentPictureIndex = picturesCombo.selectedIndex;
 	mydata.boxes[currentBoxIndex].fields.push(
 		{
 			name: mydata.pictures[currentPictureIndex].name,
