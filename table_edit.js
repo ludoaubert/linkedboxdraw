@@ -4,7 +4,7 @@ import {mycontexts, contexts, resetContexts, setContexts, drawDiag, compute_link
 
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
-import {compute_box_rectangle} from "./compute_box_rectangle.js"
+import {compute_box_rectangle} from "./compute_box_rectangles.js"
 
 export {init, mydata, data, resetData, setData, displayCurrent, createMutationObserver};
 
