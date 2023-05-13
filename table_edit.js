@@ -121,7 +121,7 @@ function loadPicture(blob)
 	const base64 = btoa(blob);
 
 	currentImageDisplay.onload = () => {
-		const pic = {name, base64, this.width, this.height};
+		const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height};
 		mydata.pictures.push(pic);
 
 		const pictureComboInnerHTML = mydata.pictures
