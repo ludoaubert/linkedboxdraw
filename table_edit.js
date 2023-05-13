@@ -826,13 +826,12 @@ function dropColor()
 
 function dropPicture()
 {
-	currentPictureIndex = mydata.pictures.findIndex(picture => picture.name == picturesCombo.value);
+	currentPictureIndex = picturesCombo.selectedIndex;
 	mydata.pictures.splice(currentPictureIndex, 1);
 	if (currentPictureIndex >= mydata.pictures.length)
 		currentPictureIndex--;
 	const pictureComboInnerHTML = mydata.pictures
-					.sort((a, b) => a.name.localeCompare(b.name))
-					.map(pic => "<option>" + pic.name + "</option>")
+					.map(pic => `<option>${pic.name}</option>"`)
 					.join('');
 
 	picturesCombo.innerHTML = pictureComboInnerHTML;
@@ -856,9 +855,7 @@ function addSelectedPictureToSelectedBox()
 			name: mydata.pictures[currentPictureIndex].name,
 			isPrimaryKey: false,
 			isForeignKey: false,
-			type:"image",
-			height: currentImageDisplay.height,
-			width: currentImageDisplay.width
+			type:"image"
 		}
 	);
 
