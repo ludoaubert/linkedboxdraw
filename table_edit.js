@@ -221,7 +221,7 @@ function init() {
 
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
 	let add_pic = document.querySelector("input[id=add_pic]");
-	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture).then(addPicture).then(addPicture);
+	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture).then(addPicture);
 	let drop_pic = document.querySelector("button[id=drop_pic]");
 	drop_pic.addEventListener("click", () => dropPicture());
 	let add_pic_to_box = document.querySelector("button[id=add_pic_to_box]");
