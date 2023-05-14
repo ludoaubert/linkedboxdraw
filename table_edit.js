@@ -112,27 +112,31 @@ function newDiagram() {
 	currentPictureIndex = -1;
 }
 
-
-function loadPicture(blob)
+function addPicture(base64)
 {
 	currentPictureIndex = mydata.pictures.length;
 
 	const name = document.getElementById("add_pic").value;
-	const base64 = btoa(blob);
+	const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height};
+	mydata.pictures.push(pic);
 
-	currentImageDisplay.onload = () => {
-		const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height};
-		mydata.pictures.push(pic);
+	const pictureComboInnerHTML = mydata.pictures
+				.map(pic => `<option>${pic.name}</option>`)
+				.join('');
 
-		const pictureComboInnerHTML = mydata.pictures
-					.map(pic => `<option>${pic.name}</option>`)
-					.join('');
+	document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
+	document.getElementById("pictures").value = name;	
+}
 
-		document.getElementById("pictures").innerHTML = pictureComboInnerHTML;
-		document.getElementById("pictures").value = name;
-	};
-	
-	currentImageDisplay.src = "data:image/jpg;base64, " + base64;
+function loadPicture(blob)
+{	
+	return new Promise((resolve) => {
+		const base64 = btoa(blob);
+		currentImageDisplay.onload = () => {
+			resolve(base64);
+		};
+		currentImageDisplay.src = "data:image/jpg;base64, " + base64;
+	);
 }
 
 
@@ -217,7 +221,7 @@ function init() {
 
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
 	let add_pic = document.querySelector("input[id=add_pic]");
-	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture));
+	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture).then(addPicture).then(addPicture);
 	let drop_pic = document.querySelector("button[id=drop_pic]");
 	drop_pic.addEventListener("click", () => dropPicture());
 	let add_pic_to_box = document.querySelector("button[id=add_pic_to_box]");
