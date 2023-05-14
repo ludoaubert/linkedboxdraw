@@ -136,7 +136,7 @@ function loadPicture(blob)
 			resolve(base64);
 		};
 		currentImageDisplay.src = "data:image/jpg;base64, " + base64;
-	);
+	});
 }
 
 
