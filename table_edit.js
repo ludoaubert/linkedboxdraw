@@ -416,8 +416,6 @@ function displayCurrent()
 	if (picturesCombo.innerHTML != picturesComboInnerHTML)
 	{
 		picturesCombo.innerHTML = picturesComboInnerHTML;
-		if (currentPictureIndex == -1)
-			currentPictureIndex = mydata.pictures.length > 0 ? 0 : -1;
 	}
 
 	currentPictureIndex = picturesCombo.selectedIndex;
