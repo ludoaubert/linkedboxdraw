@@ -62,6 +62,23 @@ CROSS JOIN cte_diagram;
 
 WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+), cte_values AS (
+    SELECT trim(value->'$.box', '"') AS boxName, trim(value->'$.field', '"') AS fieldName, trim(value->'$.value', '"') AS fieldValue 
+    FROM cte_tree 
+    WHERE path='$.values'
+), cte_diagram AS (
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+)
+INSERT INTO fieldValue(diagramId, boxPosition, fieldPosition, fieldValue)
+SELECT cte_diagram.id AS diagramId, box.Position AS boxPosition, field.position AS fieldPosition, cte_values.fieldValue AS fieldValue
+FROM cte_values
+CROSS JOIN cte_diagram
+JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_values.boxName
+JOIN field ON field.diagramId = cte_diagram.id AND field.boxPosition=box.position AND field.name=cte_values.fieldName;
+
+
+WITH cte_tree AS (
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_links AS (
     SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
     FROM cte_tree link_attr
