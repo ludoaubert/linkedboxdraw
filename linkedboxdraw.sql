@@ -47,6 +47,42 @@ CREATE TABLE field(
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
+CREATE TABLE fieldValue(
+	id INTEGER PRIMARY KEY,
+	diagramId INTEGER NOT NULL,
+	boxPosition INTEGER NOT NULL,
+	fieldPosition INTEGER NOT NULL,
+	fieldValue varchar(30),
+	FOREIGN KEY(diagramId, boxPosition, fieldPosition) REFERENCES field(diagramId, boxPosition, position)	
+);
+
+CREATE TABLE boxComment(
+	id INTEGER PRIMARY KEY,
+	diagramId INTEGER NOT NULL,
+	boxPosition INTEGER NOT NULL,
+	bComment varchar(500),
+	FOREIGN KEY(diagramId, boxPosition) REFERENCES box(diagramId, position)
+);
+
+CREATE TABLE fieldComment(
+	id INTEGER PRIMARY KEY,
+	diagramId INTEGER NOT NULL,
+	boxPosition INTEGER NOT NULL,
+	fieldPosition INTEGER NOT NULL,
+	fComment varchar(20),
+	FOREIGN KEY(diagramId, boxPosition, fieldPosition) REFERENCES field(diagramId, boxPosition, position)	
+);
+
+CREATE TABLE fieldColor(
+	id INTEGER PRIMARY KEY,
+	index_ INTEGER,
+	diagramId INTEGER NOT NULL,
+	boxPosition INTEGER NOT NULL,
+	fieldPosition INTEGER NOT NULL,
+	color varchar(20),
+	FOREIGN KEY(diagramId, boxPosition, fieldPosition) REFERENCES field(diagramId, boxPosition, position)
+);
+
 CREATE TABLE picture(
 	id INTEGER PRIMARY KEY,
 	diagramId INTEGER,
