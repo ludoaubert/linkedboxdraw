@@ -63,7 +63,7 @@ CROSS JOIN cte_diagram;
 WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_values AS (
-    SELECT trim(value->'$.box', '"') AS boxName, trim(value->'$.field', '"') AS fieldName, trim(value->'$.value', '"') AS fieldValue 
+    SELECT value->>'$.box' AS boxName, value->>'$.field' AS fieldName, value->>'$.value' AS fieldValue 
     FROM cte_tree 
     WHERE path='$.values'
 ), cte_diagram AS (
