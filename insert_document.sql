@@ -78,6 +78,23 @@ JOIN field ON field.diagramId = cte_diagram.id AND field.boxPosition=box.positio
 
 
 WITH cte_tree AS (
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.fieldColors')
+), cte_field_colors AS (
+    SELECT value->>'$.index' AS indexValue, value->>'$.box' AS boxName, value->>'$.field' AS fieldName, value->>'$.color' AS color 
+    FROM cte_tree
+    WHERE path='$.fieldColors'
+), cte_diagram AS (
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+)
+INSERT INTO fieldColor(diagramId, index_, boxPosition, fieldPosition, color)
+SELECT cte_diagram.id AS diagramId, indexValue AS index_, box.Position AS boxPosition, field.position AS fieldPosition, cte_field_colors.color AS color
+FROM cte_field_colors
+CROSS JOIN cte_diagram
+JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_field_colors.boxName
+JOIN field ON field.diagramId = cte_diagram.id AND field.boxPosition=box.position AND field.name=cte_field_colors.fieldName;
+
+
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_links AS (
     SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
