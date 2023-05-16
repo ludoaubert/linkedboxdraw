@@ -95,6 +95,23 @@ JOIN field ON field.diagramId = cte_diagram.id AND field.boxPosition=box.positio
 
 
 WITH cte_tree AS (
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.boxComments')
+), cte_box_comments AS (
+    SELECT value->>'$.box' AS boxName, value->>'$.comment' AS comment 
+    FROM cte_tree
+    WHERE path='$.boxComments'
+), cte_diagram AS (
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+)
+INSERT INTO boxComment(diagramId, boxPosition, bComment)
+SELECT cte_diagram.id AS diagramId, box.Position AS boxPosition, cte_box_comments.comment AS bComment
+FROM cte_box_comments
+CROSS JOIN cte_diagram
+JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_box_comments.boxName
+
+
+
+WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_links AS (
     SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
