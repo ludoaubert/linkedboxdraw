@@ -41,6 +41,7 @@ WITH cte_diagram AS (
     SELECT json_group_array( json_object('box', box.title, 'comment', boxComment.bComment)) AS box_comments
     FROM boxComment
     JOIN box ON box.diagramId=boxComment.diagramId AND box.position=boxComment.boxPosition
+	CROSS JOIN cte_diagram
     WHERE boxComment.diagramId = cte_diagram.id
 ) ,cte_pictures AS (
     SELECT json_group_array( json_object('height', height, 'width', width, 'name', name, 'base64', base64)) AS pictures
