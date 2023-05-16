@@ -37,6 +37,13 @@ WITH cte_diagram AS (
     JOIN field ON field.diagramId = fieldValue.diagramId AND field.position=fieldValue.fieldPosition AND box.position = fieldValue.boxPosition
     CROSS JOIN cte_diagram
     WHERE fieldValue.diagramId=cte_diagram.id
+), cte_field_colors AS (
+    SELECT json_group_array( json_object('index', fieldColor.index_, 'box', box.title, 'field', field.name, 'color', fieldColor.color)) AS field_colors
+    FROM fieldColor
+    JOIN box ON box.diagramId = fieldColor.diagramId AND box.position=fieldColor.boxPosition
+    JOIN field ON field.diagramId = fieldColor.diagramId AND field.position=fieldColor.fieldPosition AND box.position = fieldColor.boxPosition
+    CROSS JOIN cte_diagram
+    WHERE fieldColor.diagramId=cte_diagram.id
 ), cte_box_comments AS (
     SELECT json_group_array( json_object('box', box.title, 'comment', boxComment.bComment)) AS box_comments
     FROM boxComment
@@ -51,17 +58,18 @@ WITH cte_diagram AS (
 ), cte_doc AS (
     SELECT json_object('documentTitle', diagram.title, 
 		       'boxes', json(cte_boxes.boxes), 
-		       'values', json(cte_field_values.field_values),
-		       'boxComments', json(cte_box_comments.box_comments),
+		       'values', COALESCE(json(cte_field_values.field_values), json_array()),
+		       'boxComments', COALESCE(json(cte_box_comments.box_comments), json_array()),
 		       'fieldComments', json_array(),
 		       'links', json(cte_links.links),
-		       'fieldColors', json_array(),
+		       'fieldColors', COALESCE(json(cte_field_colors.field_colors), json_array()),
 		       'pictures', json(cte_pictures.pictures)) AS document
     FROM diagram 
     CROSS JOIN cte_boxes
     CROSS JOIN cte_links
-    CROSS JOIN cte_field_values
-    CROSS JOIN cte_box_comments
+    LEFT JOIN cte_field_values
+	LEFT JOIN cte_field_colors
+    LEFT JOIN cte_box_comments
     CROSS JOIN cte_pictures
 	CROSS JOIN cte_diagram
     WHERE diagram.id=cte_diagram.id
