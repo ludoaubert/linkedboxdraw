@@ -30,6 +30,7 @@ CREATE TABLE box(
     title VARCHAR(100),
     deleted INTEGER,
     UNIQUE(diagramId, position),
+	UNIQUE(diagramId, title),
     FOREIGN KEY (diagramId) REFERENCES diagram(id)
 );
 
@@ -44,6 +45,7 @@ CREATE TABLE field(
     fieldType varchar(10),
     deleted INTEGER,
     UNIQUE (diagramId, boxPosition, position),
+	UNIQUE (diagramId, boxPosition, name),
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
@@ -61,6 +63,7 @@ CREATE TABLE boxComment(
 	diagramId INTEGER NOT NULL,
 	boxPosition INTEGER NOT NULL,
 	bComment varchar(500),
+	UNIQUE (diagramId, boxPosition),
 	FOREIGN KEY(diagramId, boxPosition) REFERENCES box(diagramId, position)
 );
 
@@ -70,6 +73,7 @@ CREATE TABLE fieldComment(
 	boxPosition INTEGER NOT NULL,
 	fieldPosition INTEGER NOT NULL,
 	fComment varchar(20),
+	UNIQUE (diagramId, boxPosition, fieldPosition),
 	FOREIGN KEY(diagramId, boxPosition, fieldPosition) REFERENCES field(diagramId, boxPosition, position)	
 );
 
@@ -80,6 +84,7 @@ CREATE TABLE fieldColor(
 	boxPosition INTEGER NOT NULL,
 	fieldPosition INTEGER NOT NULL,
 	color varchar(20),
+	UNIQUE (diagramId, boxPosition, fieldPosition),
 	FOREIGN KEY(diagramId, boxPosition, fieldPosition) REFERENCES field(diagramId, boxPosition, position)
 );
 
