@@ -34,7 +34,7 @@ WITH cte_diagram AS (
     SELECT json_group_array( json_object('box', box.title, 'field', field.name, 'value', fieldValue.fieldValue)) AS field_values
     FROM fieldValue
     JOIN box ON box.diagramId = fieldValue.diagramId AND box.position=fieldValue.boxPosition
-    JOIN field ON field.diagramId = fieldValue.diagramId AND field.position=fieldValue.fieldPosition AND box.position = fieldValue.boxPosition
+    JOIN field ON field.diagramId = fieldValue.diagramId AND field.position=fieldValue.fieldPosition AND field.boxPosition = fieldValue.boxPosition
     CROSS JOIN cte_diagram
     WHERE fieldValue.diagramId=cte_diagram.id
 ), cte_field_colors AS (
