@@ -29,23 +29,13 @@ CROSS JOIN cte_diagram;
 WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
 ), cte_fields AS (
-    SELECT box_array_index.key AS boxPosition, field_array_index.key AS fieldPosition, field.key, field.value
-    FROM cte_tree field
-    JOIN cte_tree field_array_index ON field.parent = field_array_index.id
-    JOIN cte_tree field_array ON field_array_index.parent = field_array.id
-    JOIN cte_tree box_array_index ON field_array.parent = box_array_index.id
-    WHERE field.key IN ('name', 'isPrimaryKey', 'isForeignKey', 'type') AND field_array.key='fields'
-), cte_fields_pivot AS (
-    SELECT boxPosition, fieldPosition,
-            MAX(case when key = 'name' then value end) as name,
-            MAX(case when key = 'isPrimaryKey' then value end) as isPrimaryKey,
-            MAX(case when key = 'isForeignKey' then value end) as isForeignKey,
-            MAX(case when key = 'type' then value end) as type            
-    FROM cte_fields
-    GROUP BY boxPosition, fieldPosition
-    ORDER BY boxPosition, fieldPosition
+    SELECT box.key AS boxPosition, field.key AS fieldPosition, field.value->>'$.name' AS name, field.value->>'$.isPrimaryKey' AS isPrimaryKey, field.value->>'$.isForeignKey' AS isForeignKey, field.value->>'$.type' AS type
+    FROM cte_tree box 
+    JOIN cte_tree fields ON fields.parent = box.id
+    JOIN cte_tree field ON field.parent = fields.id
+    WHERE fields.key = 'fields' AND box.path = '$.boxes'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType)
 SELECT fieldPosition, boxPosition, cte_diagram.id, name, isPrimaryKey, isForeignKey, type
