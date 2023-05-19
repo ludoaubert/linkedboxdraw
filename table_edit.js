@@ -610,8 +610,8 @@ function dropFieldFromBox()
 
 	displayCurrent();
 
-        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
-        mycontexts.rectangles[currentBoxIndex] = rec;
+    const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+    mycontexts.rectangles[currentBoxIndex] = rec;
 
 	drawDiag();
 }
