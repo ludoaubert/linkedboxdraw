@@ -110,52 +110,32 @@ CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.pictures')
 ), cte_pictures AS (
-    SELECT picture_array_index.key AS picturePosition, picture_attr.key, picture_attr.value
-    FROM cte_tree picture_array_index
-    JOIN cte_tree picture_attr ON picture_attr.parent=picture_array_index.id
-    WHERE picture_array_index.path='$.pictures'
-), cte_pictures_pivot AS (
-    SELECT picturePosition,
-            MAX(case when key = 'height' then value end) as height,
-            MAX(case when key = 'width' then value end) as width,
-            MAX(case when key = 'name' then value end) as name,
-            MAX(case when key = 'base64' then value end) as base64        
-    FROM cte_pictures
-    GROUP BY picturePosition
-    ORDER BY picturePosition
+    SELECT key AS picturePosition, value->>'$.height' AS height,  value->>'$.width' AS width, value->>'$.name' AS name, value->>'$.base64' AS base64
+    FROM cte_tree picture
+    WHERE path='$.pictures'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
-INSERT INTO picture(diagramId, height, width, name, base64)
+--INSERT INTO picture(diagramId, height, width, name, base64)
 SELECT cte_diagram.id, height, width, name, base64
-FROM cte_pictures_pivot
+FROM cte_pictures
 CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.rectangles')
 ), cte_rectangles AS (
-    SELECT array_index.key AS rectanglePosition, attr.key, attr.value
-    FROM cte_tree array_index
-    JOIN cte_tree attr ON attr.parent=array_index.id
-    WHERE array_index.path='$.rectangles'
-), cte_rectangles_pivot AS (
-    SELECT rectanglePosition,
-            MAX(case when key = 'left' then value end) as [left],
-            MAX(case when key = 'right' then value end) as [right],
-            MAX(case when key = 'top' then value end) as top,
-            MAX(case when key = 'bottom' then value end) as bottom        
-    FROM cte_rectangles
-    GROUP BY rectanglePosition
-    ORDER BY rectanglePosition
+    SELECT key AS rectanglePosition, value->>'$.left' AS left, value->>'$.right' AS right, value->>'$.top' AS top, value->>'$.bottom' AS bottom 
+    FROM cte_tree rectangle
+    WHERE path='$.rectangles'
 ), cte_diagram AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO rectangle(diagramId, boxPosition, [left], [right], top, bottom)
 SELECT cte_diagram.id, rectanglePosition, [left], [right], top, bottom
-FROM cte_rectangles_pivot
+FROM cte_rectangles
 CROSS JOIN cte_diagram;
 
 
