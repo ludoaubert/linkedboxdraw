@@ -28,7 +28,6 @@ CREATE TABLE box(
     diagramId INTEGER,
     position INTEGER,
     title VARCHAR(100),
-    deleted INTEGER,
     UNIQUE(diagramId, position),
 	UNIQUE(diagramId, title),
     FOREIGN KEY (diagramId) REFERENCES diagram(id)
@@ -43,7 +42,6 @@ CREATE TABLE field(
     isPrimaryKey INTEGER,
     isForeignKey INTEGER,
     fieldType varchar(10),
-    deleted INTEGER,
     UNIQUE (diagramId, boxPosition, position),
 	UNIQUE (diagramId, boxPosition, name),
     FOREIGN KEY (diagramId, boxPosition) REFERENCES box(diagramId, position)

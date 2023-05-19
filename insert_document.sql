@@ -13,23 +13,16 @@ VALUES(/*1,*/ '${title}', 0, 'a8828ddfef224d36935a1c66ae86ebb3');
 
 WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
-) , cte_boxes AS (
-    SELECT box.key AS boxPosition, box_attr.key, box_attr.value
+), cte_boxes AS (
+    SELECT key AS boxPosition, value->>'$.title' AS title
     FROM cte_tree box
-    JOIN cte_tree box_attr ON box_attr.parent=box.id
-    WHERE box.path = '$.boxes' AND box_attr.key='title' 
-), cte_boxes_pivot AS (
-    SELECT boxPosition,
-            MAX(case when key = 'title' then value end) as title        
-    FROM cte_boxes
-    GROUP BY boxPosition
-    ORDER BY boxPosition
+    WHERE box.path = '$.boxes' 
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
-INSERT INTO box(diagramId, position, title, deleted)
-SELECT cte_diagram.id, boxPosition, title, 0 AS deleted 
-FROM cte_boxes_pivot
+INSERT INTO box(diagramId, position, title)
+SELECT cte_diagram.id, boxPosition, title 
+FROM cte_boxes
 CROSS JOIN cte_diagram;
 
 
@@ -54,8 +47,8 @@ WITH cte_tree AS (
 ), cte_diagram AS (
 	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
-INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType, deleted)
-SELECT fieldPosition, boxPosition, cte_diagram.id, name, isPrimaryKey, isForeignKey, type, 0 AS deleted
+INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType)
+SELECT fieldPosition, boxPosition, cte_diagram.id, name, isPrimaryKey, isForeignKey, type
 FROM cte_fields_pivot
 CROSS JOIN cte_diagram;
 
@@ -107,7 +100,7 @@ INSERT INTO boxComment(diagramId, boxPosition, bComment)
 SELECT cte_diagram.id AS diagramId, box.Position AS boxPosition, cte_box_comments.comment AS bComment
 FROM cte_box_comments
 CROSS JOIN cte_diagram
-JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_box_comments.boxName
+JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_box_comments.boxName;
 
 
 
