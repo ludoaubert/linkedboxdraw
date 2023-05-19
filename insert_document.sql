@@ -39,7 +39,7 @@ WITH cte_tree AS (
 )
 INSERT INTO field(position, boxPosition, diagramId, name, isPrimaryKey, isForeignKey, fieldType)
 SELECT fieldPosition, boxPosition, cte_diagram.id, name, isPrimaryKey, isForeignKey, type
-FROM cte_fields_pivot
+FROM cte_fields
 CROSS JOIN cte_diagram;
 
 
