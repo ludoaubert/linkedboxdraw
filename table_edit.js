@@ -440,12 +440,7 @@ function addNewBox()
 	currentBoxIndex = mydata.boxes.length;
 	currentFieldIndex = -1;
 
-	const box = {
-		title:newBoxEditField.value, 
-		id:currentBoxIndex,
-		fields:[],
-		deleted:false
-	};
+	const box = {title:newBoxEditField.value, id:currentBoxIndex, fields:[]};
 	mydata.boxes.push(box);
 
 	newBoxEditField.value = "";
