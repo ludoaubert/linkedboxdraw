@@ -140,13 +140,13 @@ CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.contexts')
 ), cte_contexts AS (
     SELECT key AS contextPosition
-    FROM cte_tree array_index
+    FROM cte_tree context
     WHERE path='$.contexts'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO context(diagramId, contextPosition)
 SELECT cte_diagram.id, contextPosition
