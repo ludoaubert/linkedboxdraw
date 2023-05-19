@@ -154,28 +154,18 @@ FROM cte_contexts
 CROSS JOIN cte_diagram;
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.contexts')
 ), cte_frames AS (
-    SELECT context_array_index.key AS contextPosition, attr.key, attr.value
-    FROM cte_tree attr
-    JOIN cte_tree frame ON attr.parent=frame.id
-    JOIN cte_tree context_array_index ON frame.parent=context_array_index.id
-    WHERE context_array_index.path='$.contexts'
-), cte_frames_pivot AS (
-    SELECT contextPosition,
-            MAX(case when key = 'left' then value end) as [left],
-            MAX(case when key = 'right' then value end) as [right],
-            MAX(case when key = 'top' then value end) as top,
-            MAX(case when key = 'bottom' then value end) as bottom        
-    FROM cte_frames
-    GROUP BY contextPosition
-    ORDER BY contextPosition
+    SELECT context.key AS contextPosition, frame.value->>'$.left' AS left, frame.value->>'$.right' AS right, frame.value->>'$.top' AS top, frame.value->>'$.bottom' AS bottom
+    FROM cte_tree context
+    JOIN cte_tree frame ON frame.parent=context.id
+    WHERE context.path='$.contexts' AND frame.key='frame'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO frame(diagramId, contextPosition, [left], [right], top, bottom)
 SELECT cte_diagram.id, contextPosition, [left], [right], top, bottom
-FROM cte_frames_pivot
+FROM cte_frames
 CROSS JOIN cte_diagram;
 
 
