@@ -505,10 +505,10 @@ function updateBox()
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	mydata.boxes[currentBoxIndex].title = newBoxEditField.value;
 	
-	mydata.values = mydata.values.map( ({box, field, value}) => ({box == boxCombo.value ? box:newBoxEditField.value : box, field, value}) );
-	mydata.boxComments = mydata.boxComments.map( ({box, comment}) => ({box == boxCombo.value ? box:newBoxEditField.value, comment}) );
-	mydata.fieldComments = mydata.fieldComments.map( ({box, field, comment}) => ({box == boxCombo.value ? box:newBoxEditField.value, field, comment}) );
-	mydata.fieldColors = mydata.fieldColors.map( ({box, field, color}) => ({box == boxCombo.value ? box:newBoxEditField.value, field,color}) );
+	mydata.values = mydata.values.map( ({box, field, value}) => ({box: box == boxCombo.value ? newBoxEditField.value : box, field, value}) );
+	mydata.boxComments = mydata.boxComments.map( ({box, comment}) => ({box: box == boxCombo.value ? newBoxEditField.value : box, comment}) );
+	mydata.fieldComments = mydata.fieldComments.map( ({box, field, comment}) => ({box: box == boxCombo.value ? newBoxEditField.value : box, field, comment}) );
+	mydata.fieldColors = mydata.fieldColors.map( ({box, field, color}) => ({box: box == boxCombo.value ? newBoxEditField.value : box, field,color}) );
 	
 	displayCurrent();
 
