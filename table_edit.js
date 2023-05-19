@@ -440,7 +440,12 @@ function addNewBox()
 	currentBoxIndex = mydata.boxes.length;
 	currentFieldIndex = -1;
 
-	const box = {title:newBoxEditField.value, id:currentBoxIndex, fields:[]};
+	const box = {
+		title:newBoxEditField.value, 
+		id:currentBoxIndex,
+		fields:[],
+		deleted:false
+	};
 	mydata.boxes.push(box);
 
 	newBoxEditField.value = "";
@@ -504,10 +509,16 @@ function updateBox()
 {
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 	mydata.boxes[currentBoxIndex].title = newBoxEditField.value;
+	
+	mydata.values = mydata.values.map( ({box, field, value}) => ({box == boxCombo.value ? box:newBoxEditField.value : box, field, value}) );
+	mydata.boxComments = mydata.boxComments.map( ({box, comment}) => ({box == boxCombo.value ? box:newBoxEditField.value, comment}) );
+	mydata.fieldComments = mydata.fieldComments.map( ({box, field, comment}) => ({box == boxCombo.value ? box:newBoxEditField.value, field, comment}) );
+	mydata.fieldColors = mydata.fieldColors.map( ({box, field, color}) => ({box == boxCombo.value ? box:newBoxEditField.value, field,color}) );
+	
 	displayCurrent();
 
-        const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
-        mycontexts.rectangles[currentBoxIndex] = rec;
+    const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
+    mycontexts.rectangles[currentBoxIndex] = rec;
 
 	drawDiag();
 }
@@ -564,6 +575,10 @@ function updateField()
 		isPrimaryKey: isPrimaryKeyCheckBox.checked,
 		isForeignKey: isForeignKeyCheckBox.checked
 	} ;
+	
+	mydata.values = mydata.values.map( ({box, field, value}) => ({box, field: box == boxCombo.value && field == fieldCombo.value ? newFieldEditField.value : field, value}) );
+	mydata.fieldComments = mydata.fieldComments.map( ({box, field, comment}) => ({box, field: box == boxCombo.value && field == fieldCombo.value ? newFieldEditField.value : field, comment}) );
+	mydata.fieldColors = mydata.fieldColors.map( ({box, field, color}) => ({box, field: box == boxCombo.value && field == fieldCombo.value ? newFieldEditField.value : field, color}) );
 
 	displayCurrent();
 
