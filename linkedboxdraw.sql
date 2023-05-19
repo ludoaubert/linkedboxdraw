@@ -106,7 +106,6 @@ CREATE TABLE link(
     toFieldPosition INTEGER,
     toCardinality char,
     category varchar(3),
-    deleted INTEGER,
     FOREIGN KEY (diagramId, fromBoxPosition) REFERENCES box(diagramId, position),
     FOREIGN KEY (diagramId, toBoxPosition) REFERENCES box(diagramId, position),
     FOREIGN KEY (diagramId, fromBoxPosition, fromFieldPosition) REFERENCES field(diagramId, boxPosition, position),

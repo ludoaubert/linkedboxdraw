@@ -95,30 +95,17 @@ JOIN box ON box.diagramId = cte_diagram.id AND box.title=cte_box_comments.boxNam
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.links')
 ), cte_links AS (
-    SELECT link_array_index.key AS linkPosition, link_attr.key, link_attr.value
-    FROM cte_tree link_attr
-    JOIN cte_tree link_array_index ON link_attr.parent=link_array_index.id
-    WHERE link_array_index.path='$.links'
-), cte_links_pivot AS (
-    SELECT linkPosition,
-            MAX(case when key = 'from' then value end) as from_,
-            MAX(case when key = 'fromField' then value end) as fromField,
-            MAX(case when key = 'fromCardinality' then value end) as fromCardinality,
-            MAX(case when key = 'to' then value end) as to_,
-            MAX(case when key = 'toField' then value end) as toField,
-            MAX(case when key = 'toCardinality' then value end) as toCardinality,
-            MAX(case when key = 'category' then value end) as category                    
-    FROM cte_links
-    GROUP BY linkPosition
-    ORDER BY linkPosition
-), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT key AS linkPosition, value->>'$.from' AS from_, value->>'$.fromField' AS fromField, value->>'$.fromCardinality' AS fromCardinality, value->>'$.to' AS to_, value->>'$.toField' AS toField, value->>'$.toCardinality' AS toCardinality, value->>'$.category' AS category
+    FROM cte_tree link
+    WHERE link.path='$.links'
+) , cte_diagram AS (
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
-INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category, deleted)
-SELECT cte_diagram.id, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category, 0 AS deleted 
-FROM cte_links_pivot
+INSERT INTO link(diagramId, fromBoxPosition, fromFieldPosition, fromCardinality, toBoxPosition, toFieldPosition, toCardinality, category)
+SELECT cte_diagram.id, from_ AS fromBoxPosition, fromField AS fromFieldPosition, fromCardinality, to_ AS toBoxPosition, toField AS toFieldPosition, toCardinality, category
+FROM cte_links
 CROSS JOIN cte_diagram;
 
 
