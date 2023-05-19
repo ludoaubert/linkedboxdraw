@@ -118,7 +118,7 @@ WITH cte_tree AS (
 ), cte_diagram AS (
     SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
---INSERT INTO picture(diagramId, height, width, name, base64)
+INSERT INTO picture(diagramId, height, width, name, base64)
 SELECT cte_diagram.id, height, width, name, base64
 FROM cte_pictures
 CROSS JOIN cte_diagram;
