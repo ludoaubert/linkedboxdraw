@@ -170,27 +170,19 @@ CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.contexts')
 ), cte_tbs AS (
-    SELECT context_array_index.key AS contextPosition, tB_array_index.key AS tbPosition, attr.key, attr.value
-    FROM cte_tree context_array_index
-    JOIN cte_tree tB ON tB.parent=context_array_index.id
-    JOIN cte_tree tB_array_index ON tB_array_index.parent=tB.id
-    JOIN cte_tree attr ON attr.parent=tB_array_index.id
-    WHERE context_array_index.path='$.contexts' AND tB.key='translatedBoxes'
-), cte_tbs_pivot AS (
-    SELECT contextPosition, tbPosition,
-            MAX(case when key = 'id' then value end) as [boxPosition],
-            MAX(case when key = 'translation' then value end) as [translation]
-    FROM cte_tbs
-    GROUP BY contextPosition, tbPosition
-    ORDER BY contextPosition, tbPosition
+    SELECT context.key AS contextPosition, tB.key AS tbPosition, tB.value->>'$.id' AS boxPosition, tB.value->>'$.translation.x' AS translationX, tB.value->>'$.translation.y' AS translationY
+    FROM cte_tree context
+    JOIN cte_tree translatedBoxes ON translatedBoxes.parent=context.id
+    JOIN cte_tree tB ON tB.parent=translatedBoxes.id
+    WHERE context.path='$.contexts' AND translatedBoxes.key='translatedBoxes'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO translatedBoxes(diagramId, contextPosition, boxPosition, translationX, translationY)
-SELECT cte_diagram.id, contextPosition, boxPosition, translation->'$.x' AS translationX, translation->'$.y' AS translationY
-FROM cte_tbs_pivot
+SELECT cte_diagram.id, contextPosition, boxPosition, translationX, translationY
+FROM cte_tbs
 CROSS JOIN cte_diagram;
 
 
