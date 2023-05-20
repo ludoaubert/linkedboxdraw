@@ -187,27 +187,19 @@ CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.contexts')
 ), cte_polylines AS (
-    SELECT context_array_index.key AS contextPosition, lk_array_index.key AS polylinePosition, attr.key, attr.value
-    FROM cte_tree context_array_index
-    JOIN cte_tree lk ON lk.parent=context_array_index.id
-    JOIN cte_tree lk_array_index ON lk_array_index.parent=lk.id
-    JOIN cte_tree attr ON attr.parent=lk_array_index.id
-    WHERE context_array_index.path='$.contexts' AND lk.key='links'
-), cte_polylines_pivot AS (
-    SELECT contextPosition, polylinePosition,
-            MAX(case when key = 'from' then value end) as [from],
-            MAX(case when key = 'to' then value end) as [to]
-    FROM cte_polylines
-    GROUP BY contextPosition, polylinePosition
-    ORDER BY contextPosition, polylinePosition
+    SELECT context.key AS contextPosition, link.key AS polylinePosition, link.value->>'$.from' AS [from], link.value->>'$.to' AS [to]
+    FROM cte_tree context
+    JOIN cte_tree links ON links.parent=context.id
+    JOIN cte_tree link ON link.parent=links.id
+    WHERE context.path='$.contexts' AND links.key='links'
 ), cte_diagram AS (
-	SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
+    SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
 INSERT INTO polyline(diagramId, contextPosition, polylinePosition, [from], [to])
 SELECT cte_diagram.id, contextPosition, polylinePosition, [from], [to]
-FROM cte_polylines_pivot
+FROM cte_polylines
 CROSS JOIN cte_diagram;
 
 
