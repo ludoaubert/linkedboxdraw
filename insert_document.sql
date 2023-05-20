@@ -204,7 +204,7 @@ CROSS JOIN cte_diagram;
 
 
 WITH cte_tree AS (
-    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'))
+    SELECT * FROM json_tree((SELECT geoData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.contexts')
 ), cte_points AS (
     SELECT context.key AS contextPosition, link.key AS polylinePosition, point.key AS pointPosition, point.value->>'$.x' AS x, point.value->>'$.y' AS y
     FROM cte_tree context
