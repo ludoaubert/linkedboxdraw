@@ -41,7 +41,7 @@ app.get('/get_document', (req, res) => {
 					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid);
 	console.log(query);
 	fs.writeFileSync(`${TEMP_DIR}/select_document_${guid}.sql`, query);
-    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read ${TEMP_DIR}/select_document_${guid}.sql"`,(error, stdout, stderr) => {
+    exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read ${TEMP_DIR}/select_document_${guid}.sql"`, { maxBuffer: Infinity },(error, stdout, stderr) => {
         console.log("STDOUT:", stdout, ", STDERR:", stderr);
 		console.log(guid);
 	    res.statusCode = 200;
