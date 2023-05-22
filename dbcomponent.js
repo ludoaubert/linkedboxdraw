@@ -183,7 +183,7 @@ function expressCutLinks(mydata, mycontexts){
 // listing unexpressed link targets - end
 
 	const styleMap = new Map(
-		[...fieldColors.map( ({box,field,color})=>({index:boxes.findIndex(b => b.name==box), field, color}) ),
+		[...fieldColors.map( ({box,field,color})=>({index:boxes.findIndex(b => b.title==box), field, color}) ),
 		...cut_links.map( ({from,fromField,fromCardinality,to,toField,toCardinality}) => ([
 			{index:from, field:`${boxes[from].fields[fromField].name}`, color:colormap.get(`${to}.${toField}`)},
 			{index:to, field:`${boxes[to].fields[toField].name}`, color:colormap.get(`${to}.${toField}`)}])
