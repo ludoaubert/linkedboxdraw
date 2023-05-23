@@ -638,14 +638,14 @@ function addEventListeners()
 		.forEach(g => {
 			g.addEventListener("mousedown", (event) => selectElement(g));
 			g.addEventListener("mouseup", (event) => deselectElement(g));
-			g.addEventListener("mousemove", (event) => moveElement(event));
+			const svg = g.parentNode;
+			svg.addEventListener("mousemove", (event) => {moveElement(event); moveSizer(event););
 		});
 
 	document.querySelectorAll("g > rect[id^=sizer_]")
 		.forEach(sizer => {
 			sizer.addEventListener("mousedown", (event) => selectSizer(sizer));
 			sizer.addEventListener("mouseup", (event) => deselectSizer(sizer));
-			sizer.addEventListener("mousemove", (event) => moveSizer(event));
 		});
 }
 
