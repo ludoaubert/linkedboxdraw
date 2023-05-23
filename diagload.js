@@ -122,11 +122,13 @@ function download2(filename) {
 
 function selectElement(elmnt)
 {
+	console.log("selectElement()");
 	g = elmnt;
 }
 
 function deselectElement(elmnt)
 {
+	console.log("deselectElement()");
 	handleDeselectElement();
 	currentX=0;
 	currentY=0;
@@ -135,11 +137,13 @@ function deselectElement(elmnt)
 
 function selectSizer(elmnt)
 {
+	console.log("selectSizer()");
 	sizer = elmnt;
 }
 
 function deselectSizer(elmnt)
 {
+	console.log("deselectSizer()");
 	handleDeselectSizer();
 	currentX=0;
 	currentY=0;
@@ -162,6 +166,8 @@ function moveSizer(evt)
 	
 	if (dx == 0 && dy == 0)
 		return;
+	
+	console.log(`moveSizer() dx=${dx} dy=${dy}`);
 
 	const i = sizer.id.substring("sizer_".length);
 
@@ -223,6 +229,8 @@ function moveElement(evt) {
 
 	const dx = evt.clientX - currentX;
 	const dy = evt.clientY - currentY;
+
+	console.log(`moveElement() dx=${dx} dy=${dy}`);
 
 	translate_draggable(g, dx, dy);
 
