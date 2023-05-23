@@ -122,6 +122,8 @@ function download2(filename) {
 
 function selectElement(elmnt)
 {
+	if (sizer != 0)
+		return;
 	console.log("selectElement()");
 	g = elmnt;
 }
@@ -137,6 +139,8 @@ function deselectElement(elmnt)
 
 function selectSizer(elmnt)
 {
+	if (g != 0)
+		return;
 	console.log("selectSizer()");
 	sizer = elmnt;
 }
