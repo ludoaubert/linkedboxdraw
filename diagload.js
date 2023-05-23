@@ -159,6 +159,9 @@ function moveSizer(evt)
 
 	const dx = evt.clientX - currentX;
 	const dy = evt.clientY - currentY;
+	
+	if (dx == 0 && dy == 0)
+		return;
 
 	const i = sizer.id.substring("sizer_".length);
 
