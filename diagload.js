@@ -301,7 +301,7 @@ function enforce_bounding_rectangle(selectedContextIndex)
 }
 
 
-function compute_links(selectedContextIndex)
+async function compute_links(selectedContextIndex)
 {
 	let context = mycontexts.contexts[selectedContextIndex];
 
@@ -359,8 +359,8 @@ function compute_links(selectedContextIndex)
 	console.log({rectangles, frame});
 
 	const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
-	const jsonResponse = bombix(rectdim, translations, sframe, slinks);
-	const links = JSON.parse(jsonResponse)
+	const jsonResponse = await bombix(rectdim, translations, sframe, slinks);
+	const links = await JSON.parse(jsonResponse)
 				.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
 	return links;
 }
@@ -395,9 +395,9 @@ function handleDeselectSizer()
 
 	enforce_bounding_rectangle(selectedContextIndex);
 
-	const links = compute_links(selectedContextIndex);
-	mycontexts.contexts[selectedContextIndex].links = links;
-	document.getElementById(`links_${selectedContextIndex}`).innerHTML = drawLinks(links);
+	const links = await compute_links(selectedContextIndex);
+	mycontexts.contexts[selectedContextIndex].links = await links;
+	document.getElementById(`links_${selectedContextIndex}`).innerHTML = await drawLinks(links);
 }
 
 
@@ -422,9 +422,9 @@ function handleDeselectElement()
 
 	enforce_bounding_rectangle(selectedContextIndex);
 
-	const links = compute_links(selectedContextIndex);
-	mycontexts.contexts[selectedContextIndex].links = links;
-	document.getElementById(`links_${selectedContextIndex}`).innerHTML = drawLinks(links);
+	const links = await compute_links(selectedContextIndex);
+	mycontexts.contexts[selectedContextIndex].links = await links;
+	document.getElementById(`links_${selectedContextIndex}`).innerHTML = await drawLinks(links);
 }
 
 
