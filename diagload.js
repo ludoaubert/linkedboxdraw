@@ -401,7 +401,7 @@ async function handleDeselectSizer()
 }
 
 
-function handleDeselectElement()
+async function handleDeselectElement()
 {
 	console.assert(g.parentElement.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
