@@ -125,8 +125,8 @@ function drawComponent(id, mydata) {
 		if (field?.type == "image")
 		{
 			const pictureIndex = pictures.findIndex(picture => picture.name == field.name);
-			const base64 = pictures[pictureIndex].base64;
-			innerHTML += `<tr id="b${id}f${fieldIndex}" contenteditable="false"><td id="b${id}f${fieldIndex}" ${titleAttribute}><img src="data:image/jpg;base64, ${base64}"></td></tr>`;
+			const {name, base64, width, height} = pictures[pictureIndex];
+			innerHTML += `<tr id="b${id}f${fieldIndex}" contenteditable="false"><td id="b${id}f${fieldIndex}" ${titleAttribute}><img src="data:image/jpg;base64, ${base64}" width=${width} height=${height}></td></tr>`;
 		}
 		else
 		{
