@@ -366,7 +366,7 @@ async function compute_links(selectedContextIndex)
 }
 
 
-function handleDeselectSizer()
+async function handleDeselectSizer()
 {
 	const i = parseInt(sizer.id.substring('sizer_'.length));
 	const g = sizer.parentElement;
