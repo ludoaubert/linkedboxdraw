@@ -638,9 +638,10 @@ function addEventListeners()
 		.forEach(g => {
 			g.addEventListener("mousedown", (event) => selectElement(g));
 			g.addEventListener("mouseup", (event) => deselectElement(g));
-			const svg = g.parentNode;
-			svg.addEventListener("mousemove", (event) => {moveElement(event); moveSizer(event););
 		});
+		
+	document.querySelectorAll("svg")
+		.forEach(svg => svg.addEventListener("mousemove", (event) => {moveElement(event); moveSizer(event);}));
 
 	document.querySelectorAll("g > rect[id^=sizer_]")
 		.forEach(sizer => {
