@@ -126,7 +126,7 @@ function drawComponent(id, mydata) {
 		{
 			const pictureIndex = pictures.findIndex(picture => picture.name == field.name);
 			const {name, base64, width, height, zoomPercentage} = pictures[pictureIndex];
-			const style = zoomPercentage == null ? "" : `width: {zoomPercentage*width}px; height: {zoomPercentage*height};`;
+			const style = zoomPercentage == null ? "" : `width: {zoomPercentage*width}px; height: {zoomPercentage*height}px;`;
 			innerHTML += `<tr id="b${id}f${fieldIndex}" contenteditable="false"><td id="b${id}f${fieldIndex}" ${titleAttribute}><img src="data:image/jpg;base64, ${base64}" width="${width}" height="${height}" style="{style}"></td></tr>`;
 		}
 		else
