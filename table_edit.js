@@ -222,7 +222,10 @@ function init() {
 	dfo.addEventListener("click", () => download(dfo.previousElementSibling.value, mydata));
 
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
-	pictureZoom.addEventListener("change", () => {mydata.pictures[currentPictureIndex].zoomPercentage = pictureZoom.valueAsNumber;});
+	pictureZoom.addEventListener("change", () => {
+			mydata.pictures[currentPictureIndex].zoomPercentage = pictureZoom.valueAsNumber;
+		}
+	);
 	let add_pic = document.querySelector("input[id=add_pic]");
 	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture).then(addPicture));
 	let drop_pic = document.querySelector("button[id=drop_pic]");
