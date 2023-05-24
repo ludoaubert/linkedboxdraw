@@ -618,7 +618,7 @@ function ApplyRepartition()
 
 function drawRepartition(mydata, mycontexts){
 
-	const repartitionEntries = mycontexts.contexts.map((context, selectedContextIndex) => context.translatedBoxes.map(({id, translation}) => ({boxName:mydata.boxes[id].name,id,selectedContextIndex})))
+	const repartitionEntries = mycontexts.contexts.map((context, selectedContextIndex) => context.translatedBoxes.map(({id, translation}) => ({boxName:mydata.boxes[id].title,id,selectedContextIndex})))
 												.flat(1);
 
 	const innerHTML = repartitionEntries.sort((a, b)=>{return a.boxName < b.boxName ? -1 : a.boxName > b.boxName ? -1 : 0;})
