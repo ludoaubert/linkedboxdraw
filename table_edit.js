@@ -498,7 +498,8 @@ function dropBox()
 
 	mycontexts.rectangles.splice(currentBoxIndex, 1);
 	for (let context of mycontexts.contexts)
-		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex);
+		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex)
+														.map(({id, translation}) => ({id: id > currentBoxIndex ? id-1 : id, translation}));
 
 	currentBoxIndex = -1;
 
