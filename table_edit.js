@@ -498,8 +498,13 @@ function dropBox()
 
 	mycontexts.rectangles.splice(currentBoxIndex, 1);
 	for (let context of mycontexts.contexts)
+	{
 		context.translatedBoxes = context.translatedBoxes.filter(tB => tB.id != currentBoxIndex)
 														.map(({id, translation}) => ({id: id > currentBoxIndex ? id-1 : id, translation}));
+
+		context.links = context.links.filter(({polyline, from, to}) => from != currentBoxIndex && to != currentBoxIndex)
+									.map(({polyline, from, to}) => ({polyline, from: from > currentBoxIndex ? from-1 : from, to: to > currentBoxIndex ? to-1 : to}));
+	}
 
 	currentBoxIndex = -1;
 
