@@ -193,8 +193,7 @@ function moveSizer(evt)
 
 	sizer.setAttribute("x", `${x+dx}`);
 	sizer.setAttribute("y", `${y+dy}`);
-	
-	const i = parseInt(sizer.id.substring('sizer_'.length));
+
 	const g = sizer.parentElement;
 	const svg = g.parentElement;
 	const selectedContextIndex = parseInt(svg.id);	
@@ -244,8 +243,7 @@ function moveElement(evt) {
 	console.log(`moveElement() dx=${dx} dy=${dy}`);
 
 	translate_draggable(g, dx, dy);
-	
-	const id = parseInt(g.id.substring('g_'.length));
+
 	const selectedContextIndex = parseInt(g.parentElement.id);
 
 	enforce_bounding_rectangle(selectedContextIndex);
