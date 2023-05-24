@@ -618,26 +618,18 @@ function ApplyRepartition()
 
 function drawRepartition(mydata, mycontexts){
 
-	var innerHTML = "";
-
 	const repartitionEntries = mycontexts.contexts.map((context, selectedContextIndex) => context.translatedBoxes.map(({id, translation}) => ({boxName:mydata.boxes[id].name,id,selectedContextIndex})))
 												.flat(1);
 
-	for (const {boxName, id, selectedContextIndex} of repartitionEntries.sort(
-		function (a, b) {
-			return a.boxName.localeCompare(b.boxName);
-		}
-		)
-	)
-	{
-		innerHTML += `
+	const innerHTML = repartitionEntries.sort((a, b)=>{return a.boxName < b.boxName ? -1 : a.boxName > b.boxName ? -1 : 0;})
+					.map(({boxName, id, selectedContextIndex}) => `
 			<tr>
 			  <td>${id}</td>
               <td>${boxName}</td>
 			  <td contenteditable="true">${selectedContextIndex}</td>
             </tr>
-			`
-	}
+			`)
+					.join();
 
 	return innerHTML;
 }
