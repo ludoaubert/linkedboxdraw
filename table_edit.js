@@ -224,6 +224,7 @@ function init() {
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
 	pictureZoom.addEventListener("change", () => {
 			mydata.pictures[currentPictureIndex].zoomPercentage = isNaN(pictureZoom.valueAsNumber) ? null : pictureZoom.valueAsNumber;
+			drawDiag();
 		}
 	);
 	let add_pic = document.querySelector("input[id=add_pic]");
