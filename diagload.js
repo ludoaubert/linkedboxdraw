@@ -621,7 +621,7 @@ function drawRepartition(mydata, mycontexts){
 	const repartitionEntries = mycontexts.contexts.map((context, selectedContextIndex) => context.translatedBoxes.map(({id, translation}) => ({boxName:mydata.boxes[id].title,id,selectedContextIndex})))
 												.flat(1);
 
-	const innerHTML = repartitionEntries.sort((a, b)=>{return a.boxName < b.boxName ? -1 : a.boxName > b.boxName ? -1 : 0;})
+	const innerHTML = repartitionEntries.sort((a, b)=>{return a.boxName < b.boxName ? -1 : a.boxName > b.boxName ? 1 : 0;})
 					.map(({boxName, id, selectedContextIndex}) => `
 			<tr>
 			  <td>${id}</td>
@@ -629,7 +629,7 @@ function drawRepartition(mydata, mycontexts){
 			  <td contenteditable="true">${selectedContextIndex}</td>
             </tr>
 			`)
-					.join();
+					.join('');
 
 	return innerHTML;
 }
