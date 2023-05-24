@@ -83,6 +83,7 @@ var dropColorButton;
 var addColorButton;
 var updateColorButton;
 var picturesCombo ;
+var pictureZoom ;
 var currentImageDisplay ;
 var applyRepartitionButton;
 
@@ -117,7 +118,7 @@ function addPicture(base64)
 	currentPictureIndex = mydata.pictures.length;
 
 	const name = document.getElementById("add_pic").value;
-	const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height};
+	const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height, zoomPercentage:null};
 	mydata.pictures.push(pic);
 
 	const pictureComboInnerHTML = mydata.pictures
@@ -188,6 +189,7 @@ function init() {
 	addColorButton = document.getElementById("add color");
 	updateColorButton = document.getElementById("update color");
 	picturesCombo = document.getElementById("pictures");
+	pictureZoom = document.getElementById("pic_zoom");
 	currentImageDisplay = document.getElementById("cid");
 	applyRepartitionButton = document.getElementById("apply repartition");
 
@@ -220,6 +222,7 @@ function init() {
 	dfo.addEventListener("click", () => download(dfo.previousElementSibling.value, mydata));
 
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
+	pictureZoom.addEventListener("change", () => mydata.pictures[currentPictureIndex].zoomPercentage = pictureZoom.getValue());
 	let add_pic = document.querySelector("input[id=add_pic]");
 	add_pic.addEventListener("change", () => getFileData(add_pic).then(loadPicture).then(addPicture));
 	let drop_pic = document.querySelector("button[id=drop_pic]");
