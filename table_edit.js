@@ -714,7 +714,8 @@ function updateLink()
 
 	console.log(lk);
 
-	mydata.links[linkCombo.selectedIndex] = lk;
+	const {option, position} = produce_options(mydata.links)[linkCombo.selectedIndex];
+	mydata.links[position] = lk;
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
@@ -747,9 +748,11 @@ function addNewLink()
 
 function dropLink()
 {
-	const lk = mydata.links[ linkCombo.selectedIndex ];
+	const {option, position} = produce_options(mydata.links)[linkCombo.selectedIndex];
+	
+	const lk = mydata.links[ position ];
 	console.log({lk});
-	mydata.links = mydata.links.filter((_, index) => index != linkCombo.selectedIndex);
+	mydata.links = mydata.links.filter((_, index) => index != position);
 	linkComboOnClick();
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
