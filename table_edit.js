@@ -712,8 +712,19 @@ function addNewLink()
 	};
 
 	mydata.links.push(lk);
+	
+	for (let {translatedBoxes, links} of mycontexts.contexts)
+	{
+		const ids = translatedBoxes.map(({id,translation}) => id);
+		if (ids.includes(lk.from) && ids.includes(lk.to))
+			links.push({polyline:[], from:lk.from, to:lk.to}); 
+	}
 
-	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
+	for (let selectedContextIndex = 0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex++)
+	{
+		let context = mycontexts.contexts[selectedContextIndex] ;
+		context.links = await compute_links(selectedContextIndex);
+	}
 
 	drawDiag();
 }
