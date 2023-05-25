@@ -709,6 +709,8 @@ function updateLink()
 	console.log(lk);
 
 	mydata.links[linkCombo.selectedIndex] = lk;
+	
+	mydata.links.sort((a,b) => return opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
