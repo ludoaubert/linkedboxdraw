@@ -694,7 +694,7 @@ function linkComboOnClick()
 }
 
 
-function addNewLink()
+async function addNewLink()
 {
 	currentFromBoxIndex = mydata.boxes.findIndex(box => box.title == fromBoxCombo.value);
 	currentFromFieldIndex = mydata.boxes[currentFromBoxIndex].fields.findIndex(field => field.name == fromFieldCombo.value);
