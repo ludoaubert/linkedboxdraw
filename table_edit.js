@@ -667,18 +667,22 @@ function selectLink()
 
 }
 
-function linkComboOnClick()
+function opt(lk)
 {
+	const {from, fromField, to, toField} = lk;
+	const fromBox = mydata.boxes[from] ;
+	const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
+	const toBox = mydata.boxes[to] ;
+	const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
+	return `${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}`;	
+}
+
+function linkComboOnClick()
+{	
+	mydata.links.sort((a,b) => return opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
+	
 	const innerHTML = mydata.links
-				.map(({from, fromField, to, toField}) => {
-					const fromBox = mydata.boxes[from] ;
-					const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
-					const toBox = mydata.boxes[to] ;
-					const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
-					return `${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}`;
-				})
-				.sort((a,b) => return a < b ? -1 : a > b : 1 : 0;)
-				.map(item => `<option>${item}</option>`)
+				.map(lk => `<option>${opt(lk)}</option>`)
 				.join('');
 
 	if (linkCombo.innerHTML != innerHTML)
@@ -729,6 +733,8 @@ function addNewLink()
 	};
 
 	mydata.links.push(lk);
+	
+	mydata.links.sort((a,b) => return opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
