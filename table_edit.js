@@ -754,6 +754,8 @@ function dropLink()
 	console.log({lk});
 	mydata.links = mydata.links.filter((_, index) => index != position);
 	linkComboOnClick();
+	
+	mycontexts.contexts.forEach(context => context.links = context.links.filter(link => link.to=lk.to && link.from=lk.from));
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
