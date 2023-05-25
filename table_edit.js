@@ -398,7 +398,7 @@ function displayCurrent()
 	const valueComboInnerHTML = mydata.values.filter(({box, field, value}) => box == boxTitle && field == fieldName)
 										.map(({box, field, value}) => value)
 										.sort()
-										.map(value => '<option>' + value + '</option>')
+										.map(value => `<option>${value}</option>`)
 										.join('');
 
 	if (valueCombo.innerHTML != valueComboInnerHTML)
