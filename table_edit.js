@@ -759,7 +759,7 @@ async function dropLink()
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = await compute_links(selectedContextIndex));
 
-	await drawDiag();
+	drawDiag();
 }
 
 
