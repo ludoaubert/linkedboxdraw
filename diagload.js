@@ -559,7 +559,7 @@ function drawDiag()
 }
 
 
-function ApplyRepartition()
+async function ApplyRepartition()
 {
 	const repartitionTable = document.getElementById("repartition");
 
@@ -609,7 +609,7 @@ function ApplyRepartition()
 	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		enforce_bounding_rectangle(selectedContextIndex);
-		context.links = compute_links(selectedContextIndex);
+		context.links = await compute_links(selectedContextIndex);
 	}
 
 	console.log(JSON.stringify(mycontexts));
