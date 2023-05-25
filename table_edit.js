@@ -713,7 +713,7 @@ async function addNewLink()
 
 	mydata.links.push(lk);
 
-	for (let [selectedContextIndex, context] = mycontexts.contexts.entries())
+	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		let {translatedBoxes, links} = context ;
 		const ids = translatedBoxes.map(({id,translation}) => id);
@@ -736,7 +736,7 @@ async function dropLink()
 	mydata.links = mydata.links.filter((_, index) => index != position);
 	linkComboOnClick();
 
-	for (let [selectedContextIndex, context] = mycontexts.contexts.entries())
+	for (let [selectedContextIndex, context] of mycontexts.contexts.entries())
 	{
 		let {translatedBoxes, links} = context ;
 		const ids = translatedBoxes.map(({id,translation}) => id);
