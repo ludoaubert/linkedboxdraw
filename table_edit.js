@@ -170,7 +170,6 @@ function init() {
 	linkCombo = document.getElementById("links");
 	dropLinkButton = document.getElementById("drop link");
 	addLinkButton = document.getElementById("add link");
-	updateLinkButton = document.getElementById("update link");
 	newBoxEditField = document.getElementById("new box");
 	newFieldEditField = document.getElementById("new field");
 	fromBoxCombo = document.getElementById("from boxes");
@@ -261,7 +260,6 @@ function init() {
 	toBoxCombo.addEventListener("change", () => {currentToBoxIndex = -1; displayCurrent();});
 	toFieldCombo.addEventListener("change", () => {currentToFieldIndex = -1; displayCurrent();});
 	addLinkButton.addEventListener("click", () => addNewLink()) ;
-	updateLinkButton.addEventListener("click", () => updateLink()) ;
 	colorsCombo.addEventListener("click", () => colorsComboOnClick());
 	dropColorButton.addEventListener("click", () => dropColor());
 	colorBoxCombo.addEventListener("change", () => {currentColorBoxIndex = -1; displayCurrent();});
@@ -695,32 +693,6 @@ function linkComboOnClick()
 		linkCombo.innerHTML = innerHTML;
 }
 
-function updateLink()
-{
-	currentFromBoxIndex = mydata.boxes.findIndex(box => box.title == fromBoxCombo.value);
-	currentFromFieldIndex = mydata.boxes[currentFromBoxIndex].fields.findIndex(field => field.name == fromFieldCombo.value);
-	currentToBoxIndex = mydata.boxes.findIndex(box => box.title == toBoxCombo.value);
-	currentToFieldIndex = mydata.boxes[currentToBoxIndex].fields.findIndex(field => field.name == toFieldCombo.value);
-
-	const lk = {
-		from: currentFromBoxIndex,
-		fromField: currentFromFieldIndex,
-		fromCardinality: fromCardinalityCombo.value,
-		to: currentToBoxIndex,
-		toField: currentToFieldIndex,
-		toCardinality: toCardinalityCombo.value,
-		category:categoryCombo.value
-	};
-
-	console.log(lk);
-
-	const {option, position} = produce_options(mydata.links)[linkCombo.selectedIndex];
-	mydata.links[position] = lk;
-
-	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
-
-	drawDiag();
-}
 
 function addNewLink()
 {
