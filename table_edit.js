@@ -712,18 +712,16 @@ async function addNewLink()
 	};
 
 	mydata.links.push(lk);
-	
-	for (let {translatedBoxes, links} of mycontexts.contexts)
+
+	for (let [selectedContextIndex, context] = mycontexts.contexts.entries())
 	{
+		let {translatedBoxes, links} = context ;
 		const ids = translatedBoxes.map(({id,translation}) => id);
 		if (ids.includes(lk.from) && ids.includes(lk.to))
+		{
 			links.push({polyline:[], from:lk.from, to:lk.to}); 
-	}
-
-	for (let selectedContextIndex = 0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex++)
-	{
-		let context = mycontexts.contexts[selectedContextIndex] ;
-		context.links = await compute_links(selectedContextIndex);
+			context.links = await compute_links(selectedContextIndex);
+		}
 	}
 
 	drawDiag();
@@ -737,13 +735,16 @@ async function dropLink()
 	console.log({lk});
 	mydata.links = mydata.links.filter((_, index) => index != position);
 	linkComboOnClick();
-	
-	mycontexts.contexts.forEach(context => context.links = context.links.filter(link => !(link.to==lk.to && link.from==lk.from)));
 
-	for (let selectedContextIndex = 0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex++)
+	for (let [selectedContextIndex, context] = mycontexts.contexts.entries())
 	{
-		let context = mycontexts.contexts[selectedContextIndex] ;
-		context.links = await compute_links(selectedContextIndex);
+		let {translatedBoxes, links} = context ;
+		const ids = translatedBoxes.map(({id,translation}) => id);
+		if (ids.includes(lk.from) && ids.includes(lk.to))
+		{
+			context.links = context.links.filter(link => !(link.to==lk.to && link.from==lk.from));
+			context.links = await compute_links(selectedContextIndex);
+		}
 	}
 
 	drawDiag();
