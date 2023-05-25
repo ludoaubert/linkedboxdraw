@@ -746,7 +746,7 @@ function addNewLink()
 	drawDiag();
 }
 
-function dropLink()
+async function dropLink()
 {
 	const {option, position} = produce_options(mydata.links)[linkCombo.selectedIndex];
 	
@@ -757,7 +757,11 @@ function dropLink()
 	
 	mycontexts.contexts.forEach(context => context.links = context.links.filter(link => !(link.to==lk.to && link.from==lk.from)));
 
-	mycontexts.contexts.forEach(async (context, selectedContextIndex) => context.links = await compute_links(selectedContextIndex));
+	for (let selectedContextIndex = 0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex++)
+	{
+		let context = mycontexts.contexts[selectedContextIndex] ;
+		context.links = await compute_links(selectedContextIndex);
+	}
 
 	drawDiag();
 }
