@@ -667,22 +667,28 @@ function selectLink()
 
 }
 
-function opt(lk)
+function produce_options(links)
 {
-	const {from, fromField, to, toField} = lk;
-	const fromBox = mydata.boxes[from] ;
-	const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
-	const toBox = mydata.boxes[to] ;
-	const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
-	return `${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}`;	
+	const options = links.map((lk, position) => {
+			const {from, fromField, to, toField} = lk;
+			const fromBox = mydata.boxes[from] ;
+			const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
+			const toBox = mydata.boxes[to] ;
+			const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
+			return {option:`${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}`, position};
+		})
+		.sort((a, b) => a.option<b.option ? -1 : a.option > b.option ? 1 : 0);
+
+	return options;
 }
 
 function linkComboOnClick()
-{	
-	mydata.links.sort((a,b) => opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
+{
+	const options = produce_options(mydata.links)
 	
-	const innerHTML = mydata.links
-				.map(lk => `<option>${opt(lk)}</option>`)
+	const innerHTML = options
+				.map(({option, position}) => option) 
+				.map(option => `<option>${option}</option>`)
 				.join('');
 
 	if (linkCombo.innerHTML != innerHTML)
@@ -709,8 +715,6 @@ function updateLink()
 	console.log(lk);
 
 	mydata.links[linkCombo.selectedIndex] = lk;
-	
-	mydata.links.sort((a,b) => opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
@@ -735,8 +739,6 @@ function addNewLink()
 	};
 
 	mydata.links.push(lk);
-	
-	mydata.links.sort((a,b) => opt(a)<opt(b) ? -1 : opt(a) > opt(b) ? 1 : 0);
 
 	mycontexts.contexts.forEach((context, selectedContextIndex) => context.links = compute_links(selectedContextIndex));
 
