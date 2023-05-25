@@ -346,7 +346,7 @@ function displayCurrent()
 		const boxComboInnerHTML = mydata.boxes
 								.concat()	//shallow copy
 								.sort((a, b) => a.title.localeCompare(b.title))
-								.map(box => "<option>" + box.title + "</option>")
+								.map(box => `<option>${box.title}</option>`)
 								.join('');
 
 		if (boxCombo_.innerHTML != boxComboInnerHTML)
@@ -675,8 +675,10 @@ function linkComboOnClick()
 					const fromFieldName = fromField != -1 ? fromBox.fields[fromField].name : "";
 					const toBox = mydata.boxes[to] ;
 					const toFieldName = toField != -1 ? toBox.fields[toField].name : "";
-			return `<option>${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}</option>`;
+					return `${fromBox.title}.${fromFieldName} ${toBox.title}.${toFieldName}`;
 				})
+				.sort((a,b) => return a < b ? -1 : a > b : 1 : 0;)
+				.map(item => `<option>${item}</option>`)
 				.join('');
 
 	if (linkCombo.innerHTML != innerHTML)
