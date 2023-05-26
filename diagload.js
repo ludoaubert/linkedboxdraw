@@ -380,7 +380,7 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
-		svgElement.setAttribute("viewBox",`${x} ${y} ${width} ${height}`);		
+		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);		
 		context.frame = frame;
 	}
 }
