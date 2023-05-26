@@ -307,31 +307,41 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 						bottom: r.bottom + y
 					};
 				});
-
-	const frame_ = {
-		left: Math.min(...rectangles.map(r => r.left)),
-		right: Math.max(...rectangles.map(r => r.right)),
-		top: Math.min(...rectangles.map(r => r.top)),
-		bottom: Math.max(...rectangles.map(r => r.bottom))
+				
+	const compute_frame = rects => {
+		const frame = {
+			left: Math.min(...rects.map(r => r.left)),
+			right: Math.max(...rects.map(r => r.right)),
+			top: Math.min(...rects.map(r => r.top)),
+			bottom: Math.max(...rects.map(r => r.bottom))
+		};
+		return expand_by(frame, RECT_BORDER + FRAME_MARGIN/2);
 	};
-
-	const frame = expand_by(frame_, RECT_BORDER + FRAME_MARGIN/2);
+	
+	const frame = compute_frame(rectangles);
 	
 //test if frame is contained inside context.frame.
-//if it is not contained, use the envelop of frame and r if r is not null.
+
+	if (context.frame.left <= frame.left && frame.right <= context.frame.right && context.frame.top <= frame.top && frame.bottom <= context.frame.bottom)
+	{
 //if it is contained, return immediately.
+		return;
+	}
+	else
+	{
+//if it is not contained, use the envelop of frame and r if r is not null.
+		context.frame = compute_frame(r == null ? rectangles : [...rectangles, r]);
 
-	context.frame = frame;
+		const width_ = width(context.frame);
+		const height_ = height(context.frame);
+		const x = context.frame.left;
+		const y = context.frame.top;
 
-	const width_ = width(frame);
-	const height_ = height(frame);
-	const x = frame.left;
-	const y = frame.top;
-
-	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
-	svgElement.setAttribute("width", `${width_}`);
-	svgElement.setAttribute("height", `${height_}`);
-	svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);
+		let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
+		svgElement.setAttribute("width", `${width_}`);
+		svgElement.setAttribute("height", `${height_}`);
+		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);		
+	}
 }
 
 
