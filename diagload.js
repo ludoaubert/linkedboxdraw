@@ -200,13 +200,17 @@ function moveSizer(evt)
 	const svg = g.parentElement;
 	const selectedContextIndex = parseInt(svg.id);	
 	
-	const left = parseInt(rect.getAttribute("x"));
-	const top = parseInt(rect.getAttribute("y"));
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+	
 	const r = {
-		left: left - MOVE_RANGE,
-		right: left + width + dx + MOVE_RANGE,
-		top: top - MOVE_RANGE,
-		bottom: top + height + dy - MOVE_RANGE
+		left: translateX - MOVE_RANGE,
+		right: translateX + width + dx + MOVE_RANGE,
+		top: translateY - MOVE_RANGE,
+		bottom: translateY + height + dy - MOVE_RANGE
 	};
 	
 	enforce_bounding_rectangle(selectedContextIndex, r);
@@ -256,14 +260,18 @@ function moveElement(evt) {
 	translate_draggable(g, dx, dy);
 
 	const selectedContextIndex = parseInt(g.parentElement.id);
-/*	
-	const left = parseInt(rect.getAttribute("x");
-	const top = parseInt(rect.getAttribute("y");
+/*
+	const xForms = g.transform.baseVal;// an SVGTransformList
+	const firstXForm = xForms.getItem(0); //an SVGTransform
+	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+	const translateX = firstXForm.matrix.e;
+	const translateY = firstXForm.matrix.f;
+	
 	const r = {
-		left: left - MOVE_RANGE,
-		right: left + width + dx + MOVE_RANGE,
-		top: top - MOVE_RANGE,
-		bottom: top + height + dy - MOVE_RANGE
+		left: translateX - MOVE_RANGE,
+		right: translateX + width + dx + MOVE_RANGE,
+		top: translateY - MOVE_RANGE,
+		bottom: translateY + height + dy - MOVE_RANGE
 	};
 */
 	enforce_bounding_rectangle(selectedContextIndex);
