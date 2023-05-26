@@ -307,16 +307,23 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	const rectangles = context.translatedBoxes
 				.map(tB => {
 					const rect = document.querySelector(`rect[id=rect_${tB.id}]`);
-					const x = parseInt(rect.getAttribute("x"));
-					const y = parseInt(rect.getAttribute("y"));
+
 					const width = parseInt(rect.getAttribute("width"));
 					const height = parseInt(rect.getAttribute("height"));
 					
+					const g = document.querySelector(`g[id=g_${tB.id}]`);
+					
+					const xForms = g.transform.baseVal;// an SVGTransformList
+					const firstXForm = xForms.getItem(0); //an SVGTransform
+					console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
+					const translateX = firstXForm.matrix.e;
+					const translateY = firstXForm.matrix.f;
+					
 					return {
-						left: x,
-						right: x + width,
-						top: y,
-						bottom: y + height
+						left: translateX,
+						right: translateX + width,
+						top: translateY,
+						bottom: translateY + height
 					};
 				});
 				
