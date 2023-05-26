@@ -340,14 +340,14 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	const frame = compute_frame(rectangles);
 	
 	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
-	const [x, y, width, height] = svgElement.getAttribute("viewBox")
+	const [x, y, w, h] = svgElement.getAttribute("viewBox")
 										.split(' ')
 										.map(str => parseInt(str));
 	const frame_ = {
 		left:x,
-		right:x+width,
+		right:x+w,
 		top:y,
-		bottom:y+height
+		bottom:y+h
 	};
 	
 	
