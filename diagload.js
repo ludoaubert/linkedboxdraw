@@ -200,8 +200,8 @@ function moveSizer(evt)
 	const svg = g.parentElement;
 	const selectedContextIndex = parseInt(svg.id);	
 	
-	const left = parseInt(rect.getAttribute("x");
-	const top = parseInt(rect.getAttribute("y");
+	const left = parseInt(rect.getAttribute("x"));
+	const top = parseInt(rect.getAttribute("y"));
 	const r = {
 		left: left - MOVE_RANGE,
 		right: left + width + dx + MOVE_RANGE,
