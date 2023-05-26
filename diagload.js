@@ -373,13 +373,13 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	
 	if (r == null)
 	{
-		const width = width(frame);
-		const height = height(frame);
+		const width_ = width(frame);
+		const height_ = height(frame);
 		const x = frame.left;
 		const y = frame.top;
 
-		svgElement.setAttribute("width", `${width}`);
-		svgElement.setAttribute("height", `${height}`);
+		svgElement.setAttribute("width", `${width_}`);
+		svgElement.setAttribute("height", `${height_}`);
 		svgElement.setAttribute("viewBox",`${x} ${y} ${width} ${height}`);		
 		context.frame = frame;
 	}
