@@ -316,6 +316,10 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	};
 
 	const frame = expand_by(frame_, RECT_BORDER + FRAME_MARGIN/2);
+	
+//test if frame is contained inside context.frame.
+//if it is not contained, use the envelop of frame and r if r is not null.
+//if it is contained, return immediately.
 
 	context.frame = frame;
 
