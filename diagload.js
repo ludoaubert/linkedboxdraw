@@ -209,7 +209,7 @@ function moveSizer(evt)
 		bottom: top + height + dy - MOVE_RANGE
 	};
 	
-	enforce_bounding_rectangle(selectedContextIndex);
+	enforce_bounding_rectangle(selectedContextIndex, r);
 
 	currentX = evt.clientX;
 	currentY = evt.clientY;
