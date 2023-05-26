@@ -345,22 +345,17 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	};
 	
 	const frame = compute_frame(rectangles);
-	
-	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
-	const [x, y, w, h] = svgElement.getAttribute("viewBox")
-										.split(' ')
-										.map(str => parseInt(str));
-	const frame_ = {
-		left:x,
-		right:x+w,
-		top:y,
-		bottom:y+h
-	};
-	
-	
-//test if frame is contained inside context.frame.
 
-	if (!(frame_.left <= frame.left && frame.right <= frame_.right && frame_.top <= frame.top && frame.bottom <= frame_.bottom))
+	const [x, y, w, h] = document.querySelector(`svg[id="${selectedContextIndex}"]`)
+								.getAttribute("viewBox")
+								.split(' ')
+								.map(str => parseInt(str));
+								
+	const viewBox = {left:x, right:x+w, top:y, bottom:y+h};
+	
+//test if frame is contained inside viewBox.
+
+	if (!(viewBox.left <= frame.left && frame.right <= viewBox.right && viewBox.top <= frame.top && frame.bottom <= viewBox.bottom))
 	{
 //if it is not contained, use the envelop of frame and r if r is not null.
 		const _frame = compute_frame(r == null ? rectangles : [...rectangles, r]);
@@ -369,7 +364,6 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 		const height_ = height(_frame);
 		const x = _frame.left;
 		const y = _frame.top;
-
 
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
