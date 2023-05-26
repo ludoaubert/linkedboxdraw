@@ -725,4 +725,46 @@ window.main = function main()
 	init();
 	initClient();
 	createMutationObserver();
+	
+//making sure svg viewBox is computed in a unified way
+	
+	for (let selectedContextIndex=0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex)
+	{
+		let context = mycontexts.contexts[selectedContextIndex];
+		
+		const rectangles = context.translatedBoxes
+					.map(tB => {
+						const r = mycontexts.rectangles[tB.id];
+						const {x, y} = tB.translation;
+						return {
+							left: r.left + x,
+							right: r.right + x,
+							top: r.top + y,
+							bottom: r.bottom + y
+						};
+					});
+					
+		const compute_frame = rects => {
+			const frame = {
+				left: Math.min(...rects.map(r => r.left)),
+				right: Math.max(...rects.map(r => r.right)),
+				top: Math.min(...rects.map(r => r.top)),
+				bottom: Math.max(...rects.map(r => r.bottom))
+			};
+			return expand_by(frame, RECT_BORDER + FRAME_MARGIN/2);
+		};
+		
+		const frame = compute_frame(rectangles);
+		context.frame = frame;
+
+		const width_ = width(context.frame);
+		const height_ = height(context.frame);
+		const x = context.frame.left;
+		const y = context.frame.top;
+
+		let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
+		svgElement.setAttribute("width", `${width_}`);
+		svgElement.setAttribute("height", `${height_}`);
+		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);		
+	}
 }
