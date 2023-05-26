@@ -306,13 +306,17 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 
 	const rectangles = context.translatedBoxes
 				.map(tB => {
-					const r = mycontexts.rectangles[tB.id];
-					const {x, y} = tB.translation;
+					const rect = document.querySelector(`rect[id=rect_${tB.id}]`);
+					const x = parseInt(rect.getAttribute("x"));
+					const y = parseInt(rect.getAttribute("y"));
+					const width = parseInt(rect.getAttribute("width"));
+					const height = parseInt(rect.getAttribute("height"));
+					
 					return {
-						left: r.left + x,
-						right: r.right + x,
-						top: r.top + y,
-						bottom: r.bottom + y
+						left: x,
+						right: x + width,
+						top: y,
+						bottom: y + height
 					};
 				});
 				
