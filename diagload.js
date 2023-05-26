@@ -260,7 +260,14 @@ function moveElement(evt) {
 	translate_draggable(g, dx, dy);
 
 	const selectedContextIndex = parseInt(g.parentElement.id);
-/*
+
+	const i = g.id.substring("g_".length);
+
+	let fO = document.querySelector(`foreignObject[id=box${i}]`);
+
+	const width = parseInt(fO.getAttribute("width"));
+	const height = parseInt(fO.getAttribute("height"));
+
 	const xForms = g.transform.baseVal;// an SVGTransformList
 	const firstXForm = xForms.getItem(0); //an SVGTransform
 	console.assert (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE);
@@ -269,12 +276,12 @@ function moveElement(evt) {
 	
 	const r = {
 		left: translateX - MOVE_RANGE,
-		right: translateX + width + dx + MOVE_RANGE,
+		right: translateX + width + MOVE_RANGE,
 		top: translateY - MOVE_RANGE,
-		bottom: translateY + height + dy - MOVE_RANGE
+		bottom: translateY + height + MOVE_RANGE
 	};
-*/
-	enforce_bounding_rectangle(selectedContextIndex);
+
+	enforce_bounding_rectangle(selectedContextIndex, r);
 
 	currentX = evt.clientX;
 	currentY = evt.clientY;
@@ -371,7 +378,12 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
-		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);		
+		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);
+
+		if (r == null)
+		{
+			context.frame = _frame;
+		}
 	}
 }
 
