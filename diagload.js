@@ -154,6 +154,8 @@ function deselectSizer(elmnt)
 	sizer = 0;
 }
 
+const MOVE_RANGE = 20;
+
 function moveSizer(evt)
 {
 	if (sizer == 0)
@@ -197,6 +199,15 @@ function moveSizer(evt)
 	const g = sizer.parentElement;
 	const svg = g.parentElement;
 	const selectedContextIndex = parseInt(svg.id);	
+	
+	const left = parseInt(rect.getAttribute("x");
+	const top = parseInt(rect.getAttribute("y");
+	const r = {
+		left: left - MOVE_RANGE,
+		right: left + width + dx + MOVE_RANGE,
+		top: top - MOVE_RANGE,
+		bottom: top + height + dy - MOVE_RANGE
+	};
 	
 	enforce_bounding_rectangle(selectedContextIndex);
 
@@ -245,7 +256,16 @@ function moveElement(evt) {
 	translate_draggable(g, dx, dy);
 
 	const selectedContextIndex = parseInt(g.parentElement.id);
-
+/*	
+	const left = parseInt(rect.getAttribute("x");
+	const top = parseInt(rect.getAttribute("y");
+	const r = {
+		left: left - MOVE_RANGE,
+		right: left + width + dx + MOVE_RANGE,
+		top: top - MOVE_RANGE,
+		bottom: top + height + dy - MOVE_RANGE
+	};
+*/
 	enforce_bounding_rectangle(selectedContextIndex);
 
 	currentX = evt.clientX;
@@ -272,7 +292,7 @@ function expand_by(rect, margin)
 	};
 }
 
-function enforce_bounding_rectangle(selectedContextIndex)
+function enforce_bounding_rectangle(selectedContextIndex, r=null)
 {
 	let context = mycontexts.contexts[selectedContextIndex];
 
