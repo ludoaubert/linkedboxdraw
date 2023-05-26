@@ -360,12 +360,7 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	
 //test if frame is contained inside context.frame.
 
-	if (frame_.left <= frame.left && frame.right <= frame_.right && frame_.top <= frame.top && frame.bottom <= frame_.bottom)
-	{
-//if it is contained, return immediately.
-		return;
-	}
-	else
+	if (!(frame_.left <= frame.left && frame.right <= frame_.right && frame_.top <= frame.top && frame.bottom <= frame_.bottom))
 	{
 //if it is not contained, use the envelop of frame and r if r is not null.
 		const _frame = compute_frame(r == null ? rectangles : [...rectangles, r]);
@@ -379,11 +374,19 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
 		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);
+	}
+	
+	if (r == null)
+	{
+		const width = width(frame);
+		const height = height(frame);
+		const x = frame.left;
+		const y = frame.top;
 
-		if (r == null)
-		{
-			context.frame = _frame;
-		}
+		svgElement.setAttribute("width", `${width}`);
+		svgElement.setAttribute("height", `${height}`);
+		svgElement.setAttribute("viewBox",`${x} ${y} ${width} ${height}`);		
+		context.frame = frame;
 	}
 }
 
