@@ -345,9 +345,10 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 	};
 	
 	const frame = compute_frame(rectangles);
+	
+	let svgElement = document.querySelector(`svg[id="${selectedContextIndex}"]`);
 
-	const [x, y, w, h] = document.querySelector(`svg[id="${selectedContextIndex}"]`)
-								.getAttribute("viewBox")
+	const [x, y, w, h] = svgElement.getAttribute("viewBox")
 								.split(' ')
 								.map(str => parseInt(str));
 								
