@@ -492,7 +492,7 @@ async function handleDeselectSizer()
 
 async function handleDeselectElement()
 {
-	console.assert(g.parentNode.tagName=='svg');
+//	console.assert(g.parentNode.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
 	const selectedContextIndex = parseInt(g.parentElement.id);
 
