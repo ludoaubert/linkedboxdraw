@@ -210,7 +210,7 @@ function moveSizer(evt)
 		left: translateX - MOVE_RANGE,
 		right: translateX + width + dx + MOVE_RANGE,
 		top: translateY - MOVE_RANGE,
-		bottom: translateY + height + dy - MOVE_RANGE
+		bottom: translateY + height + dy + MOVE_RANGE
 	};
 	
 	enforce_bounding_rectangle(selectedContextIndex, r);
