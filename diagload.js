@@ -130,6 +130,8 @@ function selectElement(elmnt)
 
 function deselectElement(elmnt)
 {
+	if (g == 0)
+		return;
 	console.log("deselectElement()");
 	handleDeselectElement();
 	currentX=0;
@@ -147,6 +149,8 @@ function selectSizer(elmnt)
 
 function deselectSizer(elmnt)
 {
+	if (sizer == 0)
+		return;
 	console.log("deselectSizer()");
 	handleDeselectSizer();
 	currentX=0;
@@ -492,7 +496,7 @@ async function handleDeselectSizer()
 
 async function handleDeselectElement()
 {
-//	console.assert(g.parentNode.tagName=='svg');
+	console.assert(g.parentNode.tagName=='svg');
 	const id = parseInt(g.id.substring('g_'.length));
 	const selectedContextIndex = parseInt(g.parentElement.id);
 
