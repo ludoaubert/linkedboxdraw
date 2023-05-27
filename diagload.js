@@ -720,19 +720,16 @@ function drawRepartition(mydata, mycontexts){
 function addEventListeners()
 {
 	document.querySelectorAll("svg > g[id^=g_]")
-		.forEach(g => {
-			g.addEventListener("mousedown", (event) => selectElement(g));
-			g.addEventListener("mouseup", (event) => deselectElement(g));
-		});
+		.forEach(g => g.addEventListener("mousedown", event => selectElement(g)));
 		
 	document.querySelectorAll("svg")
-		.forEach(svg => svg.addEventListener("mousemove", (event) => {moveElement(event); moveSizer(event);}));
+		.forEach(svg => {
+			svg.addEventListener("mousemove", event => {moveElement(event); moveSizer(event);});
+			svg.addEventListener("mouseup", event => {deselectElement(g); deselectSizer(sizer);});
+		});
 
 	document.querySelectorAll("g > rect[id^=sizer_]")
-		.forEach(sizer => {
-			sizer.addEventListener("mousedown", (event) => selectSizer(sizer));
-			sizer.addEventListener("mouseup", (event) => deselectSizer(sizer));
-		});
+		.forEach(sizer => sizer.addEventListener("mousedown", event => selectSizer(sizer)));
 }
 
 
