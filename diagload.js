@@ -354,6 +354,9 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 								
 	const viewBox = {left:x, right:x+w, top:y, bottom:y+h};
 	
+	console.log(viewBox);
+	console.log(frame);
+	
 //test if frame is contained inside viewBox.
 
 	if (!(viewBox.left <= frame.left && frame.right <= viewBox.right && viewBox.top <= frame.top && frame.bottom <= viewBox.bottom))
