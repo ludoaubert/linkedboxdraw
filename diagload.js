@@ -350,7 +350,7 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 
 	const [x, y, w, h] = svgElement.getAttribute("viewBox")
 								.split(' ')
-								.map(str => parseInt(str));
+								.map(parseInt);
 								
 	const viewBox = {left:x, right:x+w, top:y, bottom:y+h};
 	
