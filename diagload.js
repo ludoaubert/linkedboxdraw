@@ -365,6 +365,8 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 		const height_ = height(_frame);
 		const x = _frame.left;
 		const y = _frame.top;
+		
+		console.log(`updating viewBox to ${x} ${y} ${width_} ${height_}`);
 
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
@@ -378,6 +380,8 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 		const x = frame.left;
 		const y = frame.top;
 
+		console.log(`updating viewBox to ${x} ${y} ${width_} ${height_}`);
+		
 		svgElement.setAttribute("width", `${width_}`);
 		svgElement.setAttribute("height", `${height_}`);
 		svgElement.setAttribute("viewBox",`${x} ${y} ${width_} ${height_}`);		
