@@ -14,8 +14,8 @@ WITH cte_diagram AS (
                             END
                         ) AS fields
     FROM field
-    JOIN cte_bool pk ON field.isPrimaryKey = pk.bit
-    JOIN cte_bool fk ON field.isForeignKey = fk.bit
+    LEFT JOIN cte_bool pk ON field.isPrimaryKey = pk.bit --Should be JOIN instead of LEFT JOIN, but LEFT JOIN preserves the ordering from field, unlike JOIN.
+    LEFT JOIN cte_bool fk ON field.isForeignKey = fk.bit --If we used JOIN instead of LEFT JOIN, the order in json_group_array()'s output would be compromised.
 	CROSS JOIN cte_diagram
     WHERE diagramId=cte_diagram.id
     GROUP BY boxPosition
