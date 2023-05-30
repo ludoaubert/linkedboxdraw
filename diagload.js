@@ -672,7 +672,7 @@ async function ApplyRepartition()
 // case when a new box was created. It has not been assigned to a context by the previous algorithm.
 // Below is the code that will detect it and assign it to its context.
 
-	const ids = mycontexts.contexts.map(context => context.translatedBoxes)
+	const ids = mycontexts.contexts.map((context, i) => context.translatedBoxes.filter(({id, translation})=>repartition[id]==i))
 									.flat()
 									.map(tB =>tB.id);
 
