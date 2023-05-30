@@ -266,7 +266,7 @@ function init() {
 	colorFieldCombo.addEventListener("change", () => {currentColorFieldIndex = -1; displayCurrent();});
 	addColorButton.addEventListener("click", () => addNewColor());
 	updateColorButton.addEventListener("click", () => updateColor());
-	applyRepartitionButton.addEventListener("click", () => {ApplyRepartition(); drawDiag();});
+	applyRepartitionButton.addEventListener("click", () => {await ApplyRepartition(); drawDiag();});
 	newFieldEditField.addEventListener("keypress", () => {onNewFieldUpdate();});
 	newFieldEditField.addEventListener("paste", () => {onNewFieldUpdate();});
 
