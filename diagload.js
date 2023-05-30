@@ -676,13 +676,9 @@ async function ApplyRepartition()
 									.flat()
 									.map(tB =>tB.id);
 
-	console.log(ids);
-
-	[...repartition.entries()]
-		.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
-		.forEach( ([id,i]) => mycontexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
-
-	console.log(JSON.stringify(mycontexts));
+	repartition.entries()
+			.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
+			.forEach( ([id,i]) => mycontexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
 // if a context has become empty, remove it.
 	mycontexts.contexts = mycontexts.contexts.filter(context => context.translatedBoxes.length != 0);
