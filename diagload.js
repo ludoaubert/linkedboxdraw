@@ -676,7 +676,7 @@ async function ApplyRepartition()
 									.flat()
 									.map(tB =>tB.id);
 
-	repartition.entries()
+	[...repartition.entries()]
 			.filter( ([id,i]) => i!=-1 && !ids.includes(id) )
 			.forEach( ([id,i]) => mycontexts.contexts[i].translatedBoxes.push({id,translation:{x:FRAME_MARGIN*1.5,y:FRAME_MARGIN*1.5}}) );
 
