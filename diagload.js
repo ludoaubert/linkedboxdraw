@@ -729,7 +729,7 @@ function addEventListeners()
 }
 
 
-window.main = function main()
+window.main = async function main()
 {
 	let gfi = document.querySelector("input[id=gfi]");
 
@@ -755,7 +755,7 @@ window.main = function main()
 	createMyModule().then(function(mymod){
 		Module = mymod;
 	});
-	drawDiag();
+	await drawDiag();
 	init();
 	initClient();
 	createMutationObserver();
