@@ -629,10 +629,10 @@ Links are drawn first, because of RECT_STOKE_WIDTH. Rectangle stroke is painted 
 }
 
 
-function drawDiag()
+async function drawDiag()
 {
 	document.getElementById("repartition").innerHTML = drawRepartition(mydata, mycontexts);
-	document.getElementById("diagram").innerHTML = drawDiagram(drawComponent);
+	document.getElementById("diagram").innerHTML = await drawDiagram(drawComponent);
 	addEventListeners();
 	const styleMap = expressCutLinks(mydata, mycontexts);
 	for (const [id, color] of styleMap)
