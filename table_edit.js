@@ -624,6 +624,9 @@ function dropFieldFromBox()
     const rec = compute_box_rectangle(mydata.boxes[currentBoxIndex]);
     mycontexts.rectangles[currentBoxIndex] = rec;
 
+	const selectedContextIndex = findIndex(mycontexts.contexts, ({frame, translatedBoxes, links}) => translatedBoxes.map(tb=>tb.id).includes(currentBoxIndex) );
+	await compute_links(selectedContextIndex);
+
 	drawDiag();
 }
 
