@@ -220,7 +220,7 @@ function init() {
 				
 				const {boxes, links} = json;
 	
-				const rectangles = compute_box_rectangles(boxes);
+				const rectangles = boxes.map(box => compute_box_rectangle(box));
 	
 				const hex = (i,n) => i.toString(16).padStart(n,'0');
 	
