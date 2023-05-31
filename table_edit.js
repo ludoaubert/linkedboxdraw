@@ -1,6 +1,6 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
-import {mycontexts, contexts, resetContexts, setContexts, drawDiag, compute_links, ApplyRepartition} from "./diagload.js";
+import {mycontexts, contexts, resetContexts, setContexts, drawDiag, compute_links, ApplyRepartition, enforce_bounding_rectangle} from "./diagload.js";
 
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
@@ -628,6 +628,8 @@ async function dropFieldFromBox()
 					.map(({frame, translatedBoxes, links}) => translatedBoxes.map(({id, translation}) => id))
 					.findIndex(ids => ids.includes(currentBoxIndex) );
 	mycontexts.contexts[selectedContextIndex].links = await compute_links(selectedContextIndex);
+	
+	enforce_bounding_rectangle(selectedContextIndex);
 
 	drawDiag();
 }
