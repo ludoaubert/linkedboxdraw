@@ -304,7 +304,7 @@ function init() {
 				currentBoxIndex = -1;
 				displayCurrent();
 			}
-	});
+	})});
 
 	let fo = document.querySelector("input[id=fo]");
 	fo.addEventListener("click", () => download(fo.previousElementSibling.value, {data:mydata, contexts:mycontexts}));
