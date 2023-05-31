@@ -43,6 +43,19 @@
 <button type="button" class="collapsible">Input Output</button>
 <div class="content">
 	<fieldset>
+		<legend>File Input</legend>
+		<input id="fi" type="file" accept=".json" value="Load">
+	</fieldset>
+
+	<fieldset>
+		<legend>File Output</legend>
+		<form onsubmit="return false">
+		  <input type="text" value="diagdata.json">
+		  <input id="fo" type="submit" value="Save As">
+		</form>
+	</fieldset>
+	
+	<fieldset>
 		<legend>Data File Input</legend>
 		<input id="dfi" type="file" accept=".json" value="Load">
 	</fieldset>
