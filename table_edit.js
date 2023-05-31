@@ -1,7 +1,6 @@
 import sample_diagdata from "./diagdata.json" assert {type: "json"};
 
 import {mycontexts, contexts, resetContexts, setContexts, drawDiag, compute_links, ApplyRepartition, enforce_bounding_rectangle} from "./diagload.js";
-
 import {download} from "./iocomponent.js";
 import {getFileData} from "./iocomponent.js";
 import {compute_box_rectangle} from "./compute_box_rectangles.js"
