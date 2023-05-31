@@ -627,7 +627,7 @@ async function dropFieldFromBox()
 	const selectedContextIndex = mycontexts.contexts
 					.map(({frame, translatedBoxes, links}) => translatedBoxes.map(({id, translation}) => id))
 					.findIndex(ids => ids.includes(currentBoxIndex) );
-	await compute_links(selectedContextIndex);
+	mycontexts.contexts[selectedContextIndex].links = await compute_links(selectedContextIndex);
 
 	drawDiag();
 }
