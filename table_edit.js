@@ -595,7 +595,7 @@ function updateField()
 }
 
 
-function dropFieldFromBox()
+async function dropFieldFromBox()
 {
 	currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
 
