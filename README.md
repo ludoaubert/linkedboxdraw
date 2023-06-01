@@ -19,7 +19,7 @@ You can then proceed to load the diagram file by pressing the "File Choose" butt
 
 Or you can enter the information (box titles, box fields and links) manually.
 
-Section "Table Edit" is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you might use the "Field Color" section.
+Section "Table Edit" is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you might use the "Field Color" section. A field can also be an image.
 
 You can save your diagram data to a json file by pressing "Save As" in the "File Output" section.
 
