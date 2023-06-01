@@ -7,17 +7,19 @@ Typical use case:
 Just been hired on a software (or data) project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
 To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
-In the case of relational diagrams, there are some SQL scripts that are available to produce a file structured like provided example https://github.com/ludoaubert/linkedboxdraw/blob/master/diagdata.json
+In the case of relational diagrams, there are some SQL scripts that are available to produce a diagram file.
 
 SQL Server : https://ludoaubert.github.io/linkedboxdraw/SelectMetaData_SQLServer.sql
 
 MySQL : https://ludoaubert.github.io/linkedboxdraw/SelectMetaData_MySQL.sql
 
-other engines : you can create your own script and share it. The scripts are standard SQL with possibly a few vendor specific details.
+other engines : you can create your own script and share it.
+
+You can then proceed to load the diagram file by pressing the "File Choose" button in the "File Input" section of https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
 Or you can enter the information (box titles, box fields and links) manually.
 
-Section "Table Edit" is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you will use the "Field Color" section.
+Section "Table Edit" is a simple GUI where you can type in your box (table) names, and a list of fields (columns) that belong to each box. You can also create logical links from one box to another (foreign keys) by using the "Box Link" section. Sometimes, a box might be connected to almost all other boxes, in which case you might want to express these logical links using field color matching instead of geometric links. In this case , you might use the "Field Color" section.
 
 You can save your diagram data to a json file by pressing "Save As" in the "File Output" section.
 
