@@ -227,24 +227,6 @@ function init() {
 	let fo = document.querySelector("input[id=fo]");
 	fo.addEventListener("click", () => download(fo.previousElementSibling.value, {data:mydata, contexts:mycontexts}));
 	
-	let dfi = document.querySelector("input[id=dfi]");
-
-	dfi.addEventListener("change", (event) => {
-		getFileData(dfi).then(function(result){
-			mydata = JSON.parse(result);
-			data = result;
-			if (data != null && contexts != null)
-			{
-				resetData();
-				resetContexts();
-				drawDiag();
-			}
-			currentBoxIndex = -1;
-			displayCurrent();
-		});
-	});
-	let dfo = document.querySelector("input[id=dfo]");
-	dfo.addEventListener("click", () => download(dfo.previousElementSibling.value, mydata));
 
 	picturesCombo.addEventListener("change", () => {currentPictureIndex = -1; displayCurrent();});
 	pictureZoom.addEventListener("change", () => {
