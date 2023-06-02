@@ -24,8 +24,21 @@
   background-color: #ffffff; /* White */
 }
 
-#diagram {
+div#diagram.content {
   display : block;
+  overflow : scroll;
+  height: 100%;
+  max-height: 600px;
+}
+
+div#repartitionc.content {
+  overflow-y : scroll;
+  max-height: 100px;
+}
+
+div#edit.content {
+  overflow-y : scroll;
+  max-height: 300px;
 }
 
 .collapsible::after {
