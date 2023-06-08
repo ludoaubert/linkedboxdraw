@@ -28,7 +28,7 @@ div#diagram.content {
   display : block;
   overflow : scroll;
   height: 100%;
-  max-height: 600px;
+  max-height: 1200px;
 }
 
 div#repartitionc.content {
