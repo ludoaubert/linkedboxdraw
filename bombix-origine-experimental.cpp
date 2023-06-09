@@ -3662,9 +3662,9 @@ void parse_command(const char* rectdim,
 	{
 	//handling representation of negative number as hex string
 		if (x & 0x800)
-			x = (x-1) + 0xFFF;
+			x = ~(x-1) & 0xFFF;
 		if (y & 0x800)
-			y = (y-1) + 0xFFF;
+			y = ~(y-1) & 0xFFF;
 		rects.push_back({x, x + width, y, y + height});
 		pos += 6;
 	}
@@ -3683,7 +3683,7 @@ void parse_command(const char* rectdim,
 	{
 		int& i = *pi;
 		if (i & 0x8000)
-			i = (i-1) + 0xFFFF;
+			i = ~(i-1) & 0xFFFF;
 	}
 }
 
