@@ -34,7 +34,29 @@ var sizer = 0;
 const FRAME_MARGIN = 20;
 const RECT_BORDER = 20;
 
-const hex = (i,n) => i.toString(16).padStart(n,'0');
+function hex(i,n) {
+	if (i >= 0)
+	{
+	//encoding positive number
+		return i.toString(16).padStart(n,'0');
+	}
+	else if (i < 0 && n == 3)
+	{
+	//encoding negative number
+    		const number = 0xFFF + i + 1;
+		return number.toString(16).padStart(n,'0');
+	}
+	else if (i < 0 && n == 4)
+	{
+    		const number = 0xFFFF + i + 1;
+		return number.toString(16).padStart(n,'0');
+	}
+	else
+	{
+	//should never be reached
+		return "";	
+	}
+}
 
 //TODO: refactor with compute_links(selectedContextIndex)
 
