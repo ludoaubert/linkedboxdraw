@@ -43,12 +43,12 @@ function hex(i,n) {
 	else if (i < 0 && n == 3)
 	{
 	//encoding negative number
-    		const number = (~i & 0xFFF) + 1;
+		const number = i + 0xFFF + 1;
 		return number.toString(16).padStart(n,'0');
 	}
 	else if (i < 0 && n == 4)
 	{
-    		const number = (~i & 0xFFFF) + 1;
+		const number = i + 0xFFFF + 1;
 		return number.toString(16).padStart(n,'0');
 	}
 	else
