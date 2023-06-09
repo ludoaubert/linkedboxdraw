@@ -34,6 +34,8 @@ var sizer = 0;
 const FRAME_MARGIN = 20;
 const RECT_BORDER = 20;
 
+const hex = (i,n) => i.toString(16).padStart(n,'0');
+
 //TODO: refactor with compute_links(selectedContextIndex)
 
 function data2contexts(mydata) {
@@ -41,8 +43,6 @@ function data2contexts(mydata) {
 	const {boxes, links} = mydata;
 
 	const rectangles = boxes.map(box => compute_box_rectangle(box));
-
-	const hex = (i,n) => i.toString(16).padStart(n,'0');
 
 	const rectdim = rectangles.map(r => hex(r.right-r.left,3)+hex(r.bottom-r.top,3));
 	console.log(rectdim);
@@ -409,8 +409,6 @@ async function compute_links(selectedContextIndex)
 				});
 
 	const frame = context.frame;
-
-	const hex = (i,n) => i.toString(16).padStart(n,'0');
 
 	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
 				.flat()
