@@ -3679,7 +3679,7 @@ void parse_command(const char* rectdim,
 
 	sscanf(sframe, "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
 	//handling representation of negative number as hex string
-	for (int16* pi : {&frame.left, &frame.right, &frame.top, &frame.bottom})
+	for (int* const pi : {&frame.left, &frame.right, &frame.top, &frame.bottom})
 	{
 		int& i = *pi;
 		if (i & 0x8000)
