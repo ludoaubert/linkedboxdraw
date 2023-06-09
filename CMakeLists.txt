@@ -62,5 +62,5 @@ target_link_libraries (latuile Eigen3::Eigen)
 enable_testing()
 
 add_test(latuile latuile)
-add_test(bombix bombix)
+add_test(bombix bombix-experimental)
 add_test(holes holes)
