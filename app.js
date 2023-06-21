@@ -88,7 +88,6 @@ app.post('/set_document', (req, res) => {
 //		const blob = atob(base64);
 		const blob = Buffer.from(base64, 'base64');
 		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, blob);
-		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.txt`, base64);
 	}
 });
 
