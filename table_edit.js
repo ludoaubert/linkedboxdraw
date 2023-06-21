@@ -131,8 +131,8 @@ function addPicture(base64)
 function loadPicture(blob)
 {	
 	return new Promise((resolve) => {
-		//const base64 = btoa(blob);
-		const base64 = Buffer.from(blob, 'binary').toString('base64');
+		const base64 = btoa(blob);
+		//const base64 = Buffer.from(blob, 'binary').toString('base64');
 		currentImageDisplay.onload = () => {
 			resolve(base64);
 		};
