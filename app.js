@@ -3,6 +3,7 @@ const exec = require('node:child_process').exec;
 const fs = require('fs');
 const cors = require('cors');
 const uuid = require('uuid');
+var crypto = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -49,6 +50,14 @@ app.get('/get_document', (req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', '*');
         res.end(stdout);
 	});		
+	
+	var hash = crypto.createHash('sha512');
+//passing the data to be hashed
+	const data = hash.update('nodejsera', 'utf-8');
+//Creating the hash in the required format
+	const gen_hash = data.digest('hex');
+//Printing the output on the console
+	console.log("hash : " + gen_hash);
 });
 
 
@@ -69,6 +78,14 @@ app.post('/set_document', (req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', '*');
 		res.send('Data Received: ' + JSON.stringify(req.body));
 	});
+	
+	var hash = crypto.createHash('sha512');
+//passing the data to be hashed
+	const data = hash.update('nodejsera', 'utf-8');
+//Creating the hash in the required format
+	const gen_hash = data.digest('hex');
+//Printing the output on the console
+	console.log("hash : " + gen_hash);
 });
 
 
