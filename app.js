@@ -86,8 +86,9 @@ app.post('/set_document', (req, res) => {
 		const gen_hash = data.digest('hex');
 		console.log("hash : " + gen_hash);
 //		const blob = atob(base64);
-		const blob = Buffer.from(base64, 'base64').toString('binary');
+		const blob = Buffer.from(base64, 'base64');
 		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, blob);
+		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.txt`, base64);
 	}
 });
 
