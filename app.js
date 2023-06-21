@@ -79,18 +79,12 @@ app.post('/set_document', (req, res) => {
 		res.send('Data Received: ' + JSON.stringify(req.body));
 	});
 	
-	var hash = crypto.createHash('sha512');
-//passing the data to be hashed
-	const data = hash.update('nodejsera', 'utf-8');
-//Creating the hash in the required format
-	const gen_hash = data.digest('hex');
-//Printing the output on the console
-	console.log("hash : " + gen_hash);
-	
 	for (let {height, width, name, base64, zoomPercentage} of req.body.data.pictures)
 	{
+		var hash = crypto.createHash('sha512');
 		const data = hash.update(base64, 'utf-8');
 		const gen_hash = data.digest('hex');
+		console.log("hash : " + gen_hash);
 		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, Buffer.from(base64, 'base64').toString('binary'));
 	}
 });
