@@ -85,7 +85,10 @@ app.post('/set_document', (req, res) => {
 		const data = hash.update(base64, 'utf-8');
 		const gen_hash = data.digest('hex');
 		console.log("hash : " + gen_hash);
-		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, Buffer.from(base64, 'base64').toString('binary'));
+//		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, Buffer.from("data:image/jpg;base64, " + base64, 'base64').toString('binary'));
+//		const blob = atob(base64);
+		const blob = Buffer.from(base64, 'base64').toString('binary');
+		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, blob);
 	}
 });
 
