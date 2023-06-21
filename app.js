@@ -86,6 +86,13 @@ app.post('/set_document', (req, res) => {
 	const gen_hash = data.digest('hex');
 //Printing the output on the console
 	console.log("hash : " + gen_hash);
+	
+	for (let {height, width, name, base64, zoomPercentage} of req.body.data.pictures)
+	{
+		const data = hash.update(base64, 'utf-8');
+		const gen_hash = data.digest('hex');
+		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, Buffer.from(base64, 'base64').toString('binary'));
+	}
 });
 
 
