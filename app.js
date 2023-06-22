@@ -44,7 +44,8 @@ app.get('/get_document', (req, res) => {
 	fs.writeFileSync(`${TEMP_DIR}/select_document_${guid}.sql`, query);
     exec(`${SQLITE_TOOLS_DIR}/sqlite3 linkedboxdraw.db ".read ${TEMP_DIR}/select_document_${guid}.sql"`, { maxBuffer: Infinity },(error, stdout, stderr) => {
         console.log("STDOUT:", stdout, ", STDERR:", stderr);
-		for (let picture of stdout.data.pictures)
+		const {data, contexts} = JSON.parse(stdout);
+		for (let picture of data.pictures)
 		{
 			const blob = fs.readFileSync(`${DEPLOY_DIR}/images/${picture.hash}.jpg`);
 			const base64 = Buffer.from(blob, 'binary').toString('base64');
@@ -54,7 +55,7 @@ app.get('/get_document', (req, res) => {
 	    res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
 		res.setHeader('Access-Control-Allow-Origin', '*');
-        res.end(stdout);
+        res.send(JSON.stringify({data, contexts}));
 	});		
 	
 	var hash = crypto.createHash('sha512');
