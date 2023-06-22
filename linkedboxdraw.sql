@@ -141,7 +141,7 @@ WITH cte_fields AS (
     FROM link
     WHERE diagramId=1
 ) ,cte_pictures AS (
-    SELECT json_group_array( json_object('height', height, 'width', width, 'name', name, 'base64', base64)) AS pictures
+    SELECT json_group_array( json_object('height', height, 'width', width, 'name', name, 'hash', hash)) AS pictures
     FROM picture
     WHERE diagramId=1
 ), cte_doc AS (
