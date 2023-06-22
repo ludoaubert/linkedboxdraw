@@ -47,7 +47,7 @@ app.get('/get_document', (req, res) => {
 		for (let picture of stdout.body.data.pictures)
 		{
 			const blob = fs.readFileSync(`${DEPLOY_DIR}/images/${picture.hash}.jpg`);
-			const base64 = Buffer.from(blob).toString('base64');
+			const base64 = Buffer.from(blob, 'binary').toString('base64');
 			picture.base64 = base64;
 		}
 		console.log(guid);
