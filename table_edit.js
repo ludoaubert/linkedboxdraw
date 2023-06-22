@@ -279,6 +279,18 @@ function init() {
 	newFieldEditField.addEventListener("keypress", () => {onNewFieldUpdate();});
 	newFieldEditField.addEventListener("paste", () => {onNewFieldUpdate();});
 
+//avoid duplicate entries
+	newBoxEditField.addEventListener("change", () => {
+		addBoxButton.disabled = (newBoxEditField.value == '' || mydata.boxes.find(box => box.title == newBoxEditField.value)) ? true : false;
+	});
+	newFieldEditField.addEventListener("change", () => {
+		currentBoxIndex = mydata.boxes.findIndex(box => box.title == boxCombo.value);
+		if (currentBoxIndex == -1)
+			addFieldButton.disabled = true;
+		else
+			addFieldButton.disabled = (newFieldEditField.value == '' || mydata.boxes[currentBoxIndex].fields.find(f => f.name == newFieldEditField.value)) ? true : false;
+	});
+
 	const colors=['yellow','pink','hotpink','palegreen','red','orange','skyblue','olive','grey','darkviolet'];
 	colorCombo.innerHTML = colors.map(color => '<option>' + color + '</option>')
 				.join('');
