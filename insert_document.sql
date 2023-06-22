@@ -112,14 +112,15 @@ CROSS JOIN cte_diagram;
 WITH cte_tree AS (
     SELECT * FROM json_tree((SELECT diagData FROM document WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'), '$.pictures')
 ), cte_pictures AS (
-    SELECT key AS picturePosition, value->>'$.height' AS height,  value->>'$.width' AS width, value->>'$.name' AS name, value->>'$.base64' AS base64, value->>'$.zoomPercentage' AS zoomPercentage
+    SELECT key AS picturePosition, value->>'$.height' AS height,  value->>'$.width' AS width, value->>'$.name' AS name, value->>'$.base64' AS base64, value->>'$.zoomPercentage' AS zoomPercentage,
+		value->>'$.hash' AS hash
     FROM cte_tree picture
     WHERE path='$.pictures'
 ), cte_diagram AS (
     SELECT id FROM diagram WHERE guid='a8828ddfef224d36935a1c66ae86ebb3'
 )
-INSERT INTO picture(diagramId, height, width, name, base64, zoomPercentage)
-SELECT cte_diagram.id, height, width, name, base64, zoomPercentage
+INSERT INTO picture(diagramId, height, width, name, base64, zoomPercentage, hash)
+SELECT cte_diagram.id, height, width, name, base64, zoomPercentage, hash
 FROM cte_pictures
 CROSS JOIN cte_diagram;
 
