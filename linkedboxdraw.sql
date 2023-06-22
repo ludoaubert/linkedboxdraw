@@ -92,8 +92,8 @@ CREATE TABLE picture(
 	height INTEGER,
 	width INTEGER,
 	name varchar(100),
-	base64 text NOT NULL,
-	zoomPercentage INTEGER
+	zoomPercentage INTEGER,
+	hash CHAR(512) NOT NULL
 );
 
 
