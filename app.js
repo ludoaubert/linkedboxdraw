@@ -63,6 +63,20 @@ app.get('/get_document', (req, res) => {
 
 app.post('/set_document', (req, res) => {
 	console.log("POST hit!");
+	
+	for (let picture of req.body.data.pictures)
+	{
+		const {height, width, name, base64, zoomPercentage} = picture;
+		var hash = crypto.createHash('sha512');
+		const data = hash.update(base64, 'utf-8');
+		const gen_hash = data.digest('hex');
+		console.log("hash : " + gen_hash);
+		picture.hash = gen_hash;
+//		const blob = atob(base64);
+		const blob = Buffer.from(base64, 'base64');
+		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, blob);
+	}
+	
 	const guid = uuid.v4();
 	const query = fs.readFileSync(`${DEPLOY_DIR}/insert_document.sql`, 'utf8')
 					.replaceAll('a8828ddfef224d36935a1c66ae86ebb3', guid)
@@ -78,17 +92,6 @@ app.post('/set_document', (req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', '*');
 		res.send('Data Received: ' + JSON.stringify(req.body));
 	});
-	
-	for (let {height, width, name, base64, zoomPercentage} of req.body.data.pictures)
-	{
-		var hash = crypto.createHash('sha512');
-		const data = hash.update(base64, 'utf-8');
-		const gen_hash = data.digest('hex');
-		console.log("hash : " + gen_hash);
-//		const blob = atob(base64);
-		const blob = Buffer.from(base64, 'base64');
-		fs.writeFileSync(`${DEPLOY_DIR}/images/${gen_hash}.jpg`, blob);
-	}
 });
 
 
