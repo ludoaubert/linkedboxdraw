@@ -116,7 +116,8 @@ function addPicture(base64)
 {
 	currentPictureIndex = mydata.pictures.length;
 
-	const name = document.getElementById("add_pic").value;
+	const name = document.getElementById("add_pic").value
+						.replace("C:\fakepath","");
 	const pic = {name, base64, width:currentImageDisplay.width, height:currentImageDisplay.height, zoomPercentage:null};
 	mydata.pictures.push(pic);
 
