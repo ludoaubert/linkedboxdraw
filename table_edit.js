@@ -142,7 +142,6 @@ function loadPicture(blob)
 	});
 }
 
-
 function init() {
 
 	editTitle = document.getElementById("title");
