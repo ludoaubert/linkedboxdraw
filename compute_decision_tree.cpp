@@ -70,8 +70,24 @@ int main()
 		}
 		return ei;
 	};
-	
-	for (int i : views::iota(nr_input_rectangles, nr_emplacements))
-		printf("%d\n", emplacement(i));
+/*	
+Description of the algorithm:
+loop on all holes h:
+-----figure out emplacement(h)
+-----loop on all rectangles r that have not already been moved before :
+----------if at least one logical link of r becomes a topological edge by moving r from emplacement(r) to emplacement(h):
+-----------------move r to h.
+-----------------for all remaining logical links of r, do the same recursively
+*/
+	for (int h : views::iota(nr_input_rectangles, nr_emplacements))
+	{
+		int eh = emplacement(h);
+		printf("emplacement(h=%d)=%d\n", h, eh);
+		for (int r : views::iota(0, nr_input_rectangles) | views::filter(int r){return emplacement(r)==r;})
+		{
+			printf("emplacement(r=%d)=%d\n", r, r);
+			
+		}
+	}
 	return 0;
 }
