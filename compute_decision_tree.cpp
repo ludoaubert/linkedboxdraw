@@ -108,10 +108,11 @@ const vector<TestContext> test_contexts = {
 
 
 vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<Edge>& topological_edges)
-{
+{	
 	vector<DecisionTreeNode> decision_tree;
 	
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+		printf("enter build_decision_tree()\n");
 		vector<int> chemin;
 		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
 		{
