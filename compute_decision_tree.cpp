@@ -113,10 +113,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 	
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
 		vector<int> chemin;
-		while (parent_index != -1)
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
 		{
-			chemin.push_back(parent_index);
-			parent_index = decision_tree[parent_index].parent_index;
+			chemin.push_back(index);
 		}
 
 		auto emplacement = [&](int i){
