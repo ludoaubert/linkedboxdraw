@@ -64,7 +64,7 @@ int main()
 
 	auto emplacement = [&](int i){
 		int ei=i;
-		for (int index : chemin | views::reverse())
+		for (int index : chemin | views::reverse)
 		{
 			const auto& [parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[index];
 			if (i_emplacement_source==ei)
@@ -79,7 +79,7 @@ Description of the algorithm:
 loop on all holes h:
 -----figure out emplacement(h)
 -----loop on all rectangles r that have not already been moved before :
-----------if at least one logical link of r becomes a topological edge by moving r from emplacement(r) to emplacement(h):
+----------if at least one logical edge of r becomes a topological edge by moving r from emplacement(r) to emplacement(h):
 -----------------move r to h.
 -----------------for all remaining logical links of r, do the same recursively
 */
@@ -92,6 +92,10 @@ loop on all holes h:
 			printf("emplacement(r=%d)=%d\n", r, r);
 			
 			auto rg = ranges::equal_range(logical_edges, Edge{.from=r,.to=-1});
+			for (Edge const& e : rg)
+			{
+				printf("{.from=%d, .to=%d}\n", e.from, e.to);
+			}
 		}
 	}
 	return 0;
