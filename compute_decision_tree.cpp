@@ -32,20 +32,20 @@ struct TestContext{
 	vector<DecisionTreeNode> expected_decision_tree;
 };
 
-/*
-+---------+
-|   r0    |
-+---------+
-|   h0    |
-+---------+
-|   r1    |
-+---------+
-
-emplacements={r0, r1, h0};
-              0,  1,  2
-*/
 
 const vector<TestContext> test_contexts = {
+/*
+	+---------+
+	|   r0    |
+	+---------+
+	|   h0    |
+	+---------+
+	|   r1    |
+	+---------+
+
+	emplacements={r0, r1, h0};
+				  0,  1,  2
+*/
 	{
 		.nr_input_rectangles = 2,
 		.nr_emplacements = 3,
@@ -66,6 +66,43 @@ const vector<TestContext> test_contexts = {
 			{.parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2},
 			{.parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=2}
 		}
+	},
+
+/*
+	+---------+
+	|   r0    | 0
+	+---------+
+	|   h0    | 3
+	+---------+
+	|   r1    | 1
+	+---------+
+	|   r2    | 2
+	+---------+
+
+	emplacements={r0, r1, r2, h0};
+				  0,  1,  2,  3
+*/
+	{
+		.nr_input_rectangles = 3,
+		.nr_emplacements = 4,
+
+		.logical_edges={
+			{.from=0, .to=1},
+			{.from=1, .to=0},
+			{.from=1, .to=2},
+			{.from=2, .to=1}
+		},
+
+		.topological_edges={
+			{.from=0, .to=3},
+			{.from=1, .to=2},
+			{.from=1, .to=3},
+			{.from=2, .to=1},
+			{.from=3, .to=0},
+			{.from=3, .to=1}			
+		},
+
+		.expected_decision_tree = {}
 	}
 };
 
