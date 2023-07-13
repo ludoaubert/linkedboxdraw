@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include <ranges>
 #include <stdio.h>
@@ -8,8 +9,11 @@ struct Edge {
 	int from;
 	int to;
 
-	friend auto operator<=>(const Edge&, const Edge&) = default;
+    // note: to is ignored by these comparison operators
+    friend bool operator== (const Edge e1, const Edge e2) { return e1.from == e2.from; }
+    friend auto operator<=>(const Edge e1, const Edge e2) { return e1.from <=> e2.from; }
 };
+
 
 struct DecisionTreeNode
 {
@@ -83,10 +87,11 @@ loop on all holes h:
 	{
 		int eh = emplacement(h);
 		printf("emplacement(h=%d)=%d\n", h, eh);
-		for (int r : views::iota(0, nr_input_rectangles) | views::filter(int r){return emplacement(r)==r;})
+		for (int r : views::iota(0, nr_input_rectangles) | views::filter([&](int r){return emplacement(r)==r;}))
 		{
 			printf("emplacement(r=%d)=%d\n", r, r);
 			
+			auto rg = ranges::equal_range(logical_edges, Edge{.from=r,.to=-1});
 		}
 	}
 	return 0;
