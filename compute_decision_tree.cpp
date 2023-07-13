@@ -36,11 +36,11 @@ struct TestContext{
 const vector<TestContext> test_contexts = {
 /*
 	+---------+
-	|   r0    |
+	|   r0    | 0
 	+---------+
-	|   h0    |
+	|   h0    | 2
 	+---------+
-	|   r1    |
+	|   r1    | 1
 	+---------+
 
 	emplacements={r0, r1, h0};
@@ -196,9 +196,13 @@ int main()
 		
 		bool bOk = expected_decision_tree == decision_tree;
 		
+		int index=0;
 		for (const DecisionTreeNode& n : decision_tree)
 		{
-			printf("{.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+			int depth=0;
+			for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
+				depth++;
+			printf("%.*sdt[%d]={.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", index++, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 		}
 	}
 	return 0;
