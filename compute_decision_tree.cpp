@@ -92,9 +92,25 @@ loop on all holes h:
 			printf("emplacement(r=%d)=%d\n", r, r);
 			
 			auto rg = ranges::equal_range(logical_edges, Edge{.from=r,.to=-1});
-			for (Edge const& e : rg)
+			for (Edge const& le : rg)
 			{
-				printf("{.from=%d, .to=%d}\n", e.from, e.to);
+				printf("le={.from=%d, .to=%d}\n", le.from, le.to);
+				Edge te = {.from=emplacement(le.from), .to=emplacement(le.to)};
+				Edge moved_te = {.from=emplacement(h), .to=emplacement(le.to)};
+				printf("te={.from=%d, .to=%d}\n", te.from, te.to);
+				printf("moved_te={.from=%d, .to=%d}\n", moved_te.from, moved_te.to);				
+				bool test = ranges::binary_search(topological_edges, moved_te, [](const Edge& e1, const Edge& e2){
+					return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
+				});
+				printf(test ? "true\n" : "false\n");
+				if (test)
+				{
+					decision_tree.push_back({
+						.parent_index = parent_index,
+						.i_emplacement_source = r, 
+						.i_emplacement_destination = moved_te.from
+					});
+				}
 			}
 		}
 	}
