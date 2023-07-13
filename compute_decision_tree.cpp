@@ -20,6 +20,16 @@ struct DecisionTreeNode
 {
 	int parent_index=-1;
 	int i_emplacement_source, i_emplacement_destination;
+	
+	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
+};
+
+struct TestContext{
+	int nr_input_rectangles;
+	int nr_emplacements;
+	vector<Edge> logical_edges;
+	vector<Edge> topological_edges;
+	vector<DecisionTreeNode> expected_decision_tree;
 };
 
 /*
@@ -35,25 +45,35 @@ emplacements={r0, r1, h0};
               0,  1,  2
 */
 
-const int nr_input_rectangles = 2;
-const int nr_emplacements = 3;
+const vector<TestContext> test_contexts = {
+	{
+		.nr_input_rectangles = 2,
+		.nr_emplacements = 3,
 
-const vector<Edge> logical_edges={
-	{.from=0, .to=1},
-	{.from=1, .to=0}
+		.logical_edges={
+			{.from=0, .to=1},
+			{.from=1, .to=0}
+		},
+
+		.topological_edges={
+			{.from=0, .to=2},
+			{.from=1, .to=2},
+			{.from=2, .to=0},
+			{.from=2, .to=1},	
+		},
+
+		.expected_decision_tree = {
+			{.parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2},
+			{.parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=2}
+		}
+	}
 };
 
-const vector<Edge> topological_edges={
-	{.from=0, .to=2},
-	{.from=1, .to=2},
-	{.from=2, .to=0},
-	{.from=2, .to=1},	
-};
 
-vector<DecisionTreeNode> decision_tree;
-
-int main()
-{	
+vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<Edge>& topological_edges)
+{
+	vector<DecisionTreeNode> decision_tree;
+	
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
 		vector<int> chemin;
 		while (parent_index != -1)
@@ -122,10 +142,23 @@ int main()
 	int parent_index = -1;
 	build_decision_tree(parent_index, build_decision_tree);
 	
-	for (const DecisionTreeNode& n : decision_tree)
-	{
-		printf("{.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-	}
+	return decision_tree;
+}
 
+
+int main()
+{
+	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision_tree] : test_contexts)
+	{	
+
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
+		
+		bool bOk = expected_decision_tree == decision_tree;
+		
+		for (const DecisionTreeNode& n : decision_tree)
+		{
+			printf("{.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+		}
+	}
 	return 0;
 }
