@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <string>
 #include <ranges>
 #include <stdio.h>
 using namespace std;
@@ -114,5 +115,11 @@ loop on all holes h:
 			}
 		}
 	}
+	
+	for (const DecisionTreeNode& n : decision_tree)
+	{
+		printf("{.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+	}
+
 	return 0;
 }
