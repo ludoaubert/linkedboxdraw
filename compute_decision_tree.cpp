@@ -125,7 +125,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				const auto& [parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[index];
 				if (i_emplacement_source==ei)
 					ei = i_emplacement_destination;
-				if (i_emplacement_destination==ei)
+				else if (i_emplacement_destination==ei)
 					ei = i_emplacement_source;
 			}
 			return ei;
