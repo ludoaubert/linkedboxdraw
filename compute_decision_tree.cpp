@@ -143,6 +143,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
 		{
 			int eh = emplacement(h);
+			printf("parent_index=%d\n", parent_index);
 			printf("emplacement(h=%d)=%d\n", h, eh);
 			for (int r : views::iota(0, nr_input_rectangles) | views::filter([&](int r){return emplacement(r)==r;}))
 			{
@@ -162,13 +163,17 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					printf(test ? "true\n" : "false\n");
 					if (test)
 					{
-						decision_tree.push_back({
+						const DecisionTreeNode n = {
 							.parent_index = parent_index,
 							.i_emplacement_source = r, 
 							.i_emplacement_destination = moved_te.from
-						});
+						};
+						int index = decision_tree.size();
+
+						printf("decision_tree[%d]={.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+
+						decision_tree.push_back(n);
 						
-						int index = decision_tree.size()-1;
 						build_decision_tree(index, build_decision_tree);
 					}
 				}
