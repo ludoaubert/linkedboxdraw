@@ -18,6 +18,7 @@ struct Edge {
 
 struct DecisionTreeNode
 {
+	int index=0;
 	int parent_index=-1;
 	int i_emplacement_source, i_emplacement_destination;
 	
@@ -63,8 +64,8 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision_tree = {
-			{.parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2},
-			{.parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=2}
+			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2},
+			{.index=1, .parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=2}
 		}
 	},
 
@@ -102,8 +103,26 @@ const vector<TestContext> test_contexts = {
 			{.from=3, .to=1}			
 		},
 
+		.expected_decision_tree = {
+
+		}
+	}
+/*	
+	{
+		.nr_input_rectangles = 15,
+		.nr_emplacements = 20,
+		
+		.logical_edges={
+			
+		},
+		
+		.topological_edges={
+			
+		},
+		
 		.expected_decision_tree = {}
 	}
+*/
 };
 
 
@@ -121,9 +140,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 		auto emplacement = [&](int i){
 			int ei=i;
-			for (int index : chemin | views::reverse)
+			for (int idx : chemin | views::reverse)
 			{
-				const auto& [parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[index];
+				const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
 				if (i_emplacement_source==ei)
 					ei = i_emplacement_destination;
 				else if (i_emplacement_destination==ei)
@@ -163,14 +182,16 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					printf(test ? "true\n" : "false\n");
 					if (test)
 					{
+						int index = decision_tree.size();
+						
 						const DecisionTreeNode n = {
+							.index = index,
 							.parent_index = parent_index,
 							.i_emplacement_source = r, 
 							.i_emplacement_destination = moved_te.from
 						};
-						int index = decision_tree.size();
 
-						printf("decision_tree[%d]={.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+						printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 
 						decision_tree.push_back(n);
 						
@@ -196,14 +217,13 @@ int main()
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
 		
 		bool bOk = expected_decision_tree == decision_tree;
-		
-		int index=0;
+
 		for (const DecisionTreeNode& n : decision_tree)
 		{
 			int depth=0;
 			for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
 				depth++;
-			printf("%.*sdt[%d]={.parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", index++, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+			printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 		}
 	}
 	return 0;
