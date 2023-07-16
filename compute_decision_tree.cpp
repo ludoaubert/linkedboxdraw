@@ -60,8 +60,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision_tree = {
-			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2},
-			{.index=1, .parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=2}
+			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2}
 		}
 	},
 
@@ -100,15 +99,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision_tree = {
-			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=3},
-				{.index=1, .parent_index=0, .i_emplacement_source=1, .i_emplacement_destination=0},
-			{.index=2, .parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=3},
-				{.index=3, .parent_index=2, .i_emplacement_source=0, .i_emplacement_destination=1},
-					{.index=4, .parent_index=3, .i_emplacement_source=2, .i_emplacement_destination=0},
-				{.index=5, .parent_index=2, .i_emplacement_source=2, .i_emplacement_destination=1},
-			{.index=6, .parent_index=-1, .i_emplacement_source=2, .i_emplacement_destination=3},
-				{.index=7, .parent_index=6, .i_emplacement_source=0, .i_emplacement_destination=2},
-					{.index=8, .parent_index=7, .i_emplacement_source=1, .i_emplacement_destination=0}
+			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=3}
 		}
 	},
 	
@@ -226,6 +217,7 @@ const vector<TestContext> test_contexts = {
 			{.from=15+0, .to=14},
 			{.from=15+1, .to=13},
 			{.from=15+1, .to=14},
+			{.from=15+1, .to=15+10},
 			{.from=15+2, .to=0},
 			{.from=15+2, .to=2},
 			{.from=15+2, .to=3},
@@ -236,19 +228,34 @@ const vector<TestContext> test_contexts = {
 			{.from=15+3, .to=8},
 			{.from=15+3, .to=14},
 			{.from=15+4, .to=8},
+			{.from=15+4, .to=15+6},
 			{.from=15+5, .to=9},
 			{.from=15+5, .to=11},
 			{.from=15+6, .to=8},
 			{.from=15+6, .to=14},
+			{.from=15+6, .to=15+4},
+			{.from=15+6, .to=15+10},
 			{.from=15+7, .to=0},
 			{.from=15+7, .to=6},
 			{.from=15+7, .to=12},
+			{.from=15+7, .to=15+9},
 			{.from=15+8, .to=3},
 			{.from=15+8, .to=10},
-			{.from=15+9, .to=12}	
+			{.from=15+9, .to=12},
+			{.from=15+9, .to=15+7},
+			{.from=15+10, .to=15+1},
+			{.from=15+10, .to=15+6}
 		},
 		
-		.expected_decision_tree = {}
+		.expected_decision_tree = {
+			{.index=0, .parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=15+3},
+			{.index=1, .parent_index=0, .i_emplacement_source=2, .i_emplacement_destination=1},
+			{.index=2, .parent_index=1, .i_emplacement_source=0, .i_emplacement_destination=15+8},
+			{.index=3, .parent_index=2, .i_emplacement_source=6, .i_emplacement_destination=2},
+			{.index=4, .parent_index=3, .i_emplacement_source=12, .i_emplacement_destination=6},
+			{.index=5, .parent_index=4, .i_emplacement_source=13, .i_emplacement_destination=15+7},
+			{.index=6, .parent_index=5, .i_emplacement_source=14, .i_emplacement_destination=0}
+		}
 	}
 
 };
@@ -423,6 +430,35 @@ int main()
 			printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 		}
 */
+		{
+			auto expected_emplacement = [&](int i){
+				int ei=i;
+				for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
+				{
+					if (i_emplacement_source==ei)
+						ei = i_emplacement_destination;
+					else if (i_emplacement_destination==ei)
+						ei = i_emplacement_source;
+				}
+				return ei;
+			};
+			
+			vector<Edge> topo_edges, inter;
+			for (const Edge& le : logical_edges)
+			{
+				Edge te={expected_emplacement(le.from),expected_emplacement(le.to)};
+				topo_edges.push_back(te);
+			}
+			ranges::sort(topo_edges, [](const Edge& e1, const Edge& e2){
+						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
+					});
+					
+			ranges::set_intersection(topo_edges, topological_edges, back_inserter(inter), [](const Edge& e1, const Edge& e2){
+						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
+					});	
+					
+			printf("expected result=%ld\n", inter.size());
+		}
 	}
 	return 0;
 }
