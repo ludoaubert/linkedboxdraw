@@ -265,7 +265,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
-	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree)->void{
+	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree, int depth=0)->void{
 		//printf("enter build_decision_tree()\n");
 		vector<int> chemin;
 		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
@@ -285,58 +285,53 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			}
 			return ei;
 		};
-	/*	
-	Description of the algorithm:
-	loop on all holes h:
-	-----figure out emplacement(h)
-	-----loop on all rectangles r that have not already been moved before :
-	----------if at least one logical edge of r becomes a topological edge by moving r from emplacement(r) to emplacement(h):
-	-----------------move r to h.
-	-----------------for all remaining logical links of r, do the same recursively
-	*/
+
 		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
 		{
 			int eh = emplacement(h);
 			//printf("parent_index=%d\n", parent_index);
 			//printf("emplacement(h=%d)=%d\n", h, eh);
-			for (int r : views::iota(0, nr_input_rectangles) | views::filter([&](int r){return emplacement(r)==r;}))
+			
+			auto rng = views::iota(0, nr_input_rectangles) |
+						views::filter([&](int r){return ranges::none_of(chemin, [&](int idx){return decision_tree[idx].i_emplacement_source==r;});}) ;
+			
+			for (int r : rng)
 			{
-				//printf("emplacement(r=%d)=%d\n", r, r);
+				auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from);
+				auto adj_topo_r = ranges::equal_range(topological_edges, r, ranges::less {}, &Edge::from);
 				
-				auto rg = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from);
-				for (Edge const& le : rg)
+				auto adj_topo_eh = ranges::equal_range(topological_edges, eh, ranges::less {}, &Edge::from);
+				
+				vector<int> inter;
+				ranges::set_intersection(adj_log_r | views::transform(&Edge::to), 
+				                        adj_topo_eh | views::transform(&Edge::to), 
+				                        back_inserter(inter));
+				
+				if (depth < 6 
+					&&
+					adj_log_r.size() <= 2
+					&&
+				   (ranges::binary_search(adj_topo_r, eh, {}, &Edge::to) || depth==0)
+					 &&
+					inter.size() >= 1
+				)
 				{
-					//printf("le={.from=%d, .to=%d}\n", le.from, le.to);
-					Edge te = {.from=emplacement(le.from), .to=emplacement(le.to)};
-					Edge moved_te = {.from=emplacement(h), .to=emplacement(le.to)};
-					//printf("te={.from=%d, .to=%d}\n", te.from, te.to);
-					//printf("moved_te={.from=%d, .to=%d}\n", moved_te.from, moved_te.to);	
+					int index = decision_tree.size();
+					
+					const DecisionTreeNode n = {
+						.index = index,
+						.parent_index = parent_index,
+						.i_emplacement_source = r, 
+						.i_emplacement_destination = eh
+					};
 
-					bool test = ranges::binary_search(topological_edges, moved_te, [](const Edge& e1, const Edge& e2){
-						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
-					});
-					//printf(test ? "true\n" : "false\n");
-					if (test)
-					{
-						int index = decision_tree.size();
-						
-						if (index > 1000*100)
-							break;
-						
-						const DecisionTreeNode n = {
-							.index = index,
-							.parent_index = parent_index,
-							.i_emplacement_source = r, 
-							.i_emplacement_destination = moved_te.from
-						};
+					//printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 
-						//printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-
-						decision_tree.push_back(n);
-						
-						build_decision_tree(index, build_decision_tree);
-					}
+					decision_tree.push_back(n);
+					
+					build_decision_tree(index, build_decision_tree, depth+1);
 				}
+
 			}
 		}
 	};
@@ -352,10 +347,11 @@ int main()
 {
 	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision_tree] : test_contexts)
 	{	
-
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
 		
 		bool bOk = expected_decision_tree == decision_tree;
+		
+		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
 		int best_idx=-1;
 		int best_result=0;
