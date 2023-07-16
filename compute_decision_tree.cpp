@@ -303,7 +303,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				auto adj_topo_eh = ranges::equal_range(topological_edges, eh, ranges::less {}, &Edge::from);
 				
 				vector<int> inter;
-				ranges::set_intersection(adj_log_r | views::transform(&Edge::to), 
+				ranges::set_intersection(adj_log_r | views::transform(&Edge::to)
+													| views::transform([&](int r){return emplacement(r);}), 
 				                        adj_topo_eh | views::transform(&Edge::to), 
 				                        back_inserter(inter));
 				
