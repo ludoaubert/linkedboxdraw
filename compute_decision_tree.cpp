@@ -199,10 +199,10 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			
 			for (int r : rng)
 			{
-				auto adj_log_r = logical_edges[r];
-				auto adj_topo_r = topological_edges[r];
+				const vector<int>& adj_log_r = logical_edges[r];
+				const vector<int>& adj_topo_r = topological_edges[r];
 				
-				auto adj_topo_eh = topological_edges[eh];
+				const vector<int>& adj_topo_eh = topological_edges[eh];
 				
 				vector<int> inter;
 				ranges::set_intersection(adj_log_r | views::transform([&](int r){return emplacement(r);}), 
