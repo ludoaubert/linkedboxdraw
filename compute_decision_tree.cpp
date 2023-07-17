@@ -241,17 +241,10 @@ int main()
 	{
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
 		
+		bool bOk = expected_decision_tree == decision_tree;
+		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		vector<vector<int> > dt_adj(decision_tree.size()+1);
-		
-		for (const auto [index, parent_index, i_emplacement_source, i_emplacement_destination] : decision_tree)
-		{
-			dt_adj[parent_index+1].push_back(index);
-		}
-		
-		printf("dt_adj created !\n");
-
 		vector<Edge> topological_edges_;
 		
 		for (int from=0; from<nr_emplacements; from++)
@@ -266,46 +259,58 @@ int main()
 		int best_idx=-1;
 		int best_result=0;
 		
-		int emplacement[100];
-		for (int i=0; i < 100; i++)
-			emplacement[i]=i;
-		
-		auto find_best_result = [&](int parent_index, auto&& find_best_result)->void{
-			for (int idx : dt_adj[parent_index+1])
+		for (int idx=-1; idx < (int)decision_tree.size(); idx++)
+		{
+			vector<int> chemin;
+			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
 			{
-				const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
-				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
-				
-				vector<Edge> topo_edges, inter;
-				for (int from=0; from<nr_input_rectangles; from++)
-				{
-					for (int to : logical_edges[from])
-					{
-						Edge te={.from=emplacement[from],.to=emplacement[to]};
-						topo_edges.push_back(te);
-					}
-				}
-				ranges::sort(topo_edges, [](const Edge& e1, const Edge& e2){
-							return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
-						});
-						
-				ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter), [](const Edge& e1, const Edge& e2){
-							return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
-						});
-				
-				if (inter.size() > best_result)
-				{
-					best_idx = idx;
-					best_result = inter.size();
-				}
-				
-				find_best_result(idx, find_best_result);
-				
-				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+				chemin.push_back(index);
 			}
-		};
-		
-		find_best_result(-1, find_best_result);
+
+			auto emplacement = [&](int i){
+				int ei=i;
+				for (int idx : chemin | views::reverse)
+				{
+					const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
+					if (i_emplacement_source==ei)
+						ei = i_emplacement_destination;
+					else if (i_emplacement_destination==ei)
+						ei = i_emplacement_source;
+				}
+				return ei;
+			};
+
+			vector<Edge> topo_edges, inter;
+			for (int from=0; from<nr_input_rectangles; from++)
+			{
+				for (int to : logical_edges[from])
+				{
+					Edge te={emplacement(from),emplacement(to)};
+					topo_edges.push_back(te);
+				}
+			}
+			ranges::sort(topo_edges, [](const Edge& e1, const Edge& e2){
+						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
+					});
+					
+			ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter), [](const Edge& e1, const Edge& e2){
+						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
+					});
+/*					
+			printf("idx=%d\n", idx);
+			printf("topo_edges:\n");
+			for (const Edge& te : topo_edges)
+				printf("{.fom=%d, .to=%d}\n", te.from, te.to);
+			printf("inter:\n");
+			for (const Edge& te : inter)
+				printf("{.fom=%d, .to=%d}\n", te.from, te.to);			
+*/					
+			if (inter.size() > best_result)
+			{
+				best_idx = idx;
+				best_result = inter.size();
+			}
+		}
 
 		printf("\nbest_idx=%d\n", best_idx);
 		printf("best_result=%d\n", best_result);
@@ -328,20 +333,24 @@ int main()
 		}
 */
 		{
-			for (int i=0; i < 100; i++)
-				emplacement[i]=i;
-		
-			for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
-			{
-				emplacement[i_emplacement_source] = i_emplacement_destination;
-			}
+			auto expected_emplacement = [&](int i){
+				int ei=i;
+				for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
+				{
+					if (i_emplacement_source==ei)
+						ei = i_emplacement_destination;
+					else if (i_emplacement_destination==ei)
+						ei = i_emplacement_source;
+				}
+				return ei;
+			};
 			
 			vector<Edge> topo_edges, inter;
 			for (int from=0; from<nr_input_rectangles; from++)
 			{
 				for (int to : logical_edges[from])
 				{
-					Edge te={.from=emplacement[from], .to=emplacement[to]};
+					Edge te={expected_emplacement(from),expected_emplacement(to)};
 					topo_edges.push_back(te);
 				}
 			}
