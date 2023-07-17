@@ -333,7 +333,7 @@ int main()
 		
 			for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
 			{
-				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+				emplacement[i_emplacement_source] = i_emplacement_destination;
 			}
 			
 			vector<Edge> topo_edges, inter;
