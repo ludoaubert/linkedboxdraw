@@ -24,8 +24,8 @@ struct DecisionTreeNode
 struct TestContext{
 	int nr_input_rectangles;
 	int nr_emplacements;
-	vector<Edge> logical_edges;
-	vector<Edge> topological_edges;
+	vector<vector<int> > logical_edges;
+	vector<vector<int> > topological_edges;
 	vector<DecisionTreeNode> expected_decision_tree;
 };
 
@@ -46,18 +46,17 @@ const vector<TestContext> test_contexts = {
 	{
 		.nr_input_rectangles = 2,
 		.nr_emplacements = 3,
-
+		
 		.logical_edges={
-			{.from=0, .to=1},
-			{.from=1, .to=0}
+			{1},//0
+			{0},//1
 		},
 
 		.topological_edges={
-			{.from=0, .to=2},
-			{.from=1, .to=2},
-			{.from=2, .to=0},
-			{.from=2, .to=1},	
-		},
+			{2},//0
+			{2},//1
+			{0,1},//2
+		}
 
 		.expected_decision_tree = {
 			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2}
@@ -81,22 +80,18 @@ const vector<TestContext> test_contexts = {
 	{
 		.nr_input_rectangles = 3,
 		.nr_emplacements = 4,
-
+		
 		.logical_edges={
-			{.from=0, .to=1},
-			{.from=1, .to=0},
-			{.from=1, .to=2},
-			{.from=2, .to=1}
-		},
-
+			{1},//0
+			{0,2},//1
+			{1},//2
+		}
 		.topological_edges={
-			{.from=0, .to=3},
-			{.from=1, .to=2},
-			{.from=1, .to=3},
-			{.from=2, .to=1},
-			{.from=3, .to=0},
-			{.from=3, .to=1}			
-		},
+			{3},//0
+			{2,3},//1
+			{1},//2
+			{0,1},//3
+		}
 
 		.expected_decision_tree = {
 			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=3}
@@ -108,143 +103,50 @@ const vector<TestContext> test_contexts = {
 		.nr_emplacements = 15 + 11,
 		
 		.logical_edges={
-			{.from=0, .to=3},
-			{.from=1, .to=7},
-			{.from=2, .to=7},
-			{.from=3, .to=0},
-			{.from=3, .to=4},
-			{.from=4, .to=3},
-			{.from=4, .to=7},
-			{.from=5, .to=7},
-			{.from=6, .to=7},
-			{.from=6, .to=12},
-			{.from=7, .to=1},
-			{.from=7, .to=2},
-			{.from=7, .to=4},
-			{.from=7, .to=5},
-			{.from=7, .to=6},
-			{.from=7, .to=8},
-			{.from=7, .to=9},
-			{.from=7, .to=10},
-			{.from=7, .to=11},
-			{.from=8, .to=7},
-			{.from=9, .to=7},
-			{.from=10, .to=7},
-			{.from=11, .to=7},
-			{.from=12, .to=6},
-			{.from=12, .to=13},
-			{.from=13, .to=12},
-			{.from=13, .to=14},
-			{.from=14, .to=13}
+			{3},//0
+			{7},//1
+			{7},//2
+			{0,4},//3
+			{3,7},//4
+			{7},//5
+			{7,12},//6
+			{1,2,4,5,6,8,9,10,11},//7
+			{7},//8
+			{7},//9
+			{7},//10
+			{7},//11
+			{6,13},//12
+			{12,14},//13
+			{13},//14
 		},
-		
+
 		.topological_edges={
-			{.from=0, .to=3},
-			{.from=0, .to=6},
-			{.from=0, .to=15+2},
-			{.from=0, .to=15+7},
-			{.from=1, .to=2},
-			{.from=1, .to=7},
-			{.from=1, .to=14},
-			{.from=1, .to=15+0},
-			{.from=1, .to=15+3},
-			{.from=2, .to=1},
-			{.from=2, .to=4},
-			{.from=2, .to=6},
-			{.from=2, .to=7},
-			{.from=2, .to=15+2},
-			{.from=3, .to=0},
-			{.from=3, .to=4},
-			{.from=3, .to=10},
-			{.from=3, .to=15+2},
-			{.from=3, .to=15+8},
-			{.from=4, .to=2},
-			{.from=4, .to=3},
-			{.from=4, .to=7},
-			{.from=4, .to=10},
-			{.from=4, .to=15+2},
-			{.from=5, .to=7},
-			{.from=5, .to=10},
-			{.from=5, .to=11},
-			{.from=6, .to=0},
-			{.from=6, .to=2},
-			{.from=6, .to=12},
-			{.from=6, .to=13},
-			{.from=6, .to=15+2},
-			{.from=6, .to=15+7},
-			{.from=7, .to=1},
-			{.from=7, .to=2},
-			{.from=7, .to=4},
-			{.from=7, .to=5},
-			{.from=7, .to=8},
-			{.from=7, .to=9},
-			{.from=7, .to=11},
-			{.from=7, .to=15+3},
-			{.from=8, .to=7},
-			{.from=8, .to=14},
-			{.from=8, .to=15+3},
-			{.from=8, .to=15+4},
-			{.from=8, .to=15+6},
-			{.from=9, .to=7},
-			{.from=9, .to=11},
-			{.from=9, .to=15+5},
-			{.from=10, .to=3},
-			{.from=10, .to=4},
-			{.from=10, .to=5},
-			{.from=10, .to=15+8},
-			{.from=11, .to=5},
-			{.from=11, .to=7},
-			{.from=11, .to=9},
-			{.from=11, .to=15+5},
-			{.from=12, .to=6},
-			{.from=12, .to=13},
-			{.from=12, .to=15+7},
-			{.from=12, .to=15+9},
-			{.from=13, .to=6},
-			{.from=13, .to=12},
-			{.from=13, .to=14},
-			{.from=13, .to=15+0},
-			{.from=13, .to=15+1},
-			{.from=14, .to=1},
-			{.from=14, .to=8},
-			{.from=14, .to=13},
-			{.from=14, .to=15+0},
-			{.from=14, .to=15+1},
-			{.from=14, .to=15+3},
-			{.from=14, .to=15+6},
-			{.from=15+0, .to=1},
-			{.from=15+0, .to=13},
-			{.from=15+0, .to=14},
-			{.from=15+1, .to=13},
-			{.from=15+1, .to=14},
-			{.from=15+1, .to=15+10},
-			{.from=15+2, .to=0},
-			{.from=15+2, .to=2},
-			{.from=15+2, .to=3},
-			{.from=15+2, .to=4},
-			{.from=15+2, .to=6},
-			{.from=15+3, .to=1},
-			{.from=15+3, .to=7},
-			{.from=15+3, .to=8},
-			{.from=15+3, .to=14},
-			{.from=15+4, .to=8},
-			{.from=15+4, .to=15+6},
-			{.from=15+5, .to=9},
-			{.from=15+5, .to=11},
-			{.from=15+6, .to=8},
-			{.from=15+6, .to=14},
-			{.from=15+6, .to=15+4},
-			{.from=15+6, .to=15+10},
-			{.from=15+7, .to=0},
-			{.from=15+7, .to=6},
-			{.from=15+7, .to=12},
-			{.from=15+7, .to=15+9},
-			{.from=15+8, .to=3},
-			{.from=15+8, .to=10},
-			{.from=15+9, .to=12},
-			{.from=15+9, .to=15+7},
-			{.from=15+10, .to=15+1},
-			{.from=15+10, .to=15+6}
+			{3,6,17,22},//0
+			{2,7,14,15,18},//1
+			{1,4,6,7,17},//2
+			{0,4,10,17,23},//3
+			{2,3,7,10,17},//4
+			{7,10,11},//5
+			{0,2,12,13,17,22},//6
+			{1,2,4,5,8,9,11,18},//7
+			{7,14,18,19,21},//8
+			{7,11,20},//9
+			{3,4,5,23},//10
+			{5,7,9,20},//11
+			{6,13,22,24},//12
+			{6,12,14,15,16},//13
+			{1,8,13,15,16,18,21},//14
+			{1,13,14},//15
+			{13,14,25},//16
+			{0,2,3,4,6},//17
+			{1,7,8,14},//18
+			{8,21},//19
+			{9,11},//20
+			{8,14,19,25},//21
+			{0,6,12,24},//22
+			{3,10},//23
+			{12,22},//24
+			{16,21},//25
 		},
 		
 		.expected_decision_tree = {
@@ -347,7 +249,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 int main()
 {
 	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision_tree] : test_contexts)
-	{	
+	{
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
 		
 		bool bOk = expected_decision_tree == decision_tree;
