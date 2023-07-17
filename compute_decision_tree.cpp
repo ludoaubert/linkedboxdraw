@@ -241,8 +241,6 @@ int main()
 	{
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
 		
-		bool bOk = expected_decision_tree == decision_tree;
-		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
 		vector<vector<int> > dt_adj(decision_tree.size()+1);
