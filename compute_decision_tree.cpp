@@ -249,9 +249,7 @@ int main()
 		{
 			dt_adj[parent_index+1].push_back(index);
 		}
-		
-		
-		
+
 		vector<Edge> topological_edges_;
 		
 		for (int from=0; from<nr_emplacements; from++)
