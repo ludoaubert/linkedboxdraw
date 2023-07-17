@@ -167,35 +167,21 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
+	int emplacement[100];
+	for (int i=0; i<100; i++)
+		emplacement[i]=i;
+	
 	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree, int depth=0)->void{
 		//printf("enter build_decision_tree()\n");
-		vector<int> chemin;
-		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
-		{
-			chemin.push_back(index);
-		}
-
-		auto emplacement = [&](int i){
-			int ei=i;
-			for (int idx : chemin | views::reverse)
-			{
-				const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
-				if (i_emplacement_source==ei)
-					ei = i_emplacement_destination;
-				else if (i_emplacement_destination==ei)
-					ei = i_emplacement_source;
-			}
-			return ei;
-		};
 
 		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
 		{
-			int eh = emplacement(h);
+			int eh = emplacement[h];
 			//printf("parent_index=%d\n", parent_index);
-			//printf("emplacement(h=%d)=%d\n", h, eh);
+			//printf("emplacement[h=%d]=%d\n", h, eh);
 			
 			auto rng = views::iota(0, nr_input_rectangles) |
-						views::filter([&](int r){return ranges::none_of(chemin, [&](int idx){return decision_tree[idx].i_emplacement_source==r;});}) ;
+						views::filter([&](int r){return emplacement[r]==r;}) ;
 			
 			for (int r : rng)
 			{
@@ -205,7 +191,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				const vector<int>& adj_topo_eh = topological_edges[eh];
 				
 				vector<int> inter;
-				ranges::set_intersection(adj_log_r | views::transform([&](int r){return emplacement(r);}), 
+				ranges::set_intersection(adj_log_r | views::transform([&](int r){return emplacement[r];}), 
 				                        adj_topo_eh, 
 				                        back_inserter(inter));
 				
@@ -231,7 +217,11 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 					decision_tree.push_back(n);
 					
+					swap(emplacement[r], emplacement[eh]);
+					
 					build_decision_tree(index, build_decision_tree, depth+1);
+					
+					swap(emplacement[r], emplacement[eh]);
 				}
 
 			}
