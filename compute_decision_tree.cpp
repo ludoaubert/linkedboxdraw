@@ -330,24 +330,20 @@ int main()
 		}
 */
 		{
-			auto expected_emplacement = [&](int i){
-				int ei=i;
-				for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
-				{
-					if (i_emplacement_source==ei)
-						ei = i_emplacement_destination;
-					else if (i_emplacement_destination==ei)
-						ei = i_emplacement_source;
-				}
-				return ei;
-			};
+			for (int i=0; i < 100; i++)
+				emplacement[i]=i;
+		
+			for (const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
+			{
+				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+			}
 			
 			vector<Edge> topo_edges, inter;
 			for (int from=0; from<nr_input_rectangles; from++)
 			{
 				for (int to : logical_edges[from])
 				{
-					Edge te={expected_emplacement(from),expected_emplacement(to)};
+					Edge te={.from=emplacement[from], .to=emplacement[to]};
 					topo_edges.push_back(te);
 				}
 			}
