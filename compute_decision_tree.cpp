@@ -176,7 +176,6 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
 		{
-			int eh = emplacement[h];
 			//printf("parent_index=%d\n", parent_index);
 			//printf("emplacement[h=%d]=%d\n", h, eh);
 			
@@ -188,7 +187,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				const vector<int>& adj_log_r = logical_edges[r];
 				const vector<int>& adj_topo_r = topological_edges[r];
 				
-				const vector<int>& adj_topo_eh = topological_edges[eh];
+				const vector<int>& adj_topo_eh = topological_edges[emplacement[h]];
 				
 				vector<int> inter;
 				ranges::set_intersection(adj_log_r | views::transform([&](int r){return emplacement[r];}), 
@@ -199,7 +198,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					&&
 					adj_log_r.size() <= 2
 					&&
-				   (ranges::binary_search(adj_topo_r, eh) || depth==0)
+				   (ranges::binary_search(adj_topo_r, emplacement[h]) || depth==0)
 					 &&
 					inter.size() >= 1
 				)
@@ -210,18 +209,18 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 						.index = index,
 						.parent_index = parent_index,
 						.i_emplacement_source = r, 
-						.i_emplacement_destination = eh
+						.i_emplacement_destination = emplacement[h]
 					};
 
 					//printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 
 					decision_tree.push_back(n);
 					
-					swap(emplacement[r], emplacement[eh]);
+					swap(emplacement[r], emplacement[h]);
 					
 					build_decision_tree(index, build_decision_tree, depth+1);
 					
-					swap(emplacement[r], emplacement[eh]);
+					swap(emplacement[r], emplacement[h]);
 				}
 
 			}
