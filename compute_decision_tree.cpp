@@ -249,6 +249,8 @@ int main()
 		{
 			dt_adj[parent_index+1].push_back(index);
 		}
+		
+		printf("dt_adj created !\n");
 
 		vector<Edge> topological_edges_;
 		
@@ -297,7 +299,7 @@ int main()
 					best_result = inter.size();
 				}
 				
-				find_best_result(index, find_best_result);
+				find_best_result(idx, find_best_result);
 				
 				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
 			}
