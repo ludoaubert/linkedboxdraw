@@ -189,25 +189,30 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				
 				const vector<int>& adj_topo_eh = topological_edges[emplacement[h]];
 				
-				vector<int> inter;
-				ranges::set_intersection(adj_log_r | views::transform([&](int r){return emplacement[r];}), //bug: this range should be sorted
-				                        adj_topo_eh, 
-				                        back_inserter(inter));
+				int inter=0, inter2=0, nb2=0;
+				for (int ar : adj_log_r)
+				{
+					if (ar != emplacement[ar])
+						nb2++;
+					if (ranges::find(adj_topo_eh, emplacement[ar]) != adj_topo_eh.end())
+					{
+						inter++;
+						if (ar != emplacement[ar])
+							inter2++;
+					}
+				}
 										
 			// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
 			// we have two make sure we stay close to them. A little like an entropy measure (?)
-				vector<int> inter2;
-				auto moved_adj_log_r = adj_log_r | views::filter([&](int r){return emplacement[r]!=r;})
-							| views::transform([&](int r){return emplacement[r];}); //bug: this range should be sorted
-			//	ranges::set_intersection(moved_adj_log_r, adj_topo_eh, back_inserter(inter2)); 
+
 				
-				if (depth < 6 
+				if ( (depth < 2 || (depth < 7 && inter2==nb2)) 
 					&&
 					adj_log_r.size() <= 2
 					&&
 				   (ranges::binary_search(adj_topo_r, emplacement[h]) || depth==0)
 					 &&
-					inter.size() >= 1
+					inter >= 1
 				)
 				{
 					int index = decision_tree.size();
