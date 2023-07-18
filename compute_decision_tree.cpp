@@ -316,41 +316,25 @@ int main()
 //		vector indexes = views::iota(0,n) | views::to<vector>;
 		
 		transform(execution::par_unseq, begin(indexes), end(indexes), begin(scores), f);
+
+		auto [min_score, max_score] = ranges::minmax(scores);
 		
-		int best_idx=-1;
-		int best_result=0;
+		printf("max_score=%d\n", max_score);
 		
-		for (int idx=-1; idx < (int)decision_tree.size(); idx++)
+		for (int best_idx : indexes | views::filter([&](int idx){return scores[idx]==max_score;}))
 		{
-			int inter_size = scores[idx];
-		
-			if (inter_size > best_result)
+			printf("\n\nbest_idx=%d\n", best_idx);
+			
+			for (int idx = best_idx; idx != -1; idx = decision_tree[idx].parent_index)
 			{
-				best_idx = idx;
-				best_result = inter_size;
+				const DecisionTreeNode& n = decision_tree[idx];
+				int depth=0;
+				for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
+					depth++;
+				printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 			}
 		}
 
-		printf("\nbest_idx=%d\n", best_idx);
-		printf("best_result=%d\n", best_result);
-
-		for (int idx = best_idx; idx != -1; idx = decision_tree[idx].parent_index)
-		{
-			const DecisionTreeNode& n = decision_tree[idx];
-			int depth=0;
-			for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
-				depth++;
-			printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-		}
-/*		
-		for (const DecisionTreeNode& n : decision_tree)
-		{
-			int depth=0;
-			for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
-				depth++;
-			printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-		}
-*/
 		{
 			auto expected_emplacement = [&](int i){
 				int ei=i;
