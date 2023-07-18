@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <ranges>
+#include <execution>
 #include <stdio.h>
 using namespace std;
 
@@ -256,22 +257,17 @@ int main()
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		vector<Edge> topological_edges_;
-		
-		for (int from=0; from<nr_emplacements; from++)
+		vector<Edge> topological_edges_; 
+
+		for (int from : views::iota(0, nr_emplacements))
 		{
 			for (int to : topological_edges[from])
 			{
-				Edge te={from,to};
-				topological_edges_.push_back(te);
+				topological_edges_.push_back(Edge{from,to});
 			}
 		}			
 		
-		int best_idx=-1;
-		int best_result=0;
-		
-		for (int idx=-1; idx < (int)decision_tree.size(); idx++)
-		{
+		auto f=[&](int idx)->int{
 			vector<int> chemin;
 			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
 			{
@@ -291,7 +287,8 @@ int main()
 				return ei;
 			};
 
-			vector<Edge> topo_edges, inter;
+			vector<Edge> topo_edges, inter;		
+
 			for (int from=0; from<nr_input_rectangles; from++)
 			{
 				for (int to : logical_edges[from])
@@ -307,19 +304,30 @@ int main()
 			ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter), [](const Edge& e1, const Edge& e2){
 						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
 					});
-/*					
-			printf("idx=%d\n", idx);
-			printf("topo_edges:\n");
-			for (const Edge& te : topo_edges)
-				printf("{.fom=%d, .to=%d}\n", te.from, te.to);
-			printf("inter:\n");
-			for (const Edge& te : inter)
-				printf("{.fom=%d, .to=%d}\n", te.from, te.to);			
-*/					
-			if (inter.size() > best_result)
+			return inter.size();
+		};
+		
+		int n = decision_tree.size();
+		vector<int> scores(n), indexes(n);
+		
+		for (int idx : views::iota(0,n))
+			indexes[idx]=idx;
+		
+//		vector indexes = views::iota(0,n) | views::to<vector>;
+		
+		transform(execution::par_unseq, begin(indexes), end(indexes), begin(scores), f);
+		
+		int best_idx=-1;
+		int best_result=0;
+		
+		for (int idx=-1; idx < (int)decision_tree.size(); idx++)
+		{
+			int inter_size = scores[idx];
+		
+			if (inter_size > best_result)
 			{
 				best_idx = idx;
-				best_result = inter.size();
+				best_result = inter_size;
 			}
 		}
 
