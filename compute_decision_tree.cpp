@@ -367,6 +367,10 @@ int main()
 					
 			printf("expected result=%ld\n", inter.size());
 		}
+		
+		int nb = ranges::count(scores, max_score);
+		
+		printf("\n\nranges::count(scores, %d)=%d\n", max_score, nb);
 	}
 	return 0;
 }
