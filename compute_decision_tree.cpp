@@ -195,7 +195,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				{
 					if (ar != emplacement[ar])
 						nb2++;
-					if (ranges::find(adj_topo_eh, emplacement[ar]) != adj_topo_eh.end())
+					if (ranges::count(adj_topo_eh, emplacement[ar]) != 0)
 					{
 						inter++;
 						if (ar != emplacement[ar])
@@ -211,7 +211,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					&&
 					adj_log_r.size() <= 2
 					&&
-				   (ranges::binary_search(adj_topo_r, emplacement[h]) || depth==0)
+				   (ranges::count(adj_topo_r, emplacement[h])!=0 || depth==0)
 					 &&
 					inter >= 1
 				)
