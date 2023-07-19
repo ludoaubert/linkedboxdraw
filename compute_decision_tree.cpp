@@ -251,11 +251,13 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		}		
 	};
 	
-	auto build_decision_tree = [&](int parent_index)->void{
+	auto build_decision_tree = [&]()->void{
 		//printf("enter build_decision_tree()\n");
 		
 		for (int depth=0; depth<=7; depth++)
 		{
+			int size = decision_tree.size();
+			
 			auto rg = decision_tree 
 						| views::filter([](const DecisionTreeNode& n){return n.depth==depth-1;})
 						| views::transform(&DecisionTreeNode::index) ;
@@ -264,11 +266,48 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				indexes.push_back(ix);
 			vector<vector<DecisionTreeNode> > vv(indexes.size());
 			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth+1));
+			
+			for (const DecisionTreeNode& n : vv | views::join)
+				decision_tree.push_back(n);
+			
+			auto hex=[&](int idx)->string
+			{
+				vector<int> chemin;
+				for (int index=idx; index != -1; index = decision_tree[index].parent_index)
+				{
+					chemin.push_back(index);
+				}
+
+				int emplacement[100];
+				for (int i=0; i<nr_emplacements; i++)
+					emplacement[i]=i;
+				
+				for (int ix : chemin | views::reverse)
+				{
+					const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
+					swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+				}
+				
+				auto rg = views::counted(emplacement, nr_emplacements) | 
+						views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
+						views::join;
+						
+				string result;
+				for (char c : rg)
+					result.push_back(c);
+
+				return result;
+			}	
+
+			auto rg = decision_tree |
+				views::filter([](const DecisionTreeNode& n){return n.depth==depth}) |
+				views::dedup
+				
+			views::concat()
 		}
 	};
 	
-	int parent_index = -1;
-	build_decision_tree(parent_index, build_decision_tree);
+	build_decision_tree();
 	
 	return decision_tree;
 }
