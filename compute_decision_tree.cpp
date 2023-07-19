@@ -311,7 +311,29 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			
 			ranges::sort(items, &Item::hex);
 				
-			items | views::chunk_by(&Item::hex)
+			auto view = items | views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;});
+			auto rg = view | views::transform([](auto const subrange){return views::iota(0, subrange.size());})
+				| views::join;
+				
+			vector<int> numbering;
+			for (int i : rg)
+				numbering.push_back(i);
+			
+			vector<DecisionTreeNode> dedup;
+			
+			for (int i=0; i < numbering.size(); i++)
+			{
+				if (numbering[i]==0)
+				{
+					DecisionTreeNode n = decision_tree[i+size];
+					n.id = dedup.size();
+					dedup.push_back(n);
+				}
+			}
+			
+			decision_tree.resize(size);
+			for (const DecisionTreeNode& n : dedup)
+				decision_tree.push_back(n);
 		}
 	};
 	
