@@ -297,13 +297,21 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					result.push_back(c);
 
 				return result;
-			}	
+			};
 
-			auto rg = decision_tree |
-				views::filter([](const DecisionTreeNode& n){return n.depth==depth}) |
-				views::dedup
+			struct Item{
+				string hex;
+				int i;
+			};
+			vector<Item> items;
+			for (int i=0; i+size<decision_tree.size(); i++)
+			{
+				items.push_back(Item{.hex=hex(i+size), .i=i});
+			}
+			
+			ranges::sort(items, &Item::hex);
 				
-			views::concat()
+			items | views::chunk_by(&Item::hex)
 		}
 	};
 	
