@@ -264,8 +264,10 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			vector<int> indexes ;
 			for (int ix : rg)
 				indexes.push_back(ix);
+			if (depth==0)
+				indexes.push_back(-1);
 			vector<vector<DecisionTreeNode> > vv(indexes.size());
-			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth+1));
+			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth));
 			
 			for (const DecisionTreeNode& n : vv | views::join)
 				decision_tree.push_back(n);
