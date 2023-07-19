@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <unordered_map>
 #include <string>
 #include <ranges>
 #include <execution>
@@ -17,6 +19,7 @@ struct DecisionTreeNode
 {
 	int index=0;
 	int parent_index=-1;
+	int depth;
 	int i_emplacement_source, i_emplacement_destination;
 	
 	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
@@ -60,7 +63,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision_tree = {
-			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=2}
+			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=2}
 		}
 	},
 
@@ -95,7 +98,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision_tree = {
-			{.index=0, .parent_index=-1, .i_emplacement_source=0, .i_emplacement_destination=3}
+			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=3}
 		}
 	},
 	
@@ -151,13 +154,13 @@ const vector<TestContext> test_contexts = {
 		},
 		
 		.expected_decision_tree = {
-			{.index=0, .parent_index=-1, .i_emplacement_source=1, .i_emplacement_destination=15+3},
-			{.index=1, .parent_index=0, .i_emplacement_source=2, .i_emplacement_destination=1},
-			{.index=2, .parent_index=1, .i_emplacement_source=0, .i_emplacement_destination=15+8},
-			{.index=3, .parent_index=2, .i_emplacement_source=6, .i_emplacement_destination=2},
-			{.index=4, .parent_index=3, .i_emplacement_source=12, .i_emplacement_destination=6},
-			{.index=5, .parent_index=4, .i_emplacement_source=13, .i_emplacement_destination=15+7},
-			{.index=6, .parent_index=5, .i_emplacement_source=14, .i_emplacement_destination=0}
+			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=1, .i_emplacement_destination=15+3},
+			{.index=1, .parent_index=0, .depth=1, .i_emplacement_source=2, .i_emplacement_destination=1},
+			{.index=2, .parent_index=1, .depth=2, .i_emplacement_source=0, .i_emplacement_destination=15+8},
+			{.index=3, .parent_index=2, .depth=3, .i_emplacement_source=6, .i_emplacement_destination=2},
+			{.index=4, .parent_index=3, .depth=4, .i_emplacement_source=12, .i_emplacement_destination=6},
+			{.index=5, .parent_index=4, .depth=5, .i_emplacement_source=13, .i_emplacement_destination=15+7},
+			{.index=6, .parent_index=5, .depth=6, .i_emplacement_source=14, .i_emplacement_destination=0}
 		}
 	}
 
@@ -168,12 +171,25 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
-	int emplacement[100];
-	for (int i=0; i<100; i++)
-		emplacement[i]=i;
-	
-	auto build_decision_tree = [&](int parent_index, auto&& build_decision_tree, int depth=0)->void{
-		//printf("enter build_decision_tree()\n");
+	auto child_nodes = [&](int parent_index, int depth){
+
+		vector<DecisionTreeNode> result;
+		
+		vector<int> chemin;
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
+		{
+			chemin.push_back(index);
+		}
+		
+		int emplacement[100];
+		for (int i=0; i<nr_emplacements; i++)
+			emplacement[i]=i;
+		
+		for (int ix : chemin | views::reverse)
+		{
+			const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
+			swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+		}
 
 		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
 		{
@@ -216,27 +232,38 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					inter >= 1
 				)
 				{
-					int index = decision_tree.size();
+					int index = result.size();
 					
 					const DecisionTreeNode n = {
 						.index = index,
 						.parent_index = parent_index,
+						.depth=depth,
 						.i_emplacement_source = r, 
 						.i_emplacement_destination = emplacement[h]
 					};
 
-					//printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+					//printf("{.index=%d, .parent_index=%d, .depth=depth, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 
-					decision_tree.push_back(n);
-					
-					swap(emplacement[r], emplacement[h]);
-					
-					build_decision_tree(index, build_decision_tree, depth+1);
-					
-					swap(emplacement[r], emplacement[h]);
+					result.push_back(n);
 				}
 
 			}
+		}		
+	};
+	
+	auto build_decision_tree = [&](int parent_index)->void{
+		//printf("enter build_decision_tree()\n");
+		
+		for (int depth=0; depth<=7; depth++)
+		{
+			auto rg = decision_tree 
+						| views::filter([](const DecisionTreeNode& n){return n.depth==depth-1;})
+						| views::transform(&DecisionTreeNode::index) ;
+			vector<int> indexes ;
+			for (int ix : rg)
+				indexes.push_back(ix);
+			vector<vector<DecisionTreeNode> > vv(indexes.size());
+			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth+1));
 		}
 	};
 	
@@ -320,8 +347,8 @@ int main()
 		auto [min_score, max_score] = ranges::minmax(scores);
 		
 		printf("max_score=%d\n", max_score);
-		
-		for (int best_idx : indexes | views::filter([&](int idx){return scores[idx]==max_score;}))
+#if 0		
+		for (int best_idx : views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}))
 		{
 			printf("\n\nbest_idx=%d\n", best_idx);
 			
@@ -334,6 +361,46 @@ int main()
 				printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 			}
 		}
+#endif
+		printf("\nstatistics on duplication:\n");
+		
+		unordered_map<string, int> distrib;
+		map<int,int> stat;
+		
+		for (int idx : views::iota(0,n))
+		{
+			vector<int> chemin;
+			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
+			{
+				chemin.push_back(index);
+			}
+
+			int emplacement[100];
+			for (int i=0; i<nr_emplacements; i++)
+				emplacement[i]=i;
+			
+			for (int ix : chemin | views::reverse)
+			{
+				const auto& [index, parent_index, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
+				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+			}
+			
+			auto rg = views::counted(emplacement, nr_emplacements) | 
+					views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
+					views::join;
+					
+			string hex;
+			for (char c : rg)
+				hex.push_back(c);
+
+			distrib[hex]++;
+		}
+		
+		for (const auto [hex, count] : distrib)
+			stat[count]++;
+		
+		for (const auto [count, freq] : stat)
+			printf("count:%d, freq:%d\n", count, freq);
 
 		{
 			auto expected_emplacement = [&](int i){
