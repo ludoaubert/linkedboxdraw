@@ -320,13 +320,17 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				numbering.push_back(i);
 			
 			vector<DecisionTreeNode> dedup;
-			
+/*			
+			auto r = views::enumerate(numbering) | views::filter([](auto p){auto [i, number]=p; return number==0;})
+												| views::transform([](auto p){auto [i, number]=p; return i;})
+												| views::transform([&](int i){return decision_tree[i+size]});
+*/			
 			for (int i=0; i < numbering.size(); i++)
 			{
 				if (numbering[i]==0)
 				{
 					DecisionTreeNode n = decision_tree[i+size];
-					n.id = dedup.size();
+					n.index = dedup.size();
 					dedup.push_back(n);
 				}
 			}
