@@ -314,7 +314,15 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			}
 			
 			ranges::sort(items, {}, &Item::hex);
-/*				
+/*
+//science fiction
+			vector<DecisionTreeNode> dedup = items | 
+										views::chunk_by_key(&Item::hex) |
+										views::transform([](auto r){return r[0];}) |
+										views::transform(&Item::i) |
+										views::transform([&](int i){return decision_tree[i];}) |
+										views::to<vector> ;
+//which is not so much better than the version using loops. It may be easier to understand.
 			auto view = items | views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;});
 			auto rg = view | views::transform([](auto const subrange){return views::iota(0, subrange.size());})
 				| views::join;
