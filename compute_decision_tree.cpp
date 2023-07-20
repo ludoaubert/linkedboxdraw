@@ -323,6 +323,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 										views::transform([&](int i){return decision_tree[i];}) |
 										views::to<vector> ;
 //which is not so much better than the version using loops. It may be easier to understand.
+// chunk_by_key or chunk_on ?
 			auto view = items | views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;});
 			auto rg = view | views::transform([](auto const subrange){return views::iota(0, subrange.size());})
 				| views::join;
