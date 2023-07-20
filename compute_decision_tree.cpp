@@ -293,7 +293,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				}
 				
 				auto rg = views::counted(emplacement, nr_emplacements) | 
-						views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
+						views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x,", i); return buf;}) |
 						views::join;
 						
 				string result;
