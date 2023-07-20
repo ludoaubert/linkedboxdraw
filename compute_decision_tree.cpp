@@ -291,7 +291,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
 					swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
 				}
-				
+
+//TODO: use views::join_with(',') instead of "%x,".
 				auto rg = views::counted(emplacement, nr_emplacements) | 
 						views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x,", i); return buf;}) |
 						views::join;
