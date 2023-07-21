@@ -275,7 +275,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			
 			int floor_size = decision_tree.size() - size;
 			
-			string hexbuf(10*100*floor_size, ' ');
+			string hexbuf(10*nr_emplacements*floor_size, ' ');
 			int pos=0;
 			
 			struct Item{
@@ -291,6 +291,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 					chemin.push_back(index);
 				}
 
+			//  const vector<int> emplacement = views::iota(0, nr_emplacements) | views::to<vector>;
+			
 				int emplacement[100];
 				for (int i=0; i<nr_emplacements; i++)
 					emplacement[i]=i;
