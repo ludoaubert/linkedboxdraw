@@ -318,9 +318,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 //science fiction
 			vector<DecisionTreeNode> dedup = items | 
 										views::chunk_by_key(&Item::hex) |
-										views::transform([](auto r){return r[0];}) |
-										views::transform(&Item::i) |
-										views::transform([&](int i){return decision_tree[i];}) |
+										views::transform([](auto r){return decision_tree[ r[0].i ];}) |
 										views::to<vector> ;
 //which is not so much better than the version using loops. It may be easier to understand.
 // chunk_by_key or chunk_on ?
