@@ -257,12 +257,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		printf("enter build_decision_tree()\n");
 		
 		for (int depth=0; depth<=7; depth++)
-		{
-			printf("depth=%d\n", depth);
-			
+		{	
 			int size = decision_tree.size();
-			
-			printf("decision_tree.size=%ld\n", decision_tree.size());
 			
 			auto rg = decision_tree 
 						| views::filter([&](const DecisionTreeNode& n){return n.depth==depth-1;})
@@ -277,14 +273,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			
 			ranges::copy( vv | views::join, back_inserter(decision_tree));
 			
-			printf("decision_tree.size=%ld\n", decision_tree.size());
-			
 			int floor_size = decision_tree.size() - size;
-			printf("\nfloor_size=%d\n", floor_size);
 			
-			printf("\nnr_emplacements=%d\n", nr_emplacements);
-			
-			string hexbuf(' ',10*100*floor_size);
+			string hexbuf(10*100*floor_size, ' ');
 			int pos=0;
 			
 			struct Item{
@@ -294,7 +285,6 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			vector<Item> items;
 			for (int idx=size; idx<decision_tree.size(); idx++)
 			{
-				printf("\nidx=%d\n", idx);
 				vector<int> chemin;
 				for (int index=idx; index != -1; index = decision_tree[index].parent_index)
 				{
@@ -316,37 +306,14 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				{
 					n += sprintf(&hexbuf[pos+n], "%x,", emplacement[i]);
 				}
-				printf("\npos=%d\n", pos);
-				printf("\nn=%d\n",n);
+
 				string_view hex(&hexbuf[pos], n);
 				pos += n;
-				
-				printf("\nhex=");
-				for (char c : hex)
-					printf("%c",c);
 				
 				items.push_back(Item{.hex=hex, .idx=idx});
 			}
 			
-			printf("\ndepth=%d\n", depth);
-			
-			for (const auto& [hex, idx] : items)
-			{
-				printf("\nhex=");
-				for (char c : hex)
-					printf("%c",c);
-			}
-			
 			ranges::sort(items, {}, &Item::hex);
-			
-			printf("\nsorted:");
-			
-			for (const auto& [hex, idx] : items)
-			{
-				printf("\nhex=");
-				for (char c : hex)
-					printf("%c",c);
-			}
 /*
 //science fiction
 			vector<DecisionTreeNode> dedup = items | 
