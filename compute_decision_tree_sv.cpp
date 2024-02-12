@@ -181,9 +181,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			chemin.push_back(index);
 		}
 		
-		int emplacement[100];
-		for (int i=0; i<nr_emplacements; i++)
-			emplacement[i]=i;
+		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		
 		for (int ix : chemin | views::reverse)
 		{
@@ -290,12 +288,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				{
 					chemin.push_back(index);
 				}
-
-			//  const vector<int> emplacement = views::iota(0, nr_emplacements) | views::to<vector>;
 			
-				int emplacement[100];
-				for (int i=0; i<nr_emplacements; i++)
-					emplacement[i]=i;
+				vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 				
 				for (int ix : chemin | views::reverse)
 				{
@@ -443,7 +437,7 @@ int main()
 				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
 			}
 			
-			string hex = emplacement | 
+			const string hex = emplacement | 
 					views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
 					views::join |
 					ranges::to<string>();
