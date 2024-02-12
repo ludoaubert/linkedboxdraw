@@ -260,14 +260,14 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		{	
 			int size = decision_tree.size();
 			
-			auto rg = decision_tree 
+			vector<int> = decision_tree 
 						| views::filter([&](const DecisionTreeNode& n){return n.depth==depth-1;})
-						| views::transform(&DecisionTreeNode::index) ;
-			vector<int> indexes ;
-			for (int ix : rg)
-				indexes.push_back(ix);
+						| views::transform(&DecisionTreeNode::index)
+						| ranges::to<vector>() ;
+
 			if (depth==0)
 				indexes.push_back(-1);
+
 			vector<vector<DecisionTreeNode> > vv(indexes.size());
 			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth);});
 			
