@@ -342,15 +342,12 @@ int main()
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		vector<Edge> topological_edges_;
-
-		for (int from : views::iota(0, nr_emplacements))
-		{
-			for (int to : topological_edges[from])
-			{
-				topological_edges_.push_back(Edge{from,to});
-			}
-		}			
+		vector<Edge> topological_edges_ = topological_edges |
+										views::enumerate |
+										views::transform([](auto arg){auto [from, adj] = arg; return views::zip(views::repeat(from, adj.size()), adj);}) |
+										views::join |
+										views::transform([](auto arg){auto [from, to]=arg;return Edge{from,to};}) |	//TODO: find out if this line can be removed
+										ranges::to<vector>() ;		
 		
 		auto f=[&](int idx)->int{
 			vector<int> chemin;
