@@ -260,7 +260,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		{	
 			int size = decision_tree.size();
 			
-			vector<int> = decision_tree 
+			vector<int> indexes = decision_tree 
 						| views::filter([&](const DecisionTreeNode& n){return n.depth==depth-1;})
 						| views::transform(&DecisionTreeNode::index)
 						| ranges::to<vector>() ;
@@ -316,27 +316,11 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			}
 			
 			ranges::sort(items, {}, &Item::hex);
-/*
-//science fiction
-			vector<DecisionTreeNode> dedup = items | 
-										views::chunk_by_key(&Item::hex) |
-										views::transform([](auto r){return decision_tree[ r[0].i ];}) |
-										views::to<vector> ;
-//which is not so much better than the version using loops. It may be easier to understand.
-// chunk_by_key or chunk_on ?
-			auto view = items | views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;});
-			auto rg = view | views::transform([](auto const subrange){return views::iota(0, subrange.size());})
-				| views::join;
-*/
-			vector<DecisionTreeNode> dedup;
-			
-			for (int j=0; j<items.size(); j++)
-			{
-				if (j==0 || items[j].hex != items[j-1].hex)
-				{
-					dedup.push_back(decision_tree[items[j].idx]);
-				}
-			}
+
+			vector<DecisionTreeNode> dedup = items |
+											views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;}) |
+											views::transform([&](auto r){return decision_tree[ r[0].idx ];}) |
+											ranges::to<vector>();
 
 			for (int i=0; i<dedup.size(); i++)
 			{
