@@ -348,7 +348,7 @@ int main()
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		vector<Edge> topological_edges_; 
+		vector<Edge> topological_edges_;
 
 		for (int from : views::iota(0, nr_emplacements))
 		{
@@ -399,12 +399,8 @@ int main()
 		};
 		
 		int n = decision_tree.size();
-		vector<int> scores(n), indexes(n);
-		
-		for (int idx : views::iota(0,n))
-			indexes[idx]=idx;
-		
-//		vector indexes = views::iota(0,n) | views::to<vector>;
+		vector<int> scores(n), 
+			indexes = views::iota(0,n) | ranges::to<vector>() ;
 		
 		transform(execution::par_unseq, begin(indexes), end(indexes), begin(scores), f);
 
@@ -449,13 +445,10 @@ int main()
 				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
 			}
 			
-			auto rg = views::counted(emplacement, nr_emplacements) | 
+			string hex = views::counted(emplacement, nr_emplacements) | 
 					views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
-					views::join;
-					
-			string hex;
-			for (char c : rg)
-				hex.push_back(c);
+					views::join |
+					ranges::to<string>();
 
 			distrib[hex]++;
 		}
