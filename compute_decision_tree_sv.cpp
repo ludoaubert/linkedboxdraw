@@ -189,63 +189,55 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
 			swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
 		}
-
-		for (int h : views::iota(nr_input_rectangles, nr_emplacements))
+		
+		for (auto const [h, r] : views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
+															views::iota(0, nr_input_rectangles) |
+															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			//printf("parent_index=%d\n", parent_index);
-			//printf("emplacement[h=%d]=%d\n", h, eh);
+			const vector<int>& adj_log_r = logical_edges[r];
+			const vector<int>& adj_topo_r = topological_edges[r];
 			
-			auto rng = views::iota(0, nr_input_rectangles) |
-						views::filter([&](int r){return emplacement[r]==r;}) ;
+			const vector<int>& adj_topo_eh = topological_edges[emplacement[h]];
 			
-			for (int r : rng)
+			int inter=0, inter2=0, nb2=0;
+			for (int ar : adj_log_r)
 			{
-				const vector<int>& adj_log_r = logical_edges[r];
-				const vector<int>& adj_topo_r = topological_edges[r];
-				
-				const vector<int>& adj_topo_eh = topological_edges[emplacement[h]];
-				
-				int inter=0, inter2=0, nb2=0;
-				for (int ar : adj_log_r)
+				if (ar != emplacement[ar])
+					nb2++;
+				if (ranges::count(adj_topo_eh, emplacement[ar]) != 0)
 				{
+					inter++;
 					if (ar != emplacement[ar])
-						nb2++;
-					if (ranges::count(adj_topo_eh, emplacement[ar]) != 0)
-					{
-						inter++;
-						if (ar != emplacement[ar])
-							inter2++;
-					}
+						inter2++;
 				}
-										
-			// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
-			// we have two make sure we stay close to them. A little like an entropy measure (?)
+			}
+									
+		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
+		// we have two make sure we stay close to them. A little like an entropy measure (?)
 
+			
+			if ( (depth < 2 || (depth < 7 && inter2==nb2)) 
+				&&
+				adj_log_r.size() <= 2
+				&&
+			   (ranges::count(adj_topo_r, emplacement[h])!=0 || depth==0)
+				 &&
+				inter >= 1
+			)
+			{
+				int index = result.size();
 				
-				if ( (depth < 2 || (depth < 7 && inter2==nb2)) 
-					&&
-					adj_log_r.size() <= 2
-					&&
-				   (ranges::count(adj_topo_r, emplacement[h])!=0 || depth==0)
-					 &&
-					inter >= 1
-				)
-				{
-					int index = result.size();
-					
-					const DecisionTreeNode n = {
-						.index = index,
-						.parent_index = parent_index,
-						.depth=depth,
-						.i_emplacement_source = r, 
-						.i_emplacement_destination = emplacement[h]
-					};
+				const DecisionTreeNode n = {
+					.index = index,
+					.parent_index = parent_index,
+					.depth=depth,
+					.i_emplacement_source = r, 
+					.i_emplacement_destination = emplacement[h]
+				};
 
-					//printf("{.index=%d, .parent_index=%d, .depth=depth, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+				//printf("{.index=%d, .parent_index=%d, .depth=depth, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 
-					result.push_back(n);
-				}
-
+				result.push_back(n);
 			}
 		}
 
