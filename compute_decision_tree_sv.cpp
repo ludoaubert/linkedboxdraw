@@ -12,6 +12,7 @@ using namespace std;
 struct Edge {
 	int from;
 	int to;
+	auto operator<=>(const Edge&) const = default;
 };
 
 
@@ -379,9 +380,7 @@ int main()
 					topo_edges.push_back(te);
 				}
 			}
-			ranges::sort(topo_edges, [](const Edge& e1, const Edge& e2){
-						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
-					});
+			ranges::sort(topo_edges);
 					
 			ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter), [](const Edge& e1, const Edge& e2){
 						return (e1.from != e2.from) ? e1.from < e2.from : e1.to < e2.to;
