@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <ranges>
+#include <generator>
 #include <execution>
 #include <stdio.h>
 using namespace std;
@@ -172,15 +173,18 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
+	auto walk_up_from = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
+		{
+			co_yield index;
+		}		
+	};
+	
 	auto child_nodes = [&](int parent_index, int depth){
 
 		vector<DecisionTreeNode> result;
 		
-		vector<int> chemin;
-		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
-		{
-			chemin.push_back(index);
-		}
+		vector<int> chemin = walk_up_from(parent_index) | ranges::to<vector>();
 		
 		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		
@@ -276,11 +280,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			vector<Item> items;
 			for (int idx=size; idx<decision_tree.size(); idx++)
 			{
-				vector<int> chemin;
-				for (int index=idx; index != -1; index = decision_tree[index].parent_index)
-				{
-					chemin.push_back(index);
-				}
+				vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
 			
 				vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 				
@@ -335,12 +335,16 @@ int main()
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		auto f=[&](int idx)->int{
-			vector<int> chemin;
-			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
+		auto walk_up_from = [&](int parent_index)->generator<int>{
+			for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
 			{
-				chemin.push_back(index);
-			}
+				co_yield index;
+			}		
+		};
+		
+		auto f=[&](int idx)->int{
+
+			vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
 
 			auto emplacement = [&](int i){
 				int ei=i;
@@ -380,12 +384,10 @@ int main()
 		{
 			printf("\n\nbest_idx=%d\n", best_idx);
 			
-			for (int idx = best_idx; idx != -1; idx = decision_tree[idx].parent_index)
+			for (int idx : walk_up_from(best_idx))
 			{
 				const DecisionTreeNode& n = decision_tree[idx];
-				int depth=0;
-				for (int index=n.parent_index; index!=-1; index=decision_tree[index].parent_index)
-					depth++;
+				int depth = ranges::distance(walk_up_from(n.parent_index));
 				printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 			}
 		}
@@ -397,11 +399,7 @@ int main()
 		
 		for (int idx : views::iota(0,n))
 		{
-			vector<int> chemin;
-			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
-			{
-				chemin.push_back(index);
-			}
+			vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
 
 			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 			
