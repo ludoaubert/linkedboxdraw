@@ -29,8 +29,8 @@ struct DecisionTreeNode
 struct TestContext{
 	int nr_input_rectangles;
 	int nr_emplacements;
-	vector<vector<int> > logical_edges;
-	vector<vector<int> > topological_edges;
+	vector<Edge> logical_edges;
+	vector<Edge> topological_edges;
 	vector<DecisionTreeNode> expected_decision_tree;
 };
 
@@ -53,14 +53,14 @@ const vector<TestContext> test_contexts = {
 		.nr_emplacements = 3,
 		
 		.logical_edges={
-			{1},//0
-			{0}//1
+			{0, 1},
+			{1, 0}
 		},
 
 		.topological_edges={
-			{2},//0
-			{2},//1
-			{0,1}//2
+			{0, 2},
+			{1, 2},
+			{2, 0},{2, 1}
 		},
 
 		.expected_decision_tree = {
@@ -87,15 +87,15 @@ const vector<TestContext> test_contexts = {
 		.nr_emplacements = 4,
 		
 		.logical_edges={
-			{1},//0
-			{0,2},//1
-			{1}//2
+			{0,1},
+			{1,0},{1,2},
+			{2,1}
 		},
 		.topological_edges={
-			{3},//0
-			{2,3},//1
-			{1},//2
-			{0,1}//3
+			{0,3},
+			{1,2},{1,3},
+			{2,1},
+			{3,0},{3,1}
 		},
 
 		.expected_decision_tree = {
@@ -108,50 +108,50 @@ const vector<TestContext> test_contexts = {
 		.nr_emplacements = 15 + 11,
 		
 		.logical_edges={
-			{3},//0
-			{7},//1
-			{7},//2
-			{0,4},//3
-			{3,7},//4
-			{7},//5
-			{7,12},//6
-			{1,2,4,5,6,8,9,10,11},//7
-			{7},//8
-			{7},//9
-			{7},//10
-			{7},//11
-			{6,13},//12
-			{12,14},//13
-			{13}//14
+			{0,3},
+			{1,7},
+			{2,7},
+			{3,0},{3,4},
+			{4,3},{4,7},
+			{5,7},
+			{6,7},{6,12},
+			{7,1},{7,2},{7,4},{7,5},{7,6},{7,8},{7,9},{7,10},{7,11},
+			{8,7},
+			{9,7},
+			{10,7},
+			{11,7},
+			{12,6},{12,13},
+			{13,12},{13,14},
+			{14,13}
 		},
 
 		.topological_edges={
-			{3,6,17,22},//0
-			{2,7,14,15,18},//1
-			{1,4,6,7,17},//2
-			{0,4,10,17,23},//3
-			{2,3,7,10,17},//4
-			{7,10,11},//5
-			{0,2,12,13,17,22},//6
-			{1,2,4,5,8,9,11,18},//7
-			{7,14,18,19,21},//8
-			{7,11,20},//9
-			{3,4,5,23},//10
-			{5,7,9,20},//11
-			{6,13,22,24},//12
-			{6,12,14,15,16},//13
-			{1,8,13,15,16,18,21},//14
-			{1,13,14},//15
-			{13,14,25},//16
-			{0,2,3,4,6},//17
-			{1,7,8,14},//18
-			{8,21},//19
-			{9,11},//20
-			{8,14,19,25},//21
-			{0,6,12,24},//22
-			{3,10},//23
-			{12,22},//24
-			{16,21}//25
+			{0,3},{0,6},{0,17},{0,22},//0
+			{1,2},{1,7},{1,14},{1,15},{1,18},//1
+			{2,1},{2,4},{2,6},{2,7},{2,17},//2
+			{3,0},{3,4},{3,10},{3,17},{3,23},//3
+			{4,2},{4,3},{4,7},{4,10},{4,17},//4
+			{5,7},{5,10},{5,11},//5
+			{6,0},{6,2},{6,12},{6,13},{6,17},{6,22},//6
+			{7,1},{7,2},{7,4},{7,5},{7,8},{7,9},{7,11},{7,18},//7
+			{8,7},{8,14},{8,18},{8,19},{8,21},//8
+			{9,7},{9,11},{9,20},//9
+			{10,3},{10,4},{10,5},{10,23},//10
+			{11,5},{11,7},{11,9},{11,20},//11
+			{12,6},{12,13},{12,22},{12,24},//12
+			{13,6},{13,12},{13,14},{13,15},{13,16},//13
+			{14,1},{14,8},{14,13},{14,15},{14,16},{14,18},{14,21},//14
+			{15,1},{15,13},{15,14},//15
+			{16,13},{16,14},{16,25},//16
+			{17,0},{17,2},{17,3},{17,4},{17,6},//17
+			{18,1},{18,7},{18,8},{18,14},//18
+			{19,8},{19,21},//19
+			{20,9},{20,11},//20
+			{21,8},{21,14},{21,19},{21,25},//21
+			{22,0},{22,6},{22,12},{22,24},//22
+			{23,3},{23,10},//23
+			{24,12},{24,22},//24
+			{25,16},{25,21}//25
 		},
 		
 		.expected_decision_tree = {
@@ -168,7 +168,7 @@ const vector<TestContext> test_contexts = {
 };
 
 
-vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<vector<int> >& logical_edges, const vector<vector<int> >& topological_edges)
+vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<Edge>& topological_edges)
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
@@ -194,20 +194,20 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 															views::iota(0, nr_input_rectangles) |
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			const vector<int>& adj_log_r = logical_edges[r];
-			const vector<int>& adj_topo_r = topological_edges[r];
+			const auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from) ;
+			const auto adj_topo_r = ranges::equal_range(topological_edges, r, ranges::less{}, &Edge::from);
 			
-			const vector<int>& adj_topo_eh = topological_edges[emplacement[h]];
+			const auto adj_topo_eh = ranges::equal_range(topological_edges, emplacement[h], ranges::less{}, &Edge::from);
 			
 			int inter=0, inter2=0, nb2=0;
-			for (int ar : adj_log_r)
+			for (const Edge& ar : adj_log_r)
 			{
-				if (ar != emplacement[ar])
+				if (ar.to != emplacement[ar.to])
 					nb2++;
-				if (ranges::count(adj_topo_eh, emplacement[ar]) != 0)
+				if (ranges::count(adj_topo_eh | views::transform(&Edge::to), emplacement[ar.to]) != 0)
 				{
 					inter++;
-					if (ar != emplacement[ar])
+					if (ar.to != emplacement[ar.to])
 						inter2++;
 				}
 			}
@@ -220,7 +220,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				&&
 				adj_log_r.size() <= 2
 				&&
-			   (ranges::count(adj_topo_r, emplacement[h])!=0 || depth==0)
+			   (ranges::count(adj_topo_r | views::transform(&Edge::to), emplacement[h])!=0 || depth==0)
 				 &&
 				inter >= 1
 			)
@@ -335,13 +335,6 @@ int main()
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
-		vector<Edge> topological_edges_ = topological_edges |
-										views::enumerate |
-										views::transform([](auto arg){auto [from, adj] = arg; return views::zip(views::repeat(from, adj.size()), adj);}) |
-										views::join |
-										views::transform([](auto arg){auto [from, to]=arg;return Edge{from,to};}) |	//TODO: find out if this line can be removed
-										ranges::to<vector>() ;		
-		
 		auto f=[&](int idx)->int{
 			vector<int> chemin;
 			for (int index=idx; index != -1; index = decision_tree[index].parent_index)
@@ -362,19 +355,14 @@ int main()
 				return ei;
 			};
 
-			vector<Edge> topo_edges, inter;		
+			vector<Edge> topo_edges = logical_edges |
+								views::transform([&](const Edge& e){return Edge{emplacement(e.from),emplacement(e.to)};}) |
+								ranges::to<vector>(), 
+				inter;		
 
-			for (int from=0; from<nr_input_rectangles; from++)
-			{
-				for (int to : logical_edges[from])
-				{
-					Edge te={emplacement(from),emplacement(to)};
-					topo_edges.push_back(te);
-				}
-			}
 			ranges::sort(topo_edges);
 					
-			ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter));
+			ranges::set_intersection(topo_edges, topological_edges, back_inserter(inter));
 			return inter.size();
 		};
 		
@@ -450,18 +438,14 @@ int main()
 				return ei;
 			};
 			
-			vector<Edge> topo_edges, inter;
-			for (int from=0; from<nr_input_rectangles; from++)
-			{
-				for (int to : logical_edges[from])
-				{
-					Edge te={expected_emplacement(from),expected_emplacement(to)};
-					topo_edges.push_back(te);
-				}
-			}
+			vector<Edge> topo_edges = logical_edges |
+					views::transform([&](const Edge& e){return Edge{expected_emplacement(e.from),expected_emplacement(e.to)};}) |
+					ranges::to<vector>(), 
+				inter;
+
 			ranges::sort(topo_edges);
 					
-			ranges::set_intersection(topo_edges, topological_edges_, back_inserter(inter));	
+			ranges::set_intersection(topo_edges, topological_edges, back_inserter(inter));	
 					
 			printf("expected result=%ld\n", inter.size());
 		}
