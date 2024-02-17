@@ -311,6 +311,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				dedup[i].index = size+i;
 			}				
 			
+			printf("floor_size=%d\n", floor_size);
+			printf("dedup.size()=%d\n", dedup.size());
+			
 			decision_tree.resize(size);
 			ranges::copy(dedup, back_inserter(decision_tree));
 		}
