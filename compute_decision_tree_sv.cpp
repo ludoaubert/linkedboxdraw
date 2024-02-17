@@ -184,11 +184,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 		vector<DecisionTreeNode> result;
 		
-		vector<int> chemin = walk_up_from(parent_index) | ranges::to<vector>();
-		
 		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		
-		for (int ix : chemin | views::reverse)
+		for (int ix : walk_up_from(parent_index) | ranges::to<vector>() | views::reverse)
 		{
 			const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
 			swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
@@ -280,11 +278,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			vector<Item> items;
 			for (int idx=size; idx<decision_tree.size(); idx++)
 			{
-				vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
-			
 				vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 				
-				for (int ix : chemin | views::reverse)
+				for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 				{
 					const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
 					swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
@@ -344,11 +340,9 @@ int main()
 		
 		auto f=[&](int idx)->int{
 
-			vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
-
 			auto emplacement = [&](int i){
 				int ei=i;
-				for (int idx : chemin | views::reverse)
+				for (int idx : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 				{
 					const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
 					if (i_emplacement_source==ei)
@@ -399,11 +393,9 @@ int main()
 		
 		for (int idx : views::iota(0,n))
 		{
-			vector<int> chemin = walk_up_from(idx) | ranges::to<vector>();
-
 			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 			
-			for (int ix : chemin | views::reverse)
+			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 			{
 				const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
 				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
