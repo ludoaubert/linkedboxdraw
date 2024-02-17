@@ -33,7 +33,7 @@ struct TestContext{
 	int nr_emplacements;
 	vector<Edge> logical_edges;
 	vector<Edge> topological_edges;
-	vector<DecisionTreeNode> expected_decision_tree;
+	vector<DecisionTreeNode> expected_decision;
 };
 
 
@@ -65,7 +65,7 @@ const vector<TestContext> test_contexts = {
 			{2, 0},{2, 1}
 		},
 
-		.expected_decision_tree = {
+		.expected_decision = {
 			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=2}
 		}
 	},
@@ -100,7 +100,7 @@ const vector<TestContext> test_contexts = {
 			{3,0},{3,1}
 		},
 
-		.expected_decision_tree = {
+		.expected_decision = {
 			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=3}
 		}
 	},
@@ -156,7 +156,7 @@ const vector<TestContext> test_contexts = {
 			{25,16},{25,21}//25
 		},
 		
-		.expected_decision_tree = {
+		.expected_decision = {
 			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=1, .i_emplacement_destination=15+3},
 			{.index=1, .parent_index=0, .depth=1, .i_emplacement_source=2, .i_emplacement_destination=1},
 			{.index=2, .parent_index=1, .depth=2, .i_emplacement_source=0, .i_emplacement_destination=15+8},
@@ -324,11 +324,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 int main()
 {
-	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision_tree] : test_contexts)
+	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision] : test_contexts)
 	{
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
-		
-		bool bOk = expected_decision_tree == decision_tree;
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
@@ -374,19 +372,28 @@ int main()
 		auto [min_score, max_score] = ranges::minmax(scores);
 		
 		printf("max_score=%d\n", max_score);
-#if 0		
+//#if 0
 		for (int best_idx : views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}))
 		{
 			printf("\n\nbest_idx=%d\n", best_idx);
 			
-			for (int idx : walk_up_from(best_idx))
+			for (int idx : walk_up_from(best_idx) | ranges::to<vector>() | views::reverse)
 			{
 				const DecisionTreeNode& n = decision_tree[idx];
-				int depth = ranges::distance(walk_up_from(n.parent_index));
-				printf("%.*s{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", depth, "\t\t\t\t\t\t\t\t\t\t", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
+				printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
 			}
 		}
-#endif
+//#endif
+
+		bool bOk = ranges::any_of(views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}),
+			[&](int best_idx){
+				auto decision = walk_up_from(best_idx) | ranges::to<vector>() | views::reverse | views::transform([&](int idx){return decision_tree[idx];}) ;
+				return ranges::equal(decision, expected_decision, {}, &DecisionTreeNode::i_emplacement_source, &DecisionTreeNode::i_emplacement_source) &&
+						ranges::equal(decision, expected_decision, {}, &DecisionTreeNode::i_emplacement_destination, &DecisionTreeNode::i_emplacement_destination);
+				});
+
+		printf("bOk=%s\n", bOk ? "true" : "false");
+
 		printf("\nstatistics on duplication:\n");
 		
 		unordered_map<string, int> distrib;
@@ -419,7 +426,7 @@ int main()
 		{
 			auto expected_emplacement = [&](int i){
 				int ei=i;
-				for (const DecisionTreeNode& n : expected_decision_tree)
+				for (const DecisionTreeNode& n : expected_decision)
 				{
 					if (n.i_emplacement_source==ei)
 						ei = n.i_emplacement_destination;
