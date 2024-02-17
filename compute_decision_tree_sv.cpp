@@ -202,13 +202,18 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 									
 		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
 		// we have to make sure we stay close to them. A little like an entropy measure (?)
+		
+            vector<int> moved_adj = adj_log_r |
+								views::transform(&Edge::to) |
+								views::filter([&](int s){return emplacement[s]!=s;}) |
+								views::transform([&](int s){return emplacement[s];}) |
+                                ranges::to<vector>();
+
+            ranges::sort(moved_adj);
 	
 			if ( (depth < 2 || (depth < 7 && ranges::contains_subrange(adj_topo_eh |
 																		views::transform(&Edge::to),
-																		adj_log_r |
-																		views::transform(&Edge::to) |
-																		views::filter([&](int s){return emplacement[s]!=s;}) |
-																		views::transform([&](int s){return emplacement[s];})
+																		moved_adj
 																		)
 								)
 				 ) 
