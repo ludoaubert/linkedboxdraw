@@ -339,24 +339,24 @@ int main()
 				co_yield index;
 			}		
 		};
+
+		auto idx_to_emplacement = [&](int idx){
+			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+			
+			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
+			{
+				const DecisionTreeNode& n = decision_tree[ix];
+				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+			}
+			return emplacement;
+		};
 		
 		auto f=[&](int idx)->int{
 
-			auto emplacement = [&](int i){
-				int ei=i;
-				for (int idx : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-				{
-					const DecisionTreeNode& n = decision_tree[idx];
-					if (n.i_emplacement_source==ei)
-						ei = n.i_emplacement_destination;
-					else if (n.i_emplacement_destination==ei)
-						ei = n.i_emplacement_source;
-				}
-				return ei;
-			};
+			vector<int> emplacement = idx_to_emplacement(idx);
 
 			vector<Edge> topo_edges = logical_edges |
-								views::transform([&](const Edge& e){return Edge{emplacement(e.from),emplacement(e.to)};}) |
+								views::transform([&](const Edge& e){return Edge{emplacement[e.from],emplacement[e.to]};}) |
 								ranges::to<vector>(), 
 				inter;		
 
@@ -387,17 +387,6 @@ int main()
 			}
 		}
 //#endif
-
-		auto idx_to_emplacement = [&](int idx){
-			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-			
-			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-			{
-				const DecisionTreeNode& n = decision_tree[ix];
-				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-			}
-			return emplacement;
-		};
 		
 		vector<int> expected_emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		for (const DecisionTreeNode &n : expected_decision)
