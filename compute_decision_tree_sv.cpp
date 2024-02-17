@@ -229,7 +229,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 			ranges::set_intersection(adj_topo_r, moved_adj, back_inserter(inter1));
 			ranges::set_intersection(adj_topo_eh, moved_adj, back_inserter(inter2));
 	
-			if ( (depth < 2 || (depth < 7 && inter1.size() <= inter2.size()) )
+			if ( (depth < 1 || (depth < 7 && inter1.size() <= inter2.size()) )
 				&&
 				adj_log_r.size() <= 2	/*do not move r if it has too many connections */
 			)
