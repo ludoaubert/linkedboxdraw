@@ -6,6 +6,7 @@
 #include <ranges>
 #include <generator>
 #include <execution>
+#include <format>
 #include <stdio.h>
 using namespace std;
 
@@ -402,7 +403,7 @@ int main()
 			}
 			
 			const string hex = emplacement | 
-					views::transform([](int i)->string{char buf[10]; sprintf(buf, "%x", i); return buf;}) |
+					views::transform([](int i){return format("{:#x}", i);}) |
 					views::join |
 					ranges::to<string>();
 
