@@ -188,8 +188,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 		
 		for (int ix : walk_up_from(parent_index) | ranges::to<vector>() | views::reverse)
 		{
-			const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
-			swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+			const DecisionTreeNode& n = decision_tree[ix];
+			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 		
 		for (auto const [h, r] : views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
@@ -282,8 +282,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 				
 				for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 				{
-					const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
-					swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+					const DecisionTreeNode& n = decision_tree[ix];
+					swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 				}
 
 				int n=0 ;
@@ -344,11 +344,11 @@ int main()
 				int ei=i;
 				for (int idx : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 				{
-					const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[idx];
-					if (i_emplacement_source==ei)
-						ei = i_emplacement_destination;
-					else if (i_emplacement_destination==ei)
-						ei = i_emplacement_source;
+					const DecisionTreeNode& n = decision_tree[idx];
+					if (n.i_emplacement_source==ei)
+						ei = n.i_emplacement_destination;
+					else if (n.i_emplacement_destination==ei)
+						ei = n.i_emplacement_source;
 				}
 				return ei;
 			};
@@ -397,8 +397,8 @@ int main()
 			
 			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 			{
-				const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] = decision_tree[ix];
-				swap(emplacement[i_emplacement_source], emplacement[i_emplacement_destination]);
+				const DecisionTreeNode& n = decision_tree[ix];
+				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 			}
 			
 			const string hex = emplacement | 
@@ -418,12 +418,12 @@ int main()
 		{
 			auto expected_emplacement = [&](int i){
 				int ei=i;
-				for (const auto& [index, parent_index, depth, i_emplacement_source, i_emplacement_destination] : expected_decision_tree)
+				for (const DecisionTreeNode& n : expected_decision_tree)
 				{
-					if (i_emplacement_source==ei)
-						ei = i_emplacement_destination;
-					else if (i_emplacement_destination==ei)
-						ei = i_emplacement_source;
+					if (n.i_emplacement_source==ei)
+						ei = n.i_emplacement_destination;
+					else if (n.i_emplacement_destination==ei)
+						ei = n.i_emplacement_source;
 				}
 				return ei;
 			};
