@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <ranges>
+#include <tuple>
 #include <generator>
 #include <execution>
 #include <format>
@@ -174,11 +175,15 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
-	const vector<int> adj_count = logical_edges |
+	const map<int,int> ac = logical_edges |
 									views::transform(&Edge::from) |
 									views::chunk_by(ranges::equal_to{}) |
-									views::transform([](const auto& r){return (int)r.size();}) |
-									ranges::to<vector>();
+									views::transform([](const auto& r){return make_tuple(r[0], (int)r.size());}) |
+									ranges::to<map>();
+									
+	const vector<int> adj_count = views::iota(0, nr_input_rectangles) |
+								views::transform([&](int r){return ac.contains(r) ? ac.at(r) : 0;}) |
+								ranges::to<vector>();
 	
 	auto walk_up_from = [&](int parent_index)->generator<int>{
 		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
