@@ -207,7 +207,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 																		views::transform(&Edge::to),
 																		adj_log_r |
 																		views::transform(&Edge::to) |
-																		views::filter([&](int s){return emplacement[s]!=s;})
+																		views::filter([&](int s){return emplacement[s]!=s;}) |
+																		views::transform([&](int s){return emplacement[s];})
 																		)
 								)
 				 ) 
