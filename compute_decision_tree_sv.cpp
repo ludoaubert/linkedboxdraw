@@ -174,6 +174,12 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {	
 	vector<DecisionTreeNode> decision_tree;
 	
+	const vector<int> adj_count = logical_edges |
+									views::transform(&Edge::from) |
+									views::chunk_by(ranges::equal_to{}) |
+									views::transform([](const auto& r){return (int)r.size();}) |
+									ranges::to<vector>();
+	
 	auto walk_up_from = [&](int parent_index)->generator<int>{
 		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
 		{
@@ -197,26 +203,28 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 															views::iota(0, nr_input_rectangles) |
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			const auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from) ;
-			const auto adj_topo_eh = ranges::equal_range(topological_edges, emplacement[h], ranges::less{}, &Edge::from);
+			const auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from) |
+									views::transform(&Edge::to) ;
+			const auto adj_topo_r = ranges::equal_range(topological_edges, r, ranges::less {}, &Edge::from) |
+									views::transform(&Edge::to) ;
+			const auto adj_topo_eh = ranges::equal_range(topological_edges, emplacement[h], ranges::less{}, &Edge::from) |
+									views::transform(&Edge::to) ;
 									
-		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
-		// we have to make sure we stay close to them. A little like an entropy measure (?)
+		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved or have too many connections to move (thus will not move again)
+		// we have to make sure r will stay close to them. A little like an entropy measure (?)
 		
             vector<int> moved_adj = adj_log_r |
-								views::transform(&Edge::to) |
-								views::filter([&](int s){return emplacement[s]!=s;}) |
+								views::filter([&](int s){return emplacement[s]!=s || (s < adj_count.size() && adj_count[s] > 2);}) |
 								views::transform([&](int s){return emplacement[s];}) |
                                 ranges::to<vector>();
 
             ranges::sort(moved_adj);
+			
+			vector<int> inter1, inter2;
+			ranges::set_intersection(adj_topo_r, moved_adj, back_inserter(inter1));
+			ranges::set_intersection(adj_topo_eh, moved_adj, back_inserter(inter2));
 	
-			if ( (depth < 2 || (depth < 7 && ranges::contains_subrange(adj_topo_eh |
-																		views::transform(&Edge::to),
-																		moved_adj
-																		)
-								)
-				 ) 
+			if ( (depth < 2 || (depth < 7 && inter1.size() <= inter2.size()) )
 				&&
 				adj_log_r.size() <= 2	/*do not move r if it has too many connections */
 			)
