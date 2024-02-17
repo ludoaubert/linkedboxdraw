@@ -385,12 +385,23 @@ int main()
 		}
 //#endif
 
+		auto idx_to_emplacement = [&](int idx){
+			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+			
+			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
+			{
+				const DecisionTreeNode& n = decision_tree[ix];
+				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+			}
+			return emplacement;
+		};
+		
+		vector<int> expected_emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+		for (const DecisionTreeNode &n : expected_decision)
+			swap(expected_emplacement[n.i_emplacement_source], expected_emplacement[n.i_emplacement_destination]);
+
 		bool bOk = ranges::any_of(views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}),
-			[&](int best_idx){
-				auto decision = walk_up_from(best_idx) | ranges::to<vector>() | views::reverse | views::transform([&](int idx){return decision_tree[idx];}) ;
-				return ranges::equal(decision, expected_decision, {}, &DecisionTreeNode::i_emplacement_source, &DecisionTreeNode::i_emplacement_source) &&
-						ranges::equal(decision, expected_decision, {}, &DecisionTreeNode::i_emplacement_destination, &DecisionTreeNode::i_emplacement_destination);
-				});
+									[&](int idx){return idx_to_emplacement(idx) == expected_emplacement;});
 
 		printf("bOk=%s\n", bOk ? "true" : "false");
 
@@ -400,16 +411,8 @@ int main()
 		map<int,int> stat;
 		
 		for (int idx : views::iota(0,n))
-		{
-			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-			
-			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-			{
-				const DecisionTreeNode& n = decision_tree[ix];
-				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-			}
-			
-			const string hex = emplacement | 
+		{			
+			const string hex = idx_to_emplacement(idx) | 
 					views::transform([](int i){return format("{:#x}", i);}) |
 					views::join |
 					ranges::to<string>();
