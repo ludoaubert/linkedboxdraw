@@ -400,10 +400,15 @@ int main()
 		for (const DecisionTreeNode &n : expected_decision)
 			swap(expected_emplacement[n.i_emplacement_source], expected_emplacement[n.i_emplacement_destination]);
 
-		bool bOk = ranges::any_of(views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}),
+		bool bOk1 = ranges::any_of(views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}),
 									[&](int idx){return idx_to_emplacement(idx) == expected_emplacement;});
 
-		printf("bOk=%s\n", bOk ? "true" : "false");
+		printf("bOk1=%s\n", bOk1 ? "true" : "false");
+		
+		bool bOk2 = ranges::any_of(views::iota(0,n),
+									[&](int idx){return idx_to_emplacement(idx) == expected_emplacement;});
+
+		printf("bOk2=%s\n", bOk2 ? "true" : "false");
 
 		printf("\nstatistics on duplication:\n");
 		
