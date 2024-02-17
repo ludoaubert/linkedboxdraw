@@ -250,7 +250,7 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 	auto build_decision_tree = [&](){
 		printf("enter build_decision_tree()\n");
 		
-		for (int depth=0; depth<=7; depth++)
+		for (int depth=0; depth<=2; depth++)
 		{	
 			int size = decision_tree.size();
 			
