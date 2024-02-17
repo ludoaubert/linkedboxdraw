@@ -198,49 +198,30 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
 			const auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from) ;
-			const auto adj_topo_r = ranges::equal_range(topological_edges, r, ranges::less{}, &Edge::from);
-			
 			const auto adj_topo_eh = ranges::equal_range(topological_edges, emplacement[h], ranges::less{}, &Edge::from);
-			
-			int inter=0, inter2=0, nb2=0;
-			for (const Edge& ar : adj_log_r)
-			{
-				if (ar.to != emplacement[ar.to])
-					nb2++;
-				if (ranges::count(adj_topo_eh | views::transform(&Edge::to), emplacement[ar.to]) != 0)
-				{
-					inter++;
-					if (ar.to != emplacement[ar.to])
-						inter2++;
-				}
-			}
 									
 		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved (thus will not move again)
-		// we have two make sure we stay close to them. A little like an entropy measure (?)
-
-			
-			if ( (depth < 2 || (depth < 7 && inter2==nb2)) 
+		// we have to make sure we stay close to them. A little like an entropy measure (?)
+	
+			if ( (depth < 2 || (depth < 7 && ranges::contains_subrange(adj_topo_eh |
+																		views::transform(&Edge::to),
+																		adj_log_r |
+																		views::transform(&Edge::to) |
+																		views::filter([&](int s){return emplacement[s]!=s;})
+																		)
+								)
+				 ) 
 				&&
-				adj_log_r.size() <= 2
-				&&
-			   (ranges::count(adj_topo_r | views::transform(&Edge::to), emplacement[h])!=0 || depth==0)
-				 &&
-				inter >= 1
+				adj_log_r.size() <= 2	/*do not move r if it has too many connections */
 			)
 			{
-				int index = result.size();
-				
-				const DecisionTreeNode n = {
-					.index = index,
+				result.push_back(DecisionTreeNode{
+					.index = result.size(),
 					.parent_index = parent_index,
 					.depth=depth,
 					.i_emplacement_source = r, 
 					.i_emplacement_destination = emplacement[h]
-				};
-
-				//printf("{.index=%d, .parent_index=%d, .depth=depth, .i_emplacement_source=%d, .i_emplacement_destination=%d}\n", index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-
-				result.push_back(n);
+				});
 			}
 		}
 
