@@ -1,10 +1,6 @@
 /*
 0-take a look at function compute_holes(). There seem to be various versions.
 1-first version: do not try to optimize the computation of emplacement.
-2-store the rectangles and holes in TextContext
-3-discard topological_edges.
-4-build the matrix of distances.
-5-store the sum of distances in DecisionTreeNode.
 */
 #include <algorithm>
 #include <functional>
@@ -50,7 +46,6 @@ struct TestContext{
 	int nr_emplacements;
 	vector<Edge> logical_edges;
 	vector<MyRect> input_rectangles, holes ;
-	vector<Edge> topological_edges;
 	vector<DecisionTreeNode> expected_decision;
 };
 
@@ -123,12 +118,6 @@ const vector<TestContext> test_contexts = {
 			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=100}
 		},
 
-		.topological_edges={
-			{0, 2},
-			{1, 2},
-			{2, 0},{2, 1}
-		},
-
 		.expected_decision = {
 			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=2}
 		}
@@ -166,13 +155,6 @@ const vector<TestContext> test_contexts = {
 		
 		.holes={
 			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=100}
-		},
-		
-		.topological_edges={
-			{0,3},
-			{1,2},{1,3},
-			{2,1},
-			{3,0},{3,1}
 		},
 
 		.expected_decision = {
@@ -233,35 +215,6 @@ const vector<TestContext> test_contexts = {
 			{.m_left=88,.m_right=130,.m_top=627,.m_bottom=724}
 		},
 
-		.topological_edges={
-			{0,3},{0,6},{0,17},{0,22},//0
-			{1,2},{1,7},{1,14},{1,15},{1,18},//1
-			{2,1},{2,4},{2,6},{2,7},{2,17},//2
-			{3,0},{3,4},{3,10},{3,17},{3,23},//3
-			{4,2},{4,3},{4,7},{4,10},{4,17},//4
-			{5,7},{5,10},{5,11},//5
-			{6,0},{6,2},{6,12},{6,13},{6,17},{6,22},//6
-			{7,1},{7,2},{7,4},{7,5},{7,8},{7,9},{7,11},{7,18},//7
-			{8,7},{8,14},{8,18},{8,19},{8,21},//8
-			{9,7},{9,11},{9,20},//9
-			{10,3},{10,4},{10,5},{10,23},//10
-			{11,5},{11,7},{11,9},{11,20},//11
-			{12,6},{12,13},{12,22},{12,24},//12
-			{13,6},{13,12},{13,14},{13,15},{13,16},//13
-			{14,1},{14,8},{14,13},{14,15},{14,16},{14,18},{14,21},//14
-			{15,1},{15,13},{15,14},//15
-			{16,13},{16,14},{16,25},//16
-			{17,0},{17,2},{17,3},{17,4},{17,6},//17
-			{18,1},{18,7},{18,8},{18,14},//18
-			{19,8},{19,21},//19
-			{20,9},{20,11},//20
-			{21,8},{21,14},{21,19},{21,25},//21
-			{22,0},{22,6},{22,12},{22,24},//22
-			{23,3},{23,10},//23
-			{24,12},{24,22},//24
-			{25,16},{25,21}//25
-		},
-		
 		.expected_decision = {
 			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=1, .i_emplacement_destination=15+3},
 			{.index=1, .parent_index=0, .depth=1, .i_emplacement_source=2, .i_emplacement_destination=1},
@@ -276,7 +229,7 @@ const vector<TestContext> test_contexts = {
 };
 
 
-vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes, const vector<Edge>& topological_edges)
+vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
 {
 //TODO: compute the distance matrix, to be used in the construction of the decision tree.
 	auto il = {input_rectangles, holes};
@@ -343,7 +296,10 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 						| views::transform(&DecisionTreeNode::index)
 						| ranges::to<vector>() ;
 						
-			//sort(indexes, 
+			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
+			if (indexes.size() > 1000)
+				indexes.resize(1000);
+			
 
 			if (depth==0)
 				indexes.push_back(-1);
@@ -413,9 +369,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 int main()
 {
-	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, topological_edges, expected_decision] : test_contexts)
+	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, expected_decision] : test_contexts)
 	{
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, topological_edges);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes);
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
@@ -425,118 +381,30 @@ int main()
 				co_yield index;
 			}		
 		};
-
-		auto idx_to_emplacement = [&](int idx){
-			vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-			
-			for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-			{
-				const DecisionTreeNode& n = decision_tree[ix];
-				swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-			}
-			return emplacement;
-		};
 		
-		auto f=[&](int idx)->int{
-
-			vector<int> emplacement = idx_to_emplacement(idx);
-
-			vector<Edge> topo_edges = logical_edges |
-								views::transform([&](const Edge& e){return Edge{emplacement[e.from],emplacement[e.to]};}) |
-								ranges::to<vector>(), 
-				inter;		
-
-			ranges::sort(topo_edges);
-					
-			ranges::set_intersection(topo_edges, topological_edges, back_inserter(inter));
-			return inter.size();
-		};
+		const DecisionTreeNode &bn = * ranges::min_element(decision_tree, {}, &DecisionTreeNode::sigma_edge_distance);
 		
-		int n = decision_tree.size();
-		vector<int> scores(n), 
-			indexes = views::iota(0,n) | ranges::to<vector>() ;
-		
-		transform(execution::par_unseq, begin(indexes), end(indexes), begin(scores), f);
-
-		auto [min_score, max_score] = ranges::minmax(scores);
-		
-		printf("max_score=%d\n", max_score);
-//#if 0
-		for (int best_idx : views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}))
+		for (int idx : walk_up_from(bn.index) | ranges::to<vector>() | views::reverse)
 		{
-			printf("\n\nbest_idx=%d\n", best_idx);
-			
-			for (int idx : walk_up_from(best_idx) | ranges::to<vector>() | views::reverse)
-			{
-				const DecisionTreeNode& n = decision_tree[idx];
-				printf("{.index=%d, .parent_index=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", n.index, n.parent_index, n.i_emplacement_source, n.i_emplacement_destination);
-			}
+			const DecisionTreeNode& n = decision_tree[idx];
+			printf("{.index=%d, .parent_index=%d, .depth=%d, .sigma_edge_distance=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", 
+					n.index, n.parent_index, n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
 		}
-//#endif
 		
 		vector<int> expected_emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		for (const DecisionTreeNode &n : expected_decision)
 			swap(expected_emplacement[n.i_emplacement_source], expected_emplacement[n.i_emplacement_destination]);
 
-		bool bOk1 = ranges::any_of(views::iota(0,n) | views::filter([&](int idx){return scores[idx]==max_score;}),
-									[&](int idx){return idx_to_emplacement(idx) == expected_emplacement;});
-
-		printf("bOk1=%s\n", bOk1 ? "true" : "false");
-		
-		bool bOk2 = ranges::any_of(views::iota(0,n),
-									[&](int idx){return idx_to_emplacement(idx) == expected_emplacement;});
-
-		printf("bOk2=%s\n", bOk2 ? "true" : "false");
-
-		printf("\nstatistics on duplication:\n");
-		
-		unordered_map<string, int> distrib;
-		map<int,int> stat;
-		
-		for (int idx : views::iota(0,n))
-		{			
-			const string hex = idx_to_emplacement(idx) | 
-					views::transform([](int i){return format("{:#x}", i);}) |
-					views::join |
-					ranges::to<string>();
-
-			distrib[hex]++;
-		}
-		
-		for (const auto [hex, count] : distrib)
-			stat[count]++;
-		
-		for (const auto [count, freq] : stat)
-			printf("count:%d, freq:%d\n", count, freq);
-
+		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+		for (int idx : walk_up_from(bn.index) | ranges::to<vector>() | views::reverse)
 		{
-			auto expected_emplacement = [&](int i){
-				int ei=i;
-				for (const DecisionTreeNode& n : expected_decision)
-				{
-					if (n.i_emplacement_source==ei)
-						ei = n.i_emplacement_destination;
-					else if (n.i_emplacement_destination==ei)
-						ei = n.i_emplacement_source;
-				}
-				return ei;
-			};
-			
-			vector<Edge> topo_edges = logical_edges |
-					views::transform([&](const Edge& e){return Edge{expected_emplacement(e.from),expected_emplacement(e.to)};}) |
-					ranges::to<vector>(), 
-				inter;
-
-			ranges::sort(topo_edges);
-					
-			ranges::set_intersection(topo_edges, topological_edges, back_inserter(inter));	
-					
-			printf("expected result=%ld\n", inter.size());
+			const DecisionTreeNode& n = decision_tree[idx];
+			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 		
-		int nb = ranges::count(scores, max_score);
-		
-		printf("\n\nranges::count(scores, %d)=%d\n", max_score, nb);
+		bool bOk1 = emplacement == expected_emplacement;
+
+		printf("bOk=%s\n", bOk1 ? "true" : "false");
 	}
 	return 0;
 }
