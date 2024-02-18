@@ -59,7 +59,7 @@ int distance_between_ranges(int left1, int right1, int left2, int right2)
 }
 
 
-float rectangle_distance(const MyRect& r1, const MyRect& r2)
+int rectangle_distance(const MyRect& r1, const MyRect& r2)
 {
 	if (r1.m_left > r2.m_right)
 	{
@@ -229,7 +229,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 	
 	const int N = rectangles.size();
 	
-	const vector<float> distance_matrix = views::cartesian_product(rectangles, rectangles) |
+	const vector<int> distance_matrix = views::cartesian_product(rectangles, rectangles) |
 										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
 										ranges::to<vector>();
 	
