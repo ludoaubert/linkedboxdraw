@@ -21,7 +21,7 @@ using namespace std;
 
 struct MyRect
 {
-	int m_left=0, m_right=0, m_top=0, m_bottom=0 ;
+	int m_left, m_right, m_top, m_bottom ;
 };
 
 
@@ -46,6 +46,7 @@ struct TestContext{
 	int nr_input_rectangles;
 	int nr_emplacements;
 	vector<Edge> logical_edges;
+	vector<MyRect> input_rectangles, holes ;
 	vector<Edge> topological_edges;
 	vector<DecisionTreeNode> expected_decision;
 };
@@ -109,6 +110,15 @@ const vector<TestContext> test_contexts = {
 			{0, 1},
 			{1, 0}
 		},
+		
+		.input_rectangles={
+			{.m_left=0, .m_right=100, .m_top=0, .m_bottom=50},
+			{.m_left=0, .m_right=100, .m_top=100, .m_bottom=150}
+		},
+		
+		.holes={
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=100}
+		},
 
 		.topological_edges={
 			{0, 2},
@@ -144,6 +154,17 @@ const vector<TestContext> test_contexts = {
 			{1,0},{1,2},
 			{2,1}
 		},
+		
+		.input_rectangles={
+			{.m_left=0, .m_right=100, .m_top=0, .m_bottom=50},
+			{.m_left=0, .m_right=100, .m_top=100, .m_bottom=150},
+			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=200}
+		},
+		
+		.holes={
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=100}
+		},
+		
 		.topological_edges={
 			{0,3},
 			{1,2},{1,3},
@@ -178,36 +199,36 @@ const vector<TestContext> test_contexts = {
 			{14,13}
 		},
 		
-"input_rectangles":[
-	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
-	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
-	{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
-	{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
-	{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
-	{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
-	{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
-	{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
-	{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
-	{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
-	{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
-	{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
-	{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
-	{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
-	{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
-]
-"holes":[
-	{.m_left=283,.m_right=330,.m_top=340,.m_bottom=451},
-	{.m_left=88,.m_right=130,.m_top=451,.m_bottom=627},
-	{.m_left=463,.m_right=608,.m_top=164,.m_bottom=228},
-	{.m_left=345,.m_right=552,.m_top=451,.m_bottom=516},
-	{.m_left=345,.m_right=553,.m_top=676,.m_bottom=724},
-	{.m_left=566,.m_right=753,.m_top=660,.m_bottom=724},
-	{.m_left=130,.m_right=345,.m_top=627,.m_bottom=724},
-	{.m_left=283,.m_right=406,.m_top=20,.m_bottom=164},
-	{.m_left=774,.m_right=947,.m_top=20,.m_bottom=196},
-	{.m_left=103,.m_right=283,.m_top=20,.m_bottom=163},
-	{.m_left=88,.m_right=130,.m_top=627,.m_bottom=724}
-]
+		.input_rectangles={
+			{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+			{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+			{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+			{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+			{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+			{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+			{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+			{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+			{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
+			{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+			{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+			{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
+		}
+		.holes={
+			{.m_left=283,.m_right=330,.m_top=340,.m_bottom=451},
+			{.m_left=88,.m_right=130,.m_top=451,.m_bottom=627},
+			{.m_left=463,.m_right=608,.m_top=164,.m_bottom=228},
+			{.m_left=345,.m_right=552,.m_top=451,.m_bottom=516},
+			{.m_left=345,.m_right=553,.m_top=676,.m_bottom=724},
+			{.m_left=566,.m_right=753,.m_top=660,.m_bottom=724},
+			{.m_left=130,.m_right=345,.m_top=627,.m_bottom=724},
+			{.m_left=283,.m_right=406,.m_top=20,.m_bottom=164},
+			{.m_left=774,.m_right=947,.m_top=20,.m_bottom=196},
+			{.m_left=103,.m_right=283,.m_top=20,.m_bottom=163},
+			{.m_left=88,.m_right=130,.m_top=627,.m_bottom=724}
+		},
 
 		.topological_edges={
 			{0,3},{0,6},{0,17},{0,22},//0
@@ -252,8 +273,11 @@ const vector<TestContext> test_contexts = {
 };
 
 
-vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<Edge>& topological_edges)
-{	
+vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes, const vector<Edge>& topological_edges)
+{
+//TODO: compute the distance matrix, to be used in the construction of the decision tree.
+//	vector<MyRect> rectangles = {input_rectangles, holes} | views::join | ranges::to<vector>();
+	
 	vector<DecisionTreeNode> decision_tree;
 	
 	const map<int,int> ac = logical_edges |
@@ -408,9 +432,9 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 int main()
 {
-	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, topological_edges, expected_decision] : test_contexts)
+	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, topological_edges, expected_decision] : test_contexts)
 	{
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, topological_edges);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, topological_edges);
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
