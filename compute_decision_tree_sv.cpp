@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <string>
 #include <ranges>
+#include <initializer_list>
 #include <tuple>
 #include <generator>
 #include <execution>
@@ -276,7 +277,8 @@ const vector<TestContext> test_contexts = {
 vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes, const vector<Edge>& topological_edges)
 {
 //TODO: compute the distance matrix, to be used in the construction of the decision tree.
-//	vector<MyRect> rectangles = {input_rectangles, holes} | views::join | ranges::to<vector>();
+	auto il = {input_rectangles, holes};
+	vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
 	
 	vector<DecisionTreeNode> decision_tree;
 	
