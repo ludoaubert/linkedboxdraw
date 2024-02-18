@@ -19,6 +19,11 @@
 #include <stdio.h>
 using namespace std;
 
+struct MyRect
+{
+	int m_left=0, m_right=0, m_top=0, m_bottom=0 ;
+};
+
 
 struct Edge {
 	int from;
@@ -44,6 +49,43 @@ struct TestContext{
 	vector<Edge> topological_edges;
 	vector<DecisionTreeNode> expected_decision;
 };
+
+
+int distance_between_ranges(int left1, int right1, int left2, int right2)
+{
+	if (left2 > right1)
+		return left2 - right1 ;
+	else if (left1 > right2)
+		return left1 - right2 ;
+	else
+		return 0 ;
+}
+
+
+float rectangle_distance(const MyRect& r1, const MyRect& r2)
+{
+	if (r1.m_left > r2.m_right)
+	{
+		return r1.m_left - r2.m_right + distance_between_ranges(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
+	}
+	else if (r1.m_right < r2.m_left)
+	{
+		return r2.m_left - r1.m_right + distance_between_ranges(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
+	}
+	else if (r1.m_top > r2.m_bottom)
+	{
+		return r1.m_top - r2.m_bottom + distance_between_ranges(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
+	}
+	else if (r1.m_bottom < r2.m_top)
+	{
+		return r2.m_top - r1.m_bottom + distance_between_ranges(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
+	}
+	else
+	{
+//the two rectangles intersect.
+		return 0 ;
+	}
+}
 
 
 const vector<TestContext> test_contexts = {
@@ -137,34 +179,34 @@ const vector<TestContext> test_contexts = {
 		},
 		
 "input_rectangles":[
-	{"m_left":406, "m_right":608, "m_top":20, "m_bottom":164},
-	{"m_left":330, "m_right":552, "m_top":340, "m_bottom":451},
-	{"m_left":463, "m_right":608, "m_top":228, "m_bottom":340},
-	{"m_left":608, "m_right":774, "m_top":20, "m_bottom":212},
-	{"m_left":608, "m_right":774, "m_top":212, "m_bottom":340},
-	{"m_left":760, "m_right":947, "m_top":356, "m_bottom":516},
-	{"m_left":283, "m_right":463, "m_top":164, "m_bottom":324},
-	{"m_left":552, "m_right":760, "m_top":340, "m_bottom":516},
-	{"m_left":345, "m_right":553, "m_top":516, "m_bottom":676},
-	{"m_left":566, "m_right":753, "m_top":516, "m_bottom":660},
-	{"m_left":774, "m_right":947, "m_top":196, "m_bottom":356},
-	{"m_left":753, "m_right":940, "m_top":516, "m_bottom":724},
-	{"m_left":103, "m_right":283, "m_top":163, "m_bottom":291},
-	{"m_left":88, "m_right":283, "m_top":291, "m_bottom":451},
-	{"m_left":130, "m_right":345, "m_top":451, "m_bottom":627}
+	{.m_left=406, .m_right=608, .m_top=20, .m_bottom=164},
+	{.m_left=330, .m_right=552, .m_top=340, .m_bottom=451},
+	{.m_left=463, .m_right=608, .m_top=228, .m_bottom=340},
+	{.m_left=608, .m_right=774, .m_top=20, .m_bottom=212},
+	{.m_left=608, .m_right=774, .m_top=212, .m_bottom=340},
+	{.m_left=760, .m_right=947, .m_top=356, .m_bottom=516},
+	{.m_left=283, .m_right=463, .m_top=164, .m_bottom=324},
+	{.m_left=552, .m_right=760, .m_top=340, .m_bottom=516},
+	{.m_left=345, .m_right=553, .m_top=516, .m_bottom=676},
+	{.m_left=566, .m_right=753, .m_top=516, .m_bottom=660},
+	{.m_left=774, .m_right=947, .m_top=196, .m_bottom=356},
+	{.m_left=753, .m_right=940, .m_top=516, .m_bottom=724},
+	{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
+	{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
+	{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
 ]
 "holes":[
-	{"m_left":283,"m_right":330,"m_top":340,"m_bottom":451},
-	{"m_left":88,"m_right":130,"m_top":451,"m_bottom":627},
-	{"m_left":463,"m_right":608,"m_top":164,"m_bottom":228},
-	{"m_left":345,"m_right":552,"m_top":451,"m_bottom":516},
-	{"m_left":345,"m_right":553,"m_top":676,"m_bottom":724},
-	{"m_left":566,"m_right":753,"m_top":660,"m_bottom":724},
-	{"m_left":130,"m_right":345,"m_top":627,"m_bottom":724},
-	{"m_left":283,"m_right":406,"m_top":20,"m_bottom":164},
-	{"m_left":774,"m_right":947,"m_top":20,"m_bottom":196},
-	{"m_left":103,"m_right":283,"m_top":20,"m_bottom":163},
-	{"m_left":88,"m_right":130,"m_top":627,"m_bottom":724}
+	{.m_left=283,.m_right=330,.m_top=340,.m_bottom=451},
+	{.m_left=88,.m_right=130,.m_top=451,.m_bottom=627},
+	{.m_left=463,.m_right=608,.m_top=164,.m_bottom=228},
+	{.m_left=345,.m_right=552,.m_top=451,.m_bottom=516},
+	{.m_left=345,.m_right=553,.m_top=676,.m_bottom=724},
+	{.m_left=566,.m_right=753,.m_top=660,.m_bottom=724},
+	{.m_left=130,.m_right=345,.m_top=627,.m_bottom=724},
+	{.m_left=283,.m_right=406,.m_top=20,.m_bottom=164},
+	{.m_left=774,.m_right=947,.m_top=20,.m_bottom=196},
+	{.m_left=103,.m_right=283,.m_top=20,.m_bottom=163},
+	{.m_left=88,.m_right=130,.m_top=627,.m_bottom=724}
 ]
 
 		.topological_edges={
