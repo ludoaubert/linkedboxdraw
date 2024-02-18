@@ -7,6 +7,7 @@
 5-store the sum of distances in DecisionTreeNode.
 */
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -38,6 +39,7 @@ struct DecisionTreeNode
 	int index=0;
 	int parent_index=-1;
 	int depth;
+	int sigma_edge_distance;
 	int i_emplacement_source, i_emplacement_destination;
 	
 	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
@@ -216,7 +218,7 @@ const vector<TestContext> test_contexts = {
 			{.m_left=103, .m_right=283, .m_top=163, .m_bottom=291},
 			{.m_left=88, .m_right=283, .m_top=291, .m_bottom=451},
 			{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
-		}
+		},
 		.holes={
 			{.m_left=283,.m_right=330,.m_top=340,.m_bottom=451},
 			{.m_left=88,.m_right=130,.m_top=451,.m_bottom=627},
@@ -278,19 +280,15 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 {
 //TODO: compute the distance matrix, to be used in the construction of the decision tree.
 	auto il = {input_rectangles, holes};
-	vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
+	const vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
+	
+	const int N = rectangles.size();
+	
+	const vector<float> distance_matrix = views::cartesian_product(rectangles, rectangles) |
+										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
+										ranges::to<vector>();
 	
 	vector<DecisionTreeNode> decision_tree;
-	
-	const map<int,int> ac = logical_edges |
-									views::transform(&Edge::from) |
-									views::chunk_by(ranges::equal_to{}) |
-									views::transform([](const auto& r){return make_tuple(r[0], (int)r.size());}) |
-									ranges::to<map>();
-									
-	const vector<int> adj_count = views::iota(0, nr_input_rectangles) |
-								views::transform([&](int r){return ac.contains(r) ? ac.at(r) : 0;}) |
-								ranges::to<vector>();
 	
 	auto walk_up_from = [&](int parent_index)->generator<int>{
 		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
@@ -315,40 +313,19 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 															views::iota(0, nr_input_rectangles) |
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			const auto adj_log_r = ranges::equal_range(logical_edges, r, ranges::less {}, &Edge::from) |
-									views::transform(&Edge::to) ;
-			const auto adj_topo_r = ranges::equal_range(topological_edges, r, ranges::less {}, &Edge::from) |
-									views::transform(&Edge::to) ;
-			const auto adj_topo_eh = ranges::equal_range(topological_edges, emplacement[h], ranges::less{}, &Edge::from) |
-									views::transform(&Edge::to) ;
-									
-		// when we are late in the process (depth is high), rectangles in adj_log_r which have already been moved or have too many connections to move (thus will not move again)
-		// we have to make sure r will stay close to them. A little like an entropy measure (?)
-		
-            vector<int> moved_adj = adj_log_r |
-								views::filter([&](int s){return emplacement[s]!=s || (s < adj_count.size() && adj_count[s] > 2);}) |
-								views::transform([&](int s){return emplacement[s];}) |
-                                ranges::to<vector>();
-
-            ranges::sort(moved_adj);
+			vector<int> emplacement_ = emplacement ;
+			swap(emplacement_[r], emplacement_[emplacement[h]]);
 			
-			vector<int> inter1, inter2;
-			ranges::set_intersection(adj_topo_r, moved_adj, back_inserter(inter1));
-			ranges::set_intersection(adj_topo_eh, moved_adj, back_inserter(inter2));
-	
-			if ( (depth < 2 || (depth < 7 && inter1.size() <= inter2.size()) )
-				&&
-				adj_log_r.size() <= 2	/*do not move r if it has too many connections */
-			)
-			{
-				result.push_back(DecisionTreeNode{
-					.index = result.size(),
-					.parent_index = parent_index,
-					.depth=depth,
-					.i_emplacement_source = r, 
-					.i_emplacement_destination = emplacement[h]
-				});
-			}
+			int sigma_edge_distance = ranges::fold_left(logical_edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
+				
+			result.push_back(DecisionTreeNode{
+				.index = result.size(),
+				.parent_index = parent_index,
+				.depth=depth,
+				.sigma_edge_distance = sigma_edge_distance,
+				.i_emplacement_source = r, 
+				.i_emplacement_destination = emplacement[h]
+			});
 		}
 
 		return result;
@@ -365,6 +342,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 						| views::filter([&](const DecisionTreeNode& n){return n.depth==depth-1;})
 						| views::transform(&DecisionTreeNode::index)
 						| ranges::to<vector>() ;
+						
+			//sort(indexes, 
 
 			if (depth==0)
 				indexes.push_back(-1);
