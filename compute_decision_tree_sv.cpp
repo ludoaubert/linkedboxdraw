@@ -259,7 +259,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
 			vector<int> emplacement_ = emplacement ;
-			swap(emplacement_[r], emplacement_[emplacement[h]]);
+			swap(emplacement_[r], emplacement_[h]);
 			
 			int sigma_edge_distance = ranges::fold_left(logical_edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
 				
