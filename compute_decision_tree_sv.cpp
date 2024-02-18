@@ -42,8 +42,6 @@ struct DecisionTreeNode
 };
 
 struct TestContext{
-	int nr_input_rectangles;
-	int nr_emplacements;
 	vector<Edge> logical_edges;
 	vector<MyRect> input_rectangles, holes ;
 	vector<DecisionTreeNode> expected_decision;
@@ -101,9 +99,6 @@ const vector<TestContext> test_contexts = {
 				  0,  1,  2
 */
 	{
-		.nr_input_rectangles = 2,
-		.nr_emplacements = 3,
-		
 		.logical_edges={
 			{0, 1},
 			{1, 0}
@@ -138,9 +133,6 @@ const vector<TestContext> test_contexts = {
 				  0,  1,  2,  3
 */
 	{
-		.nr_input_rectangles = 3,
-		.nr_emplacements = 4,
-		
 		.logical_edges={
 			{0,1},
 			{1,0},{1,2},
@@ -163,9 +155,6 @@ const vector<TestContext> test_contexts = {
 	},
 	
 	{
-		.nr_input_rectangles = 15,
-		.nr_emplacements = 15 + 11,
-		
 		.logical_edges={
 			{0,3},
 			{1,7},
@@ -229,11 +218,14 @@ const vector<TestContext> test_contexts = {
 };
 
 
-vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_emplacements, const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
+vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
 {
-//TODO: compute the distance matrix, to be used in the construction of the decision tree.
+	const int nr_input_rectangles = input_rectangles.size();
+
 	auto il = {input_rectangles, holes};
 	const vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
+	
+	const int nr_emplacements = rectangles.size();
 	
 	const int N = rectangles.size();
 	
@@ -297,8 +289,8 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 						| ranges::to<vector>() ;
 						
 			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
-			if (indexes.size() > 1000)
-				indexes.resize(1000);
+			if (indexes.size() > 2000)
+				indexes.resize(2000);
 			
 
 			if (depth==0)
@@ -369,9 +361,11 @@ vector<DecisionTreeNode> compute_decision_tree(int nr_input_rectangles, int nr_e
 
 int main()
 {
-	for (const auto& [nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes, expected_decision] : test_contexts)
+	for (const auto& [logical_edges, input_rectangles, holes, expected_decision] : test_contexts)
 	{
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(nr_input_rectangles, nr_emplacements, logical_edges, input_rectangles, holes);
+		const int nr_emplacements = input_rectangles.size() + holes.size();
+		
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
