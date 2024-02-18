@@ -269,7 +269,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 				.depth=depth,
 				.sigma_edge_distance = sigma_edge_distance,
 				.i_emplacement_source = r, 
-				.i_emplacement_destination = emplacement[h]
+				.i_emplacement_destination = h
 			});
 		}
 
@@ -378,23 +378,19 @@ int main()
 		
 		const DecisionTreeNode &bn = * ranges::min_element(decision_tree, {}, &DecisionTreeNode::sigma_edge_distance);
 		
+		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+		
 		for (int idx : walk_up_from(bn.index) | ranges::to<vector>() | views::reverse)
 		{
 			const DecisionTreeNode& n = decision_tree[idx];
 			printf("{.index=%d, .parent_index=%d, .depth=%d, .sigma_edge_distance=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", 
-					n.index, n.parent_index, n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
+					n.index, n.parent_index, n.depth, n.sigma_edge_distance, emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 		
 		vector<int> expected_emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		for (const DecisionTreeNode &n : expected_decision)
 			swap(expected_emplacement[n.i_emplacement_source], expected_emplacement[n.i_emplacement_destination]);
-
-		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-		for (int idx : walk_up_from(bn.index) | ranges::to<vector>() | views::reverse)
-		{
-			const DecisionTreeNode& n = decision_tree[idx];
-			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-		}
 		
 		bool bOk1 = emplacement == expected_emplacement;
 
