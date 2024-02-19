@@ -640,6 +640,8 @@ enum TrimMirrorDirection
 	TILTED_MIRROR
 };
 
+const int NR_TRIM_MIRROR_DIRECTIONS=3;
+
 enum MirroringState
 {
 	ACTIVE,
@@ -655,18 +657,22 @@ struct TrimMirror{
 
 /*
 auto rg = views::iota(0, NR_MIRRORING_STATES);
-for (const auto [i, j, k] : views::cartesian_product(rg, rg, rg))
-{
-    printf("%d %d %d\n", i, j, k);
-	const int states[3] = {i, j, k};
-	vector<TrimMirror> trim_mirrors = views::iota(0,3) |
-									views::transform([&](int i){return TrimMirror{
-																		.mirroring_state=(MirroringState)states[i],
-																		.mirroring_direction=(TrimMirrorDirection)i
-																		};
-																}
+
+vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, rg, rg) |
+											views::transform([](auto arg){
+												const auto [i, j, k]=arg;
+												return views::iota(0, NR_TRIM_MIRROR_DIRECTIONS) |
+														views::transform([&](int i){return TrimMirror{
+															.mirroring_state=(MirroringState)states[i],
+															.mirroring_direction=(TrimMirrorDirection)i
+															};
+															}
 													) | ranges::to<vector>();
-}
+											}
+											) |
+											ranges::to<vector>();
+
+
 //use above cartesian product instead of const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={...}
 */
 
