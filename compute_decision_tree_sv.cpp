@@ -5,12 +5,9 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
-#include <map>
-#include <unordered_map>
 #include <string>
 #include <ranges>
 #include <initializer_list>
-#include <tuple>
 #include <generator>
 #include <execution>
 #include <format>
@@ -100,8 +97,8 @@ const vector<TestContext> test_contexts = {
 */
 	{
 		.logical_edges={
-			{0, 1},
-			{1, 0}
+			{.from=0, .to=1},
+			{.from=1, .to=0}
 		},
 		
 		.input_rectangles={
@@ -134,9 +131,9 @@ const vector<TestContext> test_contexts = {
 */
 	{
 		.logical_edges={
-			{0,1},
-			{1,0},{1,2},
-			{2,1}
+			{.from=0,.to=1},
+			{.from=1,.to=0},{.from=1,.to=2},
+			{.from=2,.to=1}
 		},
 		
 		.input_rectangles={
@@ -156,21 +153,21 @@ const vector<TestContext> test_contexts = {
 	
 	{
 		.logical_edges={
-			{0,3},
-			{1,7},
-			{2,7},
-			{3,0},{3,4},
-			{4,3},{4,7},
-			{5,7},
-			{6,7},{6,12},
-			{7,1},{7,2},{7,4},{7,5},{7,6},{7,8},{7,9},{7,10},{7,11},
-			{8,7},
-			{9,7},
-			{10,7},
-			{11,7},
-			{12,6},{12,13},
-			{13,12},{13,14},
-			{14,13}
+			{.from=0,.to=3},
+			{.from=1,.to=7},
+			{.from=2,.to=7},
+			{.from=3,.to=0},{.from=3,.to=4},
+			{.from=4,.to=3},{.from=4,.to=7},
+			{.from=5,.to=7},
+			{.from=6,.to=7},{.from=6,.to=12},
+			{.from=7,.to=1},{.from=7,.to=2},{.from=7,.to=4},{.from=7,.to=5},{.from=7,.to=6},{.from=7,.to=8},{.from=7,.to=9},{.from=7,.to=10},{.from=7,.to=11},
+			{.from=8,.to=7},
+			{.from=9,.to=7},
+			{.from=10,.to=7},
+			{.from=11,.to=7},
+			{.from=12,.to=6},{.from=12,.to=13},
+			{.from=13,.to=12},{.from=13,.to=14},
+			{.from=14,.to=13}
 		},
 		
 		.input_rectangles={
