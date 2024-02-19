@@ -334,12 +334,12 @@ const vector<TestInput> test_input={
 {
 	.testid=3,
         .input_rectangles = {
-                {.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=690+RECT_BORDER},
-                {.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=866+RECT_BORDER},
-                {.m_left=169-RECT_BORDER,.m_right=288+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=706+RECT_BORDER},
-                {.m_left=328-RECT_BORDER,.m_right=482+RECT_BORDER,.m_top=618-RECT_BORDER,.m_bottom=818+RECT_BORDER},
-                {.m_left=564-RECT_BORDER,.m_right=718+RECT_BORDER,.m_top=138-RECT_BORDER,.m_bottom=338+RECT_BORDER},
-                {.m_left=564-RECT_BORDER,.m_right=690+RECT_BORDER,.m_top=378-RECT_BORDER,.m_bottom=578+RECT_BORDER},
+		{.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=690+RECT_BORDER},
+		{.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=866+RECT_BORDER},
+		{.m_left=169-RECT_BORDER,.m_right=288+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=706+RECT_BORDER},
+		{.m_left=328-RECT_BORDER,.m_right=482+RECT_BORDER,.m_top=618-RECT_BORDER,.m_bottom=818+RECT_BORDER},
+		{.m_left=564-RECT_BORDER,.m_right=718+RECT_BORDER,.m_top=138-RECT_BORDER,.m_bottom=338+RECT_BORDER},
+		{.m_left=564-RECT_BORDER,.m_right=690+RECT_BORDER,.m_top=378-RECT_BORDER,.m_bottom=578+RECT_BORDER},
 		{.m_left=370-RECT_BORDER,.m_right=524+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
 		{.m_left=176-RECT_BORDER,.m_right=330+RECT_BORDER,.m_top=250-RECT_BORDER,.m_bottom=338+RECT_BORDER},
 		{.m_left=176-RECT_BORDER,.m_right=330+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=210+RECT_BORDER},
