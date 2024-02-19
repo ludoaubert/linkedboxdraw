@@ -646,24 +646,26 @@ enum MirroringState
 	IDLE
 };
 
+const int NR_MIRRORING_STATES=2;
+
 struct TrimMirror{
 	MirroringState mirroring_state;
 	TrimMirrorDirection mirroring_direction;
 };
 
 /*
-const MirroringState MirroringStates[2]={ACTIVE,IDLE};
-for (const auto [s1, s2, s3] : views::cartesian_product(MirroringStates, MirroringStates, MirroringStates))
+auto rg = views::iota(0, NR_MIRRORING_STATES);
+for (const auto [i, j, k] : views::cartesian_product(rg, rg, rg))
 {
-	const MirroringState states[3] = {s1, s2, s3};
+    printf("%d %d %d\n", i, j, k);
+	const int states[3] = {i, j, k};
 	vector<TrimMirror> trim_mirrors = views::iota(0,3) |
 									views::transform([&](int i){return TrimMirror{
-																		.mirroring_state=states[i],
+																		.mirroring_state=(MirroringState)states[i],
 																		.mirroring_direction=(TrimMirrorDirection)i
 																		};
 																}
 													) | ranges::to<vector>();
-	...
 }
 //use above cartesian product instead of const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={...}
 */
