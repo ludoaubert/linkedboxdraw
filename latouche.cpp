@@ -658,16 +658,17 @@ struct TrimMirror{
 /*
 auto rg = views::iota(0, NR_MIRRORING_STATES);
 
-vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, rg, rg) |
+const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, rg, rg) |
 											views::transform([](auto arg){
 												const auto [i, j, k]=arg;
-												return views::iota(0, NR_TRIM_MIRROR_DIRECTIONS) |
-														views::transform([&](int i){return TrimMirror{
-															.mirroring_state=(MirroringState)states[i],
-															.mirroring_direction=(TrimMirrorDirection)i
+												int states[3] = { i, j, k } ;
+												array<TrimMirror, 3> a;
+												for (int k=0; k<3; k++)
+													a[k] = TrimMirror{
+															.mirroring_state=(MirroringState)states[k],
+															.mirroring_direction=(TrimMirrorDirection)k
 															};
-															}
-													) | ranges::to<vector>();
+												return a;
 											}
 											) |
 											ranges::to<vector>();
