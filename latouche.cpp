@@ -653,14 +653,13 @@ struct TrimMirror{
 
 /*
 const MirroringState MirroringStates[2]={ACTIVE,IDLE};
-const TrimMirrorDirections[3]={HORIZONTAL_MIRROR,VERTICAL_MIRROR,TILTED_MIRROR};
 for (const auto [s1, s2, s3] : views::cartesian_product(MirroringStates, MirroringStates, MirroringStates))
 {
 	const MirroringState states[3] = {s1, s2, s3};
 	vector<TrimMirror> trim_mirrors = views::iota(0,3) |
 									views::transform([&](int i){return TrimMirror{
 																		.mirroring_state=states[i],
-																		.mirroring_direction=TrimMirrorDirections[i]
+																		.mirroring_direction=(TrimMirrorDirection)i
 																		};
 																}
 													) | ranges::to<vector>();
