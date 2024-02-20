@@ -45,6 +45,8 @@ enum RectDim
 struct MyRect
 {
 	int m_left, m_right, m_top, m_bottom ;
+	
+	friend bool operator==(const MyRect&, const MyRect&) = default;
 };
 
 inline int width(const MyRect& r)
@@ -1100,7 +1102,7 @@ const vector<RectTrimTestContext> rect_trim_test_contexts={
 
 void test_rect_trim()
 {
-	for (const auto [testid, r, input_rectangles, expected] : rect_trim_test_contexts)
+	for (const auto& [testid, r, input_rectangles, expected] : rect_trim_test_contexts)
 	{
 		MyRect result = trimmed(r, input_rectangles);
 		D(printf("result={.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", result.m_left, result.m_right, result.m_top, result.m_bottom));
