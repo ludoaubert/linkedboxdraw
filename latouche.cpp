@@ -886,14 +886,15 @@ struct TrimProcessSelector
 
 //TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
 
-const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(
-																views::iota(0, NR_TRIM_ALGO),
-																views::iota(0, NR_TRIM_MIRRORING_OPTIONS)
-															) | views::transform([](int arg){
+auto rg1 = views::iota(0, NR_TRIM_ALGO), rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
+
+const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(rg1, rg2) |
+															views::transform([](int arg){
 																	const auto [trim_algo, mirroring]=arg;
 																	return TrimProcessSelector{trim_algo, mirroring};
 																	}
-															) | ranges::to<vector>() ;
+															) |
+															ranges::to<vector>() ;
 
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
