@@ -585,14 +585,14 @@ const vector<TranslationRangesTestContext> TRTestContexts={
 {
 	.testid=0,
 	.decision_tree={
-		{.i=822, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=0, .i_emplacement_destination=41}, .match=24}
+		{.index=822, .parent_index=-1, .depth=0, .sigma_edge_distance=0, .i_emplacement_source=0, .i_emplacement_destination=41}
 	},
 	.expected_translation_ranges={}
 },
 {
 	.testid=1,
 	.decision_tree={
-		{.i=3492, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=5, .i_emplacement_destination=33}, .match=24}
+		{.index=3492, .parent_index=-1, .depth=0, .sigma_edge_distance=0, .i_emplacement_source=5, .i_emplacement_destination=33}
 	},
 	.expected_translation_ranges={}
 },
