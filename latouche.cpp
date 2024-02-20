@@ -54,6 +54,36 @@ struct MyRect
 	int m_left, m_right, m_top, m_bottom ;
 	
 	friend bool operator==(const MyRect&, const MyRect&) = default;
+	
+	inline int operator[](RectDim rd) const
+	{
+		switch(rd)
+		{
+		case LEFT:
+			return m_left;
+		case RIGHT:
+			return m_right;
+		case TOP:
+			return m_top;
+		case BOTTOM:
+			return m_bottom;
+		}
+	}
+
+	inline int& operator[](RectDim rd)
+	{
+		switch(rd)
+		{
+		case LEFT:
+				return m_left;
+		case RIGHT:
+				return m_right;
+		case TOP:
+				return m_top;
+		case BOTTOM:
+				return m_bottom;
+		}
+	}	
 };
 
 inline int width(const MyRect& r)
