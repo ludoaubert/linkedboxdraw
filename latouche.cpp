@@ -12,10 +12,6 @@
 #include <sys/stat.h>
 #include <filesystem>
 #include <cstring>
-//#include <fmt/ranges.h>
-//#include <format>
-//#include "FunctionTimer.h"
-//#include "MyRect.h"
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -106,25 +102,6 @@ struct Edge {
 //Cf compute_box_rectangles.js
 const int RECTANGLE_BOTTOM_CAP=200;
 
-
-struct LogicalEdge {
-	int from;
-	int to;
-
-	friend auto operator<=>(const LogicalEdge&, const LogicalEdge&) = default;
-};
-
-
-struct TopologicalEdge {
-	int from;
-	int to;
-	int distance;
-
-	friend auto operator<=>(const TopologicalEdge&, const TopologicalEdge&) = default;
-};
-
-
-//	lightweight node
 
 const unsigned BITSET_MAX_SIZE=128;
 
@@ -233,7 +210,7 @@ struct TestInput
 	int testid;
 	vector<MyRect> input_rectangles;
 //bi directional edges
-	vector<LogicalEdge> logical_edges;
+	vector<Edge> logical_edges;
 };
 
 
@@ -1306,7 +1283,7 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 	sort(rect_links_buffer, rect_links_buffer + rect_links_size);
 }
 
-        auto rg = views::counted(rect_links_buffer, rect_links_size) |
+    auto rg = views::counted(rect_links_buffer, rect_links_size) |
                 views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
 #ifdef _TRACE_
 	D(printf("rect_links:\n"));
@@ -1317,9 +1294,7 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 	}
 #endif
 
-	// return rg | views::to<vector>; TODO C++23
-
-	return vector(ranges::begin(rg), ranges::end(rg));
+	return rg | views::to<vector>;
 }
 
 
@@ -1533,88 +1508,6 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 }
 
 
-vector<float> compute_page_rank(const int n,
-				const vector<LogicalEdge>& logical_edges,
-				const vector<TopologicalEdge>& topological_edges)
-{
-	const int nr_rec = 40;
-	vector<vector<float> > m(40, vector<float>(n, 1.0f / n));
-
-	D(printf("\n"));
-	for (float& value : m[0])
-		D(printf("%.2f\t", value));
-	auto topological_edges_ = topological_edges | views::transform([](const TopologicalEdge& e){return LogicalEdge{e.from, e.to};});
-	vector<LogicalEdge> inter;
-	ranges::set_intersection(logical_edges, topological_edges_, back_inserter(inter));
-
-	const float d = 0.85f;
-
-	auto next=[&](const vector<float>& pr)->vector<float>
-	{
-		auto rg = views::iota(0,n) |
-			views::transform([&](int i)->float{
-				auto rg1 = ranges::equal_range(inter, i, {}, &LogicalEdge::from) |
-					views::transform([&](const LogicalEdge& e)->float{
-						auto rg = ranges::equal_range(logical_edges, e.to, {}, &LogicalEdge::from);
-						return pr[e.to] / ranges::size(rg) ;
-					});
-				return (1.0f - d) + d * accumulate(ranges::begin(rg1), ranges::end(rg1), 0.0f);
-			});
-		vector<float> result(ranges::begin(rg), ranges::end(rg));
-		D(printf("\n"));
-		for (float& value : result)
-			D(printf("%.2f\t", value));
-		return result;
-	};
-
-	partial_sum(m.begin(), m.end(), m.begin(),
-		[&](const vector<float>& prev, const vector<float>&){
-					return next(prev);}
-				);
-        D(printf("\n"));
-	for (int i : views::iota(0,n))
-		D(printf("%d .00\t", i));
-	return m[nr_rec - 1];
-}
-
-
-vector<int> compute_connected_components(const vector<MyRect>& input_rectangles,
-					const vector<LogicalEdge>& logical_edges)
-{
-	assert(ranges::is_sorted(logical_edges));
-	int n = input_rectangles.size();
-	vector<int> connected_component(n, -1);
-
-	auto filter=[&](const LogicalEdge& e){
-        	int dist = rect_distance(input_rectangles[e.from], input_rectangles[e.to]);
-        	return dist <= 20;
-	};
-
-	auto rec_compute_connected_components = [&](int i, int c, auto&& rec_compute_connected_components)->void{
-		connected_component[i] = c;
-
-		span adj_list = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
-
-		for (const LogicalEdge& e : adj_list)
-		{
-			if (connected_component[e.to] == -1 && filter(e))
-				rec_compute_connected_components(e.to, c, rec_compute_connected_components);
-		}
-	};
-
-	int c=0;
-	while (true)
-	{
-		auto it=ranges::find(connected_component, -1);
-		if (it == end(connected_component))
-			break;
-		int i = ranges::distance(begin(connected_component), it);
-		rec_compute_connected_components(i, c++, rec_compute_connected_components);
-	}
-	return connected_component;
-}
-
-
 void spread(Direction update_direction, const vector<RectLink>& rect_links, span<MyRect> rectangles)
 {
 //TODO: use chunk_by C++23
@@ -1676,7 +1569,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 }
 
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<LogicalEdge>& logical_edges, span<const MyRect> input_rectangles, span<MyRect> rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<Edge>& logical_edges, span<const MyRect> input_rectangles, span<MyRect> rectangles)
 {
 	D(printf("begin compact\n"));
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
@@ -1794,13 +1687,13 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 				[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
 		auto rg1 = logical_edges |
-				views::transform([&](const LogicalEdge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  });
+				views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  });
 
 		auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
 		auto rg3 = logical_edges |
-				views::transform([&](const LogicalEdge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
+				views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
 
 		const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 		const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
@@ -1962,7 +1855,7 @@ const vector<ProcessSelector> process_selectors = cartesian_product();
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 					const vector<MyRect>& input_rectangles,
 					const vector<MyRect>& holes,
-					const vector<LogicalEdge>& logical_edges,
+					const vector<Edge>& logical_edges,
 					vector<MyRect>& emplacements_by_id)
 {
 	vector<MyRect> input_emplacements;
@@ -2183,7 +2076,7 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 
 void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 					int n,
-					const vector<LogicalEdge>& logical_edges,
+					const vector<Edge>& logical_edges,
 					const vector<MyRect>& emplacements_by_id,
 					vector<MyRect>& emplacements2_by_id)
 {
@@ -2749,7 +2642,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<MyRect>& emplacements_by_id,
 		const vector<MyRect>& input_rectangles,
-		const vector<LogicalEdge>& logical_edges)
+		const vector<Edge>& logical_edges)
 {
 	int n = input_rectangles.size();
 
