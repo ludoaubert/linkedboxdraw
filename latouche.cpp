@@ -44,6 +44,15 @@ struct MyRect
 	int m_left, m_right, m_top, m_bottom ;
 };
 
+inline int width(const MyRect& r)
+{
+        return r.m_right - r.m_left ;
+}
+
+inline int height(const MyRect& r)
+{
+        return r.m_bottom - r.m_top ;
+}
 
 int distance_between_ranges(int left1, int right1, int left2, int right2)
 {
