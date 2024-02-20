@@ -137,6 +137,26 @@ inline bool intersect_strict(const MyRect& r1, const MyRect& r2)
         return !(r1.m_left >= r2.m_right || r1.m_right <= r2.m_left || r1.m_top >= r2.m_bottom || r1.m_bottom <= r2.m_top) ;
 }
 
+inline int range_overlap(int left1, int right1, int left2, int right2)
+{
+  if (left2 >= right1)
+    return 0 ;
+  else if (left1 >= right2)
+    return 0 ;
+  else
+    return std::min(right1,right2) - std::max(left1, left2) ;
+}
+
+int edge_overlap(const MyRect& r1, const MyRect& r2)
+{
+	if (r1.m_left == r2.m_right || r1.m_right == r2.m_left)
+		return range_overlap(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
+	else if (r1.m_top == r2.m_bottom || r1.m_bottom == r2.m_top)
+		return range_overlap(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
+	else
+		return 0 ;
+}
+
 struct MyPoint
 {
 	int x, y;
