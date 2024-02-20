@@ -25,6 +25,14 @@ namespace fs = std::filesystem;
 #  define D(x)
 #endif
 
+enum Direction
+{
+	EAST_WEST,
+	NORTH_SOUTH
+};
+
+const int NR_DIRECTIONS=2;
+
 const int RECT_BORDER = 20 ;
 
 enum RectDim
@@ -1473,8 +1481,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	D(printf("returned from partial_sum()\n"));
 	fflush(stdout);
 
-	auto rg = vv | views::join;
-	const vector<MyRect> holes(ranges::begin(rg), ranges::end(rg));
+	const vector<MyRect> holes = vv | views::join | ranges::to<vector>();
 
 {
 	char buffer[100*1000];
@@ -1745,27 +1752,23 @@ struct Job
 	Direction update_direction;
 };
 
+auto rg3 = views::iota(0, NR_MIRRORING_STATES);
 
-const unsigned NR_MIRRORING_OPTIONS=4;
+const vector<array<Mirror, 2> > mirrors = views::cartesian_product(rg3, rg3) |
+										views::transform([](auto arg){
+											const auto [i, j]=arg;
+											const int states[2]={i,j};
+											array<Mirror, 2> a;
+											for (int k=0; k<2; k++)
+												a[k]=Mirror{.mirroring_state = (MirroringState)states[i], .mirroring_direction=(Direction)i};
+											return a;
+										}) |
+										ranges::to<vector>();
 
-const Mirror mirrors[NR_MIRRORING_OPTIONS][2]={
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
-	},
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST},
-		{.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-	}
-};
+const int NR_MIRRORING_OPTIONS=4;
+
+assert(mirrors.size()==NR_MIRRORING_OPTIONS);
+
 
 const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
 	"IDLE,IDLE",
@@ -1834,22 +1837,16 @@ struct ProcessSelector
 	unsigned pipeline, mirroring, match_corner;
 };
 
+auto rg5 = views::iota(0, NR_JOB_PIPELINES);
+auto rg6 = views::iota(0, NR_MIRRORING_OPTIONS);
+auto rg7 = views::iota(0, NR_RECT_CORNERS);
 
-// TODO: use upcoming C++23 views::cartesian_product()
-vector<ProcessSelector> cartesian_product()
-{
-	vector<ProcessSelector> result;
-
-	for (int pipeline=0; pipeline < NR_JOB_PIPELINES; pipeline++)
-		for (int mirroring=0; mirroring < NR_MIRRORING_OPTIONS; mirroring++)
-			for (int match_corner=0; match_corner < NR_RECT_CORNERS; match_corner++)
-				result.push_back({pipeline, mirroring, match_corner});
-
-	return result;
-}
-
-
-const vector<ProcessSelector> process_selectors = cartesian_product();
+const vector<ProcessSelector> process_selectors = views::cartesian_product(rg5, rg6, rg7) |
+													views::transform([](auto arg){
+														auto [pipeline, mirroring, match_corner] = arg;
+														return ProcessSelector{pipeline, mirroring, match_corner};
+													}) |
+													ranges::to<vector>() ;
 
 
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
@@ -1858,15 +1855,11 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					const vector<Edge>& logical_edges,
 					vector<MyRect>& emplacements_by_id)
 {
-	vector<MyRect> input_emplacements;
+	auto il = {input_rectangles, holes};
+	vector<MyRect> input_emplacements = il | views::join | ranges::to<vector>() ;
 
-	for (const MyRect &r : input_rectangles)
-		input_emplacements.push_back(r);
-	for (const MyRect &rec : holes)
-		input_emplacements.push_back(rec);
-
-        int m = input_emplacements.size();
-        int n = input_rectangles.size();
+	int m = input_emplacements.size();
+	int n = input_rectangles.size();
 
 	emplacements_by_id.resize(m*decision_tree.size());
 
@@ -2037,36 +2030,36 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 			.job={.algo=COMPACT, .update_direction=EAST_WEST},
 			.mirror={.mirroring_state=IDLE, .mirroring_direction=EAST_WEST}
 		},
-                {
-                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
-                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
-                },
+		{
+			.job={.algo=COMPACT, .update_direction=EAST_WEST},
+			.mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
+		},
 		{
 			.job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
 			.mirror={.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
 		},
-                {
-                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
-                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-                }
+		{
+			.job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+			.mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+		}
 	},
 	{
-                {
-                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
-                        .mirror={.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
-                },
-                {
-                        .job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
-                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
-                },
-                {
-                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
-                        .mirror={.mirroring_state=IDLE, .mirroring_direction=EAST_WEST}
-                },
-                {
-                        .job={.algo=COMPACT, .update_direction=EAST_WEST},
-                        .mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
-                }
+		{
+			.job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+			.mirror={.mirroring_state=IDLE, .mirroring_direction=NORTH_SOUTH}
+		},
+		{
+			.job={.algo=COMPACT, .update_direction=NORTH_SOUTH},
+			.mirror={.mirroring_state=ACTIVE, .mirroring_direction=NORTH_SOUTH}
+		},
+		{
+			.job={.algo=COMPACT, .update_direction=EAST_WEST},
+			.mirror={.mirroring_state=IDLE, .mirroring_direction=EAST_WEST}
+		},
+		{
+			.job={.algo=COMPACT, .update_direction=EAST_WEST},
+			.mirror={.mirroring_state=ACTIVE, .mirroring_direction=EAST_WEST}
+		}
 	}
 };
 
@@ -2309,9 +2302,9 @@ const vector<TestContext> test_contexts={
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
-                .pipeline = {
-                        {.algo=COMPACT,.update_direction=EAST_WEST}
-                },
+		.pipeline = {
+			{.algo=COMPACT,.update_direction=EAST_WEST}
+		},
 		.expected_translations={
 			{.i=0, .x=50, .y=0},
 			{.i=1, .x=50, .y=0},
@@ -2344,9 +2337,9 @@ const vector<TestContext> test_contexts={
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=150, .m_bottom=250}
 		},
-                .pipeline = {
-                        {.algo=COMPACT,.update_direction=NORTH_SOUTH}
-                },
+		.pipeline = {
+			{.algo=COMPACT,.update_direction=NORTH_SOUTH}
+		},
 		.expected_translations={
 			{.i=1, .x=0, .y=50}
 		}
@@ -2364,20 +2357,20 @@ const vector<TestContext> test_contexts={
                       +---------+
 2 => rh
 */
-        {
-                .testid=4,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
-                        {.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
-                        {.m_left=300-200, .m_right=450-200, .m_top=100-100, .m_bottom=200-100}
-                },
-                .pipeline = {
-                        {.algo=SPREAD,.update_direction=EAST_WEST}
-                },
-                .expected_translations={
+	{
+		.testid=4,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=50, .m_bottom=150},
+			{.m_left=200, .m_right=300, .m_top=50, .m_bottom=150},
+			{.m_left=300-200, .m_right=450-200, .m_top=100-100, .m_bottom=200-100}
+		},
+		.pipeline = {
+			{.algo=SPREAD,.update_direction=EAST_WEST}
+		},
+		.expected_translations={
 			{.i=1, .x=50, .y=0}
-                }
-        },
+		}
+	},
 
 /*
 +------+       +------+------+
@@ -2395,45 +2388,45 @@ const vector<TestContext> test_contexts={
 +------+       +------+
 2 => rh
 */
-        {
-                .testid=5,
-                .input_rectangles = {
-                        {.m_left=0, .m_right=100, .m_top=0, .m_bottom=700},
-                        {.m_left=300, .m_right=400, .m_top=0, .m_bottom=700},
-                        {.m_left=400-300, .m_right=450-300, .m_top=0+250, .m_bottom=100+250}
-                },
-                .pipeline = {
-                        {.algo=COMPACT,.update_direction=EAST_WEST}
-                },
-                .expected_translations={
+	{
+		.testid=5,
+		.input_rectangles = {
+			{.m_left=0, .m_right=100, .m_top=0, .m_bottom=700},
+			{.m_left=300, .m_right=400, .m_top=0, .m_bottom=700},
+			{.m_left=400-300, .m_right=450-300, .m_top=0+250, .m_bottom=100+250}
+		},
+		.pipeline = {
+			{.algo=COMPACT,.update_direction=EAST_WEST}
+		},
+		.expected_translations={
 			{.i=0, .x=150, .y=0},
 			{.i=2, .x=150, .y=0}
-                }
-        },
+		}
+	},
 	{
 		.testid=6,
 		.input_rectangles = {
-                        {.m_left=328, .m_right=530, .m_top=10, .m_bottom=154},
+			{.m_left=328, .m_right=530, .m_top=10, .m_bottom=154},
 			{.m_left=252, .m_right=474, .m_top=490, .m_bottom=601},
 			{.m_left=385, .m_right=530, .m_top=218, .m_bottom=330},
 			{.m_left=530, .m_right=696, .m_top=10, .m_bottom=202},
-                        {.m_left=530, .m_right=696, .m_top=202, .m_bottom=330},
+			{.m_left=530, .m_right=696, .m_top=202, .m_bottom=330},
 			{.m_left=682, .m_right=869, .m_top=346, .m_bottom=506},
 			{.m_left=267, .m_right=447, .m_top=601, .m_bottom=761},
-                        {.m_left=474, .m_right=682, .m_top=330, .m_bottom=506},
-                        {.m_left=266, .m_right=474, .m_top=330, .m_bottom=490},
-                        {.m_left=488, .m_right=675, .m_top=506, .m_bottom=650},
-                        {.m_left=744, .m_right=917, .m_top=186, .m_bottom=346},
-                        {.m_left=675, .m_right=862, .m_top=506, .m_bottom=714},
-                        {.m_left=25, .m_right=205, .m_top=153, .m_bottom=281},
-                        {.m_left=10, .m_right=205, .m_top=281, .m_bottom=441},
-                        {.m_left=37, .m_right=252, .m_top=441, .m_bottom=617}
+			{.m_left=474, .m_right=682, .m_top=330, .m_bottom=506},
+			{.m_left=266, .m_right=474, .m_top=330, .m_bottom=490},
+			{.m_left=488, .m_right=675, .m_top=506, .m_bottom=650},
+			{.m_left=744, .m_right=917, .m_top=186, .m_bottom=346},
+			{.m_left=675, .m_right=862, .m_top=506, .m_bottom=714},
+			{.m_left=25, .m_right=205, .m_top=153, .m_bottom=281},
+			{.m_left=10, .m_right=205, .m_top=281, .m_bottom=441},
+			{.m_left=37, .m_right=252, .m_top=441, .m_bottom=617}
 		},
 		.pipeline = {
-                        {.algo=COMPACT,.update_direction=EAST_WEST}
-                },
-                .expected_translations={
-                }
+			{.algo=COMPACT,.update_direction=EAST_WEST}
+		},
+			.expected_translations={
+		}
 	}
 };
 
@@ -2484,16 +2477,6 @@ void test_translations()
 //		bool bOK = translation_ranges == expected_translation_ranges;
 //		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
 	}
-};
-
-
-enum RectStability {STABLE, UNSTABLE};
-
-const vector<vector<RectStability> > Strategies={
-        {STABLE,STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
-        {STABLE,STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
-        {STABLE,UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE},
-        {UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE}
 };
 
 
