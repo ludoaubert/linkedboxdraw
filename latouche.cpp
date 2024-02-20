@@ -599,16 +599,16 @@ const vector<TranslationRangesTestContext> TRTestContexts={
 {
 	.testid=2,
 	.decision_tree={
-		{.i=0, .parent_index=-1, .depth=0, .recmap={.i_emplacement_source=0, .i_emplacement_destination=35}, .match=24},
-		{.i=1, .parent_index=0, .depth=1, .recmap={.i_emplacement_source=1, .i_emplacement_destination=33}, .match=24},
-		{.i=2, .parent_index=1, .depth=2, .recmap={.i_emplacement_source=2, .i_emplacement_destination=1}, .match=24},
-		{.i=3, .parent_index=2, .depth=3, .recmap={.i_emplacement_source=6, .i_emplacement_destination=2}, .match=24},
-		{.i=4, .parent_index=3, .depth=4, .recmap={.i_emplacement_source=12, .i_emplacement_destination=6}, .match=26},
-		{.i=5, .parent_index=4, .depth=5, .recmap={.i_emplacement_source=13, .i_emplacement_destination=0}, .match=24},
-		{.i=6, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=22}, .match=26},
-		{.i=7, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=26}, .match=26},
-		{.i=8, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=27}, .match=26},
-		{.i=9, .parent_index=5, .depth=6, .recmap={.i_emplacement_source=14, .i_emplacement_destination=32}, .match=26},
+		{.index=0, .parent_index=-1, .depth=0, .sigma_edge_distance=0, .i_emplacement_source=0, .i_emplacement_destination=35},
+		{.index=1, .parent_index=0, .depth=1, .sigma_edge_distance=0, .i_emplacement_source=1, .i_emplacement_destination=33},
+		{.index=2, .parent_index=1, .depth=2, .sigma_edge_distance=0, .i_emplacement_source=2, .i_emplacement_destination=1},
+		{.index=3, .parent_index=2, .depth=3, .sigma_edge_distance=0, .i_emplacement_source=6, .i_emplacement_destination=2},
+		{.index=4, .parent_index=3, .depth=4, .sigma_edge_distance=0, .i_emplacement_source=12, .i_emplacement_destination=6},
+		{.index=5, .parent_index=4, .depth=5, .sigma_edge_distance=0, .i_emplacement_source=13, .i_emplacement_destination=0},
+		{.index=6, .parent_index=5, .depth=6, .sigma_edge_distance=0, .i_emplacement_source=14, .i_emplacement_destination=22},
+		{.index=7, .parent_index=5, .depth=6, .sigma_edge_distance=0, .i_emplacement_source=14, .i_emplacement_destination=26},
+		{.index=8, .parent_index=5, .depth=6, .sigma_edge_distance=0, .i_emplacement_source=14, .i_emplacement_destination=27},
+		{.index=9, .parent_index=5, .depth=6, .sigma_edge_distance=0, .i_emplacement_source=14, .i_emplacement_destination=32}
 	},
 	.expected_translation_ranges={
                 {.id=1, .ri=1, .tr={.x=0, .y=111}},
