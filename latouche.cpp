@@ -873,7 +873,7 @@ void apply_trim_mirror(const TrimMirror& mirror, MyRect& r)
 
 struct TrimProcessSelector
 {
-	unsigned trim_algo, mirroring;
+	int trim_algo, mirroring;
 };
 
 
@@ -940,7 +940,7 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 
 	const int n = rectangles.size();
 
-        fflush(stdout);
+	fflush(stdout);
 	vector<vector<MyRect> > vv(n+1);
 	vv[0]={r};
 	int i=0;
@@ -950,15 +950,15 @@ MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
                 D(printf("i=%d\n", i));
 		D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
 		fflush(stdout);
-		auto rg = previous |
+
+		vector<MyRect> v = previous |
 			views::transform([&](const MyRect& r){
 				const vector<MyRect> rects = trimmed(r, ri);
 				return rects.empty() ? vector{r} : rects;
 			}) |
-			views::join;
-		vector<MyRect> v;
-		for (const MyRect& r : rg)
-			v.push_back(r);
+			views::join |
+			ranges::to<vector>() ;
+
 		D(printf("v.size()=%zu\n", v.size()));
 		fflush(stdout);
 		i++;
