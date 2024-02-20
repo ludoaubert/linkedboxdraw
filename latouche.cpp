@@ -688,7 +688,7 @@ enum TrimAlgo
 };
 
 
-const unsigned NR_TRIM_ALGO=4;
+const int NR_TRIM_ALGO=4;
 
 const char* TrimAlgoStrings[NR_TRIM_ALGO]={
 	"SPLIT",
