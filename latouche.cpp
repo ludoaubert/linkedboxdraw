@@ -132,6 +132,11 @@ int rectangle_distance(const MyRect& r1, const MyRect& r2)
 	}
 }
 
+inline bool intersect_strict(const MyRect& r1, const MyRect& r2)
+{
+        return !(r1.m_left >= r2.m_right || r1.m_right <= r2.m_left || r1.m_top >= r2.m_bottom || r1.m_bottom <= r2.m_top) ;
+}
+
 struct MyPoint
 {
 	int x, y;
@@ -1324,7 +1329,7 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 	}
 #endif
 
-	return rg | views::to<vector>;
+	return rg | ranges::to<vector>();
 }
 
 
