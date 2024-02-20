@@ -739,7 +739,7 @@ const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, 
 											ranges::to<vector>();
 
 
-const unsigned NR_TRIM_MIRRORING_OPTIONS = trim_mirrors.size();
+const int NR_TRIM_MIRRORING_OPTIONS = trim_mirrors.size();
 
 
 
@@ -889,8 +889,8 @@ struct TrimProcessSelector
 auto rg1 = views::iota(0, NR_TRIM_ALGO), rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
 
 const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(rg1, rg2) |
-															views::transform([](int arg){
-																	const auto [trim_algo, mirroring]=arg;
+															views::transform([](auto arg){
+																	auto [trim_algo, mirroring]=arg;
 																	return TrimProcessSelector{trim_algo, mirroring};
 																	}
 															) |
