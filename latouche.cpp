@@ -2707,64 +2707,64 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		}
 
 		vector<MyRect> emplacements_by_id;
-                D(printf("begin compute_decision_tree_translations()\n"));
+		D(printf("begin compute_decision_tree_translations()\n"));
 		compute_decision_tree_translations(decision_tree, input_rectangles, holes, logical_edges, emplacements_by_id);
-                D(printf("end compute_decision_tree_translations()\n"));
+		D(printf("end compute_decision_tree_translations()\n"));
 		fflush(stdout);
 
-                sprintf(file_name, "translation_ranges_%d.json", testid);
+		sprintf(file_name, "translation_ranges_%d.json", testid);
 		fs::copy("translation_ranges.json", file_name, fs::copy_options::update_existing);
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
-                D(printf("begin compute_decision_tree_translations2()\n"));
+		D(printf("begin compute_decision_tree_translations2()\n"));
 		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
-                D(printf("end compute_decision_tree_translations2()\n"));
+		D(printf("end compute_decision_tree_translations2()\n"));
 		fflush(stdout);
 
-                sprintf(file_name, "translation_ranges2_%d.json", testid);
-                fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
+		sprintf(file_name, "translation_ranges2_%d.json", testid);
+		fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
 		D(printf("begin compute_scores()\n"));
 		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
 		D(printf("end compute_scores()\n"));
 		fflush(stdout);
 
-                sprintf(file_name, "scores%d.json", testid);
+		sprintf(file_name, "scores%d.json", testid);
 		fs::copy("scores.json", file_name, fs::copy_options::update_existing);
 	}
 
 	if (argc==3 && strcmp(argv[1], "--dt")==0 && strcmp(argv[2], "--skip")==0)
-        {
-                vector<DecisionTreeNode> decision_tree ;
+	{
+		vector<DecisionTreeNode> decision_tree ;
 
-                sprintf(file_name, "decision_tree%d.dat", testid);
-                if(FILE* f = fopen(file_name, "rb")) {
-    			struct stat stat_buf;
+		sprintf(file_name, "decision_tree%d.dat", testid);
+		if(FILE* f = fopen(file_name, "rb")) {
+			struct stat stat_buf;
 			int rc = stat(file_name, &stat_buf);
 			int n = stat_buf.st_size / sizeof(DecisionTreeNode);
 			decision_tree.resize(n);
 			size_t ret_code = fread(&decision_tree[0], sizeof (DecisionTreeNode), n, f);
-                        fclose(f);
-                }
+					fclose(f);
+		}
 
-                vector<TranslationRangeItem> translation_ranges ;
+		vector<TranslationRangeItem> translation_ranges ;
 
-                sprintf(file_name, "translation_ranges%d.dat", testid);
-                if(FILE* f = fopen(file_name, "rb")) {
-                        struct stat stat_buf;
-                        int rc = stat(file_name, &stat_buf);
-                        int n = stat_buf.st_size / sizeof(TranslationRangeItem);
-                        translation_ranges.resize(n);
-                        size_t ret_code = fread(&translation_ranges[0], sizeof (TranslationRangeItem), n, f);
-                        fclose(f);
-                }
+		sprintf(file_name, "translation_ranges%d.dat", testid);
+		if(FILE* f = fopen(file_name, "rb")) {
+			struct stat stat_buf;
+			int rc = stat(file_name, &stat_buf);
+			int n = stat_buf.st_size / sizeof(TranslationRangeItem);
+			translation_ranges.resize(n);
+			size_t ret_code = fread(&translation_ranges[0], sizeof (TranslationRangeItem), n, f);
+			fclose(f);
+		}
 
 		vector<MyRect> emplacements_by_id, emplacements2_by_id;
-                compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id,emplacements2_by_id);
+		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id,emplacements2_by_id);
 
-                compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
-        }
-        D(printf("end testid=%d \n", testid));
+		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+	}
+	D(printf("end testid=%d \n", testid));
 }
 
 	if (argc == 1)
