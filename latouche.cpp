@@ -886,7 +886,8 @@ struct TrimProcessSelector
 
 //TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
 
-auto rg1 = views::iota(0, NR_TRIM_ALGO), rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
+auto rg1 = views::iota(0, NR_TRIM_ALGO);
+auto rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
 
 const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(rg1, rg2) |
 															views::transform([](auto arg){
@@ -903,11 +904,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 	for (const auto [trim_algo, mirroring] : trim_process_selectors)
 	{
-		const TrimMirror (&trim_mirror_process)[3] = trim_mirrors[mirroring];
-
-		auto rg = views::counted(trim_mirror_process,3);
-
-		ranges::for_each(rg, [&](const TrimMirror mirror){
+		ranges::for_each(trim_mirrors[mirroring], [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			}
@@ -915,7 +912,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
 
-		ranges::for_each(rg | views::reverse, [&](const TrimMirror mirror){
+		ranges::for_each(trim_mirrors[mirroring] | views::reverse, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
 			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
