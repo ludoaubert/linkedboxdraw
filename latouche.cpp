@@ -14,8 +14,8 @@
 #include <cstring>
 //#include <fmt/ranges.h>
 //#include <format>
-#include "FunctionTimer.h"
-#include "MyRect.h"
+//#include "FunctionTimer.h"
+//#include "MyRect.h"
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -28,6 +28,34 @@ namespace fs = std::filesystem;
 #else
 #  define D(x)
 #endif
+
+const int RECT_BORDER = 20 ;
+
+enum RectDim
+{
+  LEFT,
+  RIGHT,
+  TOP,
+  BOTTOM
+} ;
+
+struct MyRect
+{
+	int m_left, m_right, m_top, m_bottom ;
+};
+
+
+struct MyPoint
+{
+	int x, y;
+};
+
+
+struct Edge {
+	int from;
+	int to;
+	auto operator<=>(const Edge&) const = default;
+};
 
 //Cf compute_box_rectangles.js
 const int RECTANGLE_BOTTOM_CAP=200;
