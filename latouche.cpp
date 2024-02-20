@@ -42,6 +42,13 @@ enum RectDim
   BOTTOM
 } ;
 
+struct RectDimRange{ RectDim min, max;};
+
+const RectDimRange rectDimRanges[2] = {
+	{ LEFT, RIGHT },
+	{ TOP, BOTTOM }
+};
+
 struct MyRect
 {
 	int m_left, m_right, m_top, m_bottom ;
@@ -95,7 +102,6 @@ int rectangle_distance(const MyRect& r1, const MyRect& r2)
 	}
 }
 
-
 struct MyPoint
 {
 	int x, y;
@@ -114,10 +120,6 @@ const int RECTANGLE_BOTTOM_CAP=200;
 
 const unsigned BITSET_MAX_SIZE=128;
 
-struct RectMap
-{
-	int i_emplacement_source, i_emplacement_destination;
-};
 
 struct DecisionTreeNode
 {
@@ -1114,8 +1116,6 @@ void test_rect_trim()
 
 vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangles)
 {
-	FunctionTimer ft("sweep");
-
 	const int N=100;
 	int n = rectangles.size();
 
@@ -1138,8 +1138,7 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 	auto [minSweepRectDim, maxSweepRectDim] = rectDimRanges[sweep_direction];
-{
-        FunctionTimer ft("cft_fill_sweepline");
+
 		//sweep_line.reserve(2*n);
 
 	for (int ri=0; ri < n; ri++)
@@ -1147,13 +1146,11 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 		sweep_line_buffer[2*ri]={.sweep_value=rectangles[ri][minSweepRectDim], .rectdim=minSweepRectDim, .ri=ri};
 		sweep_line_buffer[2*ri+1]={.sweep_value=rectangles[ri][maxSweepRectDim], .rectdim=maxSweepRectDim, .ri=ri};
 	}
-}
 
 	const MyPoint& translation = translation2[update_direction] ;
-{
-        FunctionTimer ft("cft_sort_sweepline");
+
 	ranges::sort(sweep_line, CustomLess());
-}
+
 	int active_line_size=0;
 	int rect_links_size=0;
 
@@ -1253,8 +1250,6 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 		printf("%s", buffer);
 	};
 
-{
-        FunctionTimer ft("cft_sweep");
 	for (SweepLineItem& item : sweep_line)
 	{
 		const auto& [sweep_value, rectdim, ri] = item;
@@ -1285,12 +1280,8 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 	{
 		D(printf("{.sweep_value=%d, .rectdim=%s, .ri=%d},\n", sweep_value, RectDimString[rectdim], ri));
 	}
-}
 
-{
-        FunctionTimer ft("cft_rectlinks_sort");
 	sort(rect_links_buffer, rect_links_buffer + rect_links_size);
-}
 
     auto rg = views::counted(rect_links_buffer, rect_links_size) |
                 views::filter([](const RectLink& rl){return rl.min_sweep_value != rl.max_sweep_value;});
