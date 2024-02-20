@@ -1668,14 +1668,14 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 		partial_sum(vv.begin(), vv.end(), vv.begin(),
 				[&](const vector<int>& prev, const vector<int>&){
-						auto r = prev | views::transform([&](int i){
+						vector<int> next = prev | 
+								views::transform([&](int i){
 									auto r = ranges::equal_range(selected_rect_links, i, {}, &RectLink::i) |
 												views::transform(&RectLink::j);
-									return vector<int>(r.begin(), r.end());
+									return r;
 								}) |
-								views::join ;
-						vector<int> next;
-						ranges::copy(r, back_inserter(next));
+								views::join |
+								ranges::to<vector>();
 						return next;
 					}
 				);
@@ -1776,9 +1776,10 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		return cost;
 	};
 
-	auto rng = views::iota(0,nb) |
-		views::transform(cost_fn);
-	vector<int> costs(rng.begin(), rng.end());
+	vector<int> costs = views::iota(0,nb) |
+		views::transform(cost_fn) |
+		ranges::to<vector>();
+
 	auto it = ranges::min_element(costs);
 	id = std::distance(costs.begin(), it);
 	D(printf("id=%d\n", id));
@@ -2033,11 +2034,12 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 	for (int depth=0; depth<10; depth++)
 	{
-		auto rng = views::iota(0, (int)decision_tree.size()) |
-			views::filter([&](int id){return decision_tree[id].depth==depth;});
-		vector<int> input(rng.begin(), rng.end());
-        	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
-        }
+		vector<int> input = views::iota(0, (int)decision_tree.size()) |
+			views::filter([&](int id){return decision_tree[id].depth==depth;}) |
+			ranges::to<vector>();
+
+		for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
+	}
 
 //TODO: views::cartesian_product()
 
