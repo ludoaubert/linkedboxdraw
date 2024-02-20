@@ -1985,7 +1985,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 //TODO: views::cartesian_product()
 
-	auto rg = views::iota(0, n * (int)decision_tree.size()) |
+	string buffer = views::iota(0, n * (int)decision_tree.size()) |
 		views::transform([&](int pos)->TranslationRangeItem{
 
 			int id = pos / n;
@@ -2001,17 +2001,13 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
                 	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},", id, ri, tr.x, tr.y);
+                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
 			return buffer;
 		}) |
-		views::join ;
-
-//TODO: views::join_with(','), views::concat(), views::to<string>
+		views::join_with(',') |
+		ranges::to<string>();
 
 	FILE *f=fopen("translation_ranges.json", "w");
-	string buffer;
-	ranges::copy(rg, back_inserter(buffer));
-	buffer.pop_back();
 	fprintf(f, "[%s\n]\n", buffer.c_str());
 	fclose(f);
 }
@@ -2162,7 +2158,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 	vector<int> input(rng.begin(), rng.end());
 	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
 
-	auto rg = views::iota(0, n * (int)decision_tree.size()) |
+	string buffer = views::iota(0, n * (int)decision_tree.size()) |
 		views::transform([&](int pos)->TranslationRangeItem{
 
         //decision_tree.size() can be zero, in which case the division will never execute.
@@ -2182,17 +2178,13 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
                 	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d},", id, ri, tr.x, tr.y);
+                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
 			return buffer;
 		}) |
-		views::join ;
+		views::join_with(',') |
+		ranges::to<string>();
 
 	FILE *f=fopen("translation_ranges2.json", "w");
-	string buffer;
-	ranges::copy(rg, back_inserter(buffer));
-//TODO: remove this wart when join_with() becomes available.
-	if (buffer.empty()==false)
-		buffer.pop_back();
 	fprintf(f, "[%s\n]\n", buffer.c_str());
 	fclose(f);
 }
@@ -2629,7 +2621,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 {
 	int n = input_rectangles.size();
 
-	auto rg = views::iota(0, (int)decision_tree.size()) |
+	string buffer = views::iota(0, (int)decision_tree.size()) |
 		views::transform([&](int id)->Score{
 
 	//decision_tree.size() can be zero. In this case this instruction will not get executed
@@ -2653,20 +2645,15 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		views::transform([](const Score& score)->string{
 			const auto [id, sigma_edge_distance, width, height, total] = score;
 			char buffer[100];
-			sprintf(buffer, "\n{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d},",
+			sprintf(buffer, "\n{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}",
                         	id, sigma_edge_distance, width, height, total);
 			return buffer;
 		}) |
-		views::join ;
+		views::join_with(',') |
+		ranges::to<string>();
 
-//TODO: use C++23 views::join_with(",")
 
 	FILE *f=fopen("scores.json", "w");
-	string buffer;
-	ranges::copy(rg, back_inserter(buffer));
-//TODO: remove this wart when views::join_with becomes available.
-	if (buffer.empty()==false)
-		buffer.pop_back();
 	fprintf(f, "[%s\n]", buffer.c_str());
 	fclose(f);
 }
