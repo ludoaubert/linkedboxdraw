@@ -739,7 +739,7 @@ const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, 
 											ranges::to<vector>();
 
 
-//const unsigned NR_TRIM_MIRRORING_OPTIONS = 2*2*2;
+const unsigned NR_TRIM_MIRRORING_OPTIONS = trim_mirrors.size();
 
 
 
@@ -884,19 +884,16 @@ struct TrimProcessSelector
 };
 
 
-// TODO: use upcoming C++23 views::cartesian_product()
-vector<TrimProcessSelector> cartesian_product_()
-{
-	vector<TrimProcessSelector> result;
+//TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
 
-	for (int trim_algo=0; trim_algo < NR_TRIM_ALGO; trim_algo++)
-		for (int mirroring=0; mirroring < NR_TRIM_MIRRORING_OPTIONS; mirroring++)
-				result.push_back({trim_algo, mirroring});
-
-	return result;
-}
-
-const vector<TrimProcessSelector> trim_process_selectors = cartesian_product_();
+const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(
+																views::iota(0, NR_TRIM_ALGO),
+																views::iota(0, NR_TRIM_MIRRORING_OPTIONS)
+															) | views::transform([](int arg){
+																	const auto [trim_algo, mirroring]=arg;
+																	return TrimProcessSelector{trim_algo, mirroring};
+																	}
+															) | ranges::to<vector>() ;
 
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
