@@ -720,7 +720,7 @@ struct TrimMirror{
 	TrimMirrorDirection mirroring_direction;
 };
 
-/*
+
 auto rg = views::iota(0, NR_MIRRORING_STATES);
 
 const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, rg, rg) |
@@ -739,64 +739,8 @@ const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, 
 											ranges::to<vector>();
 
 
-//use above cartesian product instead of const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={...}
-*/
+//const unsigned NR_TRIM_MIRRORING_OPTIONS = 2*2*2;
 
-const unsigned NR_TRIM_MIRRORING_OPTIONS = 2*2*2;
-
-const TrimMirror trim_mirrors[NR_TRIM_MIRRORING_OPTIONS][3]={
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=IDLE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=IDLE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-	},
-	{
-		{.mirroring_state=ACTIVE, .mirroring_direction=HORIZONTAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=VERTICAL_MIRROR},
-		{.mirroring_state=ACTIVE, .mirroring_direction=TILTED_MIRROR}
-	}
-};
-
-const char* TrimMirroringStrings[NR_TRIM_MIRRORING_OPTIONS]={
-	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:IDLE",
-	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:IDLE",
-	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:IDLE",
-	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:IDLE",
-	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:ACTIVE",
-	"HORIZONTAL_MIRROR:IDLE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:ACTIVE",
-	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:IDLE, TILTED_MIRROR:ACTIVE",
-	"HORIZONTAL_MIRROR:ACTIVE, VERTICAL_MIRROR:ACTIVE, TILTED_MIRROR:ACTIVE"
-};
 
 
 /*      by
