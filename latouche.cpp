@@ -45,6 +45,43 @@ struct MyRect
 };
 
 
+int distance_between_ranges(int left1, int right1, int left2, int right2)
+{
+	if (left2 > right1)
+		return left2 - right1 ;
+	else if (left1 > right2)
+		return left1 - right2 ;
+	else
+		return 0 ;
+}
+
+
+int rectangle_distance(const MyRect& r1, const MyRect& r2)
+{
+	if (r1.m_left > r2.m_right)
+	{
+		return r1.m_left - r2.m_right + distance_between_ranges(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
+	}
+	else if (r1.m_right < r2.m_left)
+	{
+		return r2.m_left - r1.m_right + distance_between_ranges(r1.m_top, r1.m_bottom, r2.m_top, r2.m_bottom) ;
+	}
+	else if (r1.m_top > r2.m_bottom)
+	{
+		return r1.m_top - r2.m_bottom + distance_between_ranges(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
+	}
+	else if (r1.m_bottom < r2.m_top)
+	{
+		return r2.m_top - r1.m_bottom + distance_between_ranges(r1.m_left, r1.m_right, r2.m_left, r2.m_right) ;
+	}
+	else
+	{
+//the two rectangles intersect.
+		return 0 ;
+	}
+}
+
+
 struct MyPoint
 {
 	int x, y;
@@ -89,14 +126,14 @@ struct RectMap
 
 struct DecisionTreeNode
 {
-	int i;
+	int index=0;
 	int parent_index=-1;
 	int depth;
-	RectMap recmap;
-	int match;
-	bitset<BITSET_MAX_SIZE> etat_emplacement;
+	int sigma_edge_distance;
+	int i_emplacement_source, i_emplacement_destination;
+	
+	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
 };
-
 
 struct TranslationRangeItem
 {
@@ -2618,368 +2655,147 @@ const vector<vector<RectStability> > Strategies={
         {UNSTABLE,UNSTABLE,UNSTABLE,UNSTABLE}
 };
 
-vector<DecisionTreeNode> compute_decision_tree(const vector<MyRect>& input_rectangles,
-						const vector<MyRect>& holes,
-						const vector<LogicalEdge>& logical_edges,
-						vector<MyRect>& emplacements)
+
+vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
 {
-	const int n = input_rectangles.size();
+	const int nr_input_rectangles = input_rectangles.size();
 
-{
-/* TODO
-	auto jv = input_rectangles |
-		views::transform([&](const MyRect& r)->string{
-			char buffer[200];
-			sprintf(buffer, "\t{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d},\n",r.m_left, r.m_right, r.m_top, r.m_bottom);
-			return buffer;}) |
-		views ::join;
-*/
-	char buffer[10*1000];
-	int pos=0;
-	pos += sprintf(buffer + pos,"{\n\"input_rectangles\":[");
-	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
-        {
-                pos += sprintf(buffer + pos, "\n\t{\"m_left\":%d, \"m_right\":%d, \"m_top\":%d, \"m_bottom\":%d},", m_left, m_right, m_top, m_bottom);
-        }
-	pos += sprintf(buffer + --pos,"\n],\n\"logical_edges\":[");
-	for (const auto& [from, to] : logical_edges)
-	{
-		pos += sprintf(buffer + pos, "\n\t{\"from\":%d, \"to\":%d},", from, to);
-	}
-	pos += sprintf(buffer + --pos,"\n],\n\"topological_edges\":[");
-
-        for (int ri=0; ri < n; ri++)
-        {
-                for (int rj : views::iota(0, n) | views::filter([&](int rj){return ri != rj && edge_overlap(input_rectangles[ri], input_rectangles[rj]);}))
-                {
-                        pos += sprintf(buffer + pos, "\n\t{\"from\":%d, \"to\":%d},", ri, rj);
-                }
-	}
-	pos += sprintf(buffer + --pos,"\n]\n}");
-
-        FILE *f=fopen("logical_graph.json", "w");
-	fprintf(f, "%s", buffer);
-	fclose(f);
-}
-
-	for (const auto& [m_left, m_right, m_top, m_bottom, no_sequence, i, selected] : input_rectangles)
-	{
-		D(printf("{.m_left=%d, .m_right=%d, .m_top=%d, .m_bottom=%d}\n", m_left, m_right, m_top, m_bottom));
-	}
-
-//La liste des rectangles et des trous devient une liste d'emplacements, et un graphe topologique.
-
-	for (const MyRect &r : input_rectangles)
-		emplacements.push_back(r);
-	for (const MyRect &r : holes)
-		emplacements.push_back(r);
-
-	const int m = emplacements.size();
-
-//TODO: use C++23 views::cartesian_product()
-
-	vector<TopologicalEdge> topological_edges;
-	for (int i=0; i < emplacements.size(); i++)
-	{
-		for (int j=0; j < emplacements.size(); j++)
-		{
-			int dist = rect_distance(emplacements[i], emplacements[j]);
-			if (dist < 20)
-				topological_edges.push_back({.from=i, .to=j, .distance=dist});
-		}
-	}
-
-	ranges::sort(topological_edges);
-
-	vector<int> connected_component = compute_connected_components(input_rectangles, logical_edges);
-
-//	fmt::print("connected_component: {}\n", connected_component);
-
-	D(printf("connected_component: "));
-	for (int c : connected_component)
-		D(printf("%d, ", c));
-        D(printf("\n"));
-	for (int i=0; i < n; i++)
-		D(printf("connected_component[%d] = %d\n", i, connected_component[i]));
-	D(printf("\n"));
-
-	fflush(stdout);
-
-	D(printf("\n enter page rank\n"));
-	vector<float> page_rank = compute_page_rank(n, logical_edges, topological_edges);
-	D(printf("\n exit page rank\n"));
-
-	fflush(stdout);
-
-	int nb = 1 + ranges::max(connected_component);
-	D(printf("nb=%d\n", nb));
-	vector<int> cc_size(nb, 0);
-	for (int c : connected_component)
-		cc_size[c]++;
-	auto it = ranges::max_element(cc_size);
-	int cmax = ranges::distance(begin(cc_size), it);
-	D(printf("cmax=%d\n", cmax));
-// si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-
-	vector<int> recmap(input_rectangles.size());
-	for (int i=0; i < recmap.size(); i++)
-		recmap[i] = i;
-
+	auto il = {input_rectangles, holes};
+	const vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
+	
+	const int nr_emplacements = rectangles.size();
+	
+	const int N = rectangles.size();
+	
+	const vector<int> distance_matrix = views::cartesian_product(rectangles, rectangles) |
+										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
+										ranges::to<vector>();
+	
 	vector<DecisionTreeNode> decision_tree;
-
-	int strategy=0;
-
-//TODO: use C++23 deducing this.
-
-	auto decision_tree_list_node_children = [&](int parent_index)->vector<DecisionTreeNode>{
-
-		const bitset<BITSET_MAX_SIZE> etat_emplacement = parent_index==-1 ?
-			bitset<BITSET_MAX_SIZE>(string(m-n,'0')+string(n,'1')) ://1:OCCUPE, 0:LIBRE
-			decision_tree[parent_index].etat_emplacement;
-
-		auto mapping=[&](int i){
-			assert(i < n);
-			for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
-			{
-				const auto& [i_emplacement_source, i_emplacement_destination]=decision_tree[pos].recmap;
-				if (i_emplacement_source == i)
-					return i_emplacement_destination;
-			}
-			return i;
-		};
-
-		vector<DecisionTreeNode> child_nodes;
-
- 		int depth = 0;
-		for (int pos=parent_index; pos != -1; pos = decision_tree[pos].parent_index)
-			depth++;
-
-		if (depth >= Strategies[strategy].size())
-			return child_nodes;
-
-//TODO: use C++23 cartesian_product() to generate (i,j) and views::filter() to filter out i==j, ...upfront
-		for (int i=0; i < input_rectangles.size(); i++)
+	
+	auto walk_up_from = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
 		{
-			D(printf("i=%d\n", i));
-
-			if (connected_component[i] == cmax && Strategies[strategy][depth] == STABLE)
-			{
-				D(printf("connected_component[%d] == cmax && Strategies[strategy=%d][depth=%d] == STABLE <= 2\n", i, strategy, depth));
-			}
-			else if (connected_component[i] != cmax && Strategies[strategy][depth] == UNSTABLE)
-			{
-				D(printf("connected_component[%d] != cmax && Strategies[strategy=%d][depth=%d] == UNSTABLE\n", i, strategy, depth));
-			}
-			else
-			{
-				D(printf("connected_component[%d] == %d. strategy=%d. depth=%d. skipping %d\n", i, connected_component[i], strategy, depth, i));
-				continue;
-			}
-
-			if (mapping(i) != i)
-			{
-				D(printf("on ne mappe pas 2 fois un meme emplacement.\n"));
-				D(printf("mapping[%d] != %d\n", i, i));
-				continue;
-			}
-
-			span le_adj_list = ranges::equal_range(logical_edges, i, {}, &LogicalEdge::from);
-
-		//si tous les liens de i {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}, alors i n'est pas
-		// stable
-			if (ranges::all_of(le_adj_list,
-					[&](const LogicalEdge& e){return mapping(e.to)==e.to && connected_component[e.to] != cmax;}
-					)
-			)
-			{
-				D(printf("tous les liens de %d {e sont des liens dont e.j n'a pas ete mappé et e.j que l'on peut deplacer}\n", i));
-				D(printf("%d is not stable\n", i));
-				continue;
-			}
-
-			for (int j=0; j < emplacements.size(); j++)
-			{
-				D(printf("i=%d j=%d h=%d\n", i, j, j-n));
-
-				if (j == i)
-					continue;
-
-				if (etat_emplacement[j] == OCCUPE)
-				{
-					D(printf("etat_emplacement[%d] == OCCUPE\n", j));
-					continue;
-				}
-
-			//on regarde si emplacements[j] intersecte un emplacement deja occupé
-				if (ranges::any_of(views::iota(input_rectangles.size()) |
-									views::take(emplacements.size() - input_rectangles.size()) |
-									views::filter([&](int i){return i!=j;}) |
-									views::filter([&](int i){return etat_emplacement[i]==OCCUPE;}),
-									[&](int i){return intersect_strict(emplacements[i], emplacements[j]);}
-									)
-					)
-				{
-					D(printf("emplacements[%d] intersecte un emplacement deja occupé\n", j));
-					continue;
-				}
-
-// l'emplacement j est-il topologiquement lié aux rectangles auxquels i est logiquement lié et que l'on ne peut pas deplacer ?
-			//les rectangles auxquels i est logiquement lié et que l'on ne peut pas déplacer:
-				auto rg1 = le_adj_list |
-// si connected_component[i]==cmax alors i ne doit pas etre deplacé.
-					views::filter([&](const LogicalEdge& e){return connected_component[e.to] == cmax;}) |
-					views::transform([](const LogicalEdge& e){return e.to;});
-
-				D(printf("rg1={"));
-				for (int i : rg1)
-					D(printf(" %d,", i));
-				D(printf("}\n"));
-
-
-				span te_adj_list = ranges::equal_range(topological_edges, j, {}, &TopologicalEdge::from);
-
-			//les rectangles auxquels j est topologiquement lié:
-				auto rg2 = te_adj_list |
-					views::filter([&](const TopologicalEdge& e){return e.to < input_rectangles.size();}) |
-					views::filter([&](const TopologicalEdge& e){return mapping(e.to)==e.to /*connected_component[e.to] == cmax*/;}) |
-					views::transform([](const TopologicalEdge& e){return e.to;});
-
-                                D(printf("rg2={"));
-                                for (int i : rg2)
-                                        D(printf(" %d,", i));
-                                D(printf("}\n"));
-
-				assert(ranges::is_sorted(rg1));
-				assert(ranges::is_sorted(rg2));
-
-				if (ranges::includes(rg2, rg1)==false)
-				{
-					D(printf("l'emplacement %d(h=%d) est-il topologiquement lié aux rectangles auxquels %d est logiquement lié et que l'on ne peut pas deplacer ?\n", j, j-n, i));
-					D(printf("ranges::includes(rg2, rg1)==false\n"));
-					continue;
-				}
-
-			//ensuite on mappe les liens de i et on regarde si ils figurent bien dans les liens de j
-			// en ne gardant que les liens de i {e dont e.j a deja ete mappé ou e.j que l'on ne peut deplacer}
-
-				auto rg3 = le_adj_list |
-					views::filter([&](const LogicalEdge& e){return (e.to==i ? j : mapping(e.to)) != e.to || connected_component[e.to] == cmax;}) |
-					views::transform([&](const LogicalEdge& e){
-						return TopologicalEdge{
-							.from = e.from==i ? j : mapping(e.from),
-							.to = e.to==i ? j : mapping(e.to),
-							.distance=0};
-						}
-					);
-
-				assert(ranges::is_sorted(te_adj_list));
-			//rg4 est triée, mais pas rg3 because mapping shuffles the ordering
-				auto it = ranges::find_if(rg3, [&](const TopologicalEdge& e){auto rg=ranges::equal_range(te_adj_list, e); return ranges::empty(rg);});
-				if (it != ranges::end(rg3))
-				{
-					const TopologicalEdge& e = *it;
-					D(printf("ensuite on mappe les liens de %d et on regarde si ils figurent bien dans les liens de %d\n", i, j));
-					D(printf("it != ranges::end(rg3)\n"));
-					D(printf("mapped TopologicalEdge={.from=%d, .to=%d} ne figure pas parmi les liens topologiques de %d\n", e.from, e.to, j));
-					continue;
-				}
-
-//1:OCCUPE, 0:LIBRE
-				auto bitset_swap=[&](int i, int j)->bitset<BITSET_MAX_SIZE>{
-					bitset<BITSET_MAX_SIZE> etat_emplacement_ =  etat_emplacement;
-					D(printf("bitset_swap(etat_emplacement[%d], etat_emplacement[%d])\n", i, j));
-					int bi = (int)etat_emplacement_[i], bj = (int)etat_emplacement_[j];
-					swap(bi, bj);
-					etat_emplacement_[i]=bi;
-					etat_emplacement_[j]=bj;
-					D(printf("etat_emplacement_[%d]=%d\n", i, bi));
-					D(printf("etat_emplacement_[%d]=%d\n", j, bj));
-					return etat_emplacement_;
-				};
-
-                                child_nodes.push_back({
-                                        .parent_index=parent_index,
-                                        .depth=depth,
-                                        .recmap={
-                                                .i_emplacement_source=i,
-                                                .i_emplacement_destination=j
-                                        },
-					.etat_emplacement=bitset_swap(i, j)
-                                });
-			}
-		}
-
-		return child_nodes;
+			co_yield index;
+		}		
 	};
+	
+	auto child_nodes = [&](int parent_index, int depth){
 
-	for (strategy=0; strategy < Strategies.size(); strategy++)
-	{
-		int size = decision_tree.size();
-		vector<DecisionTreeNode> floor = decision_tree_list_node_children(-1);
-		D(printf("floor size=%zu\n", floor.size()));
-		ranges::copy(floor, back_inserter(decision_tree));
-
-		for (int depth=0; depth<10; depth++)
+		vector<DecisionTreeNode> result;
+		
+		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+		
+		for (int ix : walk_up_from(parent_index) | ranges::to<vector>() | views::reverse)
 		{
-			auto rg = views::iota(size, (int)decision_tree.size()) |
-				views::filter([&](int id){return decision_tree[id].depth==depth;});
-			vector<int> input(rg.begin(), rg.end());
-			vector<vector<DecisionTreeNode> > floor(input.size());
-			transform(execution::par_unseq, input.begin(), input.end(), floor.begin(), decision_tree_list_node_children);
-			size_t size = decision_tree.size();
-			ranges::copy(floor | views::join, back_inserter(decision_tree));
-			D(printf("floor.size()=%zu\n", decision_tree.size() - size));
+			const DecisionTreeNode& n = decision_tree[ix];
+			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
-	}
-
-	D(printf("decision_tree.size()=%ld\n", decision_tree.size()));
-
-	for (int i=0; i < decision_tree.size(); i++)
-	{
-		deque<RectMap> chemin;
-
-		for (int pos=i; pos != -1; pos = decision_tree[pos].parent_index)
+		
+		for (auto const [h, r] : views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
+															views::iota(0, nr_input_rectangles) |
+															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			chemin.push_front( decision_tree[pos].recmap );
-		}
-		vector<int> mapping(n);
-		for (int ii=0; ii<input_rectangles.size(); ii++)
-			mapping[ii]=ii;
-		for (const auto& [i_emplacement_source, i_emplacement_destination] : chemin)
-		{
-			mapping[i_emplacement_source] = i_emplacement_destination;
+			vector<int> emplacement_ = emplacement ;
+			swap(emplacement_[r], emplacement_[h]);
+			
+			int sigma_edge_distance = ranges::fold_left(logical_edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
+				
+			result.push_back(DecisionTreeNode{
+				.index = result.size(),
+				.parent_index = parent_index,
+				.depth=depth,
+				.sigma_edge_distance = sigma_edge_distance,
+				.i_emplacement_source = r, 
+				.i_emplacement_destination = h
+			});
 		}
 
-		auto rg = logical_edges |
-			views::transform([&](const LogicalEdge& e)->TopologicalEdge{return {
-				.from=mapping[e.from],
-				.to=mapping[e.to],
-				.distance=0
-			};});
-		vector<TopologicalEdge> v(logical_edges.size()), inter;
-		ranges::copy(rg, &v[0]);
-		ranges::sort(v);
-		ranges::set_intersection(v, topological_edges, back_inserter(inter));
-                decision_tree[i].match = inter.size();
-		D(printf("i=%d inter.size()=%ld\n", i, inter.size()));
-	}
+		return result;
+	};
+	
+	auto build_decision_tree = [&](){
+		printf("enter build_decision_tree()\n");
+		
+		for (int depth=0; depth<=7; depth++)
+		{	
+			int size = decision_tree.size();
+			
+			vector<int> indexes = decision_tree 
+						| views::filter([&](const DecisionTreeNode& n){return n.depth==depth-1;})
+						| views::transform(&DecisionTreeNode::index)
+						| ranges::to<vector>() ;
+						
+			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
+			if (indexes.size() > 2000)
+				indexes.resize(2000);
+			
 
-{
-        FILE *f=fopen("decision_tree.json", "w");
-        fprintf(f, "[\n");
-        for (int i=0; i < decision_tree.size(); i++)
-        {
-                const auto& [_, parent_index, depth, recmap, match, etat_emplacement] = decision_tree[i];
-                const auto& [i_emplacement_source, i_emplacement_destination] = recmap;
-                fprintf(f, "{\"i\":%d, \"parent_index\":%d, \"depth\":%d, \"i_emplacement_source\":%d, \"i_emplacement_destination\":%d, \"match\":%d}%s\n",
-                        i, parent_index, depth, i_emplacement_source, i_emplacement_destination, match,
-                        i+1 == decision_tree.size() ? "": ",");
-        }
-        fprintf(f, "]\n");
-        fclose(f);
-}
+			if (depth==0)
+				indexes.push_back(-1);
+
+			vector<vector<DecisionTreeNode> > vv(indexes.size());
+			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth);});
+			
+			ranges::copy( vv | views::join, back_inserter(decision_tree));
+			
+			int floor_size = decision_tree.size() - size;
+			
+			string hexbuf(10*nr_emplacements*floor_size, ' ');
+			int pos=0;
+			
+			struct Item{
+				string_view hex;
+				int idx;
+			};
+			vector<Item> items;
+			for (int idx=size; idx<decision_tree.size(); idx++)
+			{
+				vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+				
+				for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
+				{
+					const DecisionTreeNode& n = decision_tree[ix];
+					swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+				}
+
+				int n=0 ;
+				for (int i=0; i < nr_emplacements; i++)
+				{
+					n += sprintf(&hexbuf[pos+n], "%x,", emplacement[i]);
+				}
+
+				string_view hex(&hexbuf[pos], n);
+				pos += n;
+				
+				items.push_back(Item{.hex=hex, .idx=idx});
+			}
+			
+			ranges::sort(items, {}, &Item::hex);
+
+			vector<DecisionTreeNode> dedup = items |
+											views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;}) |
+											views::transform([&](auto r){return decision_tree[ r[0].idx ];}) |
+											ranges::to<vector>();
+
+			for (int i=0; i<dedup.size(); i++)
+			{
+				dedup[i].index = size+i;
+			}				
+			
+			printf("floor_size=%d\n", floor_size);
+			printf("dedup.size()=%d\n", dedup.size());
+			
+			decision_tree.resize(size);
+			ranges::copy(dedup, back_inserter(decision_tree));
+		}
+	};
+	
+	build_decision_tree();
+	
 	return decision_tree;
 }
+
 
 //TODO: use C++23 views::to<vector>().
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
