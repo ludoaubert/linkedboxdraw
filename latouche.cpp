@@ -2212,8 +2212,8 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 		D(printf("end cmpt_tr2 id=%d \n", id));
 	};
 
-	auto rng = views::iota(0, (int)decision_tree.size());
-	vector<int> input(rng.begin(), rng.end());
+	const vector<int> input = views::iota(0, (int)decision_tree.size()) | ranges::to<vector>() ;
+
 	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
 
 	string buffer = views::iota(0, n * (int)decision_tree.size()) |
@@ -2318,9 +2318,9 @@ const vector<TestContext> test_contexts={
 			{.m_left=0, .m_right=100, .m_top=150, .m_bottom=250},
 			{.m_left=100, .m_right=200, .m_top=200, .m_bottom=300}
 		},
-                .pipeline = {
-                        {.algo=COMPACT,.update_direction=NORTH_SOUTH}
-                },
+		.pipeline = {
+			{.algo=COMPACT,.update_direction=NORTH_SOUTH}
+		},
 		.expected_translations={
 			{.i=1, .x=0, .y=50},
 			{.i=3, .x=0, .y=50}
