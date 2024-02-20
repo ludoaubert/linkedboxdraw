@@ -34,6 +34,11 @@ const int NR_DIRECTIONS=2;
 
 const int RECT_BORDER = 20 ;
 
+struct MyPoint
+{
+	int x, y;
+};
+
 enum RectDim
 {
   LEFT,
@@ -83,7 +88,16 @@ struct MyRect
 		case BOTTOM:
 				return m_bottom;
 		}
-	}	
+	}
+	
+	MyRect& operator+=(const MyPoint& p)
+	{
+			m_left += p.x;
+			m_right += p.x;
+			m_top += p.y;
+			m_bottom += p.y;
+			return *this;
+	}
 };
 
 inline int width(const MyRect& r)
@@ -156,11 +170,6 @@ int edge_overlap(const MyRect& r1, const MyRect& r2)
 	else
 		return 0 ;
 }
-
-struct MyPoint
-{
-	int x, y;
-};
 
 
 struct Edge {
@@ -1450,9 +1459,9 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		fflush(stdout);
 
 		auto dim_spread = [](const MyRect& r)->float{
-			const float dim[2] = {width(r), height(r)};
+			const int dim[2] = {width(r), height(r)};
 			auto [min,Max] = ranges::minmax(dim);
-			return (Max - min) / (Max + min);
+			return (float)(Max - min) / (float)(Max + min);
 		};
 
 		auto next=[&](const vector<int>& suppressed)->int{
