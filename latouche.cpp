@@ -2788,12 +2788,10 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 	if (argc==2 && strcmp(argv[1], "--dt")==0)
 	{
-		vector<MyRect> emplacements;
-
 		const vector<MyRect> holes = compute_holes(input_rectangles);
 
 		D(printf("begin compute_decision_tree()\n"));
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(input_rectangles, holes, logical_edges, emplacements);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
                 D(printf("end compute_decision_tree()\n"));
 		fflush(stdout);
 
