@@ -1891,7 +1891,7 @@ const Job pipelines[NR_JOB_PIPELINES][1]={
 	}
 };
 
-const unsigned NR_RECT_CORNERS=4;
+const int NR_RECT_CORNERS=4;
 
 const RectDim corners[NR_RECT_CORNERS][2]={
 	{LEFT, TOP},
