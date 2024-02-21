@@ -37,6 +37,28 @@ const int RECT_BORDER = 20 ;
 struct MyPoint
 {
 	int x, y;
+	
+	int& operator[](Direction direction)
+	{
+		switch(direction)
+		{
+		case EAST_WEST:
+			return x;
+		case NORTH_SOUTH:
+			return y;
+		}
+	}
+
+	int operator[](Direction direction) const
+	{
+		switch(direction)
+		{
+		case EAST_WEST:
+				return x;
+		case NORTH_SOUTH:
+				return y;
+		}
+	}
 };
 
 enum RectDim
