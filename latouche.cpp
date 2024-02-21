@@ -193,6 +193,29 @@ int edge_overlap(const MyRect& r1, const MyRect& r2)
 		return 0 ;
 }
 
+MyRect compute_frame(span<const MyRect> rectangles)
+{
+	MyRect frame ;
+
+	if (rectangles.size()==0)
+		return frame;
+
+	return {
+		ranges::min(rectangles | views::transform(&MyRect::m_left)),
+		ranges::max(rectangles | views::transform(&MyRect::m_right)),
+		ranges::min(rectangles | views::transform(&MyRect::m_top)),
+		ranges::max(rectangles | views::transform(&MyRect::m_bottom))
+	};
+}
+
+MyPoint dimensions(const MyRect& r)
+{
+	MyPoint dim ;
+	dim.x = width(r) ;
+	dim.y = height(r) ;
+	return dim ;
+}
+
 
 struct Edge {
 	int from;
