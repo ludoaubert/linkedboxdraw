@@ -134,6 +134,11 @@ inline int height(const MyRect& r)
         return r.m_bottom - r.m_top ;
 }
 
+int dim_max(const MyRect& r)
+{
+	return max(height(r), width(r)) ;
+}
+
 int distance_between_ranges(int left1, int right1, int left2, int right2)
 {
 	if (left2 > right1)
@@ -2111,8 +2116,8 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 		views::transform([](const TranslationRangeItem& item)->string{
 			char buffer[100];
-                	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
+			const auto [id, ri, tr] = item;
+			sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
 			return buffer;
 		}) |
 		views::join_with(',') |
