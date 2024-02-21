@@ -1997,7 +1997,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 			apply_mirror(mirror, rectangles);
 
 		const string buffer = rectangles |
-					views::enumerate() |
+					views::enumerate |
 					views::transform([&](const auto& arg)->TranslationRangeItem{
 						const auto& [i, r] = arg;
 						const MyRect &ir = emplacements[i];
