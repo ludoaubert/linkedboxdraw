@@ -1651,7 +1651,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 
 			rec_push_hole(rl.j, tr+tr2, rec_push_hole);
 		}
-		int16_t &tri = translations[ri][update_direction];
+		int &tri = translations[ri][update_direction];
 		tri = max<int16_t>(tri, tr) ;
 	};
 
