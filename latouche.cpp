@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 #include <cstring>
-#include <assert.h>
+#include <cassert>
 using namespace std;
 namespace fs = std::filesystem;
 
