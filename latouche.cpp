@@ -1880,7 +1880,7 @@ const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
 	"ACTIVE,ACTIVE"
 };
 
-const unsigned NR_JOB_PIPELINES=2;
+const int NR_JOB_PIPELINES=2;
 
 const Job pipelines[NR_JOB_PIPELINES][1]={
 	{
@@ -1937,7 +1937,7 @@ void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 
 struct ProcessSelector
 {
-	unsigned pipeline, mirroring, match_corner;
+	int pipeline, mirroring, match_corner;
 };
 
 auto rg5 = views::iota(0, NR_JOB_PIPELINES);
