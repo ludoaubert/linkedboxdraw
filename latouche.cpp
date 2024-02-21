@@ -1976,10 +1976,10 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
 
-		const auto& [i_emplacement_source, i_emplacement_destination] = decision_tree[id].recmap;
+		const DecisionTreeNode& n = decision_tree[id];
 
-		MyRect &r1 = emplacements[i_emplacement_source],
-			r2 = input_emplacements[i_emplacement_destination];
+		MyRect &r1 = emplacements[n.i_emplacement_source],
+			r2 = input_emplacements[n.i_emplacement_destination];
 		const auto [RectDimX, RectDimY] = corners[match_corner];
 
 		r2 = trimmed(r2, rectangles);
