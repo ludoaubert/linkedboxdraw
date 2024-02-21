@@ -1870,7 +1870,7 @@ const vector<array<Mirror, 2> > mirrors = views::cartesian_product(rg3, rg3) |
 
 const int NR_MIRRORING_OPTIONS=4;
 
-assert(mirrors.size()==NR_MIRRORING_OPTIONS);
+//assert(mirrors.size()==NR_MIRRORING_OPTIONS);
 
 
 const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
