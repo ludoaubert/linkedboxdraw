@@ -38,6 +38,7 @@ const int RECT_BORDER = 20 ;
 struct MyPoint
 {
 	int x, y;
+	friend bool operator==(const MyPoint&, const MyPoint&) const = default;
 	
 	int& operator[](Direction direction)
 	{
