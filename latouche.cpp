@@ -2008,7 +2008,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					views::transform([&](const auto& arg)->TranslationRangeItem{
 						const auto& [i, r] = arg;
 						const MyRect &ir = emplacements[i];
-						return {.id=id, .ri=i, .tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top}};
+						return {.id=id, .ri=(int)i, .tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top}};
 						}
 					) |
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
