@@ -2051,7 +2051,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
                                         MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
                                         return {id, i, tr};}) |
                                 views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
-                                views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].recmap.i_emplacement_source;}) |
+                                views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
                                 views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
                         const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
