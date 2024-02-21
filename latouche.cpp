@@ -6,6 +6,7 @@
 #include <numeric>
 #include <ranges>
 #include <span>
+#include <generator>
 #include <execution>
 #include <stdio.h>
 #include <sys/stat.h>
