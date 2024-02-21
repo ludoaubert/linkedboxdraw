@@ -1996,24 +1996,30 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		for (const Mirror& mirror : mirrors[mirroring])
 			apply_mirror(mirror, rectangles);
 
-		auto rg2 = rectangles | views::transform([&](const MyRect& r)->TranslationRangeItem{
-                                        	const MyRect &ir = emplacements[r.i];
-                                        	return {.id=id, .ri=r.i, .tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top}};})
-				| views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};})
-				| views::transform([&](const TranslationRangeItem& item)->string{
-					const auto [id,i,tr]=item;
-					char buffer[50];
-					if (i < n)
-						sprintf(buffer, "{id=%d, ri=%d, tr={x=%d, y=%d}} ", id, i, tr.x, tr.y);
-					else
-						sprintf(buffer, "{id=%d, ri=h%d, tr={x=%d, y=%d}} ", id, i-n, tr.x, tr.y);
-					return buffer;})
-				| views::join;
+		const string buffer = rectangles |
+					views::enumerate() |
+					views::transform([&](const auto& arg)->TranslationRangeItem{
+						const auto& [i, r] = arg;
+						const MyRect &ir = emplacements[i];
+						return {.id=id, .ri=r.i, .tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top}};
+						}
+					) |
+					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+					views::transform([&](const TranslationRangeItem& item)->string{
+						const auto [id,i,tr]=item;
+						char buffer[50];
+						if (i < n)
+							sprintf(buffer, "{id=%d, ri=%d, tr={x=%d, y=%d}} ", id, i, tr.x, tr.y);
+						else
+							sprintf(buffer, "{id=%d, ri=h%d, tr={x=%d, y=%d}} ", id, i-n, tr.x, tr.y);
+						return buffer;
+						}
+					) |
+					views::join |
+					ranges::to<string>();
 
-                D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] tf output translations=", id, pipeline, mirroring, match_corner));
-                for (char c : rg2)
-                        D(printf("%c", c));
-                D(printf("\n"));
+        D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] tf output translations=", id, pipeline, mirroring, match_corner));
+		D(printf("%s\n", buffer.c_str()));
 	};
 
 	auto cdtt = [&](int id){
