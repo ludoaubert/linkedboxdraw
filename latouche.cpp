@@ -1691,8 +1691,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 		auto selected_rect_links = rect_links | views::filter([&](const RectLink& lnk){return rectangles[lnk.i][maxCompactRectDim] == rectangles[lnk.j][minCompactRectDim];});
 		vector<vector<int> > vv(20);
-		auto rng = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;});
-		ranges::copy(rng, back_inserter(vv[0]));
+		vv[0] = views::iota(0,n) | 
+				views::filter([&](int i){return rectangles[i][minCompactRectDim]==frame_min;}) |
+				ranges::to<vector>();
 
 		partial_sum(vv.begin(), vv.end(), vv.begin(),
 				[&](const vector<int>& prev, const vector<int>&){
