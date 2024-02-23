@@ -1526,6 +1526,16 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			D(printf("%d,", i));
 		D(printf("}\n"));
 		fflush(stdout);
+		
+/*
+TODO: replacing partial_sum() by C++23 left_fold()
+suppressed = ranges::left_fold(views::iota(0,30), suppressed, [&](const vector<int>& prev, int k)->vector<int>{
+				vector<int> next = prev;
+				int i = next(prev);
+				if (i!=-1 && i <next.size())
+					next[i]=1;
+				return next;});
+*/
 
 		vector<vector<int> > vv(30);
 		vv[0] = suppressed;
