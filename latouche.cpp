@@ -1527,36 +1527,16 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		D(printf("}\n"));
 		fflush(stdout);
 		
-/*
-TODO: replacing partial_sum() by C++23 left_fold()
-suppressed = ranges::left_fold(views::iota(0,30), suppressed, [&](const vector<int>& prev, int k)->vector<int>{
-				vector<int> next = prev;
-				int i = next(prev);
-				if (i!=-1 && i <next.size())
-					next[i]=1;
-				return next;});
-*/
+// recurrence unfolds 30 times. After a while, next(prev) will return -1 and the recurrence will stop having effect.
 
-		vector<vector<int> > vv(30);
-		vv[0] = suppressed;
+		suppressed = ranges::fold_left(views::iota(0,30), suppressed, [&](const vector<int>& prev, int k)->vector<int>{
+						vector<int> result = prev;
+						int i = next(prev);
+						if (i > 0 && i <result.size())
+							result[i]=1;
+						return result;}
+					);
 
-		D(printf("calling partial_sum()\n"));
-		fflush(stdout);
-
-		partial_sum(vv.begin(), vv.end(), vv.begin(),
-			[&](const vector<int>& prev, const vector<int>&)->vector<int>{
-				if (prev.empty()) return {};
-				int i = next(prev);
-				if (i==-1)return {};
-				vector<int> next = prev;
-				next[i]=1;
-				return next;}
-			);
-
-		D(printf("returned from partial_sum()\n"));
-		fflush(stdout);
-
-		suppressed = *(ranges::find(vv, vector<int>())-1);
 		D(printf("suppressed={"));
 		for (int i : suppressed)
 			D(printf("%d,", i));
