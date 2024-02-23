@@ -1052,6 +1052,23 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	return {};
 }
 
+/*
+TODO: replacing partial_sum() by C++23 left_fold()
+auto next=[](vector<MyRect> previous, const MyRect& ri){
+	D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
+	fflush(stdout);
+
+	return previous |
+			views::transform([&](const MyRect& r){
+				const vector<MyRect> rects = trimmed(r, ri);
+				return rects.empty() ? vector{r} : rects;
+			}) |
+			views::join |
+			ranges::to<vector>() ;
+};
+vector<MyRect> rects = ranges::fold_left(rectangles, vector{r}, next);
+return ranges::max(rects, {}, [](const MyRect& r){return width(r)*height(r);});
+*/
 
 MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 {
