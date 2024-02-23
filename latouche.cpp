@@ -1543,9 +1543,10 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		D(printf("}\n"));
 		fflush(stdout);
 
-		auto rg = views::iota(0,n) | views::filter([&](int i){return suppressed[i]==0;})
-				| views::transform([&](int i){return holes[i];});
-		return vector<MyRect>(ranges::begin(rg), ranges::end(rg));
+		return views::iota(0,n) |
+				views::filter([&](int i){return suppressed[i]==0;}) |
+				views::transform([&](int i){return holes[i];}) |
+				ranges::to<vector>();
 	};
 
 	vector<vector<MyRect> > vv(3);
