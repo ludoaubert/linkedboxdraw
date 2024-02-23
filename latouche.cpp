@@ -1052,59 +1052,26 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	return {};
 }
 
-/*
-TODO: replacing partial_sum() by C++23 left_fold()
-auto next=[](vector<MyRect> previous, const MyRect& ri){
-	D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
-	fflush(stdout);
-
-	return previous |
-			views::transform([&](const MyRect& r){
-				const vector<MyRect> rects = trimmed(r, ri);
-				return rects.empty() ? vector{r} : rects;
-			}) |
-			views::join |
-			ranges::to<vector>() ;
-};
-vector<MyRect> rects = ranges::fold_left(rectangles, vector{r}, next);
-return ranges::max(rects, {}, [](const MyRect& r){return width(r)*height(r);});
-*/
 
 MyRect trimmed(const MyRect& r, span<const MyRect> rectangles)
 {
 	D(printf("begin trimmed\n"));
-	D(printf("r={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", r.m_left, r.m_right, r.m_bottom, r.m_top));
-	fflush(stdout);
 
-	const int n = rectangles.size();
+	auto next=[](vector<MyRect> previous, const MyRect& ri){
 
-	fflush(stdout);
-	vector<vector<MyRect> > vv(n+1);
-	vv[0]={r};
-	int i=0;
-
-	auto next=[&](const vector<MyRect>& previous, const vector<MyRect>&){
-		const MyRect& ri = rectangles[i];
-                D(printf("i=%d\n", i));
-		D(printf("r%d={m_left=%d, m_right=%d, m.top=%d, m_bottom=%d}\n", i, ri.m_left, ri.m_right, ri.m_top, ri.m_bottom));
-		fflush(stdout);
-
-		vector<MyRect> v = previous |
-			views::transform([&](const MyRect& r){
-				const vector<MyRect> rects = trimmed(r, ri);
-				return rects.empty() ? vector{r} : rects;
-			}) |
-			views::join |
-			ranges::to<vector>() ;
-
-		D(printf("v.size()=%zu\n", v.size()));
-		fflush(stdout);
-		i++;
-		return v;
+		return previous |
+				views::transform([&](const MyRect& r){
+					const vector<MyRect> rects = trimmed(r, ri);
+					return rects.empty() ? vector{r} : rects;
+				}) |
+				views::join |
+				ranges::to<vector>() ;
 	};
 
-	partial_sum(vv.begin(), vv.end(), vv.begin(), next);
-	return ranges::max(vv.back(), {}, [](const MyRect& r){return width(r)*height(r);});
+	vector<MyRect> rects = ranges::fold_left(rectangles, vector{r}, next);
+
+	return ranges::max(rects, {}, [](const MyRect& r){return width(r)*height(r);});
+
 	D(printf("end trimmed\n"));
 }
 
