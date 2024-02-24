@@ -1424,13 +1424,15 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 						case NORTH_SOUTH:
 							return {.m_left=min_sweep_value, .m_right=max_sweep_value, .m_top=ri.m_bottom, .m_bottom=rj.m_top};
 						}
-					}) | views::filter([](const MyRect& r){
+					}) | 
+					views::filter([](const MyRect& r){
 						return r.m_left != r.m_right && r.m_top != r.m_bottom;
-					}) | views::filter([](const MyRect& r){
+					}) | 
+					views::filter([](const MyRect& r){
 						return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
 					});
 				return rg;
-			) |
+			}) |
 			views::join |
 			views::join |
 			ranges::to<vector>();
