@@ -1470,6 +1470,7 @@ TODO: this code is a candidate to replace the too complex code below
 									[](const Edge& e, vector<int> suppressed){
 										if (suppressed[e.from]==0)
 											suppressed[e.to] = 1;
+										return suppressed;
 									}
 				);
 	
