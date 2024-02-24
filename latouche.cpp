@@ -1375,12 +1375,6 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 }
 
 
-struct HoleMatch{
-	int i, j;
-	friend auto operator<=>(const HoleMatch&, const HoleMatch&) = default;
-};
-
-
 vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 {
 	const MyRect frame={
