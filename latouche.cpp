@@ -1393,10 +1393,8 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 
 	auto next=[&](const vector<MyRect>& in_holes){
 
-		vector<MyRect> rectangles;
-		ranges::copy(input_rectangles, back_inserter(rectangles));
-		ranges::copy(in_holes, back_inserter(rectangles));
-		ranges::copy(borders, back_inserter(rectangles));
+		auto il = {input_rectangles, in_holes, borders};
+		vector<MyRect> rectangles = il | views::join | ranges::to<vector>() ;
 
 		struct SweepContext{Direction update_direction, sweep_direction;};
 		const SweepContext ctx2[2]={
