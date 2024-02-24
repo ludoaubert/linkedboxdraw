@@ -194,10 +194,7 @@ MyRect compute_frame(span<const MyRect> rectangles)
 
 MyPoint dimensions(const MyRect& r)
 {
-	MyPoint dim ;
-	dim.x = width(r) ;
-	dim.y = height(r) ;
-	return dim ;
+	return MyPoint{.x = width(r), .y = height(r)} ;
 }
 
 
