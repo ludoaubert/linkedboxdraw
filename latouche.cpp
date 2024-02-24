@@ -1196,7 +1196,7 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 	if (n >= N)
 	{
 		D(printf("unsufficient compile time size. Will crash silently...\n"));
-                fflush(stdout);
+		fflush(stdout);
 	}
 
 	const MyPoint translation2[2]={{.x=1, .y=0}, {.x=0, .y=1}};
