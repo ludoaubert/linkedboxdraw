@@ -289,7 +289,7 @@ struct RectLink
 {
 	int i;
 	int j;
-	int min_sweep_value, max_sweep_value=INT16_MAX;
+	int min_sweep_value, max_sweep_value=INT_MAX;
 	auto operator<=>(const RectLink&) const = default;
 };
 
@@ -1256,10 +1256,11 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 
 		if (pos > 0 && pos < active_line_size)
 		{
-			rect_links_buffer[rect_links_size++] = {
+			rect_links_buffer[rect_links_size++] = RectLink{
 				.i=active_line[pos-1].i,
 				.j=active_line[pos].i,
-				.min_sweep_value=sweep_value
+				.min_sweep_value=sweep_value,
+				.max_sweep_value=INT_MAX
 			};
 
 			if (RectLink *rl=active_line[pos-1].links[1]; rl!=0)
@@ -1286,10 +1287,11 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 
 		if (pos > 0)
 		{
-			rect_links_buffer[rect_links_size++] = {
+			rect_links_buffer[rect_links_size++] = RectLink{
 				.i=active_line[pos-1].i,
 				.j=active_line[pos].i,
-				.min_sweep_value=sweep_value
+				.min_sweep_value=sweep_value,
+				.max_sweep_value=INT_MAX
 			};
 
 			if (RectLink *rl=active_line[pos].links[0]; rl!=0)
@@ -1300,10 +1302,11 @@ vector<RectLink> sweep(Direction update_direction, const span<MyRect>& rectangle
 		}
 		if (pos+1 < active_line_size)
 		{
-			rect_links_buffer[rect_links_size++] = {
+			rect_links_buffer[rect_links_size++] = RectLink{
 				.i=active_line[pos].i,
 				.j=active_line[pos+1].i,
-				.min_sweep_value=sweep_value
+				.min_sweep_value=sweep_value,
+				.max_sweep_value=INT_MAX
 			};
 
 			if (RectLink *rl=active_line[pos].links[1]; rl!=0)
