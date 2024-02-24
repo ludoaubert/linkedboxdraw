@@ -1441,8 +1441,44 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		D(printf("}\n"));
 		fflush(stdout);
 
+/*
+TODO: this code is a candidate to replace the too complex code below
+	int n = holes.size();
+	vector<float> dim_spread = holes |
+								views::transform([](const MyRect& r)->float{
+									const int dim[2] = {width(r), height(r)};
+									auto [min,Max] = ranges::minmax(dim);
+									return (float)(Max - min) / (float)(Max + min);
+								}) |
+								ranges::to<vector>();
+		
+	auto rg = views::iota(0, n);
+	vector<Edge> inter = views::cartesian_product(rg, rg) |
+						views::transform([](auto arg){
+							auto [i, j] = arg ;	return Edge{.from=i, .to=j};
+						}) |
+						views::filter([&](const Edge& e){
+							return e.from != e.to && intersect_strict(holes[e.from], holes[e.to]);
+						}) |
+						ranges::to<vector>() ;
+
+	ranges::sort(inter, {}, [&](const Edge& e){return dim_spread[e.to];}) ;
+
+	vector<int> suppressed(holes.size(), 0);
+	suppressed = ranges::left_fold(inter | views::reverse,
+									suppressed,
+									[](const Edge& e, vector<int> suppressed){
+										if (suppressed[e.from]==0)
+											suppressed[e.to] = 1;
+									}
+				);
+	
+*/
+
+
 		if (holes.empty())
 			return holes;
+	
 
 		auto [m, n] = ranges::minmax(n2);
 
