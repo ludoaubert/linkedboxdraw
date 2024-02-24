@@ -184,7 +184,7 @@ MyRect compute_frame(span<const MyRect> rectangles)
 	if (rectangles.size()==0)
 		return frame;
 
-	return {
+	return MyRect{
 		.m_left = ranges::min(rectangles | views::transform(&MyRect::m_left)),
 		.m_right = ranges::max(rectangles | views::transform(&MyRect::m_right)),
 		.m_top = ranges::min(rectangles | views::transform(&MyRect::m_top)),
