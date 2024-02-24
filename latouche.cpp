@@ -1473,6 +1473,18 @@ TODO: this code is a candidate to replace the too complex code below
 										return suppressed;
 									}
 				);
+				
+	holes = holes |
+				views::enumerate |
+				views::filter([&](auto arg){
+					auto [i, r] = arg;
+					return suppressed[i]==0;
+				}) |
+				views::transform([](auto arg){
+					auto  [i, r] = arg;
+					return r;
+				}) |
+				ranges::to<vector>() ;
 	
 */
 
