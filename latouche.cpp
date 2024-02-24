@@ -41,25 +41,15 @@ struct MyPoint
 	int x, y;
 	friend bool operator==(const MyPoint&, const MyPoint&) = default;
 	
-	int& operator[](Direction direction)
+    template <class Self>
+	auto&& operator[](this Self&& self, Direction direction)
 	{
 		switch(direction)
 		{
 		case EAST_WEST:
-			return x;
+				return self.x;
 		case NORTH_SOUTH:
-			return y;
-		}
-	}
-
-	int operator[](Direction direction) const
-	{
-		switch(direction)
-		{
-		case EAST_WEST:
-				return x;
-		case NORTH_SOUTH:
-				return y;
+				return self.y;
 		}
 	}
 };
@@ -85,33 +75,19 @@ struct MyRect
 	
 	friend bool operator==(const MyRect&, const MyRect&) = default;
 	
-	inline int operator[](RectDim rd) const
+	template <class Self>
+	auto&& operator[](this Self&& self, RectDim rd)
 	{
 		switch(rd)
 		{
 		case LEFT:
-			return m_left;
+				return self.m_left;
 		case RIGHT:
-			return m_right;
+				return self.m_right;
 		case TOP:
-			return m_top;
+				return self.m_top;
 		case BOTTOM:
-			return m_bottom;
-		}
-	}
-
-	inline int& operator[](RectDim rd)
-	{
-		switch(rd)
-		{
-		case LEFT:
-				return m_left;
-		case RIGHT:
-				return m_right;
-		case TOP:
-				return m_top;
-		case BOTTOM:
-				return m_bottom;
+				return self.m_bottom;
 		}
 	}
 	
