@@ -971,25 +971,22 @@ struct TrimProcessSelector
 };
 
 
-//TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
-
-auto rg1 = views::iota(0, NR_TRIM_ALGO);
-auto rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
-
-const vector<TrimProcessSelector> trim_process_selectors = views::cartesian_product(rg1, rg2) |
-															views::transform([](auto arg){
-																	auto [trim_algo, mirroring]=arg;
-																	return TrimProcessSelector{trim_algo, mirroring};
-																	}
-															) |
-															ranges::to<vector>() ;
-
-
 vector<MyRect> trimmed(MyRect r, MyRect by)
 {
+	auto rg1 = views::iota(0, NR_TRIM_ALGO);
+	auto rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
+
+//TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
+
+	auto rg = views::cartesian_product(rg1, rg2) |
+				views::transform([](auto arg){
+					auto [trim_algo, mirroring]=arg;
+					return TrimProcessSelector{trim_algo, mirroring};
+				});
+	
 	vector<MyRect> rects;
 
-	for (const auto [trim_algo, mirroring] : trim_process_selectors)
+	for (const auto [trim_algo, mirroring] : rg)
 	{
 		ranges::for_each(trim_mirrors[mirroring], [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
@@ -1011,13 +1008,16 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 			D(printf("trim_algo=%u, mirroring=%u\n", trim_algo, mirroring));
 			D(printf("TrimAlgoString = %s\n", TrimAlgoStrings[trim_algo]));
 			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[mirroring]));
-			auto rg = rects | views::transform([](const MyRect& r)->string{
+			string buffer = rects |
+							views::transform([](const MyRect& r)->string{
 								char buffer[80];
 								sprintf(buffer,"{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom);
-								return buffer;})
-					| views::join;
-			for (char c : rg)
-				D(printf("%c", c));
+								return buffer;
+								}) |
+							views::join |
+							ranges::to<string>();
+
+			D(printf("%s", buffer));
 
 			return rects;
 		}
