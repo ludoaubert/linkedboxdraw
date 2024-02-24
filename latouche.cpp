@@ -1409,169 +1409,75 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			{.update_direction=EAST_WEST, .sweep_direction=NORTH_SOUTH},
 			{.update_direction=NORTH_SOUTH, .sweep_direction=EAST_WEST}
 		};
-		vector<MyRect> holes;
-		int n2[2];
-		for (const auto [update_direction, sweep_direction] : ctx2)
-		{
-			const vector<RectLink> rect_links = sweep(update_direction, rectangles);
-			auto rg = rect_links |
-				views::transform([&](const RectLink& lnk)->MyRect{
-					const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
-					const MyRect &ri=rectangles[i], &rj=rectangles[j];
-					switch(update_direction)
-					{
-					case EAST_WEST:
-						return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
-					case NORTH_SOUTH:
-						return {.m_left=min_sweep_value, .m_right=max_sweep_value, .m_top=ri.m_bottom, .m_bottom=rj.m_top};
-					}
-				}) | views::filter([](const MyRect& r){
-					return r.m_left != r.m_right && r.m_top != r.m_bottom;
-				}) | views::filter([](const MyRect& r){
-					return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
-				});
+		vector<MyRect> holes = ctx2 |
+			views::transform([&](auto arg){
+				const auto [update_direction, sweep_direction] = arg;
+				const vector<RectLink> rect_links = sweep(update_direction, rectangles);
+				auto rg = rect_links |
+					views::transform([&](const RectLink& lnk)->MyRect{
+						const auto [i, j, min_sweep_value, max_sweep_value] = lnk;
+						const MyRect &ri=rectangles[i], &rj=rectangles[j];
+						switch(update_direction)
+						{
+						case EAST_WEST:
+							return {.m_left=ri.m_right, .m_right=rj.m_left, .m_top=min_sweep_value, .m_bottom=max_sweep_value};
+						case NORTH_SOUTH:
+							return {.m_left=min_sweep_value, .m_right=max_sweep_value, .m_top=ri.m_bottom, .m_bottom=rj.m_top};
+						}
+					}) | views::filter([](const MyRect& r){
+						return r.m_left != r.m_right && r.m_top != r.m_bottom;
+					}) | views::filter([](const MyRect& r){
+						return 5*min<int>(width(r), height(r)) >= RECTANGLE_BOTTOM_CAP;
+					});
+				return rg;
+			) |
+			views::join |
+			views::join |
+			ranges::to<vector>();
 
-			ranges::copy(rg, back_inserter(holes));
-			n2[sweep_direction] = holes.size();
-		}
+		int n = holes.size();
+		vector<float> dim_spread = holes |
+									views::transform([](const MyRect& r)->float{
+										const int dim[2] = {width(r), height(r)};
+										auto [min,Max] = ranges::minmax(dim);
+										return (float)(Max - min) / (float)(Max + min);
+									}) |
+									ranges::to<vector>();
+			
+		auto rg = views::iota(0, n);
+		vector<Edge> inter = views::cartesian_product(rg, rg) |
+							views::transform([](auto arg){
+								auto [i, j] = arg ;	return Edge{.from=i, .to=j};
+							}) |
+							views::filter([&](const Edge& e){
+								return e.from != e.to && intersect_strict(holes[e.from], holes[e.to]);
+							}) |
+							ranges::to<vector>() ;
 
-		D(printf("holes={\n"));
-		for (const MyRect& r : holes)
-			D(printf("{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom));
-		D(printf("}\n"));
-		fflush(stdout);
-
-/*
-TODO: this code is a candidate to replace the too complex code below
-	int n = holes.size();
-	vector<float> dim_spread = holes |
-								views::transform([](const MyRect& r)->float{
-									const int dim[2] = {width(r), height(r)};
-									auto [min,Max] = ranges::minmax(dim);
-									return (float)(Max - min) / (float)(Max + min);
-								}) |
-								ranges::to<vector>();
-		
-	auto rg = views::iota(0, n);
-	vector<Edge> inter = views::cartesian_product(rg, rg) |
-						views::transform([](auto arg){
-							auto [i, j] = arg ;	return Edge{.from=i, .to=j};
-						}) |
-						views::filter([&](const Edge& e){
-							return e.from != e.to && intersect_strict(holes[e.from], holes[e.to]);
-						}) |
-						ranges::to<vector>() ;
-
-	ranges::sort(inter, {}, [&](const Edge& e){return dim_spread[e.to];}) ;
-
-	vector<int> suppressed(holes.size(), 0);
-	suppressed = ranges::left_fold(inter | views::reverse,
-									suppressed,
-									[](const Edge& e, vector<int> suppressed){
-										if (suppressed[e.from]==0)
-											suppressed[e.to] = 1;
-										return suppressed;
-									}
-				);
-				
-	holes = holes |
-				views::enumerate |
-				views::filter([&](auto arg){
-					auto [i, r] = arg;
-					return suppressed[i]==0;
-				}) |
-				views::transform([](auto arg){
-					auto  [i, r] = arg;
-					return r;
-				}) |
-				ranges::to<vector>() ;
-	
-*/
-
-
-		if (holes.empty())
-			return holes;
-	
-
-		auto [m, n] = ranges::minmax(n2);
-
-		D(printf("[m, n] = [%d, %d]\n", m, n));
-		fflush(stdout);
-
-		vector<HoleMatch> intersections;
-
-		for (int i=0; i < m; i++)
-		{
-			for (int j=m; j < n; j++)
-			{
-				if (intersect_strict(holes[i], holes[j]))
-				{
-					intersections.push_back({i,j});
-					intersections.push_back({j,i});
-				}
-			}
-		}
-
-		ranges::sort(intersections);
-
-		D(printf("intersections={\n"));
-		for (const auto& [i, j] : intersections)
-			D(printf("{.i=%d, .j=%d}\n", i, j));
-		D(printf("}\n"));
-		fflush(stdout);
-
-		auto dim_spread = [](const MyRect& r)->float{
-			const int dim[2] = {width(r), height(r)};
-			auto [min,Max] = ranges::minmax(dim);
-			return (float)(Max - min) / (float)(Max + min);
-		};
-
-		auto next=[&](const vector<int>& suppressed)->int{
-                	auto rg = intersections | views::filter([&](const HoleMatch& match){
-                       		auto [i,j]=match;
-                        	return suppressed[i]==0 && suppressed[j]==0;
-                	});
-
-                	if (ranges::empty(rg))
-                        	return -1;
-                	int i = ranges::max(rg | views::transform([](const HoleMatch& match){auto [i,j]=match; return array<int,2>{i,j};}) |
-                        	                views::join, {}, [&](int i){
-                                	auto rng = ranges::equal_range(intersections, i, {}, &HoleMatch::i) |
-                                                views::transform(&HoleMatch::j) |
-                                                views::filter([&](int j){return suppressed[j]==0;}) |
-                                                views::transform([&](int j){return dim_spread(holes[j]);}) ;
-                        		return dim_spread(holes[i]) - ranges::max(rng);
-                        	});
-			return i;
-		};
+		ranges::sort(inter, {}, [&](const Edge& e){return dim_spread[e.to];}) ;
 
 		vector<int> suppressed(holes.size(), 0);
-		D(printf("suppressed={"));
-		for (int i : suppressed)
-			D(printf("%d,", i));
-		D(printf("}\n"));
-		fflush(stdout);
-		
-// recurrence unfolds 30 times. After a while, next(prev) will return -1 and the recurrence will stop having effect.
-
-		suppressed = ranges::fold_left(views::iota(0,30), suppressed, [&](const vector<int>& prev, int k)->vector<int>{
-						vector<int> result = prev;
-						int i = next(prev);
-						if (i > 0 && i <result.size())
-							result[i]=1;
-						return result;}
+		suppressed = ranges::left_fold(inter | views::reverse,
+										suppressed,
+										[](const Edge& e, vector<int> suppressed){
+											if (suppressed[e.from]==0)
+												suppressed[e.to] = 1;
+											return suppressed;
+										}
 					);
-
-		D(printf("suppressed={"));
-		for (int i : suppressed)
-			D(printf("%d,", i));
-		D(printf("}\n"));
-		fflush(stdout);
-
-		return views::iota(0,n) |
-				views::filter([&](int i){return suppressed[i]==0;}) |
-				views::transform([&](int i){return holes[i];}) |
-				ranges::to<vector>();
+					
+		holes = holes |
+					views::enumerate |
+					views::filter([&](auto arg){
+						auto [i, r] = arg;
+						return suppressed[i]==0;
+					}) |
+					views::transform([](auto arg){
+						auto  [i, r] = arg;
+						return r;
+					}) |
+					ranges::to<vector>() ;
+		return holes;
 	};
 
 	vector<vector<MyRect> > vv(3);
@@ -1592,7 +1498,6 @@ TODO: this code is a candidate to replace the too complex code below
 
 	const vector<MyRect> holes = vv | views::join | ranges::to<vector>();
 
-{
 	char buffer[100*1000];
 	int pos=0;
         pos += sprintf(buffer + pos,"{\n\"holes\":[");
@@ -1601,24 +1506,10 @@ TODO: this code is a candidate to replace the too complex code below
 		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
 			r.m_left, r.m_right, r.m_top, r.m_bottom);
 	}
-	pos += sprintf(buffer + --pos,"\n],\n\"topological_contact\":[");
-
-	const int n = input_rectangles.size();
-
-	for (int hi=0; hi < holes.size(); hi++)
-	{
-		const MyRect& rec = holes[hi];
-		for (int rj : views::iota(0, n) | views::filter([&](int rj){return edge_overlap(rec, input_rectangles[rj]);}))
-		{
-			pos += sprintf(buffer+pos, "\n\t{\"hi\":%d, \"rj\":%d},", hi, rj);
-		}
-	}
-	pos += sprintf(buffer + --pos, "\n]\n}");
 
 	FILE *f=fopen("holes.json", "w");
 	fprintf(f, "%s", buffer);
 	fclose(f);
-}
 
 	return holes;
 }
