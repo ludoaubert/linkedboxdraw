@@ -1384,7 +1384,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		.m_bottom=ranges::max(input_rectangles | views::transform(&MyRect::m_bottom))
 	};
 
-	const MyRect borders[4] = {
+	const vector<MyRect> borders = {
 		{.m_left=frame.m_left-10, .m_right=frame.m_left, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
 		{.m_left=frame.m_right, .m_right=frame.m_right+10, .m_top=frame.m_top, .m_bottom=frame.m_bottom},
 		{.m_left=frame.m_left, .m_right=frame.m_right, .m_top=frame.m_top-10, .m_bottom=frame.m_top},
@@ -1426,7 +1426,6 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 				return rg;
 			}) |
 			views::join |
-			views::join |
 			ranges::to<vector>();
 
 		int n = holes.size();
@@ -1451,9 +1450,9 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		ranges::sort(inter, {}, [&](const Edge& e){return dim_spread[e.to];}) ;
 
 		vector<int> suppressed(holes.size(), 0);
-		suppressed = ranges::left_fold(inter | views::reverse,
+		suppressed = ranges::fold_left(inter | views::reverse,
 										suppressed,
-										[](const Edge& e, vector<int> suppressed){
+										[](vector<int> suppressed, const Edge& e){
 											if (suppressed[e.from]==0)
 												suppressed[e.to] = 1;
 											return suppressed;
