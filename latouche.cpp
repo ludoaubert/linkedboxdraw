@@ -1465,10 +1465,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 						auto [i, r] = arg;
 						return suppressed[i]==0;
 					}) |
-					views::transform([](auto arg){
-						auto  [i, r] = arg;
-						return r;
-					}) |
+					views::elements<1> |
 					ranges::to<vector>() ;
 		return holes;
 	};
