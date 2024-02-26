@@ -953,9 +953,8 @@ struct TrimProcessSelector
 	auto rg1 = views::iota(0, NR_TRIM_ALGO);
 	auto rg2 = views::iota(0, NR_MIRRORING_STATES);
 	
-	for (const auto [trim_algo, mirroring] = views::cartesian_product(rg1, views::cartesian_product(rg2, rg2, rg2)))
+	for (const auto [trim_algo, a, b, c] = views::cartesian_product(rg1, rg2, rg2, rg2))
 	{
-		const auto [a, b, c]=mirroring;
 		int states[3] = { a, b, c } ;
 
 		array<TrimMirror, 3> tm;
