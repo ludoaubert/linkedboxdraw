@@ -1618,8 +1618,9 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::for_each(vv | views::join, [&](int i){partition[i]=1;});
 
 
-		auto r = rect_links | views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];})
-				| views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
+		auto r = rect_links |
+				views::filter([&](const RectLink& e){return partition[e.i] > partition[e.j];}) |
+				views::transform([&](const RectLink& e){return rectangles[e.j][minCompactRectDim]-rectangles[e.i][maxCompactRectDim];}) ;
 
 		vector<TranslationRangeItem> translation_ranges;
 
