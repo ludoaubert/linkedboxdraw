@@ -1629,22 +1629,24 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		MyPoint tr={.x=0, .y=0};
 		tr[update_direction] = min<int>(ranges::min(r), next_min - frame_min);
 
-		auto rg2 = views::iota(0,n) | views::filter([&](int i){return partition[i]==1;})
-					| views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
+		auto rg2 = views::iota(0,n) |
+					views::filter([&](int i){return partition[i]==1;}) |
+					views::transform([&](int i){return TranslationRangeItem{.id=id,.ri=i,.tr=tr};});
 
 		ranges::for_each(rg2, [&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-		auto rg3 = views::iota(0,n) | views::filter([&](int i){return rectangles[i][minCompactRectDim] != input_rectangles[i][minCompactRectDim];})
-						| views::transform([&](int i){MyPoint tr;
-										tr[update_direction] = rectangles[i][minCompactRectDim] - input_rectangles[i][minCompactRectDim];
-										return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
-									});
-		for (const auto [id, ri, tr] : rg3)
+		translation_ranges = views::iota(0,n) |
+					views::filter([&](int i){return rectangles[i][minCompactRectDim] != input_rectangles[i][minCompactRectDim];}) |
+					views::transform([&](int i){
+						MyPoint tr;
+						tr[update_direction] = rectangles[i][minCompactRectDim] - input_rectangles[i][minCompactRectDim];
+						return TranslationRangeItem{.id=id, .ri=i, .tr=tr};
+					}) |
+					ranges::to<vector>();
+		for (const auto [id, ri, tr] : translation_ranges)
 		{
 			D(printf("{.id=%d, .ri=%d, .tr={.x=%d, .y=%d}},\n", id, ri, tr.x, tr.y));
 		}
-
-		ranges::copy(rg3, back_inserter(translation_ranges));
 		return translation_ranges;
 	};
 
