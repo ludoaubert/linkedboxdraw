@@ -1468,9 +1468,9 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 	const int N=30;
 	int n = rectangles.size();
 
-        MyPoint translations[N];
+	MyPoint translations[N];
 
-        ranges::fill(translations, MyPoint{0,0});
+	ranges::fill(translations, MyPoint{0,0});
 
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
