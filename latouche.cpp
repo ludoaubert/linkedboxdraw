@@ -808,27 +808,6 @@ struct TrimMirror{
 };
 
 
-auto rg = views::iota(0, NR_MIRRORING_STATES);
-
-const vector<array<TrimMirror, 3> > trim_mirrors = views::cartesian_product(rg, rg, rg) |
-											views::transform([](auto arg){
-												const auto [i, j, k]=arg;
-												int states[3] = { i, j, k } ;
-												array<TrimMirror, 3> a;
-												for (int k=0; k<3; k++)
-													a[k] = TrimMirror{
-															.mirroring_state=(MirroringState)states[k],
-															.mirroring_direction=(TrimMirrorDirection)k
-															};
-												return a;
-											}
-											) |
-											ranges::to<vector>();
-
-
-const int NR_TRIM_MIRRORING_OPTIONS = trim_mirrors.size();
-
-
 
 /*      by
       +------+
@@ -973,6 +952,7 @@ struct TrimProcessSelector
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
 {
+	const NR_TRIM_MIRRORING_OPTIONS = NR_MIRRORING_STATES * NR_MIRRORING_STATES * NR_MIRRORING_STATES;
 	auto rg1 = views::iota(0, NR_TRIM_ALGO);
 	auto rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
 
@@ -995,6 +975,21 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 		);
 
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
+
+		auto rg = views::iota(0, NR_MIRRORING_STATES);
+
+		auto trim_mirrors = views::cartesian_product(rg, rg, rg) |
+							views::transform([](auto arg){
+								const auto [i, j, k]=arg;
+								int states[3] = { i, j, k } ;
+								array<TrimMirror, 3> a;
+								for (int k=0; k<3; k++)
+									a[k] = TrimMirror{
+											.mirroring_state=(MirroringState)states[k],
+											.mirroring_direction=(TrimMirrorDirection)k
+											};
+								return a;
+							});
 
 		ranges::for_each(trim_mirrors[mirroring] | views::reverse, [&](const TrimMirror mirror){
 			apply_trim_mirror(mirror, r);
