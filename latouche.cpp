@@ -1429,7 +1429,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 			ranges::to<vector>();
 
 		int n = holes.size();
-		vector<float> dim_spread = holes |
+		const vector<float> dim_spread = holes |
 									views::transform([](const MyRect& r)->float{
 										const int dim[2] = {width(r), height(r)};
 										auto [min,Max] = ranges::minmax(dim);
