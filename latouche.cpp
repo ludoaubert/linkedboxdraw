@@ -203,9 +203,6 @@ struct Edge {
 const int RECTANGLE_BOTTOM_CAP=200;
 
 
-const unsigned BITSET_MAX_SIZE=128;
-
-
 struct DecisionTreeNode
 {
 	int index=0;
