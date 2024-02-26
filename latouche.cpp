@@ -970,8 +970,8 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 	auto trim_mirrors = views::cartesian_product(rng, rng, rng) |
 						views::transform([](auto arg){
-							const auto [i, j, k]=arg;
-							int states[3] = { i, j, k } ;
+							const auto [a, b, c]=arg;
+							int states[3] = { a, b, c } ;
 							array<TrimMirror, 3> a;
 							for (int k=0; k<3; k++)
 								a[k] = TrimMirror{
