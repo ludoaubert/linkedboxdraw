@@ -949,79 +949,46 @@ struct TrimProcessSelector
 	int trim_algo, mirroring;
 };
 
-/*
+
+vector<MyRect> trimmed(MyRect r, MyRect by)
+{
 	auto rg1 = views::iota(0, NR_TRIM_ALGO);
 	auto rg2 = views::iota(0, NR_MIRRORING_STATES);
 	
 	for (const auto [trim_algo, a, b, c] = views::cartesian_product(rg1, rg2, rg2, rg2))
 	{
-		int states[3] = { a, b, c } ;
+		int states[NR_TRIM_MIRROR_DIRECTIONS] = { a, b, c } ;
+		
+		auto rg = views::iota(0,NR_TRIM_MIRROR_DIRECTIONS);
 
-		array<TrimMirror, 3> tm;
-		for (int k=0; k<3; k++)
-			tm[k] = TrimMirror{
-					.mirroring_state=(MirroringState)states[k],
-					.mirroring_direction=(TrimMirrorDirection)k
-					};
-					
-		...
-	}
-*/
-
-
-vector<MyRect> trimmed(MyRect r, MyRect by)
-{
-	const int NR_TRIM_MIRRORING_OPTIONS = NR_MIRRORING_STATES * NR_MIRRORING_STATES * NR_MIRRORING_STATES;
-	auto rg1 = views::iota(0, NR_TRIM_ALGO);
-	auto rg2 = views::iota(0, NR_TRIM_MIRRORING_OPTIONS) ;
-
-//TODO: maybe in the future there will be implicit conversion from tuple to struct, which would make the call to transform useless
-
-	auto rg = views::cartesian_product(rg1, rg2) |
-				views::transform([](auto arg){
-					auto [trim_algo, mirroring]=arg;
-					return TrimProcessSelector{trim_algo, mirroring};
-				});
-	
-	vector<MyRect> rects;
-	
-	auto rng = views::iota(0, NR_MIRRORING_STATES);
-
-	auto trim_mirrors = views::cartesian_product(rng, rng, rng) |
-						views::transform([](auto arg){
-							const auto [a, b, c]=arg;
-							int states[3] = { a, b, c } ;
-							array<TrimMirror, 3> tm;
-							for (int k=0; k<3; k++)
-								tm[k] = TrimMirror{
-										.mirroring_state=(MirroringState)states[k],
-										.mirroring_direction=(TrimMirrorDirection)k
-										};
-							return tm;
-						});
-
-	for (const auto [trim_algo, mirroring] : rg)
-	{
-		ranges::for_each(trim_mirrors[mirroring], [&](const TrimMirror mirror){
+		for (int k : rg)
+		{
+			TrimMirror mirror{
+				.mirroring_state=(MirroringState)states[k],
+				.mirroring_direction=(TrimMirrorDirection)k
+			};
 			apply_trim_mirror(mirror, r);
-			apply_trim_mirror(mirror, by);
-			}
-		);
-
+			apply_trim_mirror(mirror, by);				
+		}
+		
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
-
-		ranges::for_each(trim_mirrors[mirroring] | views::reverse, [&](const TrimMirror mirror){
+		
+		for (int k : rg | views::reverse)
+		{
+			TrimMirror mirror{
+				.mirroring_state=(MirroringState)states[k],
+				.mirroring_direction=(TrimMirrorDirection)k
+			};
 			apply_trim_mirror(mirror, r);
 			apply_trim_mirror(mirror, by);
-			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
-			}
-		);
-
+			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});			
+		}
+		
 		if (!rects.empty())
 		{
-			D(printf("trim_algo=%u, mirroring=%u\n", trim_algo, mirroring));
+			D(printf("trim_algo=%u, mirroring=%u%u%u\n", trim_algo, a,b,c));
 			D(printf("TrimAlgoString = %s\n", TrimAlgoStrings[trim_algo]));
-			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[mirroring]));
+			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[a+2*b+2*2*c]));
 			string buffer = rects |
 							views::transform([](const MyRect& r)->string{
 								char buffer[80];
