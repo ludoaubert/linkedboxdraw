@@ -949,6 +949,26 @@ struct TrimProcessSelector
 	int trim_algo, mirroring;
 };
 
+/*
+	auto rg1 = views::iota(0, NR_TRIM_ALGO);
+	auto rg2 = views::iota(0, NR_MIRRORING_STATES);
+	
+	for (const auto [trim_algo, mirroring] = views::cartesian_product(rg1, views::cartesian_product(rg2, rg2, rg2)))
+	{
+		const auto [a, b, c]=mirroring;
+		int states[3] = { a, b, c } ;
+
+		array<TrimMirror, 3> tm;
+		for (int k=0; k<3; k++)
+			tm[k] = TrimMirror{
+					.mirroring_state=(MirroringState)states[k],
+					.mirroring_direction=(TrimMirrorDirection)k
+					};
+					
+		...
+	}
+*/
+
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
 {
@@ -972,13 +992,13 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 						views::transform([](auto arg){
 							const auto [a, b, c]=arg;
 							int states[3] = { a, b, c } ;
-							array<TrimMirror, 3> a;
+							array<TrimMirror, 3> tm;
 							for (int k=0; k<3; k++)
-								a[k] = TrimMirror{
+								tm[k] = TrimMirror{
 										.mirroring_state=(MirroringState)states[k],
 										.mirroring_direction=(TrimMirrorDirection)k
 										};
-							return a;
+							return tm;
 						});
 
 	for (const auto [trim_algo, mirroring] : rg)
