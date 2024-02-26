@@ -1474,7 +1474,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
 
-	auto rec_push_hole=[&](int ri, int tr, auto&& rec_push_hole)->void{
+	auto rec_push_hole=[&](this auto&& self, int ri, int tr)->void{
 
 		D(printf("entering rec_push_hole(ri=%d ,tr=%d)\n", ri, tr));
 
@@ -1485,7 +1485,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 			if (tr2 < 0)
 				tr2 = 0;
 
-			rec_push_hole(rl.j, tr+tr2, rec_push_hole);
+			self(rl.j, tr+tr2);
 		}
 		int &tri = translations[ri][update_direction];
 		tri = max<int16_t>(tri, tr) ;
@@ -1503,7 +1503,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 		for (int j : root_nodes)
 		{
 			int tr=0;
-			rec_push_hole(j, tr, rec_push_hole);
+			rec_push_hole(j, tr);
 		}
 	};
 	push_hole();
