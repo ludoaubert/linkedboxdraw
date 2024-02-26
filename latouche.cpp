@@ -802,11 +802,6 @@ enum MirroringState
 
 const int NR_MIRRORING_STATES=2;
 
-struct TrimMirror{
-	MirroringState mirroring_state;
-	TrimMirrorDirection mirroring_direction;
-};
-
 
 
 /*      by
@@ -917,37 +912,26 @@ void apply_trim_algo(TrimAlgo trim_algo, const MyRect& r, const MyRect& by, vect
 	}
 }
 
-void apply_trim_mirror(const TrimMirror& mirror, MyRect& r)
+void apply_trim_mirror(const TrimMirrorDirection mirroring_direction, MyRect& r)
 {
-	const auto& [mirroring_state, mirroring_direction] = mirror;
-
-	if (mirroring_state == ACTIVE)
+	switch(mirroring_direction)
 	{
-		switch(mirroring_direction)
-		{
-		case VERTICAL_MIRROR:
-			r.m_left *= -1;
-			r.m_right *= -1;
-			swap(r.m_left, r.m_right);
-			break;
-		case HORIZONTAL_MIRROR:
-			r.m_top *= -1;
-			r.m_bottom *= -1;
-			swap(r.m_top, r.m_bottom);
-			break;
-		case TILTED_MIRROR:
-			swap(r.m_left, r.m_top);
-			swap(r.m_right, r.m_bottom);
-			break;
-		}
+	case VERTICAL_MIRROR:
+		r.m_left *= -1;
+		r.m_right *= -1;
+		swap(r.m_left, r.m_right);
+		break;
+	case HORIZONTAL_MIRROR:
+		r.m_top *= -1;
+		r.m_bottom *= -1;
+		swap(r.m_top, r.m_bottom);
+		break;
+	case TILTED_MIRROR:
+		swap(r.m_left, r.m_top);
+		swap(r.m_right, r.m_bottom);
+		break;
 	}
 }
-
-
-struct TrimProcessSelector
-{
-	int trim_algo, mirroring;
-};
 
 
 vector<MyRect> trimmed(MyRect r, MyRect by)
@@ -963,25 +947,25 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 
 		for (int k : rg)
 		{
-			TrimMirror mirror{
-				.mirroring_state=(MirroringState)states[k],
-				.mirroring_direction=(TrimMirrorDirection)k
-			};
-			apply_trim_mirror(mirror, r);
-			apply_trim_mirror(mirror, by);				
+			if (states[k] == ACTIVE)
+			{
+				TrimMirrorDirection mirroring_direction = (TrimMirrorDirection)k;
+				apply_trim_mirror(mirroring_direction, r);
+				apply_trim_mirror(mirroring_direction, by);
+			}				
 		}
 		
 		apply_trim_algo((TrimAlgo)trim_algo, r, by, rects);
 		
 		for (int k : rg | views::reverse)
 		{
-			TrimMirror mirror{
-				.mirroring_state=(MirroringState)states[k],
-				.mirroring_direction=(TrimMirrorDirection)k
-			};
-			apply_trim_mirror(mirror, r);
-			apply_trim_mirror(mirror, by);
-			ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});			
+			if (states[k] == ACTIVE)
+			{
+				TrimMirrorDirection mirroring_direction = (TrimMirrorDirection)k;
+				apply_trim_mirror(mirroring_direction, r);
+				apply_trim_mirror(mirroring_direction, by);
+				ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
+			}				
 		}
 		
 		if (!rects.empty())
