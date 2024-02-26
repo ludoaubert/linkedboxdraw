@@ -179,11 +179,6 @@ int edge_overlap(const MyRect& r1, const MyRect& r2)
 
 MyRect compute_frame(span<const MyRect> rectangles)
 {
-	MyRect frame ;
-
-	if (rectangles.size()==0)
-		return frame;
-
 	return MyRect{
 		.m_left = ranges::min(rectangles | views::transform(&MyRect::m_left)),
 		.m_right = ranges::max(rectangles | views::transform(&MyRect::m_right)),
