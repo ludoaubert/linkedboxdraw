@@ -1353,14 +1353,10 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		auto il = {input_rectangles, in_holes, borders};
 		vector<MyRect> rectangles = il | views::join | ranges::to<vector>() ;
 
-		struct SweepContext{Direction update_direction, sweep_direction;};
-		const SweepContext ctx2[2]={
-			{.update_direction=EAST_WEST, .sweep_direction=NORTH_SOUTH},
-			{.update_direction=NORTH_SOUTH, .sweep_direction=EAST_WEST}
-		};
-		vector<MyRect> holes = ctx2 |
-			views::transform([&](auto arg){
-				const auto [update_direction, sweep_direction] = arg;
+		const update_directions[2] = {EAST_WEST, NORTH_SOUTH};
+
+		vector<MyRect> holes = update_directions |
+			views::transform([&](Direction  update_direction){
 				const vector<RectLink> rect_links = sweep(update_direction, rectangles);
 				auto rg = rect_links |
 					views::transform([&](const RectLink& lnk)->MyRect{
