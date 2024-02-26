@@ -955,7 +955,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 	auto rg1 = views::iota(0, NR_TRIM_ALGO);
 	auto rg2 = views::iota(0, NR_MIRRORING_STATES);
 	
-	for (const auto [trim_algo, a, b, c] = views::cartesian_product(rg1, rg2, rg2, rg2))
+	for (const auto [trim_algo, a, b, c] : views::cartesian_product(rg1, rg2, rg2, rg2))
 	{
 		int states[NR_TRIM_MIRROR_DIRECTIONS] = { a, b, c } ;
 		
