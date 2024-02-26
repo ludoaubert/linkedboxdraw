@@ -1478,9 +1478,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 
 		D(printf("entering rec_push_hole(ri=%d ,tr=%d)\n", ri, tr));
 
-		span adj_list = ranges::equal_range(rect_links, ri, {}, &RectLink::i);
-
-		for (const RectLink& rl : adj_list)
+		for (const RectLink& rl : ranges::equal_range(rect_links, ri, {}, &RectLink::i))
 		{
 			int tr2= rectangles[ri][maxCompactRectDim] - rectangles[rl.j][minCompactRectDim];
 
