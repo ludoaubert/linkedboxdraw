@@ -1491,22 +1491,20 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 		tri = max<int16_t>(tri, tr) ;
 	};
 
-	auto push_hole=[&](){
 
-		vector<RectLink> index = rect_links;
-		ranges::sort(index, {}, &RectLink::j);
-		vector<int> root_nodes;
-		ranges::set_difference(views::iota(0,n),
-					index | views::transform(&RectLink::j),
-					back_inserter(root_nodes)
-					);
-		for (int j : root_nodes)
-		{
-			int tr=0;
-			rec_push_hole(j, tr);
-		}
-	};
-	push_hole();
+	vector<RectLink> index = rect_links;
+	ranges::sort(index, {}, &RectLink::j);
+	vector<int> root_nodes;
+	ranges::set_difference(views::iota(0,n),
+				index | views::transform(&RectLink::j),
+				back_inserter(root_nodes)
+				);
+	for (int j : root_nodes)
+	{
+		int tr=0;
+		rec_push_hole(j, tr);
+	}
+
 
 	for (const auto& [x, y] : views::counted(translations, n))
 	{
