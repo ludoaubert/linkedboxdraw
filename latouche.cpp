@@ -17,6 +17,8 @@ using namespace std;
 using namespace std::literals;
 namespace fs = std::filesystem;
 
+//TODO: merge apply_mirror() and apply_trim_mirror()
+
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
 
 //#define _TRACE_
