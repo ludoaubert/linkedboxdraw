@@ -417,8 +417,8 @@ const vector<TestInput> test_input={
 	}
 },
 {
-        .testid=2,
-        .input_rectangles = {
+	.testid=2,
+	.input_rectangles = {
 		{.m_left=750-RECT_BORDER, .m_right=960+RECT_BORDER, .m_top=282-RECT_BORDER, .m_bottom=434+RECT_BORDER},
 		{.m_left=23-RECT_BORDER, .m_right=163+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=434+RECT_BORDER},
 		{.m_left=1215-RECT_BORDER, .m_right=1341+RECT_BORDER, .m_top=90-RECT_BORDER, .m_bottom=226+RECT_BORDER},
@@ -437,7 +437,7 @@ const vector<TestInput> test_input={
 		{.m_left=203-RECT_BORDER, .m_right=386+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=418+RECT_BORDER},
 		{.m_left=514-RECT_BORDER, .m_right=641+RECT_BORDER, .m_top=298-RECT_BORDER, .m_bottom=370+RECT_BORDER}
 	},
-        .logical_edges = {
+	.logical_edges = {
 		{.from=0, .to=5},
 		{.from=0, .to=6},
 		{.from=1, .to=6},
@@ -478,7 +478,7 @@ const vector<TestInput> test_input={
 },
 {
 	.testid=3,
-        .input_rectangles = {
+	.input_rectangles = {
 		{.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=690+RECT_BORDER},
 		{.m_left=10-RECT_BORDER,.m_right=129+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=866+RECT_BORDER},
 		{.m_left=169-RECT_BORDER,.m_right=288+RECT_BORDER,.m_top=538-RECT_BORDER,.m_bottom=706+RECT_BORDER},
