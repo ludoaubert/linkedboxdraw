@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cassert>
 using namespace std;
+using namespace std::literals;
 namespace fs = std::filesystem;
 
 //./holes2 | grep -e rectangles -e translations -e selectors | grep -e id=1 -e id=0
@@ -966,10 +967,10 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 			D(printf("TrimAlgoString = %s\n", TrimAlgoStrings[trim_algo]));
 			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[a+2*b+2*2*c]));
 			string buffer = rects |
-							views::transform([](const MyRect& r)->string{
+							views::transform([](const MyRect& r){
 								return format("R({{.m_left={}, .m_right={}, .top={}, .m_bottom={}}})", r.m_left, r.m_right, r.m_top, r.m_bottom);
 								}) |
-							views::join_with('\n') |
+							views::join_with(",\n"s) |
 							ranges::to<string>();
 
 			D(printf("%s", buffer));
@@ -2578,11 +2579,10 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		}) |
 		views::transform([](const Score& score)->string{
 			const auto [id, sigma_edge_distance, width, height, total] = score;
-			return format(R"(
-    "{{id":{}, "sigma_edge_distance":{}, "width":{}, "height":{}, "total":{}}})",
+			return format(R"({{"id":{}, "sigma_edge_distance":{}, "width":{}, "height":{}, "total":{}}})",
 				id, sigma_edge_distance, width, height, total);
 		}) |
-		views::join_with(',') |
+		views::join_with(",\n"s) |
 		ranges::to<string>();
 
 
