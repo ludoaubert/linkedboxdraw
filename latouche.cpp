@@ -2580,10 +2580,9 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		}) |
 		views::transform([](const Score& score)->string{
 			const auto [id, sigma_edge_distance, width, height, total] = score;
-			char buffer[100];
-			sprintf(buffer, "\n{\"id\":%d, \"sigma_edge_distance\":%d, \"width\":%d, \"height\":%d, \"total\":%d}",
-                        	id, sigma_edge_distance, width, height, total);
-			return buffer;
+			return format(R"(
+    "{{id":{}, "sigma_edge_distance":{}, "width":{}, "height":{}, "total":{}}})",
+				id, sigma_edge_distance, width, height, total);
 		}) |
 		views::join_with(',') |
 		ranges::to<string>();
