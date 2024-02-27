@@ -1842,37 +1842,37 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		span<MyRect> rectangles(begin(emplacements), n);
 
 		auto cost_fn = [&](auto arg){
-				const auto& [pipeline, a, b, match_corner] = arg;
-				D(printf("pipeline=%u\n", pipeline));
-				D(printf("MirroringStrings[%u%u]=%s%s\n", MirroringStateString[a], MirroringStateString[b]));
-				D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
+			const auto& [pipeline, a, b, match_corner] = arg;
+			D(printf("pipeline=%u\n", pipeline));
+			D(printf("MirroringStrings[%u%u]=%s%s\n", MirroringStateString[a], MirroringStateString[b]));
+			D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-				tf(id, pipeline, a, b, match_corner);
+			tf(id, pipeline, a, b, match_corner);
 
-				auto rg1 = logical_edges |
-						views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
+			auto rg1 = logical_edges |
+					views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
 
-				auto rg2 = views::iota(0,n) |
-						views::transform([&](int i)->TranslationRangeItem{
-								const MyRect &ir = input_rectangles[i], &r = rectangles[i];
-								MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-								return {id, i, tr};}) |
-						views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
-						views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
-						views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+			auto rg2 = views::iota(0,n) |
+					views::transform([&](int i)->TranslationRangeItem{
+							const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+							MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+							return {id, i, tr};}) |
+					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+					views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
+					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
-				const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
-				const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
-				const auto [width, height] = dimensions(compute_frame(rectangles));
+			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
+			const auto [width, height] = dimensions(compute_frame(rectangles));
 
-				D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
-				D(printf("sigma_translation = %d\n", sigma_translation));
-				D(printf("[.width=%d, .height=%d]\n", width, height));
+			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
+			D(printf("sigma_translation = %d\n", sigma_translation));
+			D(printf("[.width=%d, .height=%d]\n", width, height));
 
-				int cost = width + height + sigma_edge_distance + sigma_translation ;
+			int cost = width + height + sigma_edge_distance + sigma_translation ;
 
-				D(printf("cost=%d\n", cost));
-				return cost;
+			D(printf("cost=%d\n", cost));
+			return cost;
 		};
 		
 		auto rng1 = views::iota(0, NR_JOB_PIPELINES);
