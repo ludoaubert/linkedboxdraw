@@ -967,11 +967,9 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 			D(printf("TrimMirroringString = %s\n", TrimMirroringStrings[a+2*b+2*2*c]));
 			string buffer = rects |
 							views::transform([](const MyRect& r)->string{
-								char buffer[80];
-								sprintf(buffer,"{.m_left=%d, .m_right=%d, .top=%d, .m_bottom=%d}\n",r.m_left,r.m_right,r.m_top,r.m_bottom);
-								return buffer;
+								return format("R({{.m_left={}, .m_right={}, .top={}, .m_bottom={}}})", r.m_left, r.m_right, r.m_top, r.m_bottom);
 								}) |
-							views::join |
+							views::join_with('\n') |
 							ranges::to<string>();
 
 			D(printf("%s", buffer));
