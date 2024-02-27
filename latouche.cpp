@@ -1875,10 +1875,9 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		
 		auto rng1 = views::iota(0, NR_JOB_PIPELINES);
 		auto rng2 = views::iota(0, NR_MIRRORING_STATES);
-		auto rng3 = views::iota(0, NR_MIRRORING_STATES);
-		auto rng4 = views::iota(0, NR_RECT_CORNERS);
+		auto rng3 = views::iota(0, NR_RECT_CORNERS);
 
-		const auto [pipeline, a, b, match_corner] = * ranges::min_element(views::cartesian_product(rng1, rng2, rng3, rng4), {}, cost_fn);
+		const auto [pipeline, a, b, match_corner] = * ranges::min_element(views::cartesian_product(rng1, rng2, rng2, rng3), {}, cost_fn);
 
 		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u%u, match_corner=%u}\n", id, pipeline, a, b, match_corner));
 
