@@ -795,6 +795,11 @@ enum MirroringState
 
 const int NR_MIRRORING_STATES=2;
 
+const char* MirroringStateString[2]={
+	"ACTIVE",
+	"IDLE"
+};
+
 
 
 /*      by
@@ -1695,30 +1700,7 @@ struct Job
 	Direction update_direction;
 };
 
-auto rg3 = views::iota(0, NR_MIRRORING_STATES);
 
-const vector<array<Mirror, 2> > mirrors = views::cartesian_product(rg3, rg3) |
-										views::transform([](auto arg){
-											const auto [i, j]=arg;
-											const int states[2]={i,j};
-											array<Mirror, 2> a;
-											for (int k=0; k<2; k++)
-												a[k]=Mirror{.mirroring_state = (MirroringState)states[i], .mirroring_direction=(Direction)i};
-											return a;
-										}) |
-										ranges::to<vector>();
-
-const int NR_MIRRORING_OPTIONS=4;
-
-//assert(mirrors.size()==NR_MIRRORING_OPTIONS);
-
-
-const char* MirroringStrings[NR_MIRRORING_OPTIONS]={
-	"IDLE,IDLE",
-	"IDLE,ACTIVE",
-	"ACTIVE,IDLE",
-	"ACTIVE,ACTIVE"
-};
 
 const int NR_JOB_PIPELINES=2;
 
@@ -1790,7 +1772,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 	emplacements_by_id.resize(m*decision_tree.size());
 
-	auto tf=[&](int id, unsigned pipeline, unsigned mirroring, unsigned match_corner){
+	auto tf=[&](int id, unsigned pipeline, unsigned a, unsigned b, unsigned match_corner){
 
 		const int parent_index = decision_tree[id].parent_index;
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
@@ -1798,7 +1780,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 		span<MyRect> rectangles(begin(emplacements), n);
 
-		D(printf("calling tf(id=%d, pipeline=%u, mirroring=%u, match_corner=%u)\n", id, pipeline, mirroring, match_corner));
+		D(printf("calling tf(id=%d, pipeline=%u, a=%u, b=%u, match_corner=%u)\n", id, pipeline, a, b, match_corner));
 
 		const DecisionTreeNode& node = decision_tree[id];
 
@@ -1809,7 +1791,11 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		r2 = trimmed(r2, rectangles);
 		r1 += MyPoint{.x=r2[RectDimX] - r1[RectDimX], .y=r2[RectDimY] - r1[RectDimY]};
 
-		for (const Mirror& mirror : mirrors[mirroring])
+		const Mirror mirrors[2]={
+			Mirror{.mirroring_state=(MirroringState)a, .mirroring_direction=(Direction)0},
+			Mirror{.mirroring_state=(MirroringState)b, .mirroring_direction=(Direction)1}
+		};
+		for (const Mirror& mirror : mirrors)
 			apply_mirror(mirror, rectangles);
 		for (const auto& [algo, update_direction] : pipelines[pipeline])
 		{
@@ -1817,7 +1803,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 			assert(algo == SPREAD);
 			spread(update_direction, rect_links, rectangles);
 		}
-		for (const Mirror& mirror : mirrors[mirroring])
+		for (const Mirror& mirror : mirrors)
 			apply_mirror(mirror, rectangles);
 
 		const string buffer = rectangles |
@@ -1842,13 +1828,8 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					views::join |
 					ranges::to<string>();
 
-        D(printf("[id=%d pipeline=%u, mirroring=%u, match_corner=%u] tf output translations=", id, pipeline, mirroring, match_corner));
+        D(printf("[id=%d pipeline=%u, a=%u, b=%u, match_corner=%u] tf output translations=", id, pipeline, a, b, match_corner));
 		D(printf("%s\n", buffer.c_str()));
-	};
-	
-	struct ProcessSelector
-	{
-		int pipeline, mirroring, match_corner;
 	};
 
 	auto cdtt = [&](int id){
@@ -1856,12 +1837,13 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
 		span<MyRect> rectangles(begin(emplacements), n);
 
-		auto cost_fn = [&](const ProcessSelector& ps){
-				D(printf("pipeline=%u\n", ps.pipeline));
-				D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[ps.mirroring]));
-				D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[ps.match_corner]));
+		auto cost_fn = [&](auto arg){
+				const auto& [pipeline, a, b, match_corner] = arg;
+				D(printf("pipeline=%u\n", pipeline));
+				D(printf("MirroringStrings[%u%u]=%s%s\n", MirroringStateString[a], MirroringStateString[b]));
+				D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-				tf(id, ps.pipeline, ps.mirroring, ps.match_corner);
+				tf(id, pipeline, a, b, match_corner);
 
 				auto rg1 = logical_edges |
 						views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
@@ -1890,20 +1872,15 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		};
 		
 		auto rng1 = views::iota(0, NR_JOB_PIPELINES);
-		auto rng2 = views::iota(0, NR_MIRRORING_OPTIONS);
-		auto rng3 = views::iota(0, NR_RECT_CORNERS);
+		auto rng2 = views::iota(0, NR_MIRRORING_STATES);
+		auto rng3 = views::iota(0, NR_MIRRORING_STATES);
+		auto rng4 = views::iota(0, NR_RECT_CORNERS);
 
-		auto process_selectors = views::cartesian_product(rng1, rng2, rng3) |
-								views::transform([](auto arg){
-									auto [pipeline, mirroring, match_corner] = arg;
-									return ProcessSelector{pipeline, mirroring, match_corner};
-								}) ;
+		const auto [pipeline, a, b, match_corner] = * ranges::min_element(views::cartesian_product(rng1, rng2, rng3, rng4), {}, cost_fn);
 
-		const auto [pipeline, mirroring, match_corner] = * ranges::min_element(process_selectors, {}, cost_fn);
+		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u%u, match_corner=%u}\n", id, pipeline, a, b, match_corner));
 
-		D(printf("selectors[id=%d] = {pipeline=%u, mirroring=%u, match_corner=%u}\n", id, pipeline, mirroring, match_corner));
-
-		D(printf("MirroringStrings[mirroring]=%s\n", MirroringStrings[mirroring]));
+		D(printf("MirroringStrings[%u%u]=%s%s\n", MirroringStateString[a], MirroringStateString[b]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
 		tf(id, pipeline, mirroring, match_corner);
