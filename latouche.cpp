@@ -1777,10 +1777,10 @@ void apply_mirror(const Mirror& mirror, span<MyRect> rectangles)
 
 
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
-					const vector<MyRect>& input_rectangles,
-					const vector<MyRect>& holes,
-					const vector<Edge>& logical_edges,
-					vector<MyRect>& emplacements_by_id)
+										const vector<MyRect>& input_rectangles,
+										const vector<MyRect>& holes,
+										const vector<Edge>& logical_edges,
+										vector<MyRect>& emplacements_by_id)
 {
 	auto il = {input_rectangles, holes};
 	vector<MyRect> input_emplacements = il | views::join | ranges::to<vector>() ;
