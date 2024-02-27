@@ -2608,7 +2608,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		D(printf("begin compute_decision_tree()\n"));
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
-                D(printf("end compute_decision_tree()\n"));
+		D(printf("end compute_decision_tree()\n"));
 		fflush(stdout);
 
 		sprintf(file_name, "logical_graph%d.json", testid);
