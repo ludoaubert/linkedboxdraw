@@ -964,7 +964,7 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 				TrimMirrorDirection mirroring_direction = (TrimMirrorDirection)k;
 				apply_trim_mirror(mirroring_direction, r);
 				apply_trim_mirror(mirroring_direction, by);
-				ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirror,rec);});
+				ranges::for_each(rects, [&](MyRect& rec){apply_trim_mirror(mirroring_direction,rec);});
 			}				
 		}
 		
