@@ -942,6 +942,8 @@ vector<MyRect> trimmed(MyRect r, MyRect by)
 		int states[NR_TRIM_MIRROR_DIRECTIONS] = { a, b, c } ;
 		
 		auto rg = views::iota(0,NR_TRIM_MIRROR_DIRECTIONS);
+		
+		vector<MyRect> rects;
 
 		for (int k : rg)
 		{
@@ -1357,7 +1359,7 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 		auto il = {input_rectangles, in_holes, borders};
 		vector<MyRect> rectangles = il | views::join | ranges::to<vector>() ;
 
-		const update_directions[2] = {EAST_WEST, NORTH_SOUTH};
+		const Direction update_directions[2] = {EAST_WEST, NORTH_SOUTH};
 
 		vector<MyRect> holes = update_directions |
 			views::transform([&](Direction  update_direction){
@@ -1883,7 +1885,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		D(printf("MirroringStrings[%u%u]=%s%s\n", MirroringStateString[a], MirroringStateString[b]));
 		D(printf("CornerStrings[match_corner]=%s\n", CornerStrings[match_corner]));
 
-		tf(id, pipeline, mirroring, match_corner);
+		tf(id, pipeline, a, b, match_corner);
 	};
 
 	for (int depth=0; depth<10; depth++)
