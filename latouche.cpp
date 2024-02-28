@@ -1449,17 +1449,13 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 
 	const vector<MyRect> holes = vv | views::join | ranges::to<vector>();
 
-	char buffer[100*1000];
-	int pos=0;
-        pos += sprintf(buffer + pos,"{\n\"holes\":[");
-	for (const MyRect& r : holes)
-	{
-		pos += sprintf(buffer+pos, "\n\t{\"m_left\":%d,\"m_right\":%d,\"m_top\":%d,\"m_bottom\":%d},",
-			r.m_left, r.m_right, r.m_top, r.m_bottom);
-	}
+	string buffer = "{\n\"holes\":[" + holes | views::transform([](const MyRect& r){
+			return format(R"({{"m_left":{},"m_right":{},"m_top":{},"m_bottom":{}}})",r.m_left, r.m_right, r.m_top, r.m_bottom);}) | 
+		views::join_with(",\n"s) |
+	ranges::to<string>() + "}";
 
 	FILE *f=fopen("holes.json", "w");
-	fprintf(f, "%s", buffer);
+	fprintf(f, "%s", buffer.c_str());
 	fclose(f);
 
 	return holes;
@@ -1820,13 +1816,11 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					) |
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 					views::transform([&](const TranslationRangeItem& item)->string{
-						const auto [id,i,tr]=item;
-						char buffer[50];
+						const auto& [id,i,tr]=item;
 						if (i < n)
-							sprintf(buffer, "{id=%d, ri=%d, tr={x=%d, y=%d}} ", id, i, tr.x, tr.y);
+							return format(R"({{id={}, ri={}, tr={{x={}, y={}}}}} )", id, i, tr.x, tr.y);
 						else
-							sprintf(buffer, "{id=%d, ri=h%d, tr={x=%d, y=%d}} ", id, i-n, tr.x, tr.y);
-						return buffer;
+							return format(R"({{id={}, ri=h{}, tr={{x={}, y={}}}}} )", id, i-n, tr.x, tr.y);
 						}
 					) |
 					views::join |
@@ -1898,28 +1892,23 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 		for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
 	}
 
-//TODO: views::cartesian_product()
-
-	string buffer = views::iota(0, n * (int)decision_tree.size()) |
-		views::transform([&](int pos)->TranslationRangeItem{
-
-			int id = pos / n;
-			int i = pos % n;
-
+	auto rg1 = views::iota(0, n);
+	auto rg2 = views::iota(0, (int)decision_tree.size());
+	
+	string buffer = views::cartesian_product(rg1, rg2) |
+		views::transform([&](auto arg)->TranslationRangeItem{
+			const auto& [i, id] = arg ;
 			span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
 			span<MyRect> rectangles(begin(emplacements), n);
-
 			const MyRect &ir = input_emplacements[i], &r = emplacements[i];
 			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
 			return {id, i, tr};}) |
 		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
-		views::transform([](const TranslationRangeItem& item)->string{
-			char buffer[100];
-			const auto [id, ri, tr] = item;
-			sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
-			return buffer;
+		views::transform([](const TranslationRangeItem& item){
+			const auto& [id, ri, tr] = item;
+			return format(R"({{"id":{}, "ri":{}, "x":{}, "y":{}}})", id, ri, tr.x, tr.y);
 		}) |
-		views::join_with(',') |
+		views::join_with(",\n"s) |
 		ranges::to<string>();
 
 	FILE *f=fopen("translation_ranges.json", "w");
@@ -2073,30 +2062,25 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 	for_each(execution::par_unseq, input.begin(), input.end(), cdtt);
 
-	string buffer = views::iota(0, n * (int)decision_tree.size()) |
-		views::transform([&](int pos)->TranslationRangeItem{
-
+	auto rg1 = views::iota(0, n);
+	auto rg2 = views::iota(0, (int)decision_tree.size());
+	string buffer = views::cartesian_product(rg1, rg2) |
+		views::transform([&](auto arg)->TranslationRangeItem{
         //decision_tree.size() can be zero, in which case the division will never execute.
-                	const int m = emplacements_by_id.size() / decision_tree.size();
-
-			int id = pos / n;
-			int i = pos % n;
-
+			const int m = emplacements_by_id.size() / decision_tree.size();
+			const auto& [i, id] = arg ;
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n),
 					rectangles2(begin(emplacements2_by_id)+m*id, n);
-
 			const MyRect &ir = rectangles[i], &r = rectangles2[i];
 			MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
 			return {id, i, tr};
 		}) |
 		views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
-		views::transform([](const TranslationRangeItem& item)->string{
-			char buffer[100];
-                	const auto [id, ri, tr] = item;
-                	sprintf(buffer, "\n{\"id\":%d, \"ri\":%d, \"x\":%d, \"y\":%d}", id, ri, tr.x, tr.y);
-			return buffer;
+		views::transform([](const TranslationRangeItem& item){
+			const auto& [id, ri, tr] = item;
+			return format(R"({{"id":{}, "ri":{}, "x":{}, "y":{}}})", id, ri, tr.x, tr.y);
 		}) |
-		views::join_with(',') |
+		views::join_with(",\n"s) |
 		ranges::to<string>();
 
 	FILE *f=fopen("translation_ranges2.json", "w");
