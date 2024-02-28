@@ -1818,9 +1818,9 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					views::transform([&](const TranslationRangeItem& item)->string{
 						const auto& [id,i,tr]=item;
 						if (i < n)
-							return format(R"({{id={}, ri={}, tr={{x={}, y={}}}}} )", id, i, tr.x, tr.y);
+							return format(R"({{id={}, ri={}, tr={{x={}, y={}}} )", id, i, tr.x, tr.y);
 						else
-							return format(R"({{id={}, ri=h{}, tr={{x={}, y={}}}}} )", id, i-n, tr.x, tr.y);
+							return format(R"({{id={}, ri=h{}, tr={{x={}, y={}}} )", id, i-n, tr.x, tr.y);
 						}
 					) |
 					views::join |
