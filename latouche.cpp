@@ -2525,7 +2525,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 	auto index = views::iota(0, n) | ranges::to<vector>();
 	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
 	auto subtree = index | views::take(count) | views::transform(walk_up_from) | views::join | ranges::to<vector>() ;
-	sort(subtree) ;
+	ranges::sort(subtree) ;
 	subtree = subtree | views::chunk_by(ranges::equal_to{}) | views::transform([](auto arg){return arg[0];}) | ranges::to<vector>();
 	
 	auto compute_position = [&](int id){
