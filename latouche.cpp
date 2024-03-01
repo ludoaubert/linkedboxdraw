@@ -2533,7 +2533,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		if (id == -1)
 			return id;
 		auto lower = ranges::lower_bound(subtree, id);
-		return ranges::distance(subtree.cbegin(), lower);		
+		return (int)ranges::distance(subtree.cbegin(), lower);		
 	};
 	
 	return subtree |
