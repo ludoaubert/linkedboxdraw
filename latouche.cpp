@@ -1448,14 +1448,15 @@ vector<MyRect> compute_holes(const vector<MyRect>& input_rectangles)
 	fflush(stdout);
 
 	const vector<MyRect> holes = vv | views::join | ranges::to<vector>();
-
-	string buffer = "{\n\"holes\":[" + holes | views::transform([](const MyRect& r){
+	
+	const string buffer = holes |
+		views::transform([](const MyRect& r){
 			return format(R"({{"m_left":{},"m_right":{},"m_top":{},"m_bottom":{}}})",r.m_left, r.m_right, r.m_top, r.m_bottom);}) | 
 		views::join_with(",\n"s) |
-	ranges::to<string>() + "}";
+		ranges::to<string>() ;
 
 	FILE *f=fopen("holes.json", "w");
-	fprintf(f, "%s", buffer.c_str());
+	fprintf(f, "{\n\"holes\":[%s]}", buffer.c_str());
 	fclose(f);
 
 	return holes;
