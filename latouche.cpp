@@ -2560,17 +2560,17 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		
 	string buffer = dst |
 		views::transform([](const DecisionTreeNode& n){
-			return format("R({{"index":{},"parent_index":{},"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+			return format(R"({{"index":{},"parent_index":{},"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
 				n.index, n.parent_index, n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
 		}) |
 		views::join_with(",\n"s) |
 		ranges::to<string>();
 		
 	FILE* f=fopen("decision_tree.json", "w");
-	f.write("%s", buffer.c_str());
+	fprintf(f, "%s", buffer.c_str());
 	fclose(f);
 	
-	return dts;
+	return dst;
 }
 
 
