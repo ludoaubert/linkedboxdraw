@@ -2549,7 +2549,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		return (int)ranges::distance(subtree.cbegin(), lower);		
 	};
 	
-	return subtree |
+	vector<DecisionTreeNode> dst = subtree |
 		views::transform([&](int id){
 			DecisionTreeNode node = decision_tree[id];
 			node.index = compute_position(node.index);
@@ -2557,6 +2557,20 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 			return node;}
 		) |
 		ranges::to<vector>();
+		
+	string buffer = dst |
+		views::transform([](const DecisionTreeNode& n){
+			return format("R({{"index":{},"parent_index":{},"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+				n.index, n.parent_index, n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
+		}) |
+		views::join_with(",\n"s) |
+		ranges::to<string>();
+		
+	FILE* f=fopen("decision_tree.json", "w");
+	f.write("%s", buffer.c_str());
+	fclose(f);
+	
+	return dts;
 }
 
 
@@ -2635,13 +2649,13 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		sprintf(file_name, "decision_tree%d.dat", testid);
 		if(FILE* f = fopen(file_name, "wb")) {
-			fwrite(decision_tree.data(), sizeof (DecisionTreeNode), decision_tree.size(), f);
+			fwrite(decision_subtree.data(), sizeof (DecisionTreeNode), decision_subtree.size(), f);
 			fclose(f);
 		}
 
 		vector<MyRect> emplacements_by_id;
 		D(printf("begin compute_decision_tree_translations()\n"));
-		compute_decision_tree_translations(decision_tree, input_rectangles, holes, logical_edges, emplacements_by_id);
+		compute_decision_tree_translations(decision_subtree, input_rectangles, holes, logical_edges, emplacements_by_id);
 		D(printf("end compute_decision_tree_translations()\n"));
 		fflush(stdout);
 
@@ -2650,7 +2664,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
 		D(printf("begin compute_decision_tree_translations2()\n"));
-		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
+		compute_decision_tree_translations2(decision_subtree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
 		D(printf("end compute_decision_tree_translations2()\n"));
 		fflush(stdout);
 
@@ -2658,7 +2672,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
 		D(printf("begin compute_scores()\n"));
-		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+		compute_scores(decision_subtree, emplacements_by_id, input_rectangles, logical_edges);
 		D(printf("end compute_scores()\n"));
 		fflush(stdout);
 
