@@ -1769,6 +1769,8 @@ std::span vector0(row0.data_handle(), row0.size()); // row 0 of matrix
 
 std::mdspan row1 = std::submdspan(matrix, 1, std::full_extent);
 std::span vector1(row1.data_handle(), row1.size()); // row 1 of matrix
+
+needs to be rechecked later, but unfortunately it seems mdspan is not a range and cannot be iterated on.
 */
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 										const vector<MyRect>& input_rectangles,
