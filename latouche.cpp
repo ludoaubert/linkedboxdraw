@@ -2512,6 +2512,40 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 }
 
 
+vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>& decision_tree, int count)
+{
+	auto walk_up_from = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
+		{
+			co_yield index;
+		}		
+	};
+	
+	const int n = decision_tree.size();
+	auto index = views::iota(0, n) | ranges::to<vector>();
+	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
+	auto subtree = index | views::take(count) | views::transform(walk_up_from) | views::join | ranges::to<vector>() ;
+	sort(subtree) ;
+	subtree = subtree | views::chunk_by(ranges::equal_to{}) | views::transform([](auto arg){return arg[0];}) | ranges::to<vector>();
+	
+	auto compute_position = [&](int id){
+		if (id == -1)
+			return id;
+		auto lower = ranges::lower_bound(subtree, id);
+		return ranges::distance(subtree.cbegin(), lower);		
+	};
+	
+	return subtree |
+		views::transform([&](int id){
+			DecisionTreeNode node = decision_tree[id];
+			node.index = compute_position(node.index);
+			node.parent_index = compute_position(node.parent_index);
+			return node;}
+		) |
+		ranges::to<vector>();
+}
+
+
 //TODO: use C++23 views::to<vector>().
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<MyRect>& emplacements_by_id,
@@ -2574,6 +2608,9 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
 		D(printf("end compute_decision_tree()\n"));
 		fflush(stdout);
+		
+		int count=20;
+		vector<DecisionTreeNode> decision_subtree = compute_decision_subtree(decision_tree, count) ;
 
 		sprintf(file_name, "logical_graph%d.json", testid);
 		fs::copy("logical_graph.json", file_name, fs::copy_options::update_existing);
