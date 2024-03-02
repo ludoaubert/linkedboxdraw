@@ -2585,7 +2585,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		ranges::to<string>();
 		
 	FILE* f=fopen("decision_tree.json", "w");
-	fprintf(f, "%s", buffer.c_str());
+	fprintf(f, "{%s}", buffer.c_str());
 	fclose(f);
 	
 	return dst;
