@@ -356,6 +356,73 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 }
 
 
+vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>& decision_tree, int count)
+{
+	auto walk_up_from = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
+		{
+			co_yield index;
+		}		
+	};
+	
+	const int n = decision_tree.size();
+	auto index = views::iota(0, n) | ranges::to<vector>();
+	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
+	auto subtree = index | views::take(count) | views::transform(walk_up_from) | views::join | ranges::to<vector>() ;
+	ranges::sort(subtree) ;
+	const auto ret = ranges::unique(subtree);
+    subtree.erase(ret.begin(), ret.end());
+	
+	auto compute_position = [&](int id){
+		if (id == -1)
+			return id;
+		auto lower = ranges::lower_bound(subtree, id);
+		return (int)ranges::distance(subtree.cbegin(), lower);		
+	};
+	
+	vector<DecisionTreeNode> dst = subtree |
+		views::transform([&](int id){
+			DecisionTreeNode node = decision_tree[id];
+			node.index = compute_position(node.index);
+			node.parent_index = compute_position(node.parent_index);
+			return node;}
+		) |
+		ranges::to<vector>();
+		
+	const auto idx = index | views::transform(compute_position) | ranges::to<vector>();
+	
+	auto walk_up_from_ = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = dst[index].parent_index)
+		{
+			co_yield index;
+		}		
+	};
+		
+	string buffer = idx |
+		views::take(count) |
+		views::transform([&](int id){
+			return walk_up_from_(id) | 
+				ranges::to<vector>() | 
+				views::reverse |
+				views::transform([&](int id){return dst[id];}) |
+				views::transform([](const DecisionTreeNode& n){
+					return format(R"({{"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+						n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
+				}) |
+				views::join_with(",\n"s) ;
+		}) |
+		views::join_with("},\n{"s) |
+		ranges::to<string>();
+		
+//	FILE* f=fopen("decision_tree.json", "w");
+	/*f*/printf(f, "{%s}", buffer.c_str());
+//	fclose(f);
+	
+	return dst;
+}
+
+
+
 int main()
 {
 	for (const auto& [logical_edges, input_rectangles, holes, expected_decision] : test_contexts)
@@ -363,6 +430,9 @@ int main()
 		const int nr_emplacements = input_rectangles.size() + holes.size();
 		
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
+
+		int count=20;
+		vector<DecisionTreeNode> decision_subtree = compute_decision_subtree(decision_tree, count) ;
 		
 		printf("decision_tree.size()=%ld\n", decision_tree.size());
 		
