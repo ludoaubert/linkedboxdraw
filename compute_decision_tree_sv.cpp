@@ -261,7 +261,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 			int sigma_edge_distance = ranges::fold_left(logical_edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
 				
 			result.push_back(DecisionTreeNode{
-				.index = result.size(),
+				.index = (int)result.size(),
 				.parent_index = parent_index,
 				.depth=depth,
 				.sigma_edge_distance = sigma_edge_distance,
@@ -415,7 +415,8 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		ranges::to<string>();
 		
 //	FILE* f=fopen("decision_tree.json", "w");
-	/*f*/printf(f, "{%s}", buffer.c_str());
+//	fprintf(f, "{%s}", buffer.c_str());
+	printf("{%s}", buffer.c_str());
 //	fclose(f);
 	
 	return dst;
