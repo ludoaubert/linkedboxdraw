@@ -2559,12 +2559,29 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		) |
 		ranges::to<vector>();
 		
-	string buffer = dst |
-		views::transform([](const DecisionTreeNode& n){
-			return format(R"({{"index":{},"parent_index":{},"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
-				n.index, n.parent_index, n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
+	const auto idx = index | views::transform(compute_position) | ranges::to<vector>();
+	
+	auto walk_up_from_ = [&](int parent_index)->generator<int>{
+		for (int index=parent_index; index != -1; index = dst[index].parent_index)
+		{
+			co_yield index;
+		}		
+	};
+		
+	string buffer = idx |
+		views::take(count) |
+		views::transform([&](int id){
+			return walk_up_from_(id) | 
+				ranges::to<vector>() | 
+				views::reverse |
+				views::transform([&](int id){return dst[id];}) |
+				views::transform([](const DecisionTreeNode& n){
+					return format(R"({{"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+						n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
+				}) |
+				views::join_with(",\n"s) ;
 		}) |
-		views::join_with(",\n"s) |
+		views::join_with("},\n{"s) |
 		ranges::to<string>();
 		
 	FILE* f=fopen("decision_tree.json", "w");
