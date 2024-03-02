@@ -2540,7 +2540,8 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
 	auto subtree = index | views::take(count) | views::transform(walk_up_from) | views::join | ranges::to<vector>() ;
 	ranges::sort(subtree) ;
-	subtree = subtree | views::chunk_by(ranges::equal_to{}) | views::transform([](auto arg){return arg[0];}) | ranges::to<vector>();
+	const auto ret = ranges::unique(subtree);
+    subtree.erase(ret.begin(), ret.end());
 	
 	auto compute_position = [&](int id){
 		if (id == -1)
