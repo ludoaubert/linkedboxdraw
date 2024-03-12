@@ -2032,19 +2032,19 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 			tf(pipeline);
 
-			auto rg1 = edges |
-					views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);       });
+			const int sigma_edge_distance = ranges::fold_left(edges |
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);}),
+				0, plus<int>);
 
-			auto rg2 = views::iota(0,n) |
-					views::transform([&](int i)->TranslationRangeItem{
-							const MyRect &ir = rectangles[i], &r = rectangles2[i];
-							MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-							return {id, i, tr};}) |
-					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
-					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+			const int sigma_translation = ranges::fold_left(views::iota(0,n) |
+				views::transform([&](int i)->TranslationRangeItem{
+						const MyRect &ir = rectangles[i], &r = rectangles2[i];
+						MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+						return {id, i, tr};}) |
+				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
+				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
+				0, plus<int>);
 
-			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
-			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles2));
 
 			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
