@@ -1641,17 +1641,17 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 
 		const int sigma_edge_distance = ranges::fold_left(edges |
 			views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  }),
-			0, plus<int>);
+			0, plus<int>());
 
 		const int sigma_translation = ranges::fold_left(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 			views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-			0, plus<int>);
+			0, plus<int>());
 
 		const auto [width, height] = dimensions(compute_frame(rectangles));
 
 		const int sigma_edge_overlap = ranges::fold_left(edges |
 			views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  }),
-			0, plus<int>);
+			0, plus<int>());
 
 		D(printf("id = %d\n", id));
 		D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
@@ -1857,7 +1857,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 			const int sigma_edge_distance = ranges::fold_left(edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
-				0, plus<int>);
+				0, plus<int>());
 				
 //TODO: structured binding inside Lambda would simplify the expressions.
 
@@ -1869,7 +1869,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 					views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
 					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-				0, plus<int>);
+				0, plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
@@ -2034,7 +2034,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 			const int sigma_edge_distance = ranges::fold_left(edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);}),
-				0, plus<int>);
+				0, plus<int>());
 
 			const int sigma_translation = ranges::fold_left(views::iota(0,n) |
 				views::transform([&](int i)->TranslationRangeItem{
@@ -2043,7 +2043,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 						return {id, i, tr};}) |
 				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-				0, plus<int>);
+				0, plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles2));
 
@@ -2595,7 +2595,6 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 }
 
 
-//TODO: use C++23 views::to<vector>().
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<MyRect>& emplacements_by_id,
 		const vector<MyRect>& input_rectangles,
@@ -2613,7 +2612,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 			const int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const auto& le){
 					return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
-				0, plus<int>);
+				0, plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
