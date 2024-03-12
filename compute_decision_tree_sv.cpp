@@ -260,7 +260,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			vector<int> emplacement_ = emplacement ;
 			swap(emplacement_[r], emplacement_[h]);
 			
-			int sigma_edge_distance = ranges::fold_left_first(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), plus<int>()) ;
+			int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}),
+				0, plus<int>()) ;
 				
 			result.push_back(DecisionTreeNode{
 				.index = (int)result.size(),
