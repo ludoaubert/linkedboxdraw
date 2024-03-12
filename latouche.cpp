@@ -1628,10 +1628,8 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		return ;
 	}
 
-//TODO: use views::left_fold() when it hopefully becomes available in C++23. It might clarify the design.
-// Cf https://stackoverflow.com/questions/74042325/listing-all-intermediate-recurrence-results
-
 //TODO: use C++23 chunk_by()
+//TODO: structured binding in Lambda would simplify the code.
 
 	const int nb = 1 + ranges::max(rg | views::transform(&TranslationRangeItem::id));
 
@@ -1641,19 +1639,19 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 				[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-		auto rg1 = edges |
-				views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  });
+		const int sigma_edge_distance = ranges::fold_left(edges |
+			views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  }),
+			0, plus<int>);
 
-		auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
-				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+		const int sigma_translation = ranges::fold_left(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
+			views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
+			0, plus<int>);
 
-		auto rg3 = edges |
-				views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
-
-		const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
-		const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 		const auto [width, height] = dimensions(compute_frame(rectangles));
-		const int sigma_edge_overlap = accumulate(ranges::begin(rg3), ranges::end(rg3),0);
+
+		const int sigma_edge_overlap = ranges::fold_left(edges |
+			views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  }),
+			0, plus<int>);
 
 		D(printf("id = %d\n", id));
 		D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
