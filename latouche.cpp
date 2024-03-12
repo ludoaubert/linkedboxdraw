@@ -2607,7 +2607,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		views::transform([&](int id)->Score{
 
 	//decision_tree.size() can be zero. In this case this instruction will not get executed
-        		const int m = emplacements_by_id.size() / decision_tree.size();
+        	const int m = emplacements_by_id.size() / decision_tree.size();
 
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 
