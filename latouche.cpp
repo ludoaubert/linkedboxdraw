@@ -306,7 +306,7 @@ struct TestInput
 	int testid;
 	vector<MyRect> input_rectangles;
 //bi directional edges
-	vector<Edge> logical_edges;
+	vector<Edge> edges;
 };
 
 
@@ -331,7 +331,7 @@ const vector<TestInput> test_input={
 		{.m_left=130, .m_right=345, .m_top=451, .m_bottom=627}
 	},
 //bi directional edges
-	.logical_edges = {
+	.edges = {
 		{.from=0,.to=3},
 		{.from=1,.to=7},
 		{.from=2,.to=7},
@@ -381,7 +381,7 @@ const vector<TestInput> test_input={
 		{.m_left=0+673-RECT_BORDER, .m_right=105+673+RECT_BORDER, .m_top=0+266-RECT_BORDER, .m_bottom=200+266+RECT_BORDER},//26
 		{.m_left=0+369-RECT_BORDER, .m_right=70+369+RECT_BORDER, .m_top=0+378-RECT_BORDER, .m_bottom=88+378+RECT_BORDER}//30
 	},
-	.logical_edges = {
+	.edges = {
 		{.from=0, .to=2},
 		{.from=1, .to=2},
 		{.from=2, .to=0},
@@ -439,7 +439,7 @@ const vector<TestInput> test_input={
 		{.m_left=203-RECT_BORDER, .m_right=386+RECT_BORDER, .m_top=314-RECT_BORDER, .m_bottom=418+RECT_BORDER},
 		{.m_left=514-RECT_BORDER, .m_right=641+RECT_BORDER, .m_top=298-RECT_BORDER, .m_bottom=370+RECT_BORDER}
 	},
-	.logical_edges = {
+	.edges = {
 		{.from=0, .to=5},
 		{.from=0, .to=6},
 		{.from=1, .to=6},
@@ -497,7 +497,7 @@ const vector<TestInput> test_input={
 		{.m_left=522-RECT_BORDER,.m_right=627+RECT_BORDER,.m_top=618-RECT_BORDER,.m_bottom=818+RECT_BORDER},
 		{.m_left=52-RECT_BORDER,.m_right=122+RECT_BORDER,.m_top=376-RECT_BORDER,.m_bottom=464+RECT_BORDER}
 	},
-	.logical_edges = {
+	.edges = {
 		{.from=0,.to=2},
 		{.from=1,.to=2},
 		{.from=2,.to=0},
@@ -553,7 +553,7 @@ const vector<TestInput> test_input={
 		{.m_left=496-RECT_BORDER,.m_right=706+RECT_BORDER,.m_top=490-RECT_BORDER,.m_bottom=690+RECT_BORDER},
 		{.m_left=454-RECT_BORDER,.m_right=594+RECT_BORDER,.m_top=730-RECT_BORDER,.m_bottom=930+RECT_BORDER}
 	},
-	.logical_edges = {
+	.edges = {
 		{.from=0,.to=4},
 		{.from=1,.to=4},
 		{.from=1,.to=9},
@@ -612,7 +612,7 @@ const vector<TestInput> test_input={
 		{.m_left=17-RECT_BORDER,.m_right=88+RECT_BORDER,.m_top=10-RECT_BORDER,.m_bottom=98+RECT_BORDER},
 		{.m_left=10-RECT_BORDER,.m_right=88+RECT_BORDER,.m_top=138-RECT_BORDER,.m_bottom=210+RECT_BORDER}
 	},
-	.logical_edges = {
+	.edges = {
 		{.from=0,.to=1},
 		{.from=0,.to=2},
 		{.from=0,.to=19},
@@ -1520,7 +1520,7 @@ void spread(Direction update_direction, const vector<RectLink>& rect_links, span
 }
 
 
-void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<Edge>& logical_edges, span<const MyRect> input_rectangles, span<MyRect> rectangles)
+void compact(Direction update_direction, const vector<RectLink>& rect_links, const vector<Edge>& edges, span<const MyRect> input_rectangles, span<MyRect> rectangles)
 {
 	D(printf("begin compact\n"));
 	auto [minCompactRectDim, maxCompactRectDim] = rectDimRanges[update_direction];  //{LEFT, RIGHT} or {TOP, BOTTOM}
@@ -1641,13 +1641,13 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 				[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-		auto rg1 = logical_edges |
+		auto rg1 = edges |
 				views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  });
 
 		auto rg2 = ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
 
-		auto rg3 = logical_edges |
+		auto rg3 = edges |
 				views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  });
 
 		const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
@@ -1775,7 +1775,7 @@ needs to be rechecked later, but unfortunately it seems mdspan is not a range an
 void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision_tree,
 										const vector<MyRect>& input_rectangles,
 										const vector<MyRect>& holes,
-										const vector<Edge>& logical_edges,
+										const vector<Edge>& edges,
 										vector<MyRect>& emplacements_by_id)
 {
 	auto il = {input_rectangles, holes};
@@ -1857,7 +1857,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 			tf(id, pipeline, a, b, match_corner);
 
-			auto rg1 = logical_edges |
+			auto rg1 = edges |
 					views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
 
 			auto rg2 = views::iota(0,n) |
@@ -1983,7 +1983,7 @@ const JobMirror pipelines2[NR_JOB_PIPELINES2][4]={
 
 void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decision_tree,
 					int n,
-					const vector<Edge>& logical_edges,
+					const vector<Edge>& edges,
 					const vector<MyRect>& emplacements_by_id,
 					vector<MyRect>& emplacements2_by_id)
 {
@@ -2016,7 +2016,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 				const auto& [algo, update_direction] = job;
 				const vector<RectLink> rect_links = sweep(update_direction, rectangles2);
 				assert(algo == COMPACT);
-				compact(update_direction, rect_links, logical_edges, rectangles1, rectangles2);
+				compact(update_direction, rect_links, edges, rectangles1, rectangles2);
 
 				apply_mirror(mirror, rectangles1);
 				apply_mirror(mirror, rectangles2);
@@ -2032,7 +2032,7 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 			tf(pipeline);
 
-			auto rg1 = logical_edges |
+			auto rg1 = edges |
 					views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);       });
 
 			auto rg2 = views::iota(0,n) |
@@ -2368,7 +2368,7 @@ void test_fit()
 
 void test_translations()
 {
-	const auto& [testid, input_rectangles, logical_edges] = test_input[0];
+	const auto& [testid, input_rectangles, edges] = test_input[0];
 
 	for (const auto [testid, decision_tree, expected_translation_ranges] : TRTestContexts)
 	{
@@ -2377,7 +2377,7 @@ void test_translations()
 		compute_decision_tree_translations(decision_tree,
 						input_rectangles,
 						holes,
-						logical_edges,
+						edges,
 						emplacements_by_id);
 //		bool bOK = translation_ranges == expected_translation_ranges;
 //		printf("translation ranges testid=%d : %s\n", testid, bOK ? "OK" : "KO");
@@ -2385,7 +2385,7 @@ void test_translations()
 };
 
 
-vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
+vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
 {
 	const int nr_input_rectangles = input_rectangles.size();
 
@@ -2428,7 +2428,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& logical_edges
 			vector<int> emplacement_ = emplacement ;
 			swap(emplacement_[r], emplacement_[h]);
 			
-			int sigma_edge_distance = ranges::fold_left(logical_edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
+			int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
 				
 			result.push_back(DecisionTreeNode{
 				.index = (int)result.size(),
@@ -2599,7 +2599,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 		const vector<MyRect>& emplacements_by_id,
 		const vector<MyRect>& input_rectangles,
-		const vector<Edge>& logical_edges)
+		const vector<Edge>& edges)
 {
 	int n = input_rectangles.size();
 
@@ -2611,7 +2611,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 
-			auto rg1 = logical_edges | views::transform([&](const auto& le){
+			auto rg1 = edges | views::transform([&](const auto& le){
 				return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
 			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles));
@@ -2644,7 +2644,7 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 int main(int argc, char* argv[])
 {
-for (const auto& [testid, input_rectangles, logical_edges] : test_input)
+for (const auto& [testid, input_rectangles, edges] : test_input)
 {
 	D(printf("begin testid=%d \n", testid));
 	char file_name[50];
@@ -2654,7 +2654,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		const vector<MyRect> holes = compute_holes(input_rectangles);
 
 		D(printf("begin compute_decision_tree()\n"));
-		vector<DecisionTreeNode> decision_tree = compute_decision_tree(logical_edges, input_rectangles, holes);
+		vector<DecisionTreeNode> decision_tree = compute_decision_tree(edges, input_rectangles, holes);
 		D(printf("end compute_decision_tree()\n"));
 		fflush(stdout);
 		
@@ -2676,7 +2676,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		vector<MyRect> emplacements_by_id;
 		D(printf("begin compute_decision_tree_translations()\n"));
-		compute_decision_tree_translations(decision_subtree, input_rectangles, holes, logical_edges, emplacements_by_id);
+		compute_decision_tree_translations(decision_subtree, input_rectangles, holes, edges, emplacements_by_id);
 		D(printf("end compute_decision_tree_translations()\n"));
 		fflush(stdout);
 
@@ -2685,7 +2685,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 
 		vector<MyRect> emplacements2_by_id = emplacements_by_id;
 		D(printf("begin compute_decision_tree_translations2()\n"));
-		compute_decision_tree_translations2(decision_subtree, input_rectangles.size(), logical_edges, emplacements_by_id, emplacements2_by_id);
+		compute_decision_tree_translations2(decision_subtree, input_rectangles.size(), edges, emplacements_by_id, emplacements2_by_id);
 		D(printf("end compute_decision_tree_translations2()\n"));
 		fflush(stdout);
 
@@ -2693,7 +2693,7 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		fs::copy("translation_ranges2.json", file_name, fs::copy_options::update_existing);
 
 		D(printf("begin compute_scores()\n"));
-		compute_scores(decision_subtree, emplacements_by_id, input_rectangles, logical_edges);
+		compute_scores(decision_subtree, emplacements_by_id, input_rectangles, edges);
 		D(printf("end compute_scores()\n"));
 		fflush(stdout);
 
@@ -2728,9 +2728,9 @@ for (const auto& [testid, input_rectangles, logical_edges] : test_input)
 		}
 
 		vector<MyRect> emplacements_by_id, emplacements2_by_id;
-		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), logical_edges, emplacements_by_id,emplacements2_by_id);
+		compute_decision_tree_translations2(decision_tree, input_rectangles.size(), edges, emplacements_by_id,emplacements2_by_id);
 
-		compute_scores(decision_tree, emplacements_by_id, input_rectangles, logical_edges);
+		compute_scores(decision_tree, emplacements_by_id, input_rectangles, edges);
 	}
 	D(printf("end testid=%d \n", testid));
 }
