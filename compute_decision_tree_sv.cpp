@@ -229,6 +229,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	const vector<int> distance_matrix = views::cartesian_product(rectangles, rectangles) |
 										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
 										ranges::to<vector>();
+										
+//TODO: use mdspan
 	
 	vector<DecisionTreeNode> decision_tree;
 	
