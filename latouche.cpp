@@ -1857,20 +1857,22 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 			tf(id, pipeline, a, b, match_corner);
 
-			auto rg1 = edges |
-					views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
+			const int sigma_edge_distance = ranges::fold_left(edges |
+				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
+				0, plus<int>);
+				
+//TODO: structured binding inside Lambda would simplify the expressions.
 
-			auto rg2 = views::iota(0,n) |
+			const int sigma_translation = ranges::fold_left(views::iota(0,n) |
 					views::transform([&](int i)->TranslationRangeItem{
-							const MyRect &ir = input_rectangles[i], &r = rectangles[i];
-							MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
-							return {id, i, tr};}) |
+						const MyRect &ir = input_rectangles[i], &r = rectangles[i];
+						MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
+						return {id, i, tr};}) |
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 					views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
-					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);});
+					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
+				0, plus<int>);
 
-			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
-			const int sigma_translation = accumulate(ranges::begin(rg2), ranges::end(rg2),0);
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
 			D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
