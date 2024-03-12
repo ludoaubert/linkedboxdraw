@@ -1639,19 +1639,19 @@ void compact(Direction update_direction, const vector<RectLink>& rect_links, con
 		ranges::for_each(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id),
 				[&](const TranslationRangeItem& item){const auto [id, ri, tr]=item; rectangles[ri]+=tr;});
 
-		const int sigma_edge_distance = ranges::fold_left(edges |
+		const int sigma_edge_distance = ranges::fold_left_first(edges |
 			views::transform([&](const Edge& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]);  }),
-			0, plus<int>());
+			plus<int>());
 
-		const int sigma_translation = ranges::fold_left(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
+		const int sigma_translation = ranges::fold_left_first(ranges::equal_range(rg, id, {}, &TranslationRangeItem::id) |
 			views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-			0, plus<int>());
+			plus<int>());
 
 		const auto [width, height] = dimensions(compute_frame(rectangles));
 
-		const int sigma_edge_overlap = ranges::fold_left(edges |
+		const int sigma_edge_overlap = ranges::fold_left_first(edges |
 			views::transform([&](const Edge& le){    return edge_overlap(rectangles[le.from],rectangles[le.to]);  }),
-			0, plus<int>());
+			plus<int>());
 
 		D(printf("id = %d\n", id));
 		D(printf("sigma_edge_distance = %d\n", sigma_edge_distance));
@@ -1855,13 +1855,13 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 
 			tf(id, pipeline, a, b, match_corner);
 
-			const int sigma_edge_distance = ranges::fold_left(edges |
+			const int sigma_edge_distance = ranges::fold_left_first(edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
-				0, plus<int>());
+				plus<int>());
 				
 //TODO: structured binding inside Lambda would simplify the expressions.
 
-			const int sigma_translation = ranges::fold_left(views::iota(0,n) |
+			const int sigma_translation = ranges::fold_left_first(views::iota(0,n) |
 					views::transform([&](int i)->TranslationRangeItem{
 						const MyRect &ir = input_rectangles[i], &r = rectangles[i];
 						MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
@@ -1869,7 +1869,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 					views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 					views::filter([&](const TranslationRangeItem& item){return item.ri != decision_tree[id].i_emplacement_source;}) |
 					views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-				0, plus<int>());
+				plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
@@ -2032,18 +2032,18 @@ void compute_decision_tree_translations2(const vector<DecisionTreeNode>& decisio
 
 			tf(pipeline);
 
-			const int sigma_edge_distance = ranges::fold_left(edges |
+			const int sigma_edge_distance = ranges::fold_left_first(edges |
 				views::transform([&](const auto& le){ return rectangle_distance(rectangles2[le.from],rectangles2[le.to]);}),
-				0, plus<int>());
+				plus<int>());
 
-			const int sigma_translation = ranges::fold_left(views::iota(0,n) |
+			const int sigma_translation = ranges::fold_left_first(views::iota(0,n) |
 				views::transform([&](int i)->TranslationRangeItem{
 						const MyRect &ir = rectangles[i], &r = rectangles2[i];
 						MyPoint tr={.x=r.m_left - ir.m_left, .y=r.m_top - ir.m_top};
 						return {id, i, tr};}) |
 				views::filter([](const TranslationRangeItem& item){return item.tr != MyPoint{0,0};}) |
 				views::transform([&](const TranslationRangeItem& item){const auto [id,i,tr]=item; return abs(tr.x) + abs(tr.y);}),
-				0, plus<int>());
+				plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles2));
 
@@ -2428,7 +2428,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			vector<int> emplacement_ = emplacement ;
 			swap(emplacement_[r], emplacement_[h]);
 			
-			int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), 0, plus<int>()) ;
+			int sigma_edge_distance = ranges::fold_left_first(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}), plus<int>()) ;
 				
 			result.push_back(DecisionTreeNode{
 				.index = (int)result.size(),
@@ -2610,9 +2610,9 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 
-			const int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const auto& le){
+			const int sigma_edge_distance = ranges::fold_left_first(edges | views::transform([&](const auto& le){
 					return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
-				0, plus<int>());
+				plus<int>());
 
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
