@@ -2611,9 +2611,10 @@ void compute_scores(const vector<DecisionTreeNode>& decision_tree,
 
 			span<const MyRect> rectangles(begin(emplacements_by_id)+m*id, n);
 
-			auto rg1 = edges | views::transform([&](const auto& le){
-				return rectangle_distance(rectangles[le.from],rectangles[le.to]); });
-			const int sigma_edge_distance = accumulate(ranges::begin(rg1), ranges::end(rg1),0);
+			const int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const auto& le){
+					return rectangle_distance(rectangles[le.from],rectangles[le.to]); }),
+				0, plus<int>);
+
 			const auto [width, height] = dimensions(compute_frame(rectangles));
 
 			return {
