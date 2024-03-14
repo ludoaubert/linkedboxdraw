@@ -76,7 +76,7 @@ function data2contexts(mydata) {
 	mycontexts.rectangles = rectangles;
 	
 	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
-		context.links = compute_links(selectedContextIndex);
+		context.links = await compute_links(selectedContextIndex);
 	
 	return mycontexts;
 }
