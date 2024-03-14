@@ -358,9 +358,9 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 
 async function compute_links(selectedContextIndex)
 {
-	let context = mycontexts.contexts[selectedContextIndex];
+	const {frame, translatedBoxes, links_} = mycontexts.contexts[selectedContextIndex];
 
-	const rectangles = context.translatedBoxes
+	const rectangles = translatedBoxes
 				.map(tB => {
 					const r = mycontexts.rectangles[tB.id];
 					const {x, y} = tB.translation;
@@ -371,8 +371,6 @@ async function compute_links(selectedContextIndex)
 						bottom: r.bottom + y
 					};
 				});
-
-	const frame = context.frame;
 
 	const rectdim = rectangles.map(r => [r.right-r.left, r.bottom-r.top])
 				.flat()
@@ -389,7 +387,7 @@ async function compute_links(selectedContextIndex)
 				.join('');
 	console.log(sframe);
 
-	const ids = mycontexts.contexts[selectedContextIndex].translatedBoxes
+	const ids = translatedBoxes
 				.map(tB => tB.id);
 
 	const slinks = mydata.links
