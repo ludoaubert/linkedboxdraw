@@ -74,6 +74,10 @@ function data2contexts(mydata) {
 
 	mycontexts = JSON.parse(jsonResponse);
 	mycontexts.rectangles = rectangles;
+	
+	for (for [selectedContextIndex, context] of mycontexts.contexts.entries())
+		context.links = compute_links(selectedContextIndex);
+/*	
 	mycontexts.contexts = mycontexts.contexts.map(
 		({frame, translatedBoxes}) => {
 			const {left,right,top,bottom} = frame;
@@ -119,6 +123,7 @@ function data2contexts(mydata) {
 			return {frame, translatedBoxes, links:polylines2};
 		}
 	);
+*/
 	
 	return mycontexts;
 }
