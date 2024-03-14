@@ -33,29 +33,13 @@ var sizer = 0;
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
 const RECT_BORDER = 20;
+// XY_TR : goal is to avoid negative number.
+const XY_TR = 1000;
 
 function hex(i,n) {
-	if (i >= 0)
-	{
-	//encoding positive number
-		return i.toString(16).padStart(n,'0');
-	}
-	else if (i < 0 && n == 3)
-	{
-	//encoding negative number
-		const number = i + 0xFFF + 1;
-		return number.toString(16).padStart(n,'0');
-	}
-	else if (i < 0 && n == 4)
-	{
-		const number = i + 0xFFFF + 1;
-		return number.toString(16).padStart(n,'0');
-	}
-	else
-	{
-	//should never be reached
-		return "";	
-	}
+	console.assert(i >= 0, "formatting negative number as hex"); 
+//encoding positive number
+	return i.toString(16).padStart(n,'0');
 }
 
 //TODO: refactor with compute_links(selectedContextIndex)
