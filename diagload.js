@@ -378,10 +378,12 @@ async function compute_links(selectedContextIndex)
 
 	const translations = rectangles.map(r => [r.left, r.top])
 					.flat()
+					.map(i => i + XY_TR)	//protection against negative numbers
 					.map(i => hex(i,3))
 					.join('');
 
 	const sframe = [frame.left, frame.right, frame.top, frame.bottom]
+				.map(i => i + XY_TR)		//protection against negative numbers
 				.map(i => hex(i,4))
 				.join('');
 	console.log(sframe);
@@ -411,7 +413,11 @@ async function compute_links(selectedContextIndex)
 	const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = await bombix(rectdim, translations, sframe, slinks);
 	const links = await JSON.parse(jsonResponse)
-				.map(({polyline, from, to}) => ({polyline, from:ids[from], to:ids[to]}));
+				.map(({polyline, from, to}) => ({
+					polyline: polyline.map(({x,y}) => {x:x-XY_TR, y:y-XY_TR}), 
+					from:ids[from], 
+					to:ids[to]
+					}));
 	return links;
 }
 
