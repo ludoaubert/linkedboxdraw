@@ -75,7 +75,7 @@ function data2contexts(mydata) {
 	mycontexts = JSON.parse(jsonResponse);
 	mycontexts.rectangles = rectangles;
 	
-	for (for [selectedContextIndex, context] of mycontexts.contexts.entries())
+	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
 		context.links = compute_links(selectedContextIndex);
 /*	
 	mycontexts.contexts = mycontexts.contexts.map(
