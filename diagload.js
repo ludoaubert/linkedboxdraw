@@ -42,9 +42,8 @@ function hex(i,n) {
 	return i.toString(16).padStart(n,'0');
 }
 
-//TODO: refactor with compute_links(selectedContextIndex)
 
-function data2contexts(mydata) {
+async function data2contexts(mydata) {
 
 	const {boxes, links} = mydata;
 
