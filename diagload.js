@@ -698,10 +698,8 @@ window.main = async function main()
 	
 //making sure svg viewBox is computed in a unified way
 	
-	for (let selectedContextIndex=0; selectedContextIndex < mycontexts.contexts.length; selectedContextIndex++)
-	{
-		let context = mycontexts.contexts[selectedContextIndex];
-		
+	for (const [selectedContextIndex, context] of mycontexts.contexts.entries())
+	{		
 		const rectangles = context.translatedBoxes
 					.map(tB => {
 						const r = mycontexts.rectangles[tB.id];
