@@ -33,8 +33,7 @@ var sizer = 0;
 // FRAME_MARGIN is duplicated in table_input.js, diagload.js and topo_space.js
 const FRAME_MARGIN = 20;
 const RECT_BORDER = 20;
-// XY_TR : goal is to avoid negative number.
-const XY_TR = 1000;
+
 
 function hex(i,n) {
 	console.assert(i >= 0, "formatting negative number as hex"); 
@@ -358,6 +357,9 @@ function enforce_bounding_rectangle(selectedContextIndex, r=null)
 async function compute_links(selectedContextIndex)
 {
 	const {frame, translatedBoxes, links_} = mycontexts.contexts[selectedContextIndex];
+	
+// goal is to avoid negative number.
+	const XY_TR = 1000;
 
 	const rectangles = translatedBoxes
 				.map(tB => {
