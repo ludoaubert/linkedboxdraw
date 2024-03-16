@@ -507,7 +507,7 @@ struct Link
 {
 	int from, to;
 
-	bool operator==(const Link&) const = default;
+	friend auto operator<=>(const Link&, const Link&) = default;
 };
 
 
@@ -3353,6 +3353,8 @@ void parse_command(const char* rectdim,
 		links.push_back({from, to});
 		pos += 4;
 	}
+
+	ranges::sort(links);
 
 	sscanf(sframe, "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
 }
