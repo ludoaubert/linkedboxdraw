@@ -244,16 +244,16 @@ struct Maille
 
 	bool operator==(const Maille&) const = default;
 
-        operator Range() const
-        {
-                switch (direction)
-                {
-                case HORIZONTAL:
-                        return { direction, way, j, i, i };
-                case VERTICAL:
-                        return { direction, way, i, j, j };
-                }
-        }
+	operator Range() const
+	{
+		switch (direction)
+		{
+			case HORIZONTAL:
+				return { direction, way, j, i, i };
+			case VERTICAL:
+				return { direction, way, i, j, j };
+		}
+	}
 };
 
 
