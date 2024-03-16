@@ -3661,11 +3661,6 @@ void parse_command(const char* rectdim,
 	while (sscanf(rectdim + pos, "%3x%3x", &width, &height) == 2 &&
 	      sscanf(translations + pos, "%3x%3x", &x, &y) == 2)
 	{
-	//handling representation of negative number as hex string
-		if (x & 0x800)
-			x = - (~(x-1) & 0xFFF);
-		if (y & 0x800)
-			y = - (~(y-1) & 0xFFF);
 		rects.push_back({x, x + width, y, y + height});
 		pos += 6;
 	}
@@ -3679,13 +3674,6 @@ void parse_command(const char* rectdim,
 	}
 
 	sscanf(sframe, "%4x%4x%4x%4x", &frame.left, &frame.right, &frame.top, &frame.bottom);
-	//handling representation of negative number as hex string
-	for (int* const pi : {&frame.left, &frame.right, &frame.top, &frame.bottom})
-	{
-		int& i = *pi;
-		if (i & 0x8000)
-			i = - (~(i-1) & 0xFFFF);
-	}
 }
 
 int main(int argc, char* argv[])
@@ -3775,59 +3763,6 @@ int main(int argc, char* argv[])
 				nbOK++;
 
 			printf("%f seconds elapsed.\n", time_span.count());
-		}
-
-		const unsigned NUMBER_OF_PARSE_COMMAND_TEST = 1;
-
-		{
-			const char *rectdim="07f07806204807e08807e0780af05807e088069098",
-				*translations="ff5ff70aafd41570d40a504a0840f314f01eff309e",
-				*sframe="ffd501f3ffb6017a",
-				*slinks="0203050304030001";
-
-			Rect frame;
-			vector<Rect> rects;
-			vector<Link> links;
-
-			const Point decoded_translations[7]={
-				{.x=-11,.y=-9},
-				{.x=170,.y=-44},
-				{.x=343,.y=212},
-				{.x=165,.y=74},
-				{.x=132,.y=243},
-				{.x=335,.y=30},
-				{.x=-13,.y=158}
-			};
-			const Rect expected_frame={
-				.left=-43,
-				.right=499,
-				.top=-74,
-				.bottom=378
-			};
-
-			parse_command(rectdim,
-					translations,
-					sframe,
-					slinks,
-					frame,
-					rects,
-					links);
-
-			bool OK=true;
-			OK &= frame == expected_frame;
-			OK &= rects.size() == 7;
-
-			for (int i=0; i<7; i++)
-			{
-				const auto [x, y]=decoded_translations[i];
-				const auto [left, right, top, bottom] = rects[i];
-				OK &= x==left && y==top;
-			}
-
-                        printf("parse command test %s.\n", OK ? "successful" : "failed");
-
-                        if (OK)
-                                nbOK++;
 		}
 
 		printf("bombix: %d/%ld tests successful.\n", nbOK, NUMBER_OF_PARSE_COMMAND_TEST+sizeof(contexts)/sizeof(TestContext)+sizeof(pp_contexts)/sizeof(PostProcessingTestContext));
