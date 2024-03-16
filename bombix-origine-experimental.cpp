@@ -1032,13 +1032,6 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 	ranges::sort(target_candidates);
 }
 
-vector<Maille> parse_optimal_path(const vector<Edge>& optimal_path)
-{
-	vector<Maille> result;
-	for (const Edge& edge : optimal_path)
-		result.push_back(parse(edge.v));
-	return result;
-}
 
 /*
 use views::chunk_by
