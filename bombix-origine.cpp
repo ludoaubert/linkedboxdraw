@@ -1452,7 +1452,6 @@ const TestContext contexts[] = {
 /*20*/ {.from= 17, .to= 19},
 /*21*/ {.from= 19, .to= 15}
 	},
-	.faisceau_outp
 	.faisceau_output={},
 	.polylines={}
 },
