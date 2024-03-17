@@ -1,5 +1,5 @@
 /**
-* \copyright Copyright (c) 2015-2022 Ludovic Aubert
+* \copyright Copyright (c) 2015-2024 Ludovic Aubert
 *            All Rights Reserved
 *            DO NOT ALTER OR REMOVE THIS COPYRIGHT NOTICE
 *
@@ -775,7 +775,6 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 						adj.push_back({ u, v, distance });
 					}
 
-					return adj;
 					for (const Edge& e : adj)
 						edges.push_back(e);
 				}
