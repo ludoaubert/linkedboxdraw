@@ -474,13 +474,6 @@ struct Matrix
 };
 
 
-struct Graph
-{
-	const Matrix<bool> &definition_matrix;
-	const Matrix<Span> (&range_matrix)[2];
-	const vector<int> (&coords)[2];
-};
-
 enum InputOutputSwitch
 {
 	INPUT,
@@ -688,84 +681,6 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 	pos += sprintf(buffer + pos, "\t\t}\n");
 
 	serialized = buffer;
-}
-
-
-vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint64_t u)
-{
-	vector<Edge> adj;
-
-	const int TURN_PENALTY = 1;
-	const int MIN_CORRIDOR_WIDTH = 5;
-	const int NARROW_CORRIDOR_PENALTY = 1000;
-	const int WITHIN_RECTANGLE_PENALTY = 1000;
-
-	const auto& [definition_matrix, range_matrix, coords] = graph;
-
-	Maille r = parse(u);
-
-	Maille next = r;
-	next[next.direction] += next.way;
-
-	if (definition_matrix.isdefined(next.i, next.j))
-	{
-		int distance = 0;
-
-		uint64_t v = serialize(next);
-
-		for (Maille* m : {&r, &next})
-		{
-			if (definition_matrix(m->i, m->j) == false)
-				distance += WITHIN_RECTANGLE_PENALTY;
-
-			auto& tab = coords[m->direction];
-			int16_t value = (*m)[m->direction];
-			distance += tab[value+1] - tab[value];
-		}
-
-		const Matrix<Span> &rm = range_matrix[next.direction];
-		Span span = rm(next.i, next.j);
-		uint64_t w = u;
-		while (w)
-		{
-			Maille m = parse(w);
-			if (m.direction != next.direction)
-				break;
-			Span sp = rm(m.i, m.j);
-			span = intersection(span, sp);
-			const Edge& edge = predecessor.at(w);
-			assert(edge.v == w);
-			w = edge.u;
-		}
-
-		const vector<int>& c = coords[other(next.direction)];
-		int range_width = c[span.max+1] - c[span.min];
-		if (range_width < MIN_CORRIDOR_WIDTH)
-		{
-			printf("detected narrow corridor range_witdh=%d at location (i=%hu, j=%hu, direction=%s, way=%s).\n", 
-					range_width, next.i, next.j, dir[next.direction], way_string[next.way+1]);
-			distance += NARROW_CORRIDOR_PENALTY;
-		}
-
-		adj.push_back({u, v, distance});
-	}
-
-	for (Way way : { DECREASE, INCREASE})
-	{
-		Maille next = r;
-		next.direction = other(r.direction);
-		next.way = way;
-
-		int distance = TURN_PENALTY;
-
-		if (definition_matrix(r.i, r.j) == false)
-			distance += 2 * WITHIN_RECTANGLE_PENALTY;
-
-		uint64_t v = serialize(next);
-		adj.push_back({ u, v, distance });
-	}
-
-	return adj;
 }
 
 
