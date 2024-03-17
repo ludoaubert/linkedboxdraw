@@ -776,8 +776,8 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix_,
 //Erdos - Edge{int64_t u,v; int weight;}
 //uint64_t serialize(const Maille& m)
 //Maille parse(uint64_t u)
-	const Way ways = {DECREASE, INCREASE};
-	const Direction directions={HORIZONTAL, VERTICAL};
+	const Way ways[2] = {DECREASE, INCREASE};
+	const Direction directions[2] = {HORIZONTAL, VERTICAL};
 	auto [n1, n2] = definition_matrix_.dim();
 	vector<Edge> edges;
 	for (Way way : ways)
