@@ -2381,11 +2381,11 @@ Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par 
 
 
 FaiceauOutput compute_faiceau(const vector<Link>& links,
-				const Matrix<bool>& definition_matrix_,
-				const Matrix<Span>(&range_matrix)[2],
-				const vector<int>(&coords)[2],
-				const vector<Rect>& rects,
-				int from)
+							const Matrix<bool>& definition_matrix_,
+							const Matrix<Span>(&range_matrix)[2],
+							const vector<int>(&coords)[2],
+							const vector<Rect>& rects,
+							int from)
 {
 	printf("enter compute_faiceau() from=%d \n", from);
 
