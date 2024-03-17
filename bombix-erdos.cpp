@@ -769,7 +769,7 @@ vector<Edge> adj_list(const Graph& graph, const vector<Edge>& predecessor, uint6
 }
 
 
-vector<Edge> build_graph(const Matrix<bool>& definition_matrix_,
+vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 						const Matrix<Span>(&range_matrix)[2],
 						const vector<int>(&coords)[2])
 {
@@ -778,7 +778,7 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix_,
 //Maille parse(uint64_t u)
 	const Way ways[2] = {DECREASE, INCREASE};
 	const Direction directions[2] = {HORIZONTAL, VERTICAL};
-	auto [n1, n2] = definition_matrix_.dim();
+	auto [n1, n2] = definition_matrix.dim();
 	vector<Edge> edges;
 	for (Way way : ways)
 	{
@@ -819,6 +819,7 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix_,
 
 						const Matrix<Span> &rm = range_matrix[next.direction];
 						Span span = rm(next.i, next.j);
+/*
 						uint64_t w = u;
 						while (w)
 						{
@@ -831,7 +832,7 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix_,
 							assert(edge.v == w);
 							w = edge.u;
 						}
-
+*/
 						const vector<int>& c = coords[other(next.direction)];
 						int range_width = c[span.max+1] - c[span.min];
 						if (range_width < MIN_CORRIDOR_WIDTH)
@@ -1107,8 +1108,7 @@ void dijkstra(const vector<Edge>& edges, const unordered_map<uint64_t, int> &sou
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
 			distance[queued_edge.v] = queued_edge.distance_v;
 
-			for (const Edge& adj_edge = ranges::equal_range(edges, {}, &Edge::i, queued_edge.v))
-//			for (const Edge& adj_edge : adj_list(graph, predecessor, queued_edge.v))
+			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
 			{
 				int distance_v = distance[adj_edge.u] + adj_edge.weight;
 				if (distance_v < distance[adj_edge.v])
