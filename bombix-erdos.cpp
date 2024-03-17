@@ -290,6 +290,8 @@ struct Edge
 {
 	uint64_t u,v;
 	int weight;
+	
+	friend auto operator<=>(const Edge&, const Edge&) = default;
 };
 
 struct Point
