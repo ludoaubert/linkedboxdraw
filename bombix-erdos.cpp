@@ -2574,7 +2574,7 @@ void compute_polylines(const vector<Rect>& rects,
 
 	auto [n1, n2] = definition_matrix_.dim();
 
-	const Matrix<Span> mat(n1,n2)
+	const Matrix<Span> mat(n1,n2);
 	Matrix<Span> range_matrix[2] = {mat, mat};
 	compute_range_matrix(definition_matrix_, range_matrix);
 
