@@ -382,7 +382,7 @@ Span intersection(const Span& r1, const Span& r2)
 template <typename T>
 struct Matrix
 {
-        struct Dim
+	struct Dim
 	{
 		int n,m;
 	};
@@ -944,11 +944,11 @@ void add_rect(vector<int>(&coords)[2], const Rect& r, int nblink=1)
 
 struct QueuedEdge
 {
-        int distance_v;
+	int distance_v;
 	uint64_t u,v;
 	int weight;
 
-        auto operator<=>(const QueuedEdge&) const = default;
+	auto operator<=>(const QueuedEdge&) const = default;
 };
 
 /*
@@ -2574,8 +2574,8 @@ void compute_polylines(const vector<Rect>& rects,
 
 	auto [n1, n2] = definition_matrix_.dim();
 
-	Matrix<Span> range_matrix[2] ;
-	ranges::fill(range_matrix, Matrix<Span>(n1,n2) );
+	const Matrix<Span> mat(n1,n2)
+	Matrix<Span> range_matrix[2] = {mat, mat};
 	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<const Link*> link_pointers;
