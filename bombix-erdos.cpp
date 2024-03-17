@@ -2406,6 +2406,102 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	unordered_map<uint64_t, int> source_node_distance;
 	for (uint64_t u : source_nodes)
 		source_node_distance[u] = 0;
+	
+//Erdos - Edge{int64_t u,v; int weight;}
+//uint64_t serialize(const Maille& m)
+//Maille parse(uint64_t u)
+	const Way ways = {DECREASE, INCREASE};
+	const Direction directions={HORIZONTAL, VERTICAL};
+	auto [n1, n2] = definition_matrix_.dim();
+	vector<Edge> edges;
+	for (Way way : ways)
+	{
+		for (Direction direction : directions)
+		{
+			for (int i=0; i < n1; i++)
+			{
+				for (int j=0; j < n2; j++)
+				{
+					vector<Edge> adj;
+
+					const int TURN_PENALTY = 1;
+					const int MIN_CORRIDOR_WIDTH = 5;
+					const int NARROW_CORRIDOR_PENALTY = 1000;
+					const int WITHIN_RECTANGLE_PENALTY = 1000;
+
+					Maille r{direction, way, i, j};
+					uint64_t u = serialize(r);
+
+					Maille next = r;
+					next[next.direction] += next.way;
+
+					if (definition_matrix.isdefined(next.i, next.j))
+					{
+						int distance = 0;
+
+						uint64_t v = serialize(next);
+
+						for (Maille* m : {&r, &next})
+						{
+							if (definition_matrix(m->i, m->j) == false)
+								distance += WITHIN_RECTANGLE_PENALTY;
+
+							auto& tab = coords[m->direction];
+							int16_t value = (*m)[m->direction];
+							distance += tab[value+1] - tab[value];
+						}
+
+						const Matrix<Span> &rm = range_matrix[next.direction];
+						Span span = rm(next.i, next.j);
+						uint64_t w = u;
+						while (w)
+						{
+							Maille m = parse(w);
+							if (m.direction != next.direction)
+								break;
+							Span sp = rm(m.i, m.j);
+							span = intersection(span, sp);
+							const Edge& edge = predecessor.at(w);
+							assert(edge.v == w);
+							w = edge.u;
+						}
+
+						const vector<int>& c = coords[other(next.direction)];
+						int range_width = c[span.max+1] - c[span.min];
+						if (range_width < MIN_CORRIDOR_WIDTH)
+						{
+							printf("detected narrow corridor range_witdh=%d at location (i=%hu, j=%hu, direction=%s, way=%s).\n", 
+									range_width, next.i, next.j, dir[next.direction], way_string[next.way+1]);
+							distance += NARROW_CORRIDOR_PENALTY;
+						}
+
+						adj.push_back({u, v, distance});
+					}
+
+					for (Way way : { DECREASE, INCREASE})
+					{
+						Maille next = r;
+						next.direction = other(r.direction);
+						next.way = way;
+
+						int distance = TURN_PENALTY;
+
+						if (definition_matrix(r.i, r.j) == false)
+							distance += 2 * WITHIN_RECTANGLE_PENALTY;
+
+						uint64_t v = serialize(next);
+						adj.push_back({ u, v, distance });
+					}
+
+					return adj;
+					for (const Edge& e : adj)
+						edges.push_back(e);
+				}
+			}
+		}
+	}
+	
+	ranges::sort(edges);
 
 	dijkstra(Graph{ definition_matrix_, range_matrix, coords }, source_node_distance, distance, predecessor);
 
