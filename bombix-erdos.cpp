@@ -3203,7 +3203,7 @@ int main(int argc, char* argv[])
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 
-		printf("bombix: %d/%ld tests successful.\n", nbOK, NUMBER_OF_PARSE_COMMAND_TEST+sizeof(contexts)/sizeof(TestContext)+sizeof(pp_contexts)/sizeof(PostProcessingTestContext));
+		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext)+sizeof(pp_contexts)/sizeof(PostProcessingTestContext));
 
 		return 0;
 	}
