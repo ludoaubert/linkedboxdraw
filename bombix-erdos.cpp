@@ -2476,8 +2476,10 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	unordered_map<uint64_t, DistanceInfo> source_node_distance;
 	for (uint64_t u : source_nodes)
 	{
-		DistanceInfo &di = source_node_distance[u];
-		di.distance = 0;
+		source_node_distance[u] = DistanceInfo{
+			.distance = 0;
+			.span = rects[from][parse(u).direction]
+		};
 	}
 
 	dijkstra(edges, source_node_distance, distance, predecessor);
