@@ -1010,6 +1010,9 @@ void dijkstra(const vector<Edge>& edges,
 		
 		DistanceInfo& di_v = distance[queued_edge.v];
 		
+//TODO: need to know if there is a turn. In that case, largeur_chemin_v = distance[queued_edge.v].largeur_chemin
+// How do we know ?
+		
 		Span largeur_chemin_v = intersection(distance[queued_edge.v].largeur_chemin,
 											distance[queued_edge.u].largeur_chemin);
 
