@@ -2489,7 +2489,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	for (uint64_t u : source_nodes)
 	{
 		source_node_distance[u] = DistanceInfo{
-			.distance = 0;
+			.distance = 0,
 			.largeur_chemin = rects[from][parse(u).direction]
 		};
 	}
