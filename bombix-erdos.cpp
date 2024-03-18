@@ -117,6 +117,11 @@ struct Span
 	int min=0, max=0;
 };
 
+int width(const Span span)
+{
+	return span.max - span.min;
+}
+
 
 struct DistanceInfo
 {
@@ -713,8 +718,6 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 					vector<Edge> adj;
 
 					const int TURN_PENALTY = 1;
-					const int MIN_CORRIDOR_WIDTH = 5;
-					const int NARROW_CORRIDOR_PENALTY = 1000;
 					const int WITHIN_RECTANGLE_PENALTY = 1000;
 
 					Maille r{direction, way, i, j};
@@ -737,31 +740,6 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 							auto& tab = coords[m->direction];
 							int16_t value = (*m)[m->direction];
 							distance += tab[value+1] - tab[value];
-						}
-
-						const Matrix<Span> &rm = range_matrix[next.direction];
-						Span span = rm(next.i, next.j);
-/*
-						uint64_t w = u;
-						while (w)
-						{
-							Maille m = parse(w);
-							if (m.direction != next.direction)
-								break;
-							Span sp = rm(m.i, m.j);
-							span = intersection(span, sp);
-							const Edge& edge = predecessor.at(w);
-							assert(edge.v == w);
-							w = edge.u;
-						}
-*/
-						const vector<int>& c = coords[other(next.direction)];
-						int range_width = c[span.max+1] - c[span.min];
-						if (range_width < MIN_CORRIDOR_WIDTH)
-						{
-							printf("detected narrow corridor range_witdh=%d at location (i=%hu, j=%hu, direction=%s, way=%s).\n", 
-									range_width, next.i, next.j, dir[next.direction], way_string[next.way+1]);
-							distance += NARROW_CORRIDOR_PENALTY;
 						}
 
 						adj.push_back({u, v, distance});
@@ -1017,6 +995,13 @@ void dijkstra(const vector<Edge>& edges,
 		int weight = di_v.distance;
 		Q.push({ weight, 0, u, weight });
 	}
+	
+	const int MIN_CORRIDOR_WIDTH = 5;
+	const int NARROW_CORRIDOR_PENALTY = 1000;	
+
+	auto penaly=[](const Span& largeur_chemin){
+		return (width(largeur_chemin_v) < MIN_CORRIDOR_WIDTH) ? NARROW_CORRIDOR_PENALTY : 0;
+	};		
 
 	while (!Q.empty())
 	{
@@ -1024,12 +1009,15 @@ void dijkstra(const vector<Edge>& edges,
 		Q.pop();
 		
 		DistanceInfo& di_v = distance[queued_edge.v];
+		
+		Span largeur_chemin_v = intersection(distance[queued_edge.v].largeur_chemin,
+											distance[queued_edge.u].largeur_chemin);
 
-		if (queued_edge.distance_v < di_v.distance)
+		if (queued_edge.distance_v + penalty(largeur_chemin_v) < di_v.distance)
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
 			distance[queued_edge.v] = {
-				.distance = queued_edge.distance_v, 
+				.distance = queued_edge.distance_v + penalty(largeur_chemin_v), 
 				.largeur_chemin = intersection(di_v.largeur_chemin, distance[queued_edge.u].largeur_chemin)
 			};
 
