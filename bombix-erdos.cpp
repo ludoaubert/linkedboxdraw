@@ -1080,16 +1080,16 @@ void dijkstra(const GraphStruct& graph, const unordered_map<uint64_t, int> &sour
 
 void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const unordered_set<uint64_t> &target_nodes,
-								const vector<int> &distance,
+								const vector<DistanceInfo> &distance,
 								const vector<Edge> &predecessor,
 								vector<uint64_t> &target_candidates)
 {
-	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u);});
+	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u).distance;});
 
 	ranges::copy_if(target_nodes,
 		back_inserter(target_candidates),
 		[&](uint64_t v){
-			return distance.at(v) == distance.at(u);
+			return distance.at(v).distance == distance.at(u).distance;
 		}
 	);
 
