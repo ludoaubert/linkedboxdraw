@@ -1010,11 +1010,9 @@ void dijkstra(const vector<Edge>& edges,
 		
 		DistanceInfo& di_v = distance[queued_edge.v];
 		
-//TODO: need to know if there is a turn. In that case, largeur_chemin_v = distance[queued_edge.v].largeur_chemin
-// How do we know ?
-		
-		Span largeur_chemin_v = intersection(distance[queued_edge.v].largeur_chemin,
-											distance[queued_edge.u].largeur_chemin);
+		Span largeur_chemin_v = parse(queued_edge.u).direction == parse(queued_edge.v).direction ?
+								intersection(distance[queued_edge.v].largeur_chemin, distance[queued_edge.u].largeur_chemin) :
+								distance[queued_edge.v].largeur_chemin ;
 
 		if (queued_edge.distance_v + penalty(largeur_chemin_v) < di_v.distance)
 		{
@@ -1026,8 +1024,11 @@ void dijkstra(const vector<Edge>& edges,
 
 			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
 			{
+				Span largeur_chemin_v = parse(queued_edge.u).direction == parse(queued_edge.v).direction ?
+										intersection(distance[queued_edge.v].largeur_chemin, distance[queued_edge.u].largeur_chemin) :
+										distance[queued_edge.v].largeur_chemin ;
 				int distance_v = distance[adj_edge.u].distance + adj_edge.weight;
-				if (distance_v < distance[adj_edge.v].distance)
+				if (distance_v + penalty(largeur_chemin_v) < distance[adj_edge.v].distance)
 				{
 					Q.push({ distance_v, adj_edge.u, adj_edge.v, adj_edge.weight });
 				}
