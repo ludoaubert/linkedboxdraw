@@ -2480,7 +2480,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		for (uint64_t u : uv)
 		{
 			const Maille m = parse(e.u);
-			distance[u].span = range_matrix[m.direction](m.i, m.j);
+			distance[u].largeur_chemin = range_matrix[m.direction](m.i, m.j);
 		}
 	}
 	vector<Edge> predecessor(1000*1000);
@@ -2490,7 +2490,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	{
 		source_node_distance[u] = DistanceInfo{
 			.distance = 0;
-			.span = rects[from][parse(u).direction]
+			.largeur_chemin = rects[from][parse(u).direction]
 		};
 	}
 
