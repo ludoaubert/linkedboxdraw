@@ -1524,7 +1524,7 @@ const vector<TestContext> contexts = {
 		   +-----+
 */
 {
-    .testid=0,
+    .testid=1,
     .rects={
         {.left=10,.right=30,.top=40,.bottom=60 },
         {.left=28,.right=50,.top=10,.bottom=30 }
@@ -1572,7 +1572,7 @@ const vector<TestContext> contexts = {
                         +-----+
 */
 {
-    .testid=1,
+    .testid=2,
     .rects={
         {.left=10,.right=30,.top=40,.bottom=60 },
         {.left=80,.right=100,.top=20,.bottom=30 },
@@ -1663,7 +1663,7 @@ const vector<TestContext> contexts = {
 */
 
 {
-	.testid=2,
+	.testid=3,
 	.rects={
 		{.left=25,.right=45,.top=15,.bottom=35 },
 		{.left=25,.right=45,.top=45,.bottom=65 },
@@ -1738,7 +1738,7 @@ const vector<TestContext> contexts = {
  +----------------+
 */
 {
-	.testid=3,
+	.testid=4,
 	.rects={
 		{.left=25,.right=45,.top=15,.bottom=35 },
 		{.left=25,.right=45,.top=45,.bottom=65 },
@@ -1821,7 +1821,7 @@ const vector<TestContext> contexts = {
 */
 
 {
- .testid=4,
+ .testid=5,
  .rects={
  /*0*/{.left=329,.right=141 + 329,.top=250,.bottom=40 + 250 },
  /*1*/{.left=523,.right=162 + 523,.top=235,.bottom=56 + 235 },
@@ -1888,7 +1888,7 @@ const vector<TestContext> contexts = {
 */
 
 {
-        .testid=5,
+        .testid=6,
         .rects={
             {.left=40,.right=80,.top=40,.bottom=80},
             {.left=120,.right=160,.top=60,.bottom=100},
@@ -1953,7 +1953,7 @@ const vector<TestContext> contexts = {
 */
 
 {
-        .testid=6,
+        .testid=7,
         .rects={
             {.left=80,.right=100,.top=40,.bottom=80},
             {.left=40,.right=140,.top=120,.bottom=160},
@@ -2022,7 +2022,7 @@ const vector<TestContext> contexts = {
                       +-----+
 */
 {
-        .testid=7,
+        .testid=8,
         .rects={
             {.left=0,.right=2,.top=0,.bottom=2},
             {.left=4,.right=5,.top=4,.bottom=5}
@@ -2081,7 +2081,7 @@ const vector<TestContext> contexts = {
     +------------+                                  +------------+
 */
 {
-        .testid=8,
+        .testid=9,
         .rects={
             { .left=2, .right=6, .top=2, .bottom=6 },
             { .left=2, .right=6, .top=20, .bottom=24 },
@@ -2142,7 +2142,7 @@ const vector<TestContext> contexts = {
    +------------+                                    +------------+
 */
 {
-        .testid=9,
+        .testid=10,
         .rects={
             {.left=20,.right=60,.top=20,.bottom=60 },
             {.left=20,.right=60,.top=200,.bottom=240 },
@@ -2194,7 +2194,7 @@ const vector<TestContext> contexts = {
 },
 
 {
-        .testid=10,
+        .testid=11,
         .rects={
             {.left=10,.right=108,.top=10,.bottom=82 },
             {.left=10,.right=171,.top=10,.bottom=114 },
