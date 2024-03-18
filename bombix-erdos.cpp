@@ -1381,7 +1381,7 @@ string diagdata(const TestContext& ctx)
 
 	pos += sprintf(buffer + pos, "{\"documentTitle\":\"reg-test-%d\",\n\"boxes\":[\n", testid);
 	for (int i=0; i < rects.size(); i++)
-		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\", \"fields\":[]},\n", i);
+		pos += sprintf(buffer + pos, "\t{\"title\":\"rec-%d\", \"id\":%d, \"fields\":[]},\n", i, i);
 
 	if (buffer[pos-2]==',')
 	{
@@ -3227,17 +3227,6 @@ int main(int argc, char* argv[])
 
 		for (const TestContext &ctx : contexts)
 		{
-			string json = diagdata(ctx);
-			char file_name[40];
-			sprintf(file_name, "test-reg-%d-diagdata.json", ctx.testid);
-			FILE *f = fopen(file_name, "w");
-			fprintf(f, "%s", json.c_str());
-			fclose(f);
-		}
-
-	//TODO: use destructuring
-		for (const TestContext &ctx : contexts)
-		{
 			high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
 			bool OK=true;
@@ -3250,11 +3239,12 @@ int main(int argc, char* argv[])
 			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
 
-			string json = contexts_(ctx, polylines);
+			const string json_data = diagdata(ctx);
+			const string json_contexts = contexts_(ctx, polylines);
 			char file_name[40];
-			sprintf(file_name, "test-reg-%d-contexts.json", ctx.testid);
+			sprintf(file_name, "test-reg-%d.json", ctx.testid);
 			FILE *f = fopen(file_name, "w");
-			fprintf(f, "%s", json.c_str());
+			fprintf(f, "{\"data\":%s,\"contexts\":%s}", json_data.c_str(), json_contexts.c_str());
 			fclose(f);
 
 			string serialized;
