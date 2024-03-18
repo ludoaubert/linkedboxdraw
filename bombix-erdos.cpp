@@ -114,7 +114,14 @@ struct Coord
 
 struct Span
 {
-	int min, max;
+	int min=0, max=0;
+};
+
+
+struct DistanceInfo
+{
+	int distance = INT16_MAX ;
+	Span largeur_chemin;
 };
 
 
@@ -995,37 +1002,38 @@ struct Distance
 };
 
 
-template <typename DistanceMap, typename PredecessorMap>
-void dijkstra(const vector<Edge>& edges, const unordered_map<uint64_t, int> &source_node_distance, 
-			DistanceMap &distance, PredecessorMap & predecessor)
-{
-	static_assert(is_same<DistanceMap, vector<int> >::value || is_same<DistanceMap, unordered_map<uint64_t, Distance> >::value, "");
-	static_assert(is_same<PredecessorMap, vector<Edge> >::value || is_same<PredecessorMap, unordered_map<uint64_t, Edge> >::value, "");
 
-	distance[0] = 0;
+void dijkstra(const vector<Edge>& edges,
+			const unordered_map<uint64_t, DistanceInfo> &source_node_distance, 
+			vector<DistanceInfo> &distance,
+			vector<Edge> & predecessor)
+{
+	distance[0] = {.distance=0, .largeur_chemin={.min=0,.max=0}};
 
 	priority_queue<QueuedEdge, vector<QueuedEdge>, greater<QueuedEdge> > Q;
 
-	for (const auto& [u, distance_v] : source_node_distance)
+	for (const auto& [u, di_v] : source_node_distance)
 	{
-		int weight = distance_v;
-		Q.push({ distance_v, 0, u, weight });
+		int weight = di_v.distance;
+		Q.push({ weight, 0, u, weight });
 	}
 
 	while (!Q.empty())
 	{
 		QueuedEdge queued_edge = Q.top();
 		Q.pop();
+		
+		DistanceInfo& di_v = distance[queued_edge.v]
 
-		if (queued_edge.distance_v < distance[queued_edge.v])
+		if (queued_edge.distance_v < di_v.distance)
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
-			distance[queued_edge.v] = queued_edge.distance_v;
+			distance[queued_edge.v] = {.distance=queued_edge.distance_v, .largeur_chemin={.min=0, .max=0}};
 
 			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
 			{
-				int distance_v = distance[adj_edge.u] + adj_edge.weight;
-				if (distance_v < distance[adj_edge.v])
+				int distance_v = distance[adj_edge.u].distance + adj_edge.weight;
+				if (distance_v < distance[adj_edge.v].distance)
 				{
 					Q.push({ distance_v, adj_edge.u, adj_edge.v, adj_edge.weight });
 				}
@@ -2462,12 +2470,15 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 			adj_links.push_back({ link.to, link.from });
 	}
 
-	vector<int> distance(1000*1000, INT16_MAX);
+	vector<DistanceInfo> distance(1000*1000);
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
-	unordered_map<uint64_t, int> source_node_distance;
+	unordered_map<uint64_t, DistanceInfo> source_node_distance;
 	for (uint64_t u : source_nodes)
-		source_node_distance[u] = 0;
+	{
+		DistanceInfo &di = source_node_distance[u];
+		di.distance = 0;
+	}
 
 	dijkstra(edges, source_node_distance, distance, predecessor);
 
