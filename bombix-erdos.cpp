@@ -1023,12 +1023,15 @@ void dijkstra(const vector<Edge>& edges,
 		QueuedEdge queued_edge = Q.top();
 		Q.pop();
 		
-		DistanceInfo& di_v = distance[queued_edge.v]
+		DistanceInfo& di_v = distance[queued_edge.v];
 
 		if (queued_edge.distance_v < di_v.distance)
 		{
 			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
-			distance[queued_edge.v] = {.distance=queued_edge.distance_v, .largeur_chemin={.min=0, .max=0}};
+			distance[queued_edge.v] = {
+				.distance = queued_edge.distance_v, 
+				.largeur_chemin = intersection(di_v.largeur_chemin, distance[queued_edge.u].largeur_chemin)
+			};
 
 			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
 			{
@@ -2471,6 +2474,15 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	vector<DistanceInfo> distance(1000*1000);
+	for (const Edge& e : edges)
+	{
+		const uint64_t uv[2]={e.u, e.v};
+		for (uint64_t u : uv)
+		{
+			const Maille m = parse(e.u);
+			distance[u].span = range_matrix[m.direction](m.i, m.j);
+		}
+	}
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
 	unordered_map<uint64_t, DistanceInfo> source_node_distance;
