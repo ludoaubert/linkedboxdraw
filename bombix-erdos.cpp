@@ -3211,8 +3211,6 @@ int main(int argc, char* argv[])
 	if (argc == 1)
 	{
 		printf("testing bombix ...\n");
-
-		int nbOK=0;
 		
 		vector<bool> pp_test_results(pp_contexts.size());
 		vector<bool> test_results(contexts.size());
@@ -3225,8 +3223,6 @@ int main(int argc, char* argv[])
 			printf("test %s.\n", polylines_ == expected_polylines ? "OK":"KO");
 			bool OK = polylines_ == expected_polylines;
 			pp_test_results[testid] = OK;
-			if (OK)
-				nbOK++;
 		}
 
 		for (const TestContext &ctx : contexts)
@@ -3285,9 +3281,6 @@ int main(int argc, char* argv[])
 			
 			test_results[ctx.testid] = OK;
 
-			if (OK)
-				nbOK++;
-
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
 		
@@ -3296,12 +3289,14 @@ int main(int argc, char* argv[])
 			printf("pp test %d : %s\n", testid, pp_test_results[testid] ? "OK" : "KO");
 		}
 		
+		printf("\nbombix: %d/%ld pp tests successful.\n", ranges::count(pp_test_results, true), pp_test_results.size());
+		
 		for (int testid=0; testid < test_results.size(); testid++)
 		{
 			printf("test %d : %s\n", testid, test_results[testid] ? "OK" : "KO");
 		}
 
-		printf("\nbombix: %d/%ld tests successful.\n", nbOK, contexts.size()+pp_contexts.size());
+		printf("\nbombix: %d/%ld tests successful.\n", ranges::count(test_results, true), test_results.size());
 
 		return 0;
 	}
