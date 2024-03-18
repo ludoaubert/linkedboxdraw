@@ -1000,7 +1000,7 @@ void dijkstra(const vector<Edge>& edges,
 	const int NARROW_CORRIDOR_PENALTY = 1000;	
 
 	auto penalty=[](const Span& largeur_chemin){
-		return (width(largeur_chemin_v) < MIN_CORRIDOR_WIDTH) ? NARROW_CORRIDOR_PENALTY : 0;
+		return width(largeur_chemin) < MIN_CORRIDOR_WIDTH ? NARROW_CORRIDOR_PENALTY : 0;
 	};		
 
 	while (!Q.empty())
