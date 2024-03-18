@@ -1460,7 +1460,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 }
 
 
-const TestContext contexts[] = {
+const vector<TestContext> contexts = {
 {
 	.testid=0,
 	.rects={
@@ -2285,7 +2285,7 @@ struct PostProcessingTestContext
 	vector<Polyline> polylines, expected_polylines;
 };
 
-const PostProcessingTestContext pp_contexts[] = {
+const vector<PostProcessingTestContext> pp_contexts = {
 {
         .testid=0,
         .rects={
@@ -3213,6 +3213,9 @@ int main(int argc, char* argv[])
 		printf("testing bombix ...\n");
 
 		int nbOK=0;
+		
+		vector<bool> pp_test_results(pp_contexts.size());
+		vector<bool> test_results(contexts.size());
 
 		for (const auto& [testid, rects, frame, polylines, expected_polylines] : pp_contexts)
 		{
@@ -3221,6 +3224,7 @@ int main(int argc, char* argv[])
 			post_process_polylines(rects, polylines_);
 			printf("test %s.\n", polylines_ == expected_polylines ? "OK":"KO");
 			bool OK = polylines_ == expected_polylines;
+			pp_test_results[testid] = OK;
 			if (OK)
 				nbOK++;
 		}
@@ -3234,7 +3238,6 @@ int main(int argc, char* argv[])
 			fprintf(f, "%s", json.c_str());
 			fclose(f);
 		}
-
 
 	//TODO: use destructuring
 		for (const TestContext &ctx : contexts)
@@ -3279,14 +3282,26 @@ int main(int argc, char* argv[])
 				string json = polyline2json(polylines);
 				printf("%s\n", json.c_str());
 			}
+			
+			test_results[ctx.testid] = OK;
 
 			if (OK)
 				nbOK++;
 
 			printf("%f seconds elapsed.\n", time_span.count());
 		}
+		
+		for (int testid=0; testid < pp_test_results.size(); testid++)
+		{
+			printf("pp test %d : %s\n", testid, pp_test_results[testid] ? "OK" : "KO");
+		}
+		
+		for (int testid=0; testid < test_results.size(); testid++)
+		{
+			printf("test %d : %s\n", testid, test_results[testid] ? "OK" : "KO");
+		}
 
-		printf("bombix: %d/%ld tests successful.\n", nbOK, sizeof(contexts)/sizeof(TestContext)+sizeof(pp_contexts)/sizeof(PostProcessingTestContext));
+		printf("\nbombix: %d/%ld tests successful.\n", nbOK, contexts.size()+pp_contexts.size());
 
 		return 0;
 	}
