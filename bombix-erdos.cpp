@@ -3247,28 +3247,25 @@ int main(int argc, char* argv[])
 			fprintf(f, "{\"data\":%s,\"contexts\":%s}", json_data.c_str(), json_contexts.c_str());
 			fclose(f);
 
-			string serialized;
-			print(faisceau_output, serialized);
-
 			printf("%s faisceaux.\n", faisceau_output == ctx.faisceau_output ? "OK":"KO");
 			OK &= faisceau_output == ctx.faisceau_output;
 
-			if (faisceau_output != ctx.faisceau_output)
-			{
-				printf("%s\n", serialized.c_str());
-			}
-
-			print(polylines, serialized);
 			duration<double> time_span = high_resolution_clock::now() - t1;
 			printf("%s polylines.\n", polylines == ctx.polylines ? "OK":"KO");
 			OK &= polylines == ctx.polylines;
 
-			if (polylines != ctx.polylines)
+			if (OK == false)
 			{
-				string json = polyline2json(polylines);
-				printf("%s\n", json.c_str());
+				string faisceau_serialized, polylines_serialized;
+				print(faisceau_output, faisceau_serialized);
+				print(polylines, polylines_serialized);
+				char file_name[40];
+				sprintf(file_name, "test-reg-%d.cpp", ctx.testid);
+				FILE *f = fopen(file_name, "w");
+				fprintf(f, ".faisceau_output=%s,\n.polylines=%s", faisceau_serialized.c_str(), polylines_serialized.c_str());
+				fclose(f);				
 			}
-			
+
 			test_results[ctx.testid] = OK;
 
 			printf("%f seconds elapsed.\n", time_span.count());
