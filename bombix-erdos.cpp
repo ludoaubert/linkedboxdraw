@@ -2675,10 +2675,10 @@ void compute_polylines(const vector<Rect>& rects,
 
 	definition_matrix = compute_definition_matrix(rects, coords);
 
-	auto [n1, n2] = definition_matrix_.dim();
+	auto [n1, n2] = definition_matrix.dim();
 
 	range_matrix[0] = range_matrix[1] = const Matrix<Span> mat(n1,n2);
-	compute_range_matrix(definition_matrix_, range_matrix);
+	compute_range_matrix(definition_matrix, range_matrix);
 
 	vector<const Link*> link_pointers;
 	ranges::transform(links,
@@ -2709,7 +2709,7 @@ void compute_polylines(const vector<Rect>& rects,
 
 	faiceau_output.resize(origins.size());
 	
-	const vector<Edge> edges = build_graph(definition_matrix_,
+	const vector<Edge> edges = build_graph(definition_matrix,
 											range_matrix,
 											coords);	
 
