@@ -869,12 +869,12 @@ int binary_search(const vector<int>& v, int val)
 
 Rect index(const vector<int>(&coords)[2], const Rect& r)
 {
-	uint16_t left = binary_search(coords[HORIZONTAL], r.left);
-	uint16_t right = binary_search(coords[HORIZONTAL], r.right);
-	uint16_t top = binary_search(coords[VERTICAL], r.top);
-	uint16_t bottom = binary_search(coords[VERTICAL], r.bottom);
-
-	return { left, right - 1, top, bottom-1 };
+	return Rect{
+		.left = binary_search(coords[HORIZONTAL], r.left),
+		.right = binary_search(coords[HORIZONTAL], r.right) - 1,
+		.top = binary_search(coords[VERTICAL], r.top),
+		.bottom = binary_search(coords[VERTICAL], r.bottom) - 1
+	};
 }
 
 
