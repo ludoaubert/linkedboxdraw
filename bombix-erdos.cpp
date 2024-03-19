@@ -2588,7 +2588,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 }
 
 
-void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&range_matrix)[2])
+void compute_range_matrix(const Matrix<bool> &definition_matrix, vector<int> (&coords)[2], Matrix<Span> (&range_matrix)[2])
 {
 	auto [n, m] = definition_matrix.dim();
 
@@ -2610,8 +2610,8 @@ void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&
 			while (jmax + 1 < m && definition_matrix(i, jmax + 1) == definition_matrix(i,j))
 				jmax++;
 
-			range_matrix[HORIZONTAL](i,j) = {imin, imax};
-			range_matrix[VERTICAL](i,j) = {jmin, jmax};
+			range_matrix[HORIZONTAL](i,j) = {coords[HORIZONTAL][imin], coords[HORIZONTAL][imax+1]};
+			range_matrix[VERTICAL](i,j) = {coords[VERTICAL][jmin], coords[VERTICAL][jmax+1]};
 		}
 	}
 }
@@ -2678,7 +2678,7 @@ void compute_polylines(const vector<Rect>& rects,
 	auto [n1, n2] = definition_matrix.dim();
 
 	range_matrix[0] = range_matrix[1] = Matrix<Span>(n1,n2);
-	compute_range_matrix(definition_matrix, range_matrix);
+	compute_range_matrix(definition_matrix, coords, range_matrix);
 
 	vector<const Link*> link_pointers;
 	ranges::transform(links,
