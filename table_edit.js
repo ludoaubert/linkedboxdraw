@@ -816,7 +816,7 @@ function dropFieldComment()
 function updateFieldComment()
 {
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value.split(/\r?\n).join('\\n')};
+	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value.replace(/\r?\n/g, '\\n')};
 
 	if (currentFieldCommentIndex != -1)
 		mydata.fieldComments[ currentBoxCommentIndex ] = fieldComment;
