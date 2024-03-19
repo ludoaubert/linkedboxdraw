@@ -437,7 +437,7 @@ function displayCurrent()
 	const fieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
 	if (fieldComment != fieldCommentTextArea.value)
 	{
-		fieldCommentTextArea.value = fieldComment ;
+		fieldCommentTextArea.value = fieldComment..split('\\n').join('\n') ;
 	}
 
 	const picturesComboInnerHTML = mydata?.pictures
@@ -814,7 +814,7 @@ function dropFieldComment()
 function updateFieldComment()
 {
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value};
+	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value.split(/\r?\n).join('\\n')};
 
 	if (currentFieldCommentIndex != -1)
 		mydata.fieldComments[ currentBoxCommentIndex ] = fieldComment;
