@@ -2621,12 +2621,11 @@ string print_range_matrix(Matrix<Span> (&range_matrix)[2])
 	char buffer[1024 * 1024];
 	int pos = 0;
 	
-	auto [n, m] = range_matrix.dim();
-	
 	const Direction directions[2]={HORIZONTAL, VERTICAL};
 	
 	for (Direction direction : directions)
 	{
+		auto [n, m] = range_matrix[direction].dim();
 		for (int i=0; i < n; i++)
 		{
 			for (int j=0; j < m; j++)
