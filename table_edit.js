@@ -435,7 +435,8 @@ function displayCurrent()
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 
 	const escapedFieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
-	const reversedFieldComment = escapedFieldComment.replaceAll('\\n', '\n');
+	const reversedFieldComment = escapedFieldComment.replaceAll('\\n', '\n')
+													.replaceAll('\\t', '\t');
 
 	if (reversedFieldComment != fieldCommentTextArea.value)
 	{
@@ -816,7 +817,9 @@ function dropFieldComment()
 function updateFieldComment()
 {
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: fieldCommentTextArea.value.replace(/\r?\n/g, '\\n')};
+	const escapedFieldCommentText = fieldCommentTextArea.value.replace(/\r?\n/g, '\\n'),
+																.replace(/\t/g, '\\t');
+	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: escapedFieldCommentText};
 
 	if (currentFieldCommentIndex != -1)
 		mydata.fieldComments[ currentBoxCommentIndex ] = fieldComment;
