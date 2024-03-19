@@ -815,7 +815,7 @@ function dropFieldComment()
 
 function jsonSafe(text)
 {
-	return text.replace(/\r?\n/g, '\\n'),
+	return text.replace(/\r?\n/g, '\\n')
 				.replace(/\t/g, '\\t');
 }
 
