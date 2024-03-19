@@ -861,19 +861,18 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 }
 
 
-int binary_search(const vector<int>& v, int val)
-{
-	return distance(begin(v), ranges::lower_bound(v, val));
-}
-
-
 Rect index(const vector<int>(&coords)[2], const Rect& r)
 {
+	auto binary_search=[&](Direction direction, int val){
+		const vector<int>& v = coords[direction];
+		return distance(begin(v), ranges::lower_bound(v, val));
+	};
+
 	return Rect{
-		.left = binary_search(coords[HORIZONTAL], r.left),
-		.right = binary_search(coords[HORIZONTAL], r.right) - 1,
-		.top = binary_search(coords[VERTICAL], r.top),
-		.bottom = binary_search(coords[VERTICAL], r.bottom) - 1
+		.left = binary_search(HORIZONTAL, r.left),
+		.right = binary_search(HORIZONTAL, r.right) - 1,
+		.top = binary_search(VERTICAL, r.top),
+		.bottom = binary_search(VERTICAL, r.bottom) - 1
 	};
 }
 
