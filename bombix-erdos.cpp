@@ -2610,8 +2610,8 @@ void compute_range_matrix(const Matrix<bool> &definition_matrix, vector<int> (&c
 			while (jmax + 1 < m && definition_matrix(i, jmax + 1) == definition_matrix(i,j))
 				jmax++;
 
-			range_matrix[HORIZONTAL](i,j) = {coords[HORIZONTAL][imin], coords[HORIZONTAL][imax+1]};
-			range_matrix[VERTICAL](i,j) = {coords[VERTICAL][jmin], coords[VERTICAL][jmax+1]};
+			range_matrix[HORIZONTAL](i,j) = {coords[HORIZONTAL][jmin], coords[HORIZONTAL][jmax+1]};
+			range_matrix[VERTICAL](i,j) = {coords[VERTICAL][imin], coords[VERTICAL][imax+1]};
 		}
 	}
 }
