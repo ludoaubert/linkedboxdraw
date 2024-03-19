@@ -816,14 +816,26 @@ function dropFieldComment()
 
 function jsonSafe(text)
 {
-	return text.replace(/\r?\n/g, '\\n')
-				.replace(/\t/g, '\\t');
+	return text.replace(/\\n/g, "\\n")
+			  .replace(/\\'/g, "\\'")
+			  .replace(/\\"/g, '\\"')
+			  .replace(/\\&/g, "\\&")
+			  .replace(/\\r/g, "\\r")
+			  .replace(/\\t/g, "\\t")
+			  .replace(/\\b/g, "\\b")
+			  .replace(/\\f/g, "\\f");
 }
 
 function reverseJsonSafe(text)
 {
 	return text.replaceAll('\\n', '\n')
-				.replaceAll('\\t', '\t');
+				.replaceAll("\\'", "'")
+				.replaceAll('\\"', '"')
+				.replaceAll("\\&", '\&')
+				.replaceAll("\\r", '\r')
+				.replaceAll("\\t", '\t')
+				.replaceAll("\\b", '\b')
+				.replaceAll("\\f", '\f');
 }
 
 function updateFieldComment()
