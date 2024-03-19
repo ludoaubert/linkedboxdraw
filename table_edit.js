@@ -427,9 +427,10 @@ function displayCurrent()
 	const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
 
 	const boxComment = mydata.boxComments[currentBoxCommentIndex]?.comment || "" ;
-	if (boxComment != boxCommentTextArea.value)
+	const reversedBoxComment = reverseJsonSafe(boxComment);
+	if (reversedBoxComment != boxCommentTextArea.value)
 	{
-		boxCommentTextArea.value = boxComment ;
+		boxCommentTextArea.value = reversedBoxComment ;
 	}
 
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
@@ -794,7 +795,7 @@ function dropBoxComment()
 function updateBoxComment()
 {
 	const currentBoxCommentIndex = mydata.boxComments.findIndex(({box, comment}) => box == boxCombo.value);
-	const boxComment = {box: boxCombo.value, comment: boxCommentTextArea.value} ;
+	const boxComment = {box: boxCombo.value, comment: jsonSafe(boxCommentTextArea.value)} ;
 
 	if (currentBoxCommentIndex != -1)
 		mydata.boxComments[ currentBoxCommentIndex ] = boxComment;
