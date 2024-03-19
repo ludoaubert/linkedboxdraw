@@ -981,11 +981,12 @@ struct Distance
 
 
 void dijkstra(const vector<Edge>& edges,
+			const Matrix<Span>(&range_matrix)[2],
 			const unordered_map<uint64_t, DistanceInfo> &source_node_distance, 
 			vector<DistanceInfo> &distance,
 			vector<Edge> & predecessor)
 {
-	distance[0] = {.distance=0, .largeur_chemin={.min=0,.max=0}};
+	distance[0] = {.distance=0, .largeur_chemin={.min=0,.max=INT_MAX}};
 
 	priority_queue<QueuedEdge, vector<QueuedEdge>, greater<QueuedEdge> > Q;
 
@@ -1007,11 +1008,16 @@ void dijkstra(const vector<Edge>& edges,
 		QueuedEdge queued_edge = Q.top();
 		Q.pop();
 		
-		DistanceInfo& di_v = distance[queued_edge.v];
+		uint64_t u = queued_edge.u, v = queued_edge.v;
+		Maille mu = parse(u), mv = parse(v) ;
 		
-		Span largeur_chemin_v = parse(queued_edge.u).direction == parse(queued_edge.v).direction ?
-								intersection(distance[queued_edge.v].largeur_chemin, distance[queued_edge.u].largeur_chemin) :
-								distance[queued_edge.v].largeur_chemin ;
+		DistanceInfo& di_v = distance[v];
+		
+		const Span& sv = range_matrix[1-mv.direction](mv.i, mv.j);
+		
+		Span largeur_chemin_v = mu.direction == mv.direction ?
+								intersection(sv, distance[u].largeur_chemin) :
+								sv ;
 
 		if (queued_edge.distance_v + penalty(largeur_chemin_v) < di_v.distance)
 		{
@@ -1023,13 +1029,18 @@ void dijkstra(const vector<Edge>& edges,
 
 			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
 			{
-				Span largeur_chemin_v = parse(queued_edge.u).direction == parse(queued_edge.v).direction ?
-										intersection(distance[queued_edge.v].largeur_chemin, distance[queued_edge.u].largeur_chemin) :
-										distance[queued_edge.v].largeur_chemin ;
+				uint64_t u = adj_edge.u, v = adj_edge.v;
+				Maille mu = parse(u), mv = parse(v) ;
+				
+				const Span& sv = range_matrix[1-mv.direction](mv.i, mv.j);
+		
+				Span largeur_chemin_v = mu.direction == mv.direction ?
+										intersection(sv, distance[u].largeur_chemin) :
+										sv ;
 				int distance_v = distance[adj_edge.u].distance + adj_edge.weight;
 				if (distance_v + penalty(largeur_chemin_v) < distance[adj_edge.v].distance)
 				{
-					Q.push({ distance_v, adj_edge.u, adj_edge.v, adj_edge.weight });
+					Q.push({ distance_v + penalty(largeur_chemin_v), u, v, adj_edge.weight });
 				}
 			}
 		}
@@ -2465,15 +2476,6 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	vector<DistanceInfo> distance(1000*1000);
-	for (const Edge& e : edges)
-	{
-		const uint64_t uv[2]={e.u, e.v};
-		for (uint64_t u : uv)
-		{
-			const Maille m = parse(u);
-			distance[u].largeur_chemin = range_matrix[m.direction](m.i, m.j);
-		}
-	}
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
 	unordered_map<uint64_t, DistanceInfo> source_node_distance;
@@ -2481,11 +2483,11 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	{
 		source_node_distance[u] = DistanceInfo{
 			.distance = 0,
-			.largeur_chemin = rects[from][parse(u).direction]
+			.largeur_chemin = rects[from][Direction(1-parse(u).direction)]
 		};
 	}
 
-	dijkstra(edges, source_node_distance, distance, predecessor);
+	dijkstra(edges, range_matrix, source_node_distance, distance, predecessor);
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
 	unordered_map<int, uint64_t> best_target_candidate;
