@@ -2621,7 +2621,7 @@ string print_range_matrix(Matrix<Span> (&range_matrix)[2])
 	char buffer[1024 * 1024];
 	int pos = 0;
 	
-	auto [n, m] = definition_matrix.dim();
+	auto [n, m] = range_matrix.dim();
 	
 	const Direction directions[2]={HORIZONTAL, VERTICAL};
 	
