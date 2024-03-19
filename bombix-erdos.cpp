@@ -3262,7 +3262,7 @@ int main(int argc, char* argv[])
 				char file_name[40];
 				sprintf(file_name, "test-reg-%d.cpp", ctx.testid);
 				FILE *f = fopen(file_name, "w");
-				fprintf(f, ".faisceau_output=%s,\n.polylines=%s", faisceau_serialized.c_str(), polylines_serialized.c_str());
+				fprintf(f, "%s,\n%s", faisceau_serialized.c_str(), polylines_serialized.c_str());
 				fclose(f);				
 			}
 
