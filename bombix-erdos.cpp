@@ -2616,9 +2616,35 @@ void compute_range_matrix(const Matrix<bool> &definition_matrix, Matrix<Span> (&
 	}
 }
 
+string print_range_matrix(Matrix<Span> (&range_matrix)[2])
+{
+	char buffer[1024 * 1024];
+	int pos = 0;
+	
+	auto [n, m] = definition_matrix.dim();
+	
+	const Direction directions[2]={HORIZONTAL, VERTICAL};
+	
+	for (Direction direction : directions)
+	{
+		for (int i=0; i < n; i++)
+		{
+			for (int j=0; j < m; j++)
+			{
+				auto [min,max] = range_matrix[direction](i,j);
+				pos += sprintf(buffer+pos, "rm[%s](%d, %d)={.min=%d, .max=%d}\n", dir[direction], i, j, min, max); 
+			}
+		}
+	}
+	
+	return buffer;
+}
+
 void compute_polylines(const vector<Rect>& rects,
 						const Rect& frame,
 						const vector<Link>& links,
+						Matrix<bool>& definition_matrix,
+						Matrix<Span> (&range_matrix)[2],
 						vector<FaiceauOutput>& faiceau_output,
 						vector<Polyline>& polylines)
 {
@@ -2648,12 +2674,11 @@ void compute_polylines(const vector<Rect>& rects,
 		coords_.erase( begin(ret), end(ret) );
 	}
 
-	Matrix<bool> definition_matrix_ = compute_definition_matrix(rects, coords);
+	definition_matrix = compute_definition_matrix(rects, coords);
 
 	auto [n1, n2] = definition_matrix_.dim();
 
-	const Matrix<Span> mat(n1,n2);
-	Matrix<Span> range_matrix[2] = {mat, mat};
+	range_matrix[0] = range_matrix[1] = const Matrix<Span> mat(n1,n2);
 	compute_range_matrix(definition_matrix_, range_matrix);
 
 	vector<const Link*> link_pointers;
@@ -3232,11 +3257,23 @@ int main(int argc, char* argv[])
 
 			vector<FaiceauOutput> faisceau_output;
 			vector<Polyline> polylines;
+			Matrix<bool> definition_matrix;
+			Matrix<Span> range_matrix[2];
 
 			printf("testid=%d\n", ctx.testid);
 
-			compute_polylines(ctx.rects, ctx.frame, ctx.links, faisceau_output, polylines);
+			compute_polylines(ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
+			
+			string serialized_range_matrix = print_range_matrix(range_matrix);
+
+			{
+				char file_name[40];
+				sprintf(file_name, "test-reg-%d.rm.txt", ctx.testid);
+				FILE *f = fopen(file_name, "w");
+				fprintf(f, "%s", serialized_range_matrix.c_str());
+				fclose(f);
+			}
 
 			const string json_data = diagdata(ctx);
 			const string json_contexts = contexts_(ctx, polylines);
