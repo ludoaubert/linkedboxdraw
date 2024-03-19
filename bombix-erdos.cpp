@@ -863,7 +863,7 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 
 int binary_search(const vector<int>& v, int val)
 {
-	return distance(begin(v), lower_bound(begin(v), end(v), val));
+	return distance(begin(v), ranges::lower_bound(v, val));
 }
 
 
@@ -2471,7 +2471,7 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 		const uint64_t uv[2]={e.u, e.v};
 		for (uint64_t u : uv)
 		{
-			const Maille m = parse(e.u);
+			const Maille m = parse(u);
 			distance[u].largeur_chemin = range_matrix[m.direction](m.i, m.j);
 		}
 	}
