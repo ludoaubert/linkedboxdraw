@@ -434,10 +434,12 @@ function displayCurrent()
 
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 
-	const fieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
-	if (fieldComment != fieldCommentTextArea.value)
+	const escapedFieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
+	const reversedFieldComment = escapedFieldComment.replaceAll('\\n', '\n');
+
+	if (reversedFieldComment != fieldCommentTextArea.value)
 	{
-		fieldCommentTextArea.value = fieldComment..split('\\n').join('\n') ;
+		fieldCommentTextArea.value = reversedFieldComment ;
 	}
 
 	const picturesComboInnerHTML = mydata?.pictures
