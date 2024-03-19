@@ -2677,7 +2677,7 @@ void compute_polylines(const vector<Rect>& rects,
 
 	auto [n1, n2] = definition_matrix.dim();
 
-	range_matrix[0] = range_matrix[1] = Matrix<Span> mat(n1,n2);
+	range_matrix[0] = range_matrix[1] = Matrix<Span>(n1,n2);
 	compute_range_matrix(definition_matrix, range_matrix);
 
 	vector<const Link*> link_pointers;
@@ -2716,7 +2716,7 @@ void compute_polylines(const vector<Rect>& rects,
 	#pragma omp parallel for
 	for (int i = 0; i < origins.size(); i++)
 	{
-		faiceau_output[i] = compute_faiceau(links, edges, definition_matrix_, range_matrix, coords, rects, origins[i]);
+		faiceau_output[i] = compute_faiceau(links, edges, definition_matrix, range_matrix, coords, rects, origins[i]);
 	}
 
 	unordered_map<Link, FaiceauPath> faiceau_paths;
@@ -3350,8 +3350,10 @@ int main(int argc, char* argv[])
 
 		vector<FaiceauOutput> faiceau_output;
 		vector<Polyline> polylines;
+		Matrix<bool> definition_matrix;
+		Matrix<Span> range_matrix[2];
 
-		compute_polylines(rects, frame, links, faiceau_output, polylines);
+		compute_polylines(rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
 		string json = polyline2json(polylines);
 		printf("%s", json.c_str());
 	}
@@ -3377,8 +3379,10 @@ const char* bombix(const char *rectdim,
 
         vector<FaiceauOutput> faiceau_output;
         vector<Polyline> polylines;
+		Matrix<bool> definition_matrix;
+		Matrix<Span> range_matrix[2];
 
-        compute_polylines(rects, frame, links, faiceau_output, polylines);
+        compute_polylines(rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
 		post_process_polylines(rects, polylines);
 
         string json = polyline2json(polylines);
