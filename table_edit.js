@@ -434,9 +434,8 @@ function displayCurrent()
 
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
 
-	const escapedFieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
-	const reversedFieldComment = escapedFieldComment.replaceAll('\\n', '\n')
-													.replaceAll('\\t', '\t');
+	const fieldComment = mydata.fieldComments[currentFieldCommentIndex]?.comment || "" ;
+	const reversedFieldComment = reverseJsonSafe(fieldComment);
 
 	if (reversedFieldComment != fieldCommentTextArea.value)
 	{
@@ -814,12 +813,22 @@ function dropFieldComment()
 	drawDiag();
 }
 
+function jsonSafe(text)
+{
+	return text.replace(/\r?\n/g, '\\n'),
+				.replace(/\t/g, '\\t');
+}
+
+function reverseJsonSafe(text)
+{
+	return text.replaceAll('\\n', '\n')
+				.replaceAll('\\t', '\t');
+}
+
 function updateFieldComment()
 {
 	const currentFieldCommentIndex = mydata.fieldComments.findIndex(({box, field, comment}) => box == boxCombo.value && field == fieldCombo.value);
-	const escapedFieldCommentText = fieldCommentTextArea.value.replace(/\r?\n/g, '\\n'),
-																.replace(/\t/g, '\\t');
-	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: escapedFieldCommentText};
+	const fieldComment = {box: boxCombo.value, field: fieldCombo.value, comment: jsonSafe(fieldCommentTextArea.value)};
 
 	if (currentFieldCommentIndex != -1)
 		mydata.fieldComments[ currentBoxCommentIndex ] = fieldComment;
