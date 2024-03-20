@@ -303,7 +303,7 @@ string print(const vector<DistanceInfo>& distance)
 	char buffer[1024 * 1024];
 	int pos = 0;
 	
-	for (uint64_t u=0; u < 1024 * 1024; u++)
+	for (uint64_t u=0; u < distance.size(); u++)
 	{
 		const DistanceInfo& di = distance[u];
 		auto [min, max] = di.largeur_chemin;
