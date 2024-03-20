@@ -2009,13 +2009,6 @@ const vector<TestContext> contexts = {
 				.targets={
 					{
 						.from=2,
-						.to=1,
-						.expected_path={
-							{ VERTICAL, DECREASE, 4, 2 },
-						}
-					},
-					{
-						.from=2,
 						.to=0,
 						.expected_path={
 							{HORIZONTAL, DECREASE, 5, 1},
@@ -2029,6 +2022,13 @@ const vector<TestContext> contexts = {
 							{HORIZONTAL, INCREASE, 1, 1},
 							{HORIZONTAL, INCREASE, 1, 2}
 						}
+					},
+					{
+						.from=2,
+						.to=1,
+						.expected_path={
+							{ VERTICAL, DECREASE, 4, 2 },
+						}
 					}
 				},
 				.enlarged={
@@ -2041,13 +2041,13 @@ const vector<TestContext> contexts = {
         .polylines={
 			{
 				.from=2,
-				.to=1,
-				.data={{90,200},{90,160}}
+				.to=0,
+				.data={{60,220},{20,220},{20,60},{80,60}}
 			},
 			{
 				.from=2,
-				.to=0,
-				.data={{60,220},{20,220},{20,60},{80,60}}
+				.to=1,
+				.data={{90,200},{90,160}}
 			}
 		}
 },
