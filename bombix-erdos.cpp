@@ -1913,7 +1913,7 @@ const vector<TestContext> contexts = {
  {.from=19, .to=10 },
  {.from=19, .to=11 }
  },
-.faisceau_output={},
+.faisceau_output={}, // left empty. Too bulky. Would make the file exceeds the size limit of some online compilers. 
 .polylines= {
 	{
 		.from=1,
