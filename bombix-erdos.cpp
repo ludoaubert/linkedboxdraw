@@ -311,7 +311,7 @@ string print(const vector<DistanceInfo>& distance)
 		{
 			Maille m = parse(u);
 			pos += sprintf(buffer+pos, "{%s, %s, .i=%d, .j=%d}:{.distance=%d, .largeur_chemin={.min=%d,.max=%d}}\n",
-				dir[m.direction], way_string[m.way], m.i, m.j,
+				dir[m.direction], way_string[1+m.way], m.i, m.j,
 				di.distance, min, max);
 		}
 	}
