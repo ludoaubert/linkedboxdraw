@@ -2479,6 +2479,30 @@ const vector<PostProcessingTestContext> pp_contexts = {
 }
 };
 
+
+string print_range_matrix(const Matrix<Span> (&range_matrix)[2])
+{
+	char buffer[1024 * 1024];
+	int pos = 0;
+	
+	const Direction directions[2]={HORIZONTAL, VERTICAL};
+	
+	for (Direction direction : directions)
+	{
+		auto [n, m] = range_matrix[direction].dim();
+		for (int i=0; i < n; i++)
+		{
+			for (int j=0; j < m; j++)
+			{
+				auto [min,max] = range_matrix[direction](i,j);
+				pos += sprintf(buffer+pos, "rm[%s](%d, %d)={.min=%d, .max=%d}\n", dir[direction], i, j, min, max); 
+			}
+		}
+	}
+	
+	return buffer;
+}
+
 /*
 1/ Pour chaque rectangle, creer plusieurs entrees dans coords, suivant le nombre de liens connectes a ce rectangle.
 Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par rectangle)
@@ -2535,7 +2559,13 @@ FaiceauOutput compute_faiceau(int testid,
 		sprintf(file_name, "edges-reg-%d-from-%d.txt", testid, from);
 		f = fopen(file_name, "w");
 		fprintf(f, "%s", serialized_graph.c_str());
-		fclose(f);			
+		fclose(f);
+
+		string serialized_range_matrix = print_range_matrix(range_matrix);
+		sprintf(file_name, "test-reg-%d.rm.txt", testid);
+		f = fopen(file_name, "w");
+		fprintf(f, "%s", serialized_range_matrix.c_str());
+		fclose(f);
 	}
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
@@ -2667,28 +2697,6 @@ void compute_range_matrix(const Matrix<bool> &definition_matrix, vector<int> (&c
 	}
 }
 
-string print_range_matrix(Matrix<Span> (&range_matrix)[2])
-{
-	char buffer[1024 * 1024];
-	int pos = 0;
-	
-	const Direction directions[2]={HORIZONTAL, VERTICAL};
-	
-	for (Direction direction : directions)
-	{
-		auto [n, m] = range_matrix[direction].dim();
-		for (int i=0; i < n; i++)
-		{
-			for (int j=0; j < m; j++)
-			{
-				auto [min,max] = range_matrix[direction](i,j);
-				pos += sprintf(buffer+pos, "rm[%s](%d, %d)={.min=%d, .max=%d}\n", dir[direction], i, j, min, max); 
-			}
-		}
-	}
-	
-	return buffer;
-}
 
 void compute_polylines(int testid,
 						const vector<Rect>& rects,
@@ -3316,16 +3324,6 @@ int main(int argc, char* argv[])
 			compute_polylines(ctx.testid, ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
 //TODO: wait until this feature is ready
 //			post_process_polylines(ctx.rects, polylines);
-			
-			string serialized_range_matrix = print_range_matrix(range_matrix);
-
-			{
-				char file_name[40];
-				sprintf(file_name, "test-reg-%d.rm.txt", ctx.testid);
-				FILE *f = fopen(file_name, "w");
-				fprintf(f, "%s", serialized_range_matrix.c_str());
-				fclose(f);
-			}
 
 			const string json_data = diagdata(ctx);
 			const string json_contexts = contexts_(ctx, polylines);
