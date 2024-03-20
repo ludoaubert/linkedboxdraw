@@ -1032,23 +1032,21 @@ void dijkstra(const vector<Edge>& edges,
 		uint64_t u = queued_edge.u, v = queued_edge.v;
 		Maille mu = parse(u), mv = parse(v) ;
 		
-		DistanceInfo& di_v = distance[v];
-		
 		const Span& sv = range_matrix[1-mv.direction](mv.i, mv.j);
 		
 		Span largeur_chemin_v = mu.direction == mv.direction ?
 								intersection(sv, distance[u].largeur_chemin) :
 								sv ;
 
-		if (queued_edge.distance_v + penalty(largeur_chemin_v) < di_v.distance)
+		if (distance[u].distance + queued_edge.distance_v + penalty(largeur_chemin_v) < distance[v].distance)
 		{
-			predecessor[queued_edge.v] = { queued_edge.u, queued_edge.v, queued_edge.weight};
-			distance[queued_edge.v] = {
-				.distance = queued_edge.distance_v + penalty(largeur_chemin_v), 
-				.largeur_chemin = intersection(di_v.largeur_chemin, distance[queued_edge.u].largeur_chemin)
+			predecessor[v] = { u, v, queued_edge.weight};
+			distance[v] = {
+				.distance = distance[u].distance + queued_edge.distance_v + penalty(largeur_chemin_v), 
+				.largeur_chemin = largeur_chemin_v
 			};
 
-			for (const Edge& adj_edge : ranges::equal_range(edges, queued_edge.v, ranges::less {}, &Edge::u))
+			for (const Edge& adj_edge : ranges::equal_range(edges, v, ranges::less {}, &Edge::u))
 			{
 				uint64_t u = adj_edge.u, v = adj_edge.v;
 				Maille mu = parse(u), mv = parse(v) ;
@@ -1058,8 +1056,8 @@ void dijkstra(const vector<Edge>& edges,
 				Span largeur_chemin_v = mu.direction == mv.direction ?
 										intersection(sv, distance[u].largeur_chemin) :
 										sv ;
-				int distance_v = distance[adj_edge.u].distance + adj_edge.weight;
-				if (distance_v + penalty(largeur_chemin_v) < distance[adj_edge.v].distance)
+				int distance_v = distance[u].distance + adj_edge.weight;
+				if (distance_v + penalty(largeur_chemin_v) < distance[v].distance)
 				{
 					Q.push({ distance_v + penalty(largeur_chemin_v), u, v, adj_edge.weight });
 				}
