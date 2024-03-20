@@ -2252,17 +2252,17 @@ const vector<TestContext> contexts = {
                                 .targets={
                                         {
                                                 .from=0,
+                                                .to=2,
+                                                .expected_path={}
+                                        },
+                                        {
+                                                .from=0,
                                                 .to=3,
                                                 .expected_path={}
                                         },
                                         {
                                                 .from=0,
                                                 .to=4,
-                                                .expected_path={}
-                                        },
-                                        {
-                                                .from=0,
-                                                .to=2,
                                                 .expected_path={}
                                         }
                                 },
@@ -2277,12 +2277,12 @@ const vector<TestContext> contexts = {
                                         },
                                         {
                                                 .from=2,
-                                                .to=4,
+                                                .to=0,
                                                 .expected_path={}
                                         },
                                         {
                                                 .from=2,
-                                                .to=0,
+                                                .to=4,
                                                 .expected_path={}
                                         }
                                 },
@@ -2296,25 +2296,25 @@ const vector<TestContext> contexts = {
 				.data={}
 			},
 			{
+				.from=2,
+				.to=0,
+				.data={}
+			},
+			{
 				.from=3,
 				.to=0,
 				.data={}
 			},
-                        {
-                                .from=4,
-                                .to=0,
-                                .data={}
-                        },
-                        {
-                                .from=4,
-                                .to=2,
-                                .data={}
-                        },
-                        {
-                                .from=2,
-                                .to=0,
-                                .data={}
-                        }
+			{
+				.from=4,
+				.to=0,
+				.data={}
+			},
+			{
+				.from=4,
+				.to=2,
+				.data={}
+			}
 		}
 }
 };
