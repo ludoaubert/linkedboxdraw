@@ -298,6 +298,27 @@ Maille parse(uint64_t u)
 	return m;
 }
 
+string print(const vector<DistanceInfo>& distance)
+{
+	char buffer[1024 * 1024];
+	int pos = 0;
+	
+	for (uint64_t u=0; u < 1024 * 1024; u++)
+	{
+		const DistanceInfo& di = distance[u];
+		auto [min, max] = di.largeur_chemin;
+		if (di.distance != INT16_MAX)
+		{
+			Maille m = parse(u);
+			pos += sprintf(buffer+pos, "{%s, %s, .i=%d, .j=%d}:{.distance=%d, .largeur_chemin={.min=%d,.max=%d}}\n",
+				dir[m.direction], way_string[m.way], m.i, m.j,
+				di.distance, min, max);
+		}
+	}
+	
+	return buffer;
+}
+
 struct Edge
 {
 	uint64_t u,v;
@@ -2454,7 +2475,8 @@ Pour le calcul de coords, il faut passer un tableau nblink (nombre de liens par 
 */
 
 
-FaiceauOutput compute_faiceau(const vector<Link>& links,
+FaiceauOutput compute_faiceau(int testid,
+							const vector<Link>& links,
 							const vector<Edge>& edges,
 							const Matrix<bool>& definition_matrix_,
 							const Matrix<Span>(&range_matrix)[2],
@@ -2488,6 +2510,16 @@ FaiceauOutput compute_faiceau(const vector<Link>& links,
 	}
 
 	dijkstra(edges, range_matrix, source_node_distance, distance, predecessor);
+	
+	if (testid == 1 && from == 0)
+	{
+		string serialized_distance = print(distance);
+		char file_name[60];
+		sprintf(file_name, "distance-reg-%d-from-%d.txt", testid, from);
+		FILE *f = fopen(file_name, "w");
+		fprintf(f, "%s", serialized_distance.c_str());
+		fclose(f);		
+	}
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
 	unordered_map<int, uint64_t> best_target_candidate;
@@ -2641,7 +2673,8 @@ string print_range_matrix(Matrix<Span> (&range_matrix)[2])
 	return buffer;
 }
 
-void compute_polylines(const vector<Rect>& rects,
+void compute_polylines(int testid,
+						const vector<Rect>& rects,
 						const Rect& frame,
 						const vector<Link>& links,
 						Matrix<bool>& definition_matrix,
@@ -2718,7 +2751,7 @@ void compute_polylines(const vector<Rect>& rects,
 	#pragma omp parallel for
 	for (int i = 0; i < origins.size(); i++)
 	{
-		faiceau_output[i] = compute_faiceau(links, edges, definition_matrix, range_matrix, coords, rects, origins[i]);
+		faiceau_output[i] = compute_faiceau(testid, links, edges, definition_matrix, range_matrix, coords, rects, origins[i]);
 	}
 
 	unordered_map<Link, FaiceauPath> faiceau_paths;
@@ -3263,7 +3296,7 @@ int main(int argc, char* argv[])
 
 			printf("testid=%d\n", ctx.testid);
 
-			compute_polylines(ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
+			compute_polylines(ctx.testid, ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
 			post_process_polylines(ctx.rects, polylines);
 			
 			string serialized_range_matrix = print_range_matrix(range_matrix);
@@ -3350,12 +3383,13 @@ int main(int argc, char* argv[])
 
 		parse_command(args["--recdim"], args["--translations"], args["--frame"], args["--links"], frame, rects, links);
 
+		const int testid = -1;
 		vector<FaiceauOutput> faiceau_output;
 		vector<Polyline> polylines;
 		Matrix<bool> definition_matrix;
 		Matrix<Span> range_matrix[2];
 
-		compute_polylines(rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
+		compute_polylines(testid, rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
 		string json = polyline2json(polylines);
 		printf("%s", json.c_str());
 	}
@@ -3379,12 +3413,13 @@ const char* bombix(const char *rectdim,
 
         parse_command(rectdim, translations, sframe, slinks, frame, rects, links);
 
+		const int testid = -1;
         vector<FaiceauOutput> faiceau_output;
         vector<Polyline> polylines;
 		Matrix<bool> definition_matrix;
 		Matrix<Span> range_matrix[2];
 
-        compute_polylines(rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
+        compute_polylines(testid, rects, frame, links, definition_matrix, range_matrix, faiceau_output, polylines);
 		post_process_polylines(rects, polylines);
 
         string json = polyline2json(polylines);
