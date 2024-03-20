@@ -3296,7 +3296,8 @@ int main(int argc, char* argv[])
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.testid, ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
-			post_process_polylines(ctx.rects, polylines);
+//TODO: wait until this feature is ready
+//			post_process_polylines(ctx.rects, polylines);
 			
 			string serialized_range_matrix = print_range_matrix(range_matrix);
 
