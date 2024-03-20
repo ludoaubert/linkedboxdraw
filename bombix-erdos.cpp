@@ -717,6 +717,20 @@ void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 }
 
 
+string print_graph(const vector<Edge>& edges)
+{
+	char buffer[1024 * 1024];
+	int pos = 0;
+	
+	for (const auto& [u, v, distance] : edges)
+	{
+		pos += sprintf(buffer+pos, "{.u=%d, .v=%d, .distance=%d}\n", u, v, distance);
+	}
+	
+	return buffer;
+}
+
+
 vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 						const Matrix<Span>(&range_matrix)[2],
 						const vector<int>(&coords)[2])
@@ -1007,13 +1021,13 @@ void dijkstra(const vector<Edge>& edges,
 			vector<DistanceInfo> &distance,
 			vector<Edge> & predecessor)
 {
-	distance[0] = {.distance=0, .largeur_chemin={.min=0,.max=INT_MAX}};
+	distance[0] = {.distance=0, .largeur_chemin={.min=0,.max=INT16_MAX}};
 
 	priority_queue<QueuedEdge, vector<QueuedEdge>, greater<QueuedEdge> > Q;
 
 	for (uint64_t u : source_nodes)
 	{
-		int weight = distance[u].distance;
+		int weight = 0;
 		Q.push({ weight, 0, u, weight });
 	}
 	
@@ -1038,11 +1052,11 @@ void dijkstra(const vector<Edge>& edges,
 								intersection(sv, distance[u].largeur_chemin) :
 								sv ;
 
-		if (distance[u].distance + queued_edge.distance_v + penalty(largeur_chemin_v) < distance[v].distance)
+		if (distance[u].distance + queued_edge.weight + penalty(largeur_chemin_v) < distance[v].distance)
 		{
 			predecessor[v] = { u, v, queued_edge.weight};
 			distance[v] = {
-				.distance = distance[u].distance + queued_edge.distance_v + penalty(largeur_chemin_v), 
+				.distance = distance[u].distance + queued_edge.weight + penalty(largeur_chemin_v), 
 				.largeur_chemin = largeur_chemin_v
 			};
 
@@ -1057,9 +1071,9 @@ void dijkstra(const vector<Edge>& edges,
 										intersection(sv, distance[u].largeur_chemin) :
 										sv ;
 				int distance_v = distance[u].distance + adj_edge.weight;
-				if (distance_v + penalty(largeur_chemin_v) < distance[v].distance)
+				if (distance_v + penalty(largeur_chemin_v) + adj_edge.weight < distance[v].distance)
 				{
-					Q.push({ distance_v + penalty(largeur_chemin_v), u, v, adj_edge.weight });
+					Q.push({ .distance_v=distance_v + penalty(largeur_chemin_v), .u=u, .v=v, .weight=adj_edge.weight });
 				}
 			}
 		}
@@ -2501,7 +2515,7 @@ FaiceauOutput compute_faiceau(int testid,
 	for (uint64_t u : source_nodes)
 	{
 		distance[u] = DistanceInfo{
-			.distance = 0,
+			.distance = INT16_MAX,
 			.largeur_chemin = rects[from][Direction(1-parse(u).direction)]
 		};
 	}
@@ -2515,7 +2529,13 @@ FaiceauOutput compute_faiceau(int testid,
 		sprintf(file_name, "distance-reg-%d-from-%d.txt", testid, from);
 		FILE *f = fopen(file_name, "w");
 		fprintf(f, "%s", serialized_distance.c_str());
-		fclose(f);		
+		fclose(f);	
+
+		string serialized_graph = print_graph(edges);
+		sprintf(file_name, "edges-reg-%d-from-%d.txt", testid, from);
+		f = fopen(file_name, "w");
+		fprintf(f, "%s", serialized_graph.c_str());
+		fclose(f);			
 	}
 
 	unordered_map<int, vector<uint64_t> > target_candidates_;
