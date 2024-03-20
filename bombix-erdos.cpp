@@ -1003,7 +1003,7 @@ struct Distance
 
 void dijkstra(const vector<Edge>& edges,
 			const Matrix<Span>(&range_matrix)[2],
-			const unordered_map<uint64_t, DistanceInfo> &source_node_distance, 
+			const unordered_set<uint64_t>& source_nodes, 
 			vector<DistanceInfo> &distance,
 			vector<Edge> & predecessor)
 {
@@ -1011,9 +1011,9 @@ void dijkstra(const vector<Edge>& edges,
 
 	priority_queue<QueuedEdge, vector<QueuedEdge>, greater<QueuedEdge> > Q;
 
-	for (const auto& [u, di_v] : source_node_distance)
+	for (uint64_t u : source_nodes)
 	{
-		int weight = di_v.distance;
+		int weight = distance[u].distance;
 		Q.push({ weight, 0, u, weight });
 	}
 	
@@ -2500,16 +2500,15 @@ FaiceauOutput compute_faiceau(int testid,
 	vector<DistanceInfo> distance(1000*1000);
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
-	unordered_map<uint64_t, DistanceInfo> source_node_distance;
 	for (uint64_t u : source_nodes)
 	{
-		source_node_distance[u] = DistanceInfo{
+		distance[u] = DistanceInfo{
 			.distance = 0,
 			.largeur_chemin = rects[from][Direction(1-parse(u).direction)]
 		};
 	}
 
-	dijkstra(edges, range_matrix, source_node_distance, distance, predecessor);
+	dijkstra(edges, range_matrix, source_nodes, distance, predecessor);
 	
 	if (testid == 1 && from == 0)
 	{
