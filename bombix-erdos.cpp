@@ -2883,22 +2883,22 @@ vector<SharedValuePoint> shared_value(vector<Point>& polyline, const Rect& rfrom
 				pvalue_direction = VERTICAL;
 			}
 
-                        if (i==1 && i+1==polyline.size())
-                        {
+			if (i==1 && i+1==polyline.size())
+			{
 				Span  s1 = rfrom[pvalue_direction], s2 = rto[pvalue_direction] ;
 				auto [m1, M1]=s1;
 				auto [m2, M2]=s2;
 				assert(!(m1 > M2) && !(m2 > M1));
-                                dock_range[ pvalue ] = {std::max(m1,m2), std::min(M1,M2)};
-                        }
-                        else if (i==1)
-                        {
-                                dock_range[ pvalue ] = rfrom[pvalue_direction];
-                        }
-                        else if (i+1==polyline.size())
-                        {
-                                dock_range[ pvalue ] = rto[pvalue_direction];
-                        }
+				dock_range[ pvalue ] = {std::max(m1,m2), std::min(M1,M2)};
+			}
+			else if (i==1)
+			{
+				dock_range[ pvalue ] = rfrom[pvalue_direction];
+			}
+			else if (i+1==polyline.size())
+			{
+				dock_range[ pvalue ] = rto[pvalue_direction];
+			}
 		}
 	}
 
