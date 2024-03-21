@@ -1420,9 +1420,7 @@ string polyline2json(const vector<Polyline>& polylines)
 string diagdata(const TestContext& ctx)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
-/*
-	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
-	
+/*	
 	auto il = {
 		"{"s,
 		format(R"("documentTitle":"reg-test-{}",)", testid),
@@ -1487,7 +1485,27 @@ string diagdata(const TestContext& ctx)
 string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines_] = ctx;
-
+/*
+	auto il = {
+		"{"s,
+		R"("contexts":[{{)"s,
+		format(R"("frame":{"left":{},"right":{},"top":{},"bottom":{}},)", frame.left, frame.right, frame.top, frame.bottom),
+		R"("translatedBoxes":[)"s,
+		rects | views::enumerate
+			| views::transform([](auto arg){ auto [i, r]=arg; return format(R"({{"id":{},"translation":{{"x":{},"y":{} }}}}")", i, r.left, r.top);})
+			| views::join_with(",\n"s)
+			| ranges::to<string>(),
+		"],",
+		format(R"("links:{},")", polyline2json(polylines)),
+		R"("rectangles":[)",
+		rects | views::transform([](const Rect r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", r.right-r.left, r.bottom-r.top );})
+				| views::join_with(",\n"s)
+				| ranges::to<string>(),
+		"]}"s
+	};
+	
+	return il | views::join_with('\n') | ranges::to<string>();
+*/
 	string pjson = polyline2json(polylines);
 
 	char buffer[10 * 1024];
