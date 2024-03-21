@@ -309,7 +309,7 @@ string print(const vector<DistanceInfo>& distance)
 	{
 		const DistanceInfo& di = distance[u];
 		auto [min, max] = di.largeur_chemin;
-		if (di.distance != INT16_MAX)
+		if (di.distance != INT16_MAX || min != 0 || max != 0)
 		{
 			Maille m = parse(u);
 			pos += sprintf(buffer+pos, "{%s, %s, .i=%d, .j=%d}:{.distance=%d, .largeur_chemin={.min=%d,.max=%d}}\n",
@@ -1129,8 +1129,12 @@ void compute_target_candidates(const unordered_set<uint64_t> &source_nodes,
 								const vector<Edge> &predecessor,
 								vector<uint64_t> &target_candidates)
 {
-	uint64_t u = *ranges::min_element(target_nodes, {}, [&](uint64_t u){return distance.at(u).distance;});
-
+	uint64_t u = ranges::min(target_nodes, {}, [&](uint64_t u){return distance.at(u).distance;});
+/*
+	target_candidates = target_nodes | 
+		views::filter([&](uint64_t v){return distance.at(v).distance == distance.at(u).distance;}) |
+		ranges::to<vector>();
+*/
 	ranges::copy_if(target_nodes,
 		back_inserter(target_candidates),
 		[&](uint64_t v){
@@ -2809,6 +2813,17 @@ FaiceauOutput compute_faiceau(int testid,
 	vector<DistanceInfo> distance(1000*1000);
 	vector<Edge> predecessor(1000*1000);
 	unordered_set<uint64_t> source_nodes = compute_nodes(coords, definition_matrix_, rects[from], OUTPUT);
+	
+	if (testid == 1 && from == 0)
+	{
+		char file_name[80];
+		sprintf(file_name, "sources-nodes-reg-%d-from-%d.txt", testid, from);
+		FILE *f = fopen(file_name, "w");
+		for (uint64_t u : source_nodes)
+			fprintf(f, "%lu,", u);
+		fclose(f);	
+	}
+	
 	for (uint64_t u : source_nodes)
 	{
 		distance[u] = DistanceInfo{
@@ -2816,13 +2831,23 @@ FaiceauOutput compute_faiceau(int testid,
 			.largeur_chemin = rects[from][Direction(1-parse(u).direction)]
 		};
 	}
+	
+	if (testid == 1 && from == 0)
+	{
+		string serialized_distance = print(distance);
+		char file_name[80];
+		sprintf(file_name, "distance-before-reg-%d-from-%d.txt", testid, from);
+		FILE *f = fopen(file_name, "w");
+		fprintf(f, "%s", serialized_distance.c_str());
+		fclose(f);	
+	}
 
 	dijkstra(edges, range_matrix, source_nodes, distance, predecessor);
 	
 	if (testid == 1 && from == 0)
 	{
 		string serialized_distance = print(distance);
-		char file_name[60];
+		char file_name[80];
 		sprintf(file_name, "distance-reg-%d-from-%d.txt", testid, from);
 		FILE *f = fopen(file_name, "w");
 		fprintf(f, "%s", serialized_distance.c_str());
@@ -2835,7 +2860,7 @@ FaiceauOutput compute_faiceau(int testid,
 		fclose(f);
 
 		string serialized_range_matrix = print_range_matrix(range_matrix);
-		sprintf(file_name, "test-reg-%d.rm.txt", testid);
+		sprintf(file_name, "range-matrix-test-reg-%d-from-%d.txt", testid, from);
 		f = fopen(file_name, "w");
 		fprintf(f, "%s", serialized_range_matrix.c_str());
 		fclose(f);
