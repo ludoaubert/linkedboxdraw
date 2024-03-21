@@ -1393,6 +1393,29 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 
 string polyline2json(const vector<Polyline>& polylines)
 {
+/*
+	auto il = {
+		"["s,
+		polylines | views::transform([](auto arg){
+			auto [from, to data]=arg;
+			auto il = {
+				"{"
+				R"("polyline":)"s,
+				"[",
+				data | views::transform([](auto arg){auto [x, y]=arg;	return format(R"({{"x":{}, "y":{}}})", x, y);})
+					| views::join_with(',')
+					| ranges::to<string>(),
+				"],"
+				format(R"("from":{},"to":{})", from, to),
+				"}"
+				};
+			return il | views::join | ranges::to<string>();
+		}) | views::join_with(",\n") | ranges::to<string>,
+		"]"
+	};
+	
+	return il | views::join_with('\n') | ranges::to<string>();
+*/
 	char buffer[10 * 1024];
 	int pos = 0;
 
