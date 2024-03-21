@@ -16,6 +16,8 @@
 #include <assert.h>
 #include <algorithm>
 #include <ranges>
+//#include <format>
+#include <initializer_list>
 #include <numeric>
 #include <iterator>
 #include <chrono>
@@ -1418,7 +1420,31 @@ string polyline2json(const vector<Polyline>& polylines)
 string diagdata(const TestContext& ctx)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
+/*
+	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
+	
+	auto il = {
+		"{"s,
+		format(R"("documentTitle":"reg-test-{}",)", testid),
+		R"("boxes":[)"s,
+		views::iota(0, (int)rects.size())
+				| views::transform([](int i){return format(R"(\t{{"title":"rec-{}", "id":{}, "fields":[]}},\n)", i, i);})
+				| views::join_with(",\n"s)
+				| ranges::to<string>(),
+		R"("values":[],)"s,
+		R"("boxComments":[],)"s,
+		R"("fieldComments":[],)"s,
+		R"("links":[)"s,
+		links | views::transform([](const Link& e){return format(R"({{"from":{},"fromField":-1,"fromCardinality":"","to":{},"toField":-1,"toCardinality":"","Category":""}},\n)", e.from, e.to);})
+				| views::join_with(",\n"s)
+				| ranges::to<string>(),
+		"],"s
+		R"("fieldColors":[])"s,
+		"}"s
+	}; 
 
+	return il | views::join_with('\n') | ranges::to<string>();
+*/
 	char buffer[10 * 1024];
 	int pos = 0;
 
