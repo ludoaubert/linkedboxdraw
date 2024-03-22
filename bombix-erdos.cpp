@@ -2107,12 +2107,12 @@ const vector<TestContext> contexts = {
 	{
 		.from=2,
 		.to=5,
-		.data={{146, 146},{146, 186}}
+		.data={{142, 146},{142, 186}}
 	},
 	{
 		.from=2,
 		.to=14,
-		.data={{146, 146},{146, 166},{329, 166}}
+		.data={{150, 146},{150, 166},{329, 166}}
 	},
 	{
 		.from=3,
@@ -2213,7 +2213,7 @@ const vector<TestContext> contexts = {
 		.from=19,
 		.to=11,
 		.data={{525, 550},{565, 550}}
-	},
+	}
 }
 
 },
@@ -3644,8 +3644,8 @@ int main(int argc, char* argv[])
 			printf("testid=%d\n", ctx.testid);
 
 			compute_polylines(ctx.testid, ctx.rects, ctx.frame, ctx.links, definition_matrix, range_matrix, faisceau_output, polylines);
-//TODO: wait until this feature is ready
-//			post_process_polylines(ctx.rects, polylines);
+
+			post_process_polylines(ctx.rects, polylines);
 
 			const string json_data = diagdata(ctx);
 			const string json_contexts = contexts_(ctx, polylines);
