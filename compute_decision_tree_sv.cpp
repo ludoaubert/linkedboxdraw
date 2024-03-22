@@ -253,11 +253,13 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 		
+		vector<int> emplacement_ = emplacement ;
+		
 		for (auto const [h, r] : views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
 															views::iota(0, nr_input_rectangles) |
 															views::filter([&](int r){return emplacement[r]==r;}) ))
 		{
-			vector<int> emplacement_ = emplacement ;
+			ranges::copy(emplacement, begin(emplacement_));
 			swap(emplacement_[r], emplacement_[h]);
 			
 			int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}),
