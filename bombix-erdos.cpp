@@ -3296,7 +3296,22 @@ struct SegmentIntersection
 };
 
 /*
-
+	auto rg = polylines |
+		views::transform([](const auto& polyline){
+			return polyline |
+				views::slide(2) |
+				views::transform([](auto arg){
+					const auto& [p1, p2]=arg;
+					auto [mx, Mx] = minmax(p1.x, p2.x);
+					auto [my, My] = minmax(p1.y, p2.y);
+					return Rect{.left=mx, .right=Mx, .top=my, .bottom=My};
+				});
+		) |
+		views::join ;
+		
+	auto rng = views::cartesian_product(rg, rects) |
+		views::filter([](auto arg){auto [r1, r2]=arg; return intersect_strict(r1,r2);});
+	return rng.size();
 */
 int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &polylines, const vector<Rect> &rects)
 {
