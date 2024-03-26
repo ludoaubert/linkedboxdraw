@@ -1248,13 +1248,13 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 
 	for (Range &r : chunks[0])
 	{
-       		Direction other_direction = other( r.direction );
+		Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rfrom[other_direction]);
 	}
 
 	for (Range &r : chunks.back())
 	{
-       		Direction other_direction = other( r.direction );
+		Direction other_direction = other( r.direction );
 		r[other_direction] = intersection(r[other_direction], rto[other_direction]);
 	}
 
