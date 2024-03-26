@@ -3409,15 +3409,20 @@ const int TRANSLATION_ON_COLLISION = 4;
 
 /*
 	vector extremities = polylines |
-		views::transform([](const auto& polyline){return polyline | views::slide(polyline.size()) | ranges::to<vector>();}) |
-		ranges::to<vector() ;
+		views::transform([](const auto& polyline){
+			return polyline | 
+				views::slide(polyline.size()) | 
+				views::transform([](auto subr){return vector{subr[0], subr.back()};}); 
+		}) |
+		views::join |
+		ranges::to<vector>() ;
 	
 	auto rg = views::iota(0, (int)extremities.size());
 	
 	vector collisions = views::cartesian_product(rg, rg) |
 		views::filter([](auto arg){
 			auto [i,j]=arg;
-			SharedValuePoint &pi = points[i], &pj = points[j];
+			SharedValuePoint &pi = extremities[i], &pj = extremities[j];
 			return i+2 <= j && pi.x == pj.x && pi.y == pj.y;
 		}) |
 		views::transform([](auto arg){auto [i, j]=arg; return PointCollision{.p1=extremities[i], .p2=extremities[j]};) |
