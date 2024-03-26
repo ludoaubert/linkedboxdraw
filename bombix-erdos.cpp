@@ -3407,6 +3407,22 @@ struct PointCollision
 
 const int TRANSLATION_ON_COLLISION = 4;
 
+/*
+	vector extremities = polylines |
+		views::transform([](const auto& polyline){return polyline | views::slide(polyline.size());}) |
+		ranges::to<vector() ;
+	
+	auto rg = views::iota(0, (int)extremities.size());
+	
+	vector collisions = views::cartesian_product(rg, rg) |
+		views::filter([](auto arg){
+			auto [i,j]=arg;
+			SharedValuePoint &pi = points[i], &pj = points[j];
+			return i+2 <= j && pi.x == pj.x && pi.y == pj.y;
+		}) |
+		views::transform([](auto arg){auto [i, j]=arg; return PointCollision{.p1=extremities[i], .p2=extremities[j]};) |
+		ranges::to<vector>();
+*/
 
 vector<PointCollision> intersection_of_polyline_extremities(vector<vector<SharedValuePoint> > &polylines)
 {
