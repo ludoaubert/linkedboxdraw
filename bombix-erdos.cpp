@@ -3809,8 +3809,7 @@ const char* bombix(const char *rectdim,
 
         string json = polyline2json(polylines);
         static char res[100000];
-        std::copy(json.c_str(), json.c_str()+json.size(), res);
-        res[json.size()]=0;
+		sprintf(res, "%s", json.c_str());
         return res;
 }
 }
