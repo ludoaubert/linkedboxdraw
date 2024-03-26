@@ -517,13 +517,13 @@ struct Matrix
 };
 
 
-bool contains(const Matrix<bool>& m, const Range& r)
+bool contains(const Matrix<bool>& m, Range r)
 {
 	const Way ways[2]={DECREASE, INCREASE};
 	
 	for (Way way : ways)
 	{
-		RangeExtremity const e={.r=&r, .way=way};
+		RangeExtremity e={.r=&r, .way=way};
 		Coord c = e;
 
 		if (!(0 <= r.min && r.max < m.dim(other(r.direction)) && m(c.i, c.j)))
