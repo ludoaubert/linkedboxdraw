@@ -1365,6 +1365,27 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
 	return polyline;
 }
 
+/*
+    auto walk = [&](int64_t u)->generator<int64_t>{
+        while (u != 0)
+        {
+            co_yield u;
+            u = predecessor[u].u;
+        }
+    };
+    
+    auto rg = adj_links |
+        views::transform([&](const Link& l){return target_candidates.at(l.to);}) |
+        views::join |
+        views::transform(walk) |
+        views::join |
+        ranges::to<multiset>() |
+        views::chunk_by(ranges::equal_to{}) |
+        views::transform([](auto rg){return rg.size();}) |
+        views::filter([](int n){return n>= 2;}) ;
+
+    int n = ranges::fold_left(rg, 0, std::plus<int>());
+*/
 int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint64_t> >& target_candidates, const vector<Edge>& predecessor)
 {
 	unordered_map<uint64_t, int> hit_count;
