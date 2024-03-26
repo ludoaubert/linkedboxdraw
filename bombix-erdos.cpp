@@ -3300,10 +3300,8 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 		{
 			const auto &[x1, y1] = polyline[i];
 			const auto &[x2, y2] = polyline[i+1];
-			int mx = min(x1, x2);
-			int Mx = max(x1, x2);
-			int my = min(y1, y2);
-			int My = max(y1, y2);
+			auto [mx, Mx] = minmax(x1, x2);
+			auto [my, My] = minmax(y1, y2);
 
 			for (const auto &[left, right, top, bottom] : rects)
 			{
