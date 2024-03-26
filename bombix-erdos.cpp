@@ -1374,15 +1374,19 @@ vector<Point> compute_polyline(const vector<int>(&coords)[2], const vector<Range
         }
     };
     
-    auto rg = adj_links |
+    auto v = adj_links |
         views::transform([&](const Link& l){return target_candidates.at(l.to);}) |
         views::join |
         views::transform(walk) |
         views::join |
-        ranges::to<multiset>() |
+        ranges::to<vector>() ;
+
+    ranges::sort(v);
+
+    auto rg = v |
         views::chunk_by(ranges::equal_to{}) |
         views::transform([](auto rg){return rg.size();}) |
-        views::filter([](int n){return n>= 2;}) ;
+        views::filter([](int n){return n>= 2;}) ;   
 
     int n = ranges::fold_left(rg, 0, std::plus<int>());
 */
