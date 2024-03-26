@@ -3530,7 +3530,7 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 	for (auto& [ver_seg, hor_seg, p] : intersections)
 	{
 		auto& [p1, p2] = hor_seg;
-        	auto& [p3, p4] = ver_seg;
+		auto& [p3, p4] = ver_seg;
 
 		auto& [x1, y1] = p1;
 		auto& [x2, y2] = p2;
@@ -3587,33 +3587,33 @@ void post_process_polylines(const vector<Rect>& rects, vector<Polyline> &polylin
 
 			if (dock_range.contains(pvalue1) && inside_range(dock_range[pvalue1], *pvalue1 + 2*tr))
 			{
-                       		int value1 = *pvalue1;
-                        	*pvalue1 += 2 * tr;
+				int value1 = *pvalue1;
+				*pvalue1 += 2 * tr;
 
-                                char c = i < 2 ? 'x' : 'y' ;
-                                printf("evaluation of translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
+				char c = i < 2 ? 'x' : 'y' ;
+				printf("evaluation of translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
 
-                                vector<SegmentIntersection> intersections_update = intersection_of_polylines(svpolylines);
-                                int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
+				vector<SegmentIntersection> intersections_update = intersection_of_polylines(svpolylines);
+				int ni_pr = intersection_polylines_rectangles(svpolylines, rects);
 
-                                if (intersections_update.size() + ni_pr >= ni)
-                                {
-                                        *pvalue1 = value1;
+				if (intersections_update.size() + ni_pr >= ni)
+				{
+					*pvalue1 = value1;
 					printf("rolling back translation\n");
-                                }
-                                else
-                                {
-                                        ni = intersections_update.size();
-                                        printf("translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
-                                }
+				}
+				else
+				{
+					ni = intersections_update.size();
+					printf("translation (%c=%d) applied to (%c=%d)\n", c, 2*tr, c, value1);
+				}
 			}
 		}
 	}
 
 	for (int i=0; i < svpolylines.size(); i++)
 	{
-        	polylines[i].data = owned_value(svpolylines[i]);
-        }
+        polylines[i].data = owned_value(svpolylines[i]);
+	}
 }
 
 
@@ -3755,8 +3755,8 @@ int main(int argc, char* argv[])
 
 		for (int i=1; i+1 < argc; i+=2)
 		{
-					if (args.count(argv[i]))
-						 args[argv[i]] = argv[i + 1];
+			if (args.count(argv[i]))
+				args[argv[i]] = argv[i + 1];
 		}
 
 		bool check = strlen(args["--rectdim"]) % 6 == 0 && regex_match(args["--rectdim"], hexa) && 
