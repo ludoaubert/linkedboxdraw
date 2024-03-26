@@ -3294,12 +3294,12 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 {
 	int n = 0;
 
-        for (const vector<SharedValuePoint>& polyline : polylines)
-        {
-                for (int i=0; i+1 < polyline.size(); i++)
-                {
-                        const auto &[x1, y1] = polyline[i];
-                        const auto &[x2, y2] = polyline[i+1];
+	for (const vector<SharedValuePoint>& polyline : polylines)
+	{
+		for (int i=0; i+1 < polyline.size(); i++)
+		{
+			const auto &[x1, y1] = polyline[i];
+			const auto &[x2, y2] = polyline[i+1];
 			int mx = min(x1, x2);
 			int Mx = max(x1, x2);
 			int my = min(y1, y2);
