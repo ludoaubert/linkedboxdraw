@@ -750,6 +750,7 @@ vector<Edge> build_graph(const Matrix<bool>& definition_matrix,
 	const Direction directions[2] = {HORIZONTAL, VERTICAL};
 	auto [n1, n2] = definition_matrix.dim();
 	vector<Edge> edges;
+//TODO: use for (auto [way, direction, i, j] : views::cartesian_product(ways, directions, views::iota(0, n1), views::iota(0, n2))){...}
 	for (Way way : ways)
 	{
 		for (Direction direction : directions)
