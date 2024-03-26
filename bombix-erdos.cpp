@@ -237,6 +237,8 @@ struct Maille
 	Way way;
 	int16_t i, j;
 
+//TODO: use "deducing this" to have one single implementation.
+
 	int16_t& operator[](Direction input_direction)
 	{
 		switch (input_direction)
