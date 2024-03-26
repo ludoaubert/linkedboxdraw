@@ -401,6 +401,11 @@ RectangleProjection& RectangleProjection::operator=(const Span& s)
 	return *this;
 }
 
+inline bool intersect_strict(const Rect& r1, const Rect& r2)
+{
+        return !(r1.left >= r2.right || r1.right <= r2.left || r1.top >= r2.bottom || r1.bottom <= r2.top) ;
+}
+
 
 Span intersection(const Span& r1, const Span& r2)
 {
@@ -3290,6 +3295,9 @@ struct SegmentIntersection
 	SharedValuePoint p;
 };
 
+/*
+
+*/
 int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &polylines, const vector<Rect> &rects)
 {
 	int n = 0;
@@ -3302,10 +3310,11 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 			const auto &[x2, y2] = polyline[i+1];
 			auto [mx, Mx] = minmax(x1, x2);
 			auto [my, My] = minmax(y1, y2);
+			Rect rr={.left=mx, .right=Mx, .top=my, .bottom=My};
 
-			for (const auto &[left, right, top, bottom] : rects)
+			for (const Rect& r : rects)
 			{
-				if (!(mx >= right || Mx <= left || my >= bottom || My <= top))
+				if (intersect_strict(rr, r))
 					n++;
 			}
 		}
@@ -3344,14 +3353,14 @@ vector<SegmentIntersection> intersection_of_polylines(vector<vector<SharedValueP
 	{
 		auto& [x1, y1]=p1;
 		auto& [x2, y2]=p2;
-		int xmin = min(x1, x2), xmax = max(x1, x2);
+		auto [xmin, xmax] = minmax(x1, x2);
 		int &y = y1 ;
 
 		for (auto& [p3, p4] : vertical_segments)
 		{
 			auto& [x3, y3] = p3;
 			auto& [x4, y4] = p4;
-			int ymin = min(y3, y4), ymax = max(y3, y4);
+			auto [ymin, ymax] = minmax(y3, y4);
 			int& x = x3;
 
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
