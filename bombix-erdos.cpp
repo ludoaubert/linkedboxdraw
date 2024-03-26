@@ -3299,7 +3299,7 @@ struct SegmentIntersection
 	auto rg = polylines |
 		views::transform([](const auto& polyline){
 			return polyline |
-				views::slide(2) |
+				views::adjacent<2> |
 				views::transform([](auto arg){
 					const auto& [p1, p2]=arg;
 					auto [mx, Mx] = minmax(p1.x, p2.x);
@@ -3409,7 +3409,7 @@ const int TRANSLATION_ON_COLLISION = 4;
 
 /*
 	vector extremities = polylines |
-		views::transform([](const auto& polyline){return polyline | views::slide(polyline.size());}) |
+		views::transform([](const auto& polyline){return polyline | views::slide(polyline.size()) | ranges::to<vector>();}) |
 		ranges::to<vector() ;
 	
 	auto rg = views::iota(0, (int)extremities.size());
