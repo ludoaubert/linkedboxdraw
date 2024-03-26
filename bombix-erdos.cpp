@@ -3410,9 +3410,7 @@ const int TRANSLATION_ON_COLLISION = 4;
 /*
 	vector extremities = polylines |
 		views::transform([](const auto& polyline){
-			return polyline | 
-				views::slide(polyline.size()) | 
-				views::transform([](auto subr){return vector{subr[0], subr.back()};}); 
+			return polyline | views::stride(polyline.size()-1); 
 		}) |
 		views::join |
 		ranges::to<vector>() ;
