@@ -655,7 +655,29 @@ InnerRange parse_ir(uint64_t u)
 	return *(InnerRange*)&u;
 }
 
-
+/*
+	auto il = {
+		".polylines={"s,
+		polylines | views::transform([](auto arg){
+			auto [from, to, data]=arg;
+			auto il = {
+				"{"s,
+				".data="s,
+				"{"s,
+				data | views::transform([](auto arg){auto [x, y]=arg;	return format("{{.x={}, .y={}}}", x, y);})
+					| views::join_with(',')
+					| ranges::to<string>(),
+				"},"s,
+				format(".from={},.to={}", from, to),
+				"}"s
+				};
+			return il | views::join | ranges::to<string>();
+		}) | views::join_with(",\n"s) | ranges::to<string>(),
+		"]"s
+	};
+	
+	return il | views::join_with('\n') | ranges::to<string>();
+*/
 void print(const vector<Polyline>& polylines, string& serialized)
 {
 	char buffer[100 * 1024];
