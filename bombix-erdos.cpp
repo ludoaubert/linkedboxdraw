@@ -517,23 +517,6 @@ struct Matrix
 };
 
 
-bool contains(const Matrix<bool>& m, Range r)
-{
-	const Way ways[2]={DECREASE, INCREASE};
-	
-	for (Way way : ways)
-	{
-		RangeExtremity e={.r=&r, .way=way};
-		Coord c = e;
-
-		if (!(0 <= r.min && r.max < m.dim(other(r.direction)) && m(c.i, c.j)))
-			return false;		
-	}
-	
-	return true;
-}
-
-
 enum InputOutputSwitch
 {
 	INPUT,
@@ -1249,7 +1232,9 @@ vector<Range> enlarge(const vector<Range>& input_path, const Matrix<bool>& m, co
 		{
 			if (ranges::all_of(chunk, [&](Range r){
 				r[way] += way;
-				return contains(m, r);
+				RangeExtremity e={.r=&r, .way=way};
+				Coord c = e;
+				return m.isdefined(c.i, c.j) && m(c.i, c.j)==true;
 			}))
 			{
 				for (Range &r : chunk)
