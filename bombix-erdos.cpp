@@ -3,7 +3,7 @@
 *            All Rights Reserved
 *            DO NOT ALTER OR REMOVE THIS COPYRIGHT NOTICE
 *
-* \file bombix-origine.cpp
+* \file bombix-erdos.cpp
 *
 * - 11/23/2016 by Ludovic Aubert : creation
 */
@@ -3351,6 +3351,25 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 	return n;
 }
 
+/*
+	auto rg = polylines |
+		views::transform([](const auto& polyline){return polyline | views::adjacent<2>; } | 
+		views::join ;
+
+	vector<SegmentIntersection> intersections =
+		views::cartesian_product( rg | views::filter([](const auto& [p1, p2]){return p1.y==p2.y;}), 
+								rg | views::filter([](const auto& [p1, p2]){return p1.x==p2.x;}) ) |
+		views::filter([](const auto& [[p1, p2], [p3,p4]]){
+			auto [xmin, xmax] = minmax(p1.x, p2.x);
+			int &y = p1.y ;
+			auto [ymin, ymax] = minmax(p3.y, p4.y);
+			int& x = p3.x;
+			return (xmin < x && x < xmax && ymin < y && y < ymax);
+		}) |
+		views::transform([](const auto& [[p1, p2], [p3,p4]]){return {{p3, p4}, {p1, p2}, {p3.x,p1.y}};}) |
+		ranges::to<vector>();
+		
+*/
 
 vector<SegmentIntersection> intersection_of_polylines(vector<vector<SharedValuePoint> > &polylines)
 {
@@ -3360,15 +3379,15 @@ vector<SegmentIntersection> intersection_of_polylines(vector<vector<SharedValueP
 	{
 		for (int i=0; i+1 < polyline.size(); i++)
 		{
-			auto &[x1, y1] = polyline[i];
-			auto &[x2, y2] = polyline[i+1];
-			if (x1 == x2)
+			auto &p1 = polyline[i];
+			auto &p2 = polyline[i+1];
+			if (p1.x == p2.x)
 			{
-				vertical_segments.push_back( { {x1, y1}, {x2, y2} } );
+				vertical_segments.push_back( {p1, p2} );
 			}
-			if (y1 == y2)
+			if (p1.y == p2.y)
 			{
-				horizontal_segments.push_back( { {x1, y1}, {x2, y2} } );
+				horizontal_segments.push_back( {p1, p2} );
 			}
 		}
 	}
@@ -3377,17 +3396,13 @@ vector<SegmentIntersection> intersection_of_polylines(vector<vector<SharedValueP
 
 	for (auto& [p1, p2] : horizontal_segments)
 	{
-		auto& [x1, y1]=p1;
-		auto& [x2, y2]=p2;
-		auto [xmin, xmax] = minmax(x1, x2);
-		int &y = y1 ;
+		auto [xmin, xmax] = minmax(p1.x, p2.x);
+		int &y = p1.y ;
 
 		for (auto& [p3, p4] : vertical_segments)
 		{
-			auto& [x3, y3] = p3;
-			auto& [x4, y4] = p4;
-			auto [ymin, ymax] = minmax(y3, y4);
-			int& x = x3;
+			auto [ymin, ymax] = minmax(p3.y, p4.y);
+			int& x = p3.x;
 
 			if (xmin < x && x < xmax && ymin < y && y < ymax)
 			{
