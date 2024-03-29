@@ -3214,8 +3214,13 @@ unordered_map<int*, Span> dock_range;
 
 struct SharedValuePoint
 {
-        int &x, &y;
+	int &x, &y;
 };
+
+bool operator==(const SharedValuePoint& p1, const SharedValuePoint& p2)
+{
+	return p1.x == p2.x && p1.y == p2.y ;
+}
 
 
 vector<Point> owned_value(const vector<SharedValuePoint>& svpolyline)
@@ -3428,7 +3433,7 @@ const int TRANSLATION_ON_COLLISION = 4;
 		views::filter([](auto arg){
 			auto [i,j]=arg;
 			SharedValuePoint &pi = extremities[i], &pj = extremities[j];
-			return i+2 <= j && pi.x == pj.x && pi.y == pj.y;
+			return i+2 <= j && pi == pj;
 		}) |
 		views::transform([](auto arg){auto [i, j]=arg; return PointCollision{.p1=extremities[i], .p2=extremities[j]};) |
 		ranges::to<vector>();
@@ -3455,7 +3460,7 @@ vector<PointCollision> intersection_of_polyline_extremities(vector<vector<Shared
 		for (int j=i+2; j < points.size(); j++)
 		{
 			SharedValuePoint& pj = points[j];
-			if (pi.x == pj.x && pi.y == pj.y)
+			if (pi == pj)
 			{
 				collisions.push_back({pi,pj});
 			}
