@@ -16,6 +16,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <ranges>
+#include <execution>
 //#include <format>
 #include <initializer_list>
 #include <numeric>
@@ -24,7 +25,6 @@
 #include <regex>
 #include <span>
 #include <cstring>
-//#include <omp.h>
 using namespace std;
 using namespace std::chrono;
 using namespace std::literals;
@@ -3131,13 +3131,11 @@ void compute_polylines(int testid,
 	
 	const vector<Edge> edges = build_graph(definition_matrix,
 											range_matrix,
-											coords);	
+											coords);
 
-	#pragma omp parallel for
-	for (int i = 0; i < origins.size(); i++)
-	{
-		faiceau_output[i] = compute_faiceau(testid, links, edges, definition_matrix, range_matrix, coords, rects, origins[i]);
-	}
+	transform(execution::par_unseq, begin(origins), end(origins), begin(faiceau_output), [&](int from){
+		return compute_faiceau(testid, links, edges, definition_matrix, range_matrix, coords, rects, from);
+	});
 
 	unordered_map<Link, FaiceauPath> faiceau_paths;
 	for (/*FaiceauOutput*/auto& [targets, enlarged] : faiceau_output)
@@ -3759,14 +3757,14 @@ int main(int argc, char* argv[])
 			printf("pp test %d : %s\n", testid, pp_test_results[testid] ? "OK" : "KO");
 		}
 		
-		printf("\nbombix: %d/%ld pp tests successful.\n", ranges::count(pp_test_results, true), pp_test_results.size());
+		printf("\nbombix: %ld/%ld pp tests successful.\n", ranges::count(pp_test_results, true), pp_test_results.size());
 		
 		for (int testid=0; testid < test_results.size(); testid++)
 		{
 			printf("test %d : %s\n", testid, test_results[testid] ? "OK" : "KO");
 		}
 
-		printf("\nbombix: %d/%ld tests successful.\n", ranges::count(test_results, true), test_results.size());
+		printf("\nbombix: %ld/%ld tests successful.\n", ranges::count(test_results, true), test_results.size());
 
 		return 0;
 	}
