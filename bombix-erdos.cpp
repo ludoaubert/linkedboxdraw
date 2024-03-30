@@ -1447,13 +1447,12 @@ string polyline2json(const vector<Polyline>& polylines)
 /*
  	const string buffer = views::concat(
 		"["s,
-		polylines | views::transform([](auto arg){
-			auto [from, to, data]=arg;
+		polylines | views::transform([](auto [from, to, data]){
 			return views::concat(
 				"{",
 				R"("polyline":)",
 				"[",
-				data | views::transform([](auto arg){auto [x, y]=arg;	return format(R"({{"x":{}, "y":{}}})", x, y);})
+				data | views::transform([](auto [x, y]){return format(R"({{"x":{}, "y":{}}})", x, y);})
 					| views::join_with(','),
 				"],",
 				format(R"("from":{},"to":{})", from, to),
@@ -3311,8 +3310,7 @@ struct SegmentIntersection
 		views::transform([](const auto& polyline){
 			return polyline |
 				views::adjacent<2> |
-				views::transform([](auto arg){
-					const auto& [p1, p2]=arg;
+				views::transform([](auto [p1, p2]){
 					auto [mx, Mx] = minmax(p1.x, p2.x);
 					auto [my, My] = minmax(p1.y, p2.y);
 					return Rect{.left=mx, .right=Mx, .top=my, .bottom=My};
@@ -3321,7 +3319,7 @@ struct SegmentIntersection
 		views::join ;
 		
 	auto rng = views::cartesian_product(rg, rects) |
-		views::filter([](auto arg){auto [r1, r2]=arg; return intersect_strict(r1,r2);});
+		views::filter([](auto [r1, r2]){ return intersect_strict(r1,r2);});
 	return rng.size();
 */
 int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &polylines, const vector<Rect> &rects)
