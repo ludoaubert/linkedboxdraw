@@ -662,16 +662,16 @@ InnerRange parse_ir(uint64_t u)
 			auto [from, to, data]=arg;
 			return views::concat(
 				"{",
-				".data=",
-				"{",
-				data | views::transform([](auto arg){auto [x, y]=arg;	return format("{{.x={}, .y={}}}", x, y);})
-					| views::join_with(','),
-				"},",
-				format(".from={},.to={}", from, to),
+					".data=",
+					"{",
+					data | views::transform([](auto arg){auto [x, y]=arg;	return format("{{.x={}, .y={}}}", x, y);})
+						| views::join_with(','),
+					"},",
+					format(".from={},.to={}", from, to),
 				"}"
-			) | views::join;
+			) | views::join_with(",\n"s);
 		}) | views::join_with(",\n"s),
-		"]"s
+		"}"
 	) | views::join_with('\n') | ranges::to<string>();
 */
 void print(const vector<Polyline>& polylines, string& serialized)
@@ -3359,14 +3359,14 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 	vector<SegmentIntersection> intersections =
 		views::cartesian_product( rg | views::filter([](const auto& [p1, p2]){return p1.y==p2.y;}), 
 								rg | views::filter([](const auto& [p1, p2]){return p1.x==p2.x;}) ) |
-		views::filter([](const auto& [[p1, p2], [p3,p4]]){
+		views::filter([](const auto& [p1, p2, p3, p4]){
 			auto [xmin, xmax] = minmax(p1.x, p2.x);
 			int &y = p1.y ;
 			auto [ymin, ymax] = minmax(p3.y, p4.y);
 			int& x = p3.x;
 			return (xmin < x && x < xmax && ymin < y && y < ymax);
 		}) |
-		views::transform([](const auto& [[p1, p2], [p3,p4]]){return {{p3, p4}, {p1, p2}, {p3.x,p1.y}};}) |
+		views::transform([](const auto& [p1, p2, p3, p4]){return {{p3, p4}, {p1, p2}, {p3.x,p1.y}};}) |
 		ranges::to<vector>();
 		
 */
@@ -3434,23 +3434,18 @@ struct PointCollision
 const int TRANSLATION_ON_COLLISION = 4;
 
 /*
-	vector extremities = polylines |
-		views::filter([](const auto& polyline){return polyline.size() >= 2;}) |
+	auto rg = polylines |
 		views::transform([](const auto& polyline){
 			return polyline | views::stride(polyline.size()-1); 
 		}) |
 		views::join |
-		ranges::to<vector>() ;
-	
-	auto rg = views::iota(0, (int)extremities.size());
+		views::enumerate ;
 	
 	vector collisions = views::cartesian_product(rg, rg) |
-		views::filter([](auto arg){
-			auto [i,j]=arg;
-			SharedValuePoint &pi = extremities[i], &pj = extremities[j];
+		views::filter([](auto [i, pi, j, pj]){
 			return i+2 <= j && pi == pj;
 		}) |
-		views::transform([](auto arg){auto [i, j]=arg; return PointCollision{.p1=extremities[i], .p2=extremities[j]};) |
+		views::transform([](auto [i, pi, j, pj]){return PointCollision{.p1=pi, .p2=pj};) |
 		ranges::to<vector>();
 */
 
