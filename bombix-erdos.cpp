@@ -670,7 +670,7 @@ InnerRange parse_ir(uint64_t u)
 				"}"
 			) | views::join;
 		}) | views::join_with(",\n"s),
-		"]"
+		"}"
 	) | views::join_with('\n') | ranges::to<string>();
 */
 //TODO: this function should be replaced by support for reflection and json in C++ standard.
@@ -1572,7 +1572,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 		format(R"("frame":{"left":{},"right":{},"top":{},"bottom":{}},)", frame.left, frame.right, frame.top, frame.bottom),
 		R"("translatedBoxes":[)",
 		rects | views::enumerate
-			| views::transform([](auto arg){ auto [i, r]=arg; return format(R"({{"id":{},"translation":{{"x":{},"y":{} }}}}")", i, r.left, r.top);})
+			| views::transform([](auto [i, r]){ return format(R"({{"id":{},"translation":{{"x":{},"y":{} }}}}")", i, r.left, r.top);})
 			| views::join_with(",\n"s),
 		"],",
 		format(R"("links:{},")", polyline2json(polylines)),
