@@ -733,6 +733,15 @@ string polyline2json(const vector<Polyline>& polylines)
 //TODO: this function should be replaced by support for reflection and json in C++ standard.
 void print(const vector<Polyline>& polylines, string& serialized)
 {
+/*
+	serialized = polyline2json(polylines);
+	serialized = serialized | 
+		views::split(R"(":)"s) | views::join_with('=') |
+		views::split(R"(")"s) | views::join_with('.') |
+		views::split('[') | views::join('{') |
+		views::split(']') | views::join('}') |
+		ranges::to<string>() ;
+*/
 	char buffer[100 * 1024];
 	int pos = 0;
 
