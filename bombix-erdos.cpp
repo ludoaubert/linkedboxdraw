@@ -658,20 +658,19 @@ InnerRange parse_ir(uint64_t u)
 /*
 	const string buffer = views::concat(
 		".polylines={",
-		polylines | views::transform([](auto arg){
-			auto [from, to, data]=arg;
+		polylines | views::transform([](auto [from, to, data]){
 			return views::concat(
 				"{",
-					".data=",
-					"{",
-					data | views::transform([](auto arg){auto [x, y]=arg;	return format("{{.x={}, .y={}}}", x, y);})
-						| views::join_with(','),
-					"},",
-					format(".from={},.to={}", from, to),
+				".data=",
+				"{",
+				data | views::transform([](auto [x, y]){return format("{{.x={}, .y={}}}", x, y);})
+					| views::join_with(','),
+				"},",
+				format(".from={},.to={}", from, to),
 				"}"
-			) | views::join_with(",\n"s);
+			) | views::join;
 		}) | views::join_with(",\n"s),
-		"}"
+		"]"
 	) | views::join_with('\n') | ranges::to<string>();
 */
 void print(const vector<Polyline>& polylines, string& serialized)
@@ -1447,12 +1446,13 @@ string polyline2json(const vector<Polyline>& polylines)
 /*
  	const string buffer = views::concat(
 		"["s,
-		polylines | views::transform([](auto [from, to, data]){
+		polylines | views::transform([](auto arg){
+			auto [from, to, data]=arg;
 			return views::concat(
 				"{",
 				R"("polyline":)",
 				"[",
-				data | views::transform([](auto [x, y]){return format(R"({{"x":{}, "y":{}}})", x, y);})
+				data | views::transform([](auto arg){auto [x, y]=arg;	return format(R"({{"x":{}, "y":{}}})", x, y);})
 					| views::join_with(','),
 				"],",
 				format(R"("from":{},"to":{})", from, to),
@@ -3310,7 +3310,8 @@ struct SegmentIntersection
 		views::transform([](const auto& polyline){
 			return polyline |
 				views::adjacent<2> |
-				views::transform([](auto [p1, p2]){
+				views::transform([](auto arg){
+					const auto& [p1, p2]=arg;
 					auto [mx, Mx] = minmax(p1.x, p2.x);
 					auto [my, My] = minmax(p1.y, p2.y);
 					return Rect{.left=mx, .right=Mx, .top=my, .bottom=My};
@@ -3319,7 +3320,7 @@ struct SegmentIntersection
 		views::join ;
 		
 	auto rng = views::cartesian_product(rg, rects) |
-		views::filter([](auto [r1, r2]){ return intersect_strict(r1,r2);});
+		views::filter([](auto arg){auto [r1, r2]=arg; return intersect_strict(r1,r2);});
 	return rng.size();
 */
 int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &polylines, const vector<Rect> &rects)
@@ -3357,14 +3358,14 @@ int intersection_polylines_rectangles(const vector<vector<SharedValuePoint> > &p
 	vector<SegmentIntersection> intersections =
 		views::cartesian_product( rg | views::filter([](const auto& [p1, p2]){return p1.y==p2.y;}), 
 								rg | views::filter([](const auto& [p1, p2]){return p1.x==p2.x;}) ) |
-		views::filter([](const auto& [p1, p2, p3, p4]){
+		views::filter([](const auto& [[p1, p2], [p3,p4]]){
 			auto [xmin, xmax] = minmax(p1.x, p2.x);
 			int &y = p1.y ;
 			auto [ymin, ymax] = minmax(p3.y, p4.y);
 			int& x = p3.x;
 			return (xmin < x && x < xmax && ymin < y && y < ymax);
 		}) |
-		views::transform([](const auto& [p1, p2, p3, p4]){return {{p3, p4}, {p1, p2}, {p3.x,p1.y}};}) |
+		views::transform([](const auto& [[p1, p2], [p3,p4]]){return {{p3, p4}, {p1, p2}, {p3.x,p1.y}};}) |
 		ranges::to<vector>();
 		
 */
@@ -3432,18 +3433,23 @@ struct PointCollision
 const int TRANSLATION_ON_COLLISION = 4;
 
 /*
-	auto rg = polylines |
+	vector extremities = polylines |
+		views::filter([](const auto& polyline){return polyline.size() >= 2;}) |
 		views::transform([](const auto& polyline){
 			return polyline | views::stride(polyline.size()-1); 
 		}) |
 		views::join |
-		views::enumerate ;
+		ranges::to<vector>() ;
+	
+	auto rg = views::iota(0, (int)extremities.size());
 	
 	vector collisions = views::cartesian_product(rg, rg) |
-		views::filter([](auto [i, pi, j, pj]){
+		views::filter([](auto arg){
+			auto [i,j]=arg;
+			SharedValuePoint &pi = extremities[i], &pj = extremities[j];
 			return i+2 <= j && pi == pj;
 		}) |
-		views::transform([](auto [i, pi, j, pj]){return PointCollision{.p1=pi, .p2=pj};) |
+		views::transform([](auto arg){auto [i, j]=arg; return PointCollision{.p1=extremities[i], .p2=extremities[j]};) |
 		ranges::to<vector>();
 */
 
