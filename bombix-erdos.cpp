@@ -656,6 +656,63 @@ InnerRange parse_ir(uint64_t u)
 }
 
 /*
+TODO:
+void print(const vector<Polyline>& polylines, string& serialized)
+AND
+string polyline2json(const vector<Polyline>& polylines)
+Are almost the same thing.
+Both implementations should be replaced by standard C++ support for reflection and json.
+*/
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
+string polyline2json(const vector<Polyline>& polylines)
+{
+/*
+ 	const string buffer = views::concat(
+		"["s,
+		polylines | views::transform([](auto [from, to, data]){
+			return views::concat(
+				"{",
+				R"("polyline":)",
+				"[",
+				data | views::transform([](auto [x, y]){return format(R"({{"x":{}, "y":{}}})", x, y);})
+					| views::join_with(','),
+				"],",
+				format(R"("from":{},"to":{})", from, to),
+				"}"
+			) | views::join;
+		}) | views::join_with(",\n"s),
+		"]"
+	) | views::join_with('\n') | ranges::to<string>();
+*/
+	char buffer[10 * 1024];
+	int pos = 0;
+
+	pos += sprintf(buffer + pos, "[\n");
+
+	for (const auto& [from, to, data] : polylines)
+	{
+		pos += sprintf(buffer + pos, "{\"polyline\":[");
+
+		for (const auto& [x, y] : data)
+		{
+			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", x, y);
+		}
+		if (buffer[pos-1]==',')
+			pos--;
+		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},\n", from, to);
+	}
+
+	if (buffer[pos-2]==',')
+	{
+		buffer[pos-2]='\n';
+		pos--;
+	}
+	pos += sprintf(buffer + pos, "]");
+
+	return buffer;
+}
+
+/*
 	const string buffer = views::concat(
 		".polylines={",
 		polylines | views::transform([](auto [from, to, data]){
@@ -1442,62 +1499,7 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	return n;
 }
 
-/*
-TODO:
-void print(const vector<Polyline>& polylines, string& serialized)
-AND
-string polyline2json(const vector<Polyline>& polylines)
-Are almost the same thing.
-Both implementations should be replaced by standard C++ support for reflection and json.
-*/
-//TODO: this function should be replaced by support for reflection and json in C++ standard.
-string polyline2json(const vector<Polyline>& polylines)
-{
-/*
- 	const string buffer = views::concat(
-		"["s,
-		polylines | views::transform([](auto [from, to, data]){
-			return views::concat(
-				"{",
-				R"("polyline":)",
-				"[",
-				data | views::transform([](auto [x, y]){return format(R"({{"x":{}, "y":{}}})", x, y);})
-					| views::join_with(','),
-				"],",
-				format(R"("from":{},"to":{})", from, to),
-				"}"
-			) | views::join;
-		}) | views::join_with(",\n"s),
-		"]"
-	) | views::join_with('\n') | ranges::to<string>();
-*/
-	char buffer[10 * 1024];
-	int pos = 0;
 
-	pos += sprintf(buffer + pos, "[\n");
-
-	for (const auto& [from, to, data] : polylines)
-	{
-		pos += sprintf(buffer + pos, "{\"polyline\":[");
-
-		for (const auto& [x, y] : data)
-		{
-			pos += sprintf(buffer + pos, "{\"x\":%d,\"y\":%d},", x, y);
-		}
-		if (buffer[pos-1]==',')
-			pos--;
-		pos += sprintf(buffer + pos, "],\"from\":%d,\"to\":%d},\n", from, to);
-	}
-
-	if (buffer[pos-2]==',')
-	{
-		buffer[pos-2]='\n';
-		pos--;
-	}
-	pos += sprintf(buffer + pos, "]");
-
-	return buffer;
-}
 
 //TODO: this function should be replaced by support for reflection and json in C++ standard.
 string diagdata(const TestContext& ctx)
