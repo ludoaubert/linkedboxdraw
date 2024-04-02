@@ -1440,23 +1440,29 @@ int overlap(const vector<Link> &adj_links, const unordered_map<int, vector<uint6
 	return n;
 }
 
-
+/*
+TODO:
+void print(const vector<Polyline>& polylines, string& serialized)
+AND
+string polyline2json(const vector<Polyline>& polylines)
+Are almost the same thing.
+Both implementations should be replaced by standard C++ support for reflection and json.
+*/
 string polyline2json(const vector<Polyline>& polylines)
 {
 /*
  	const string buffer = views::concat(
 		"["s,
-		polylines | views::transform([](auto arg){
-			auto [from, to, data]=arg;
+		polylines | views::transform([](auto [from, to, data]){
 			return views::concat(
 				"{",
 				R"("polyline":)",
 				"[",
-				data | views::transform([](auto arg){auto [x, y]=arg;	return format(R"({{"x":{}, "y":{}}})", x, y);})
+				data | views::transform([](auto [x, y]){return format(R"({{"x":{}, "y":{}}})", x, y);})
 					| views::join_with(','),
 				"],",
 				format(R"("from":{},"to":{})", from, to),
-				"}"s
+				"}"
 			) | views::join;
 		}) | views::join_with(",\n"s),
 		"]"
