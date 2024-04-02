@@ -673,6 +673,7 @@ InnerRange parse_ir(uint64_t u)
 		"]"
 	) | views::join_with('\n') | ranges::to<string>();
 */
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
 void print(const vector<Polyline>& polylines, string& serialized)
 {
 	char buffer[100 * 1024];
@@ -698,6 +699,7 @@ void print(const vector<Polyline>& polylines, string& serialized)
 	serialized = buffer;
 }
 
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
 void print(const vector<FaiceauOutput>& faiceau_output, string& serialized)
 {
 	char buffer[100 * 1024];
@@ -1448,6 +1450,7 @@ string polyline2json(const vector<Polyline>& polylines)
 Are almost the same thing.
 Both implementations should be replaced by standard C++ support for reflection and json.
 */
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
 string polyline2json(const vector<Polyline>& polylines)
 {
 /*
@@ -1496,6 +1499,7 @@ string polyline2json(const vector<Polyline>& polylines)
 	return buffer;
 }
 
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
 string diagdata(const TestContext& ctx)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines] = ctx;
@@ -1557,6 +1561,7 @@ string diagdata(const TestContext& ctx)
 	return buffer;
 }
 
+//TODO: this function should be replaced by support for reflection and json in C++ standard.
 string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 {
 	const auto& [testid, rects, frame, links, faisceau_output, polylines_] = ctx;
