@@ -92,6 +92,18 @@ void reverse(Way &way)
 struct Coord
 {
 	int16_t i,j;
+/*
+	auto && operator[](this auto && self, Direction direction)
+	{
+		switch (direction)
+		{
+		case HORIZONTAL:
+			return self.j;
+		case VERTICAL:
+			return self.i;
+		}
+	}
+*/
 	int16_t& operator[](Direction direction)
 	{
 		switch (direction)
@@ -237,7 +249,18 @@ struct Maille
 	Way way;
 	int16_t i, j;
 
-//TODO: use "deducing this" to have one single implementation.
+/*
+	auto && operator[](this auto && self, Direction input_direction)
+	{
+		switch (input_direction)
+		{
+		case HORIZONTAL:
+			return self.j;
+		case VERTICAL:
+			return self.i;
+		}
+	}
+*/
 
 	int16_t& operator[](Direction input_direction)
 	{
@@ -467,7 +490,16 @@ struct Matrix
 		delete [] _data;
 	}
 
-//TODO: overload operator [] in C++23
+/*
+	auto && operator()(this auto && self, int i, int j)
+	{
+		assert(0 <= self.i);
+		assert(self.i < self._n);
+		assert(0 <= self.j);
+		assert(self.j < self._m);
+		return _data[self.i*self._m + self.j];
+	}
+*/
 
 	T& operator()(int i, int j)
 	{
@@ -745,6 +777,7 @@ void print(const vector<Polyline>& polylines, string& serialized)
 		views::split(R"(")"s) | views::join_with('.') |
 		views::split('[') | views::join('{') |
 		views::split(']') | views::join('}') |
+		views::split("polyline"s) | views::join_with("data"s) |
 		ranges::to<string>() ;
 */
 	char buffer[100 * 1024];
@@ -1593,7 +1626,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 		"],",
 		format(R"("links:{},")", polyline2json(polylines)),
 		R"("rectangles":[)",
-		rects | views::transform([](const Rect r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", width(r), height(r));})
+		rects | views::transform([](const Rect& r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", width(r), height(r));})
 				| views::join_with(",\n"s),
 		"]}"
 	) | views::join_with('\n') | ranges::to<string>();
