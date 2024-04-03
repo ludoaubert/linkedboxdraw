@@ -1628,7 +1628,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 		R"("rectangles":[)",
 		rects | views::transform([](const Rect& r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", width(r), height(r));})
 				| views::join_with(",\n"s),
-		"]}"
+		"]}]"
 	) | views::join_with('\n') | ranges::to<string>();
 */
 	string pjson = polyline2json(polylines);
