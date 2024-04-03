@@ -3042,12 +3042,14 @@ FaiceauOutput compute_faiceau(int testid,
 			co_yield u;
 		}
     };
-	
-//TODO: this code needs to be restructured.
-	
-	vector<Maille> result = walk(to) | 
-						views::drop(1) |
-						views::drop_last(1) |
+
+        +   +   +   +      slide(3)
+	  +   +   +   +   +    slide(2)
+	1   2   3   4   5   6
+
+	vector<Maille> result = walk(to) |
+						views::slide(3) |
+						views::transform([](auto rg){return rg[1];})
 						views::transform(parse) |
 						ranges::to<vector>();
 */
