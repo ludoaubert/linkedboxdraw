@@ -500,10 +500,10 @@ struct Matrix
 	auto && operator()(this auto && self, int i, int j)
 	{
 		assert(0 <= self.i);
-		assert(self.i < self._n);
-		assert(0 <= self.j);
-		assert(self.j < self._m);
-		return _data[self.i*self._m + self.j];
+		assert(i < self._n);
+		assert(0 <= j);
+		assert(j < self._m);
+		return _data[i*self._m + j];
 	}
 */
 
