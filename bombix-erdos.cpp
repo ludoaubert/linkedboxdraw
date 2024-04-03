@@ -3035,6 +3035,22 @@ FaiceauOutput compute_faiceau(int testid,
 
 		for (const auto& [from, to] : adj_links)
 		{
+/*
+    auto walk = [&](int to)->generator<int64_t>{
+		for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor[u].u)
+		{
+			co_yield u;
+		}
+    };
+	
+//TODO: this code needs to be restructured.
+	
+	vector<Maille> result = walk(to) | 
+						views::drop(1) |
+						views::drop_last(1) |
+						views::transform(parse) |
+						ranges::to<vector>();
+*/
 			vector<Maille> result;
 			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor[u].u)
 			{
