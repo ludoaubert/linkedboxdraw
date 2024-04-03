@@ -375,6 +375,11 @@ struct Rect
 	int left, right, top, bottom;
 };
 
+
+int width(const Rect& r){return r.right - r.left;}
+int heigth(const Rect& r){return r.bottom - r.top;}
+
+
 RectangleProjection::operator Span() const
 {
 	switch (direction)
@@ -1072,8 +1077,8 @@ void add_rect(vector<int>(&coords)[2], const Rect& r, int nblink=1)
 		nblink = 1;
 	for (int i=0; i <= nblink; i++)
 	{
-		coords[HORIZONTAL].push_back(r.left + i * (r.right - r.left) / nblink);
-		coords[VERTICAL].push_back(r.top + i * (r.bottom - r.top) / nblink);
+		coords[HORIZONTAL].push_back(r.left + i * width(r) / nblink);
+		coords[VERTICAL].push_back(r.top + i * height(r) / nblink);
 	}
 }
 
@@ -1588,7 +1593,7 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 		"],",
 		format(R"("links:{},")", polyline2json(polylines)),
 		R"("rectangles":[)",
-		rects | views::transform([](const Rect r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", r.right-r.left, r.bottom-r.top );})
+		rects | views::transform([](const Rect r){return format(R"(\t{{"left":0,"right":{},"top":0,"bottom":{} }})", width(r), height(r));})
 				| views::join_with(",\n"s),
 		"]}"
 	) | views::join_with('\n') | ranges::to<string>();
@@ -1620,9 +1625,9 @@ string contexts_(const TestContext& ctx, const vector<Polyline>& polylines)
 "rectangles":[
 )", pjson.c_str());
 
-	for (const auto& [left, right, top, bottom] : rects)
+	for (const Rect& r : rects)
 	{
-		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, right - left, 0, bottom - top);
+		pos += sprintf(buffer + pos, "\t{\"left\":%hu,\"right\":%hu,\"top\":%hu,\"bottom\":%hu},\n", 0, width(r), 0, height(r));
 	}
 
 	buffer[pos-2]='\n';
