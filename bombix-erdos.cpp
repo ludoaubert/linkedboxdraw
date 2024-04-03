@@ -3507,7 +3507,6 @@ const int TRANSLATION_ON_COLLISION = 4;
 
 /*
 	auto extremities = polylines |
-		views::filter([](const auto& polyline){return polyline.size() >= 2;}) |
 		views::transform([](const auto& polyline){
 			return polyline | views::stride(polyline.size()-1); 
 		}) |
