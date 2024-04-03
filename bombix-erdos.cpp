@@ -386,6 +386,13 @@ struct RectangleProjection
 
 struct Rect
 {
+/*
+//More thoughts need to be put into this. This commented code does not work !!!
+	auto && operator[](this auto && self, Direction direction)
+	{
+		return RectangleProjection{direction, &self};
+	}
+*/
 	RectangleProjection operator[](Direction direction)
 	{
 		return RectangleProjection{direction, this};
