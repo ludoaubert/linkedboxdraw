@@ -377,7 +377,7 @@ struct Rect
 
 
 int width(const Rect& r){return r.right - r.left;}
-int heigth(const Rect& r){return r.bottom - r.top;}
+int height(const Rect& r){return r.bottom - r.top;}
 
 
 RectangleProjection::operator Span() const
