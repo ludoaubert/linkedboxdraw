@@ -1014,6 +1014,14 @@ vector<Edge> adj_list(const Graph& graph, const PredecessorMap &predecesor, uint
 		{
 			rec[other(next_r.direction)] = Span{ min, max};
 
+/*
+bool valid = ranges::all_of(views::cartesian_product(
+								views::iota(rec.left, rec.right+1),
+								views::iota(rec.top, rec.bottom+1)
+							), [](auto [j, i]){return definition_matrix(i, j);});
+use valid instead of !detec. 
+*/
+
 			bool detect = false;
 			for (int j = rec.left; j <= rec.right; j++)
 			{
