@@ -3052,6 +3052,7 @@ FaiceauOutput compute_faiceau(int testid,
 						views::transform([](auto rg){return rg[1];})
 						views::transform(parse) |
 						ranges::to<vector>();
+	ranges::reverse(result);
 */
 			vector<Maille> result;
 			for (uint64_t u = best_target_candidate[to]; u != 0; u = predecessor[u].u)
