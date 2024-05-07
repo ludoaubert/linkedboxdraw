@@ -251,8 +251,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 
-		vector<DecisionTreeNode> result =		
-			views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
+		return views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
 									  views::iota(0, nr_input_rectangles) |
 											views::filter([&](int r){return emplacement[r]==r;}) 
 									) |
@@ -280,8 +279,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 				};
 			}) |
 			ranges::to<vector>();
-
-		return result;
 	};
 	
 	auto build_decision_tree = [&](){

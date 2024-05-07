@@ -2410,8 +2410,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	};
 	
 	auto child_nodes = [&](int parent_index, int depth){
-
-		vector<DecisionTreeNode> result;
 		
 		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		
@@ -2421,29 +2419,34 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
 		
-		vector<int> emplacement_ = emplacement ;
-		
-		for (auto const [h, r] : views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
-															views::iota(0, nr_input_rectangles) |
-															views::filter([&](int r){return emplacement[r]==r;}) ))
-		{
-			ranges::copy(emplacement, begin(emplacement_));
-			swap(emplacement_[r], emplacement_[h]);
+		return views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
+									  views::iota(0, nr_input_rectangles) |
+											views::filter([&](int r){return emplacement[r]==r;}) 
+									) |
+			views::transform([&](const auto arg) {
+				auto const [h, r] = arg;
+				auto swap_r_h = [&](int u){
+					if (u==r)
+						return h;
+					if (u==h)
+						return r;
+					else
+						return u;
+				};
 			
-			int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement_[e.from] * N + emplacement_[e.to]];}),
-				0, plus<int>()) ;
+				int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement[swap_r_h(e.from)] * N + emplacement[swap_r_h(e.to)]];}),
+					0, plus<int>()) ;
 				
-			result.push_back(DecisionTreeNode{
-				.index = (int)result.size(),
-				.parent_index = parent_index,
-				.depth=depth,
-				.sigma_edge_distance = sigma_edge_distance,
-				.i_emplacement_source = r, 
-				.i_emplacement_destination = h
-			});
-		}
-
-		return result;
+				return DecisionTreeNode{
+					.index = (int)result.size(),
+					.parent_index = parent_index,
+					.depth=depth,
+					.sigma_edge_distance = sigma_edge_distance,
+					.i_emplacement_source = r, 
+					.i_emplacement_destination = h
+				};
+			}) |
+			ranges::to<vector>();
 	};
 	
 	auto build_decision_tree = [&](){
