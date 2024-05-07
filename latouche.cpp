@@ -2465,7 +2465,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			if (indexes.size() > 2000)
 				indexes.resize(2000);
 			
-
 			if (depth==0)
 				indexes.push_back(-1);
 
