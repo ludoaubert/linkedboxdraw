@@ -310,11 +310,40 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			
 			string hexbuf(10*nr_emplacements*floor_size, ' ');
 			int pos=0;
-			
+/*
+			string hexbuf = views::iota(size, decision_tree.size()) |
+				views::transform([&](int idx){
+					vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
+					
+					for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
+					{
+						const DecisionTreeNode& n = decision_tree[ix];
+						swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+					}
+					
+					return emplacements | 
+							views::transform([](int e){return format("{:#03x}", e);}) |
+							views::join |
+							ranges::to<string>();					
+				}) |
+				views::join |
+				ranges::to<string>();
+*/
 			struct Item{
 				string_view hex;
 				int idx;
 			};
+/*
+			const int n = nr_emplacements*strlen("0x000");
+			vector<Item> items = views::iota(size, decision_tree.size()) |
+				views::transform([&](int idx){
+					return Item{
+						.hex=string_view(&hexbuf[n*(idx-size)], n),
+						.idx=idx
+					};
+				}) |
+				ranges::to<vector>();
+*/
 			vector<Item> items;
 			for (int idx=size; idx<decision_tree.size(); idx++)
 			{
@@ -330,7 +359,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 				int n=0 ;
 				for (int i=0; i < nr_emplacements; i++)
 				{
-					n += sprintf(&hexbuf[pos+n], "%x,", emplacement[i]);
+					n += sprintf(&hexbuf[pos+n], "%03x,", emplacement[i]);
 				}
 
 				string_view hex(&hexbuf[pos], n);
