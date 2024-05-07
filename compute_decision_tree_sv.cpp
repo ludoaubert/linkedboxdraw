@@ -270,7 +270,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 					0, plus<int>()) ;
 				
 				return DecisionTreeNode{
-					.index = (int)result.size(),
+					.index = -1,
 					.parent_index = parent_index,
 					.depth=depth,
 					.sigma_edge_distance = sigma_edge_distance,
