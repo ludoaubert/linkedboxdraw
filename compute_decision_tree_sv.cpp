@@ -326,6 +326,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 					swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 				}
 
+//auto rg = emplacements | views::transform([](int e){return format("{:#x}", a);}) | views::join;
 				int n=0 ;
 				for (int i=0; i < nr_emplacements; i++)
 				{
