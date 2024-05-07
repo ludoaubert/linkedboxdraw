@@ -296,7 +296,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
 			if (indexes.size() > 2000)
 				indexes.resize(2000);
-			
 
 			if (depth==0)
 				indexes.push_back(-1);
@@ -306,85 +305,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			
 			ranges::copy( vv | views::join, back_inserter(decision_tree));
 			
-			int floor_size = decision_tree.size() - size;
-			
-			string hexbuf(10*nr_emplacements*floor_size, ' ');
-			int pos=0;
-/*
-			string hexbuf = views::iota(size, decision_tree.size()) |
-				views::transform([&](int idx){
-					vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-					
-					for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-					{
-						const DecisionTreeNode& n = decision_tree[ix];
-						swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-					}
-					
-					return emplacements | 
-							views::transform([](int e){return format("{:#03x}", e);}) |
-							views::join |
-							ranges::to<string>();					
-				}) |
-				views::join |
-				ranges::to<string>();
-*/
-			struct Item{
-				string_view hex;
-				int idx;
-			};
-/*
-			const int n = nr_emplacements*strlen("0x000");
-			vector<Item> items = views::iota(size, decision_tree.size()) |
-				views::transform([&](int idx){
-					return Item{
-						.hex=string_view(&hexbuf[n*(idx-size)], n),
-						.idx=idx
-					};
-				}) |
-				ranges::to<vector>();
-*/
-			vector<Item> items;
-			for (int idx=size; idx<decision_tree.size(); idx++)
-			{
-				vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-				
-				for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
-				{
-					const DecisionTreeNode& n = decision_tree[ix];
-					swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-				}
-
-//auto rg = emplacements | views::transform([](int e){return format("{:#x}", a);}) | views::join;
-				int n=0 ;
-				for (int i=0; i < nr_emplacements; i++)
-				{
-					n += sprintf(&hexbuf[pos+n], "%03x,", emplacement[i]);
-				}
-
-				string_view hex(&hexbuf[pos], n);
-				pos += n;
-				
-				items.push_back(Item{.hex=hex, .idx=idx});
-			}
-			
-			ranges::sort(items, {}, &Item::hex);
-
-			vector<DecisionTreeNode> dedup = items |
-											views::chunk_by([](const Item& x, const Item& y){return x.hex==y.hex;}) |
-											views::transform([&](auto r){return decision_tree[ r[0].idx ];}) |
-											ranges::to<vector>();
-
-			for (int i=0; i<dedup.size(); i++)
-			{
-				dedup[i].index = size+i;
-			}				
-			
-			printf("floor_size=%d\n", floor_size);
-			printf("dedup.size()=%d\n", dedup.size());
-			
-			decision_tree.resize(size);
-			ranges::copy(dedup, back_inserter(decision_tree));
+			for (int i=size; i<decision_tree.size(); i++)
+				decision_tree[i].index = i;
 		}
 	};
 	
