@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
-#include <set>
+#include <map>
 #include <string>
 #include <ranges>
 #include <initializer_list>
@@ -312,7 +312,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 
              auto rg = views::iota(size, (int)decision_tree.size()) |
                 views::transform([&](int idx){ return make_pair(index2emplacement(idx), idx);}) |
-                ranges::to<set>() |
+                ranges::to<map>() |
             //    views::elements<1> |
                 views::transform([](auto arg){const auto [emplacement, idx]=arg; return idx;}) |
                 views::transform([&](int idx){return decision_tree[idx];});
