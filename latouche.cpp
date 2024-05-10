@@ -2399,6 +2399,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	const vector<int> distance_matrix = views::cartesian_product(rectangles, rectangles) |
 										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
 										ranges::to<vector>();
+										
+//TODO: use mdspan
 	
 	vector<DecisionTreeNode> decision_tree;
 	
@@ -2408,17 +2410,21 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			co_yield index;
 		}		
 	};
-	
-	auto child_nodes = [&](int parent_index, int depth){
-		
+
+    auto index2emplacement = [&](int idx){
 		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-		
-		for (int ix : walk_up_from(parent_index) | ranges::to<vector>() | views::reverse)
+		for (int ix : walk_up_from(idx) | ranges::to<vector>() | views::reverse)
 		{
 			const DecisionTreeNode& n = decision_tree[ix];
 			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
 		}
-		
+        return emplacement;
+    };
+	
+	auto child_nodes = [&](int parent_index, int depth){
+
+		vector<int> emplacement = index2emplacement(parent_index);
+
 		return views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
 									  views::iota(0, nr_input_rectangles) |
 											views::filter([&](int r){return emplacement[r]==r;}) 
@@ -2464,7 +2470,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
 			if (indexes.size() > 2000)
 				indexes.resize(2000);
-			
+
 			if (depth==0)
 				indexes.push_back(-1);
 
@@ -2472,6 +2478,17 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth);});
 			
 			ranges::copy( vv | views::join, back_inserter(decision_tree));
+
+			auto rg = views::iota(size, (int)decision_tree.size()) |
+				views::transform([&](int idx){ return make_pair(index2emplacement(idx), idx);}) |
+				ranges::to<map>() |
+			//    views::elements<1> |
+				views::transform([](auto arg){const auto [emplacement, idx]=arg; return idx;}) |
+				views::transform([&](int idx){return decision_tree[idx];});
+			//TODO: views::elements<1> does not work because of tuple pair incompatibilities
+
+			decision_tree.resize(size);
+			ranges::copy(rg, back_inserter(decision_tree));
 
 			for (int i=size; i<decision_tree.size(); i++)
 				decision_tree[i].index = i;
