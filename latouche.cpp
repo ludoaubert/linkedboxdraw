@@ -1778,6 +1778,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 {
 	auto il = {input_rectangles, holes};
 	vector<MyRect> input_emplacements = il | views::join | ranges::to<vector>() ;
+// TODO: vector<MyRect> input_emplacements = views::concat(input_rectangles, holes) | ranges::to<vector>() ;
 
 	int m = input_emplacements.size();
 	int n = input_rectangles.size();
