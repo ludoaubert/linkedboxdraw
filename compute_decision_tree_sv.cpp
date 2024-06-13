@@ -222,6 +222,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 
 	auto il = {input_rectangles, holes};
 	const vector<MyRect> rectangles = il | views::join | ranges::to<vector>();
+//TODO:
+//	const vector<MyRect> rectangles = views::concat(input_rectangles, holes) | ranges::to<vector>();
 	
 	const int nr_emplacements = rectangles.size();
 	
