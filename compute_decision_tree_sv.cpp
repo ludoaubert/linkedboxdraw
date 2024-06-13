@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <cassert>
 #include <string>
 #include <ranges>
 #include <initializer_list>
@@ -339,7 +340,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
     //const auto dense_rank = views::zip(v | ranges::to<set>(), views::iota(0)) | ranges::to<unordered_map>() ;
 	
 	const int n = decision_tree.size();
-	auto index = views::iota(0, n) | ranges::to<vector>();
+	vector<int> index = views::iota(0, n) | ranges::to<vector>();
 	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
 	
 	vector<int> subtree_index = index | 
@@ -351,7 +352,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 
 	ranges::sort(subtree_index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
 	
-	map<int, int> subtree_index_map = subtree_index |
+	map<int, long int> subtree_index_map = subtree_index |
 					views::enumerate |
 					views::transform([](auto arg){const auto [i, id]=arg; return make_pair(id,i);}) |
 					ranges::to<map>();
@@ -360,8 +361,8 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		views::transform([&](int id){
 			DecisionTreeNode node = decision_tree[id];
 			assert(node.index == id);
-			node.index = subtree_index_map(node.index);
-			node.parent_index = subtree_index_map(node.parent_index);
+			node.index = subtree_index_map[node.index];
+			node.parent_index = subtree_index_map[node.parent_index];
 			return node;}
 		) |
 		ranges::to<vector>();
@@ -373,8 +374,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		}		
 	};
 		
-	string buffer = idx |
-		views::take(count) |
+	string buffer = views::iota(0, count) |
 		views::transform([&](int id){
 			return walk_up_from_(id) | 
 				ranges::to<vector>() | 
