@@ -1,4 +1,5 @@
 #include <vector>
+#include <set>
 #include <array>
 #include <string>
 #include <bitset>
@@ -2512,28 +2513,30 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 	const int n = decision_tree.size();
 	auto index = views::iota(0, n) | ranges::to<vector>();
 	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
-	auto subtree = index | views::take(count) | views::transform(walk_up_from) | views::join | ranges::to<vector>() ;
-	ranges::sort(subtree) ;
-	const auto ret = ranges::unique(subtree);
-    subtree.erase(ret.begin(), ret.end());
 	
-	auto compute_position = [&](int id){
-		if (id == -1)
-			return id;
-		auto lower = ranges::lower_bound(subtree, id);
-		return (int)ranges::distance(subtree.cbegin(), lower);		
-	};
+	vector<int> subtree_index = index | 
+					views::take(count) |
+					views::transform(walk_up_from) |
+					views::join |
+					ranges::to<set>() |
+					ranges::to<vector>() ;
+
+	ranges::sort(subtree_index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
 	
-	vector<DecisionTreeNode> dst = subtree |
+	map<int, int> subtree_index_map = subtree_index |
+					views::enumerate |
+					views::transform([](auto arg){const auto [i, id]=arg; return make_pair(id,i);}) |
+					ranges::to<map>();
+	
+	vector<DecisionTreeNode> dst =  subtree_index |
 		views::transform([&](int id){
 			DecisionTreeNode node = decision_tree[id];
-			node.index = compute_position(node.index);
-			node.parent_index = compute_position(node.parent_index);
+			assert(node.index == id);
+			node.index = subtree_index_map(node.index);
+			node.parent_index = subtree_index_map(node.parent_index);
 			return node;}
 		) |
 		ranges::to<vector>();
-		
-	const auto idx = index | views::transform(compute_position) | ranges::to<vector>();
 	
 	auto walk_up_from_ = [&](int parent_index)->generator<int>{
 		for (int index=parent_index; index != -1; index = dst[index].parent_index)
@@ -2558,9 +2561,10 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 		views::join_with("},\n{"s) |
 		ranges::to<string>();
 		
-	FILE* f=fopen("decision_tree.json", "w");
-	fprintf(f, "{%s}", buffer.c_str());
-	fclose(f);
+//	FILE* f=fopen("decision_tree.json", "w");
+//	fprintf(f, "{%s}", buffer.c_str());
+	printf("{%s}", buffer.c_str());
+//	fclose(f);
 	
 	return dst;
 }
