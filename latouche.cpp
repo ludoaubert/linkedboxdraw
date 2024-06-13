@@ -2519,6 +2519,7 @@ vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>
 					views::take(count) |
 					views::transform(walk_up_from) |
 					views::join |
+					ranges::to<vector>() |	//doesn't compile without this
 					ranges::to<set>() |
 					ranges::to<vector>() ;
 
