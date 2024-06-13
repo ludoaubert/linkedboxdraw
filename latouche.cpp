@@ -1788,6 +1788,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 	auto tf=[&](int id, unsigned pipeline, unsigned a, unsigned b, unsigned match_corner){
 
 		const int parent_index = decision_tree[id].parent_index;
+//TODO: use submdspan.
 		span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
 		ranges::copy(parent_index == -1 ? span(input_emplacements) : span(begin(emplacements_by_id)+m*parent_index,m), begin(emplacements));
 
@@ -1913,6 +1914,7 @@ void compute_decision_tree_translations(const vector<DecisionTreeNode>& decision
 	string buffer = views::cartesian_product(rg1, rg2) |
 		views::transform([&](auto arg)->TranslationRangeItem{
 			const auto& [i, id] = arg ;
+//TODO: use submdspan.
 			span<MyRect> emplacements(begin(emplacements_by_id)+m*id, m);
 			span<MyRect> rectangles(begin(emplacements), n);
 			const MyRect &ir = input_emplacements[i], &r = emplacements[i];
@@ -2481,17 +2483,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth);});
 			
 			ranges::copy( vv | views::join, back_inserter(decision_tree));
-
-			auto rg = views::iota(size, (int)decision_tree.size()) |
-				views::transform([&](int idx){ return make_pair(index2emplacement(idx), idx);}) |
-				ranges::to<map>() |
-			//    views::elements<1> |
-				views::transform([](auto arg){const auto [emplacement, idx]=arg; return idx;}) |
-				views::transform([&](int idx){return decision_tree[idx];});
-			//TODO: views::elements<1> does not work because of tuple pair incompatibilities
-
-			decision_tree.resize(size);
-			ranges::copy(rg, back_inserter(decision_tree));
 
 			for (int i=size; i<decision_tree.size(); i++)
 				decision_tree[i].index = i;
