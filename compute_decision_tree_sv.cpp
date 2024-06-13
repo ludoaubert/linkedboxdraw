@@ -315,6 +315,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			for (int i=size; i<decision_tree.size(); i++)
 				decision_tree[i].index = i;
 		}
+		
+		printf("exit build_decision_tree()\n");
 	};
 	
 	build_decision_tree();
