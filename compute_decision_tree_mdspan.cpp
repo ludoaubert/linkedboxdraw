@@ -245,9 +245,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 
 	vector<int> emplacement_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE*rectangles.size()) ;
 	auto emp = mdspan(emplacement_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE, rectangles.size());
-	vector<int> emplacement_root = views::iota(0, (int)rectangles.size()) | ranges::to<vector>() ;
-	auto emp_root = mdspan(emplacement_root.data(), rectangles.size());
-
 
 	vector<DecisionTreeNode> decision_tree_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE);
 	auto decision_tree = mdspan(decision_tree_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE);
@@ -288,6 +285,12 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	auto build_decision_tree = [&](){
 		printf("enter build_decision_tree()\n");
 		
+		for (const auto [index, r] : views::cartesian_product(views::iota(0, FLOOR_MAX_SIZE), views::iota(0, (int)rectangles.size())))
+		{
+			const int depth = 0;
+			emp[depth, index, r] = r;
+		}
+		
 		for (int depth=0; depth<MAX_FLOOR_COUNT; depth++)
 		{
 			const vector<DecisionTreeNode*> parent_nodes = (depth > 0) ?
@@ -307,16 +310,21 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			for (int i=0; i<floor.size(); i++)
 				floor[i].index = i;
 			
-			ranges::copy( floor | views::take(FLOOR_MAX_SIZE), views::iota(0, FLOOR_MAX_SIZE) |
-					views::transform([&](int index){return &decision_tree[depth, index];}));
+			floor = floor | views::take(FLOOR_MAX_SIZE) | ranges::to<vector>() ;
 			
-			for (const DecisionTreeNode& n : floor | views::take(FLOOR_MAX_SIZE))
+			ranges::copy( floor, views::iota(0, FLOOR_MAX_SIZE) |
+					views::transform([&](int index){return &decision_tree[depth, index];}));
+					
+			for (const auto [index, r] : views::cartesian_product(views::iota(0, FLOOR_MAX_SIZE), views::iota(0, (int)rectangles.size())))
 			{
-				ranges::copy(n.parent_node == 0 ? emp_root : views::iota(0, FLOOR_MAX_SIZE) |
-					views::transform([&](int index){return &decision_tree[n.parent_node->depth, index];}),
-					views::iota(0, FLOOR_MAX_SIZE) |
-					views::transform([&](int index){return &decision_tree[depth, index];})
-				);
+				if (depth > 0)
+				{
+					emp[depth, index, r] = emp[depth-1, index, r];
+				}
+			}
+			
+			for (const DecisionTreeNode& n : floor)
+			{
 				swap(emp[n.depth, n.index, n.i_emplacement_source], emp[n.depth, n.index, n.i_emplacement_destination]);
 			}
 		}
@@ -358,15 +366,15 @@ vector<vector<Decision> > compute_decisions(const vector<DecisionTreeNode>& deci
 		ranges::to<vector>();
 		
 	const buffer = decision_lists |
-						views::transform([](const vector<Decision>& decision){
-							return decision |
-								views::transform([](const Decision& d){
-									return format(R"({{"i_emplacement_source":{},"i_emplacement_destination":{}}})",
-										d.i_emplacement_source, d.i_emplacement_destination);
-								}) |
-								views::join_with(",\n"s) ;
-						}) | views::join_with("},\n{"s) |
-						ranges::to<string>() ;
+		views::transform([](const vector<Decision>& decision){
+			return decision |
+				views::transform([](const Decision& d){
+					return format(R"({{"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+						d.i_emplacement_source, d.i_emplacement_destination);
+				}) |
+				views::join_with(",\n"s) ;
+		}) | views::join_with("},\n{"s) |
+		ranges::to<string>() ;
 		
 //	FILE* f=fopen("decision_tree.json", "w");
 //	fprintf(f, "{%s}", buffer.c_str());
