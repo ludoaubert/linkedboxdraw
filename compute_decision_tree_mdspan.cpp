@@ -1,7 +1,6 @@
 /*
 0-take a look at function compute_holes(). There seem to be various versions.
 1-first version: do not try to optimize the computation of emplacement.
-Use a pointer instead of parent_index to materialize the hierarchy.
 */
 #include <algorithm>
 #include <functional>
@@ -394,7 +393,7 @@ int main()
 		
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(edges, input_rectangles, holes);
 
-		int count=20;
+		const int count=20;
 		const vector<vector<Decision> > decision_lists = compute_decisions(decision_tree, count) ;
 		
 		
