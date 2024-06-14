@@ -326,75 +326,50 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 }
 
 
-vector<DecisionTreeNode> compute_decision_subtree(const vector<DecisionTreeNode>& decision_tree, int count)
+generator<const DecisionTreeNode*> walk_up_from(const DecisionTreeNode* parent_node)
 {
-	auto walk_up_from = [&](int parent_index)->generator<int>{
-		for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
-		{
-			co_yield index;
-		}		
-	};
-	
-    //const vector<int> v = {6,9,9,6};
-    //const auto dense_rank = views::zip(v | ranges::to<set>(), views::iota(0)) | ranges::to<unordered_map>() ;
-	
+	for (const DecisionTreeNode *node=parent_node; node != 0; node = node.parent_node)
+	{
+		co_yield node;
+	}		
+};
+
+
+vector<vector<Decision> > compute_decisions(const vector<DecisionTreeNode>& decision_tree, int count)
+{	
 	const int n = decision_tree.size();
 	vector<int> index = views::iota(0, n) | ranges::to<vector>();
-	ranges::sort(index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
-	
-	vector<int> subtree_index = index | 
-					views::take(count) |
-					views::transform(walk_up_from) |
-					views::join |
-					ranges::to<vector>() |	//doesn't compile without this
-					ranges::to<set>() |
-					ranges::to<vector>() ;
-
-	ranges::sort(subtree_index, {}, [&](int id){return decision_tree[id].sigma_edge_distance;});
-	
-	map<int, long int> subtree_index_map = subtree_index |
-					views::enumerate |
-					views::transform([](auto arg){const auto [i, id]=arg; return make_pair(id,i);}) |
-					ranges::to<map>();
-	
-	vector<DecisionTreeNode> dst =  subtree_index |
-		views::transform([&](int id){
-			DecisionTreeNode node = decision_tree[id];
-			assert(node.index == id);
-			node.index = subtree_index_map[node.index];
-			node.parent_index = subtree_index_map[node.parent_index];
-			return node;}
-		) |
-		ranges::to<vector>();
-	
-	auto walk_up_from_ = [&](int parent_index)->generator<int>{
-		for (int index=parent_index; index != -1; index = dst[index].parent_index)
-		{
-			co_yield index;
-		}		
-	};
+	ranges::sort(index, {}, [&](int position){return decision_tree[position].sigma_edge_distance;});
 		
-	string buffer = views::iota(0, count) |
-		views::transform([&](int id){
-			return walk_up_from_(id) | 
-				ranges::to<vector>() | 
-				views::reverse |
-				views::transform([&](int id){return dst[id];}) |
-				views::transform([](const DecisionTreeNode& n){
-					return format(R"({{"depth":{},"sigma_edge_distance":{},"i_emplacement_source":{},"i_emplacement_destination":{}}})",
-						n.depth, n.sigma_edge_distance, n.i_emplacement_source, n.i_emplacement_destination);
-				}) |
-				views::join_with(",\n"s) ;
+	const vector<vector<Decision> > decision_lists = index |
+		views::iota(0, count) |
+		views::transform([&](int position){
+			return walk_up_from(&decision_tree[position]) | 
+						views::reverse |
+						views::transform([](const DecisionTreeNode* node){
+							return Decision{.i_emplacement_source=node.i_emplacement_source, .i_emplacement_destination=node.i_emplacement_destination};
+						}) |
+						ranges::to<vector>();
 		}) |
-		views::join_with("},\n{"s) |
-		ranges::to<string>();
+		ranges::to<vector>();
+		
+	const buffer = decision_lists |
+						views::transform([](const vector<Decision>& decision){
+							return decision |
+								views::transform([](const Decision& d){
+									return format(R"({{"i_emplacement_source":{},"i_emplacement_destination":{}}})",
+										d.i_emplacement_source, d.i_emplacement_destination);
+								}) |
+								views::join_with(",\n"s) ;
+						}) | views::join_with("},\n{"s) |
+						ranges::to<string>() ;
 		
 //	FILE* f=fopen("decision_tree.json", "w");
 //	fprintf(f, "{%s}", buffer.c_str());
 	printf("{%s}", buffer.c_str());
 //	fclose(f);
 	
-	return dst;
+	return decision_lists;
 }
 
 
@@ -408,32 +383,24 @@ int main()
 		vector<DecisionTreeNode> decision_tree = compute_decision_tree(edges, input_rectangles, holes);
 
 		int count=20;
-		vector<DecisionTreeNode> decision_subtree = compute_decision_subtree(decision_tree, count) ;
+		const vector<vector<Decision> > decision_lists = compute_decisions(decision_tree, count) ;
 		
-		printf("decision_tree.size()=%ld\n", decision_tree.size());
-		
-		auto walk_up_from = [&](int parent_index)->generator<int>{
-			for (int index=parent_index; index != -1; index = decision_tree[index].parent_index)
-			{
-				co_yield index;
-			}		
-		};
 		
 		const DecisionTreeNode &bn = * ranges::min_element(decision_tree, {}, &DecisionTreeNode::sigma_edge_distance);
 		
 		vector<int> emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
 		
-		for (int idx : walk_up_from(bn.index) | ranges::to<vector>() | views::reverse)
+		for (int idx : walk_up_from(&bn) | ranges::to<vector>() | views::reverse)
 		{
-			const DecisionTreeNode& n = decision_tree[idx];
-			printf("{.index=%d, .parent_index=%d, .depth=%d, .sigma_edge_distance=%d, .i_emplacement_source=%d, .i_emplacement_destination=%d},\n", 
-					n.index, n.parent_index, n.depth, n.sigma_edge_distance, emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
-			swap(emplacement[n.i_emplacement_source], emplacement[n.i_emplacement_destination]);
+			const DecisionTreeNode* node = decision_tree[idx];
+			printf("{.i_emplacement_source=%d, .i_emplacement_destination=%d},\n", 
+					emplacement[node->i_emplacement_source], emplacement[node->i_emplacement_destination]);
+			swap(emplacement[node->i_emplacement_source], emplacement[node->i_emplacement_destination]);
 		}
 		
 		vector<int> expected_emplacement = views::iota(0, nr_emplacements) | ranges::to<vector>();
-		for (const DecisionTreeNode &n : expected_decision)
-			swap(expected_emplacement[n.i_emplacement_source], expected_emplacement[n.i_emplacement_destination]);
+		for (const Decision &d : expected_decision)
+			swap(expected_emplacement[d.i_emplacement_source], expected_emplacement[d.i_emplacement_destination]);
 		
 		bool bOk1 = emplacement == expected_emplacement;
 
