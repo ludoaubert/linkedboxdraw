@@ -253,8 +253,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	auto decision_tree = mdspan(decision_tree_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE);
 	
 	auto child_nodes = [&](DecisionTreeNode *parent_node){
-		
-		mdspan emplacement = parent_node==0 ? emp_root : submdspan(emp, parent_node->depth, parent_node->index, full_extent);
 
 		return views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
 									  views::iota(0, nr_input_rectangles) |
@@ -271,7 +269,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 						return u;
 				};
 			
-				int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[emplacement[swap_r_h(e.from)] * N + emplacement[swap_r_h(e.to)]];}),
+				auto f = [&](int u){return parent_node==0 ? swap_r_h(u) : emp[parent_node->depth, parent_node->index, swap_r_h(u)];};
+				int sigma_edge_distance = ranges::fold_left(edges | views::transform([&](const Edge& e){return distance_matrix[f(e.from) * N + f(e.to)];}),
 					0, plus<int>()) ;
 				
 				return DecisionTreeNode{
@@ -292,9 +291,9 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 		for (int depth=0; depth<MAX_FLOOR_COUNT; depth++)
 		{
 			const vector<DecisionTreeNode*> parent_nodes = (depth > 0) ?
-				submdspan(decision_tree, full_extent) |
-					views::filter([](DecisionTreeNode& node){return node.sigma_edge_distance != INT_MAX;}) |
-					views::transform([](DecisionTreeNode& node){return &node;}) |
+					views::iota(0, FLOOR_MAX_SIZE) |
+					views::transform([&](int index){return &decision_tree[depth-1, index];}) |
+					views::filter([](DecisionTreeNode* node){return node->sigma_edge_distance != INT_MAX;}) |
 					ranges::to<vector>() :
 				vector{ (DecisionTreeNode*) 0 };
 
