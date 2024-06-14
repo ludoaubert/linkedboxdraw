@@ -9,6 +9,7 @@
 #include <set>
 #include <cassert>
 #include <mdspan>
+#include <limits.h>
 #include <string>
 #include <ranges>
 #include <initializer_list>
@@ -36,7 +37,7 @@ struct DecisionTreeNode
 	int index=0;
 	int parent_index=-1;
 	int depth;
-	int sigma_edge_distance;
+	int sigma_edge_distance = INT_MAX;	// initialize sigma_edge_distance to infinity.
 	int i_emplacement_source, i_emplacement_destination;
 	
 	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
@@ -221,7 +222,7 @@ const vector<TestContext> test_contexts = {
 
 vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const vector<MyRect>& input_rectangles, const vector<MyRect>& holes)
 {
-	const int FLOOR_MAX=8;
+	const int MAX_FLOOR_COUNT=8;
 	const int FLOOR_MAX_SIZE=2000;
 	
 	const int nr_input_rectangles = input_rectangles.size();
@@ -238,11 +239,16 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 										
 //TODO: use mdspan. 
 
-	vector<int> emplacement_data(FLOOR_MAX*FLOOR_MAX_SIZE*rectangles.size()) ;
-	auto emp = mdspan(emplacement_data.data(), FLOOR_MAX*FLOOR_MAX_SIZE, rectangles.size());
+	vector<int> emplacement_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE*rectangles.size()) ;
+	auto emp = mdspan(emplacement_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE, rectangles.size());
 	vector<int> emplacement_root = views::iota(0, (int)rectangles.size()) | ranges::to<vector>() ;
 	auto emp_root = mdspan(emplacement_root.data(), rectangles.size());
-	
+
+
+	vector<DecisionTreeNode> decision_tree_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE);
+	auto decision_tree = mdspan(decision_tree_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE);
+//TODO: use a pointer instead of parent_index to materialize the hierarchy.
+
 	vector<DecisionTreeNode> decision_tree;
 	
 	auto child_nodes = [&](int parent_index, int depth){
@@ -282,7 +288,7 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	auto build_decision_tree = [&](){
 		printf("enter build_decision_tree()\n");
 		
-		for (int depth=0; depth<FLOOR_MAX; depth++)
+		for (int depth=0; depth<MAX_FLOOR_COUNT; depth++)
 		{	
 			const int size = decision_tree.size();
 
