@@ -347,7 +347,7 @@ vector<vector<Decision> > compute_decisions(const vector<DecisionTreeNode>& deci
 			return walk_up_from(&decision_tree[position]) | 
 						views::reverse |
 						views::transform([](const DecisionTreeNode* node){
-							return Decision{.i_emplacement_source=node.i_emplacement_source, .i_emplacement_destination=node.i_emplacement_destination};
+							return Decision{.i_emplacement_source=node->i_emplacement_source, .i_emplacement_destination=node->i_emplacement_destination};
 						}) |
 						ranges::to<vector>();
 		}) |
