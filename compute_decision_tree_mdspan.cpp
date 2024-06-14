@@ -1,6 +1,7 @@
 /*
 0-take a look at function compute_holes(). There seem to be various versions.
 1-first version: do not try to optimize the computation of emplacement.
+Use a pointer instead of parent_index to materialize the hierarchy.
 */
 #include <algorithm>
 #include <functional>
@@ -35,7 +36,6 @@ struct Edge {
 struct DecisionTreeNode
 {
 	int index=0;
-	int parent_index=-1;
 	DecisionTreeNode *parent_node=0;
 	int depth;
 	int sigma_edge_distance = INT_MAX;	// initialize sigma_edge_distance to infinity.
@@ -242,8 +242,6 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 	const vector<int> distance_matrix = views::cartesian_product(rectangles, rectangles) |
 										views::transform([](auto arg){const auto [r1, r2]=arg;	return rectangle_distance(r1, r2);}) |
 										ranges::to<vector>();
-										
-//TODO: use mdspan. 
 
 	vector<int> emplacement_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE*rectangles.size()) ;
 	auto emp = mdspan(emplacement_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE, rectangles.size());
@@ -253,13 +251,10 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 
 	vector<DecisionTreeNode> decision_tree_data(MAX_FLOOR_COUNT*FLOOR_MAX_SIZE);
 	auto decision_tree = mdspan(decision_tree_data.data(), MAX_FLOOR_COUNT, FLOOR_MAX_SIZE);
-//TODO: use a pointer instead of parent_index to materialize the hierarchy.
-
-	vector<DecisionTreeNode> decision_tree;
 	
-	auto child_nodes = [&](int parent_index, int depth){
+	auto child_nodes = [&](DecisionTreeNode *parent_node){
 		
-		mdspan emplacement = parent_index==-1 ? emp_root : submdspan(emp, parent_index, full_extent);
+		mdspan emplacement = parent_node==0 ? emp_root : submdspan(emp, parent_node->depth, parent_node->index, full_extent);
 
 		return views::cartesian_product( views::iota(nr_input_rectangles, nr_emplacements),
 									  views::iota(0, nr_input_rectangles) |
@@ -281,8 +276,8 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 				
 				return DecisionTreeNode{
 					.index = -1,
-					.parent_index = parent_index,
-					.depth=depth,
+					.parent_node = parent_node,
+					.depth = parent_node==0 ? 0 : parent_node->depth+1,
 					.sigma_edge_distance = sigma_edge_distance,
 					.i_emplacement_source = r, 
 					.i_emplacement_destination = h
@@ -295,32 +290,30 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 		printf("enter build_decision_tree()\n");
 		
 		for (int depth=0; depth<MAX_FLOOR_COUNT; depth++)
-		{	
-			const int size = decision_tree.size();
+		{
+			const vector<DecisionTreeNode*> parent_nodes = (depth > 0) ?
+				submdspan(decision_tree, full_extent) |
+					views::filter([](DecisionTreeNode& node){return node.sigma_edge_distance != INT_MAX;}) |
+					views::transform([](DecisionTreeNode& node){return &node;}) |
+					ranges::to<vector>() :
+				vector{ (DecisionTreeNode*) 0 };
 
-			if (depth==0)
-				indexes.push_back(-1);
+			vector<vector<DecisionTreeNode> > vv(parent_nodes.size());
+			transform(execution::par_unseq, begin(parent_nodes), end(parent_nodes), begin(vv), [&](DecisionTreeNode* parent_node){return child_nodes(parent_node);});
 
-			vector<vector<DecisionTreeNode> > vv(indexes.size());
-			transform(execution::par_unseq, begin(indexes), end(indexes), begin(vv), [&](int parent_index){return child_nodes(parent_index, depth);});
-			
-			ranges::copy( vv | views::join, back_inserter(decision_tree));
-			
-			vector<int> indexes = views::iota(size, (int)decision_tree.size()) | ranges::to<vector>() ;
+			vector<DecisionTreeNode> floor = vv | views::join | ranges::to<vector>() ;
 						
-			ranges::sort(indexes, {}, [&](int idx){return decision_tree[idx].sigma_edge_distance;});
+			ranges::sort(floor, {}, [&](const DecisionTreeNode& n){return n.sigma_edge_distance;});
 			
-			decision_tree = views::concat(decision_tree | views::take(size),
-								indexes | views::take(FLOOR_MAX_SIZE) | views::transform([&](int id){return decision_tree[i];})
-								) | ranges::to<vector>() ;
-								
-			for (int i=size; i<decision_tree.size(); i++)
-				decision_tree[i].index = i;
+			for (int i=0; i<floor.size(); i++)
+				floor[i].index = i;
 			
-			for (const DecisionTreeNode& n : decision_tree | views::drop(size))
+			ranges::copy( floor | views::take(FLOOR_MAX_SIZE), submdspan(decision_tree, depth, full_extent));
+			
+			for (const DecisionTreeNode& n : floor | views::take(FLOOR_MAX_SIZE))
 			{
-				ranges::copy(n.parent_index == -1 ? emp_root : submdspan(emp, n.parent_index, full_extent), submdspan(emp, n.index, full_extent));
-				swap(emp[n.index, n.i_emplacement_source], emp[n.index, n.i_emplacement_destination]);
+				ranges::copy(n.parent_node == 0 ? emp_root : submdspan(emp, n.parent_node->depth, n.parent_node->index, full_extent), submdspan(emp, n.depth, n.index, full_extent));
+				swap(emp[n.depth, n.index, n.i_emplacement_source], emp[n.depth, n.index, n.i_emplacement_destination]);
 			}
 		}
 		
