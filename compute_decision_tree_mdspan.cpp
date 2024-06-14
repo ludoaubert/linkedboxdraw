@@ -307,11 +307,16 @@ vector<DecisionTreeNode> compute_decision_tree(const vector<Edge>& edges, const 
 			for (int i=0; i<floor.size(); i++)
 				floor[i].index = i;
 			
-			ranges::copy( floor | views::take(FLOOR_MAX_SIZE), submdspan(decision_tree, depth, full_extent));
+			ranges::copy( floor | views::take(FLOOR_MAX_SIZE), views::iota(0, FLOOR_MAX_SIZE) |
+					views::transform([&](int index){return &decision_tree[depth, index];}));
 			
 			for (const DecisionTreeNode& n : floor | views::take(FLOOR_MAX_SIZE))
 			{
-				ranges::copy(n.parent_node == 0 ? emp_root : submdspan(emp, n.parent_node->depth, n.parent_node->index, full_extent), submdspan(emp, n.depth, n.index, full_extent));
+				ranges::copy(n.parent_node == 0 ? emp_root : views::iota(0, FLOOR_MAX_SIZE) |
+					views::transform([&](int index){return &decision_tree[n.parent_node->depth, index];}),
+					views::iota(0, FLOOR_MAX_SIZE) |
+					views::transform([&](int index){return &decision_tree[depth, index];})
+				);
 				swap(emp[n.depth, n.index, n.i_emplacement_source], emp[n.depth, n.index, n.i_emplacement_destination]);
 			}
 		}
