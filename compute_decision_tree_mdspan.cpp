@@ -36,6 +36,7 @@ struct DecisionTreeNode
 {
 	int index=0;
 	int parent_index=-1;
+	DecisionTreeNode *parent_node=0;
 	int depth;
 	int sigma_edge_distance = INT_MAX;	// initialize sigma_edge_distance to infinity.
 	int i_emplacement_source, i_emplacement_destination;
@@ -43,10 +44,15 @@ struct DecisionTreeNode
 	friend bool operator==(const DecisionTreeNode&, const DecisionTreeNode&) = default;
 };
 
+struct Decision
+{
+	int i_emplacement_source, i_emplacement_destination;
+};
+
 struct TestContext{
 	vector<Edge> edges;
 	vector<MyRect> input_rectangles, holes ;
-	vector<DecisionTreeNode> expected_decision;
+	vector<Decision> expected_decision;
 };
 
 
@@ -116,7 +122,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision = {
-			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=2}
+			{.i_emplacement_source=0, .i_emplacement_destination=2}
 		}
 	},
 
@@ -152,7 +158,7 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision = {
-			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=0, .i_emplacement_destination=3}
+			{.i_emplacement_source=0, .i_emplacement_destination=3}
 		}
 	},
 	
@@ -207,13 +213,13 @@ const vector<TestContext> test_contexts = {
 		},
 
 		.expected_decision = {
-			{.index=0, .parent_index=-1, .depth=0, .i_emplacement_source=1, .i_emplacement_destination=15+3},
-			{.index=1, .parent_index=0, .depth=1, .i_emplacement_source=2, .i_emplacement_destination=1},
-			{.index=2, .parent_index=1, .depth=2, .i_emplacement_source=0, .i_emplacement_destination=15+8},
-			{.index=3, .parent_index=2, .depth=3, .i_emplacement_source=6, .i_emplacement_destination=2},
-			{.index=4, .parent_index=3, .depth=4, .i_emplacement_source=12, .i_emplacement_destination=6},
-			{.index=5, .parent_index=4, .depth=5, .i_emplacement_source=13, .i_emplacement_destination=15+7},
-			{.index=6, .parent_index=5, .depth=6, .i_emplacement_source=14, .i_emplacement_destination=0}
+			{.i_emplacement_source=1, .i_emplacement_destination=15+3},
+			{.i_emplacement_source=2, .i_emplacement_destination=1},
+			{.i_emplacement_source=0, .i_emplacement_destination=15+8},
+			{.i_emplacement_source=6, .i_emplacement_destination=2},
+			{.i_emplacement_source=12, .i_emplacement_destination=6},
+			{.i_emplacement_source=13, .i_emplacement_destination=15+7},
+			{.i_emplacement_source=14, .i_emplacement_destination=0}
 		}
 	}
 
