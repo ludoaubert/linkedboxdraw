@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use std::env;
+use log::{debug};
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 struct Point{
@@ -113,7 +114,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
             let (from,edge) = key;
             let lnks_ : Vec<ShallowLink> = group.cloned().collect();
                 
-            println!("{:?}", lnks_);
+            debug!("{:?}", lnks_);
             
             let mode:Orientation=match edge {
                 RectangleEdge::Right => Orientation::Normal,
@@ -122,7 +123,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 RectangleEdge::Bottom => Orientation::SwapXY
             };
         
-            println!("{:?}", mode);
+            debug!("{:?}", mode);
             
             let transform_point = |p: &Point| -> Coord {
                 match mode {
@@ -190,10 +191,10 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
        
             v.sort_by(link_order);
        
-            println!("{:?}", v);
+            debug!("{:?}", v);
         
             for (i, x) in v.iter().enumerate() {
-                println!("{} {}", i, x);
+                debug!("{} {}", i, x);
             }
         
             let result: Vec<_> = v
@@ -226,8 +227,8 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 .filter(|uc:&UpdateCommand| uc.translation!=Point{x:0,y:0})
                 .collect();
     
-            println!("{:?}", result);
-            println!("{:?}", update);
+            debug!("{:?}", result);
+            debug!("{:?}", update);
             
             return update;
         })
@@ -238,10 +239,12 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
 
 fn main() {
 
+    env_logger::init();
+
     let args: Vec<String> = env::args().collect();
 
     for arg in &args {
-        println!("{arg}");
+        debug!("{arg}");
     }
     
     if args.len()==2
@@ -256,7 +259,6 @@ fn main() {
         let updates = untangle(&lnks);
         let json = serde_json::to_string(&updates).unwrap();
         println!("{}", json);
-        println!("{:?}", updates);
         return;
     }
     
@@ -318,5 +320,4 @@ fn main() {
     let updates = untangle(&test_ctx.lnks);
     let json = serde_json::to_string(&updates).unwrap();
     println!("{}", json);
-    println!("{:?}", updates);
 }
