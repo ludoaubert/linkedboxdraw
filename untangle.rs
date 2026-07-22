@@ -1,10 +1,10 @@
-#![crate_type = "cdylib"]
 use itertools::Itertools;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+use std::env;
 
-#[derive(Debug, PartialEq, Copy, Clone, Serialize)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 struct Point{
     x: i32,
     y: i32
@@ -14,7 +14,7 @@ struct Coord {
     x: i32,
     y: i32,
 }
-
+#[derive(Deserialize)]
 struct Link{
     from: u32,
     to: u32,
@@ -58,7 +58,6 @@ struct ShallowLink<'a>{
     polyline:Vec<&'a Point>
 }
 struct TestContext{
-    n:u32,
     lnks:Vec<Link>
 }
 enum SegmentDirection
@@ -69,7 +68,7 @@ enum SegmentDirection
     Right
 }
 
-fn untangle(n:u32, lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
+fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
 
     let point_index: HashMap<*const Point, (usize, usize)> = lnks
         .iter()
@@ -238,24 +237,43 @@ fn untangle(n:u32, lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
 }
 
 fn main() {
+
+    let args: Vec<String> = env::args().collect();
+
+    for arg in &args {
+        println!("{arg}");
+    }
+    
+    if args.len()==2
+    {
+        let lnks: Vec<Link> = match serde_json::from_str(&args[1]) {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("Invalid JSON: {}", e);
+                return;
+            }
+        };
+        let updates = untangle(&lnks);
+        let json = serde_json::to_string(&updates).unwrap();
+        println!("{}", json);
+        println!("{:?}", updates);
+        return;
+    }
     
     let test_contexts : [TestContext;3]=[
         TestContext{
-            n:2,
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:70},Point{x:180,y:70}]}
             ]
         },
         TestContext{
-            n:3,
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:60},Point{x:160,y:60}]}
             ]
         },
         TestContext{
-            n:2,
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:120,y:30}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:120,y:40}]},
@@ -275,7 +293,6 @@ fn main() {
         .iter()
         .cartesian_product(modes)
         .map(|(ctx,mode)| TestContext{
-            n:ctx.n,
             lnks:ctx.lnks
                 .iter()
                 .map(|lnk:&Link| Link{
@@ -298,7 +315,7 @@ fn main() {
             .collect();
 
     let test_ctx : &TestContext = &synthetic_test_contexts[0];
-    let updates = untangle(test_ctx.n, &test_ctx.lnks);
+    let updates = untangle(&test_ctx.lnks);
     let json = serde_json::to_string(&updates).unwrap();
     println!("{}", json);
     println!("{:?}", updates);
