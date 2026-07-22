@@ -1,8 +1,10 @@
+#![crate_type = "cdylib"]
 use itertools::Itertools;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize)]
 struct Point{
     x: i32,
     y: i32
@@ -37,12 +39,12 @@ enum PolylineDirection {
     Forward,
     Backward
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 struct PointCoordinates {
     link_idx:usize,
     point_idx:usize
 }
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 struct UpdateCommand {
     segment:(PointCoordinates, PointCoordinates),
     translation:Point
@@ -154,9 +156,7 @@ fn untangle(n:u32, lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                     (_, 2) => Ordering::Equal.cmp(&direction(a)),
     
                     _ => {
-                        let da = direction(a);
-                        let db = direction(b);
-                        
+                    
                         let segment_direction = |p: &[&Point]| {
                             if transform_point(p[2]).y > transform_point(p[1]).y {
                                 SegmentDirection::Down
@@ -299,4 +299,7 @@ fn main() {
 
     let test_ctx : &TestContext = &synthetic_test_contexts[0];
     let updates = untangle(test_ctx.n, &test_ctx.lnks);
+    let json = serde_json::to_string(&updates).unwrap();
+    println!("{}", json);
+    println!("{:?}", updates);
 }
