@@ -4,11 +4,32 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use std::env;
 use log::{debug};
+use std::ops::Sub;
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 struct Point{
     x: i32,
     y: i32
+}
+impl Sub for Point {
+    type Output = Point;
+
+    fn sub(self, rhs: Point) -> Point {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+impl Sub<&Point> for &Point {
+    type Output = Point;
+
+    fn sub(self, rhs: &Point) -> Point {
+        Point {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
 }
 #[derive(Debug, Copy, Clone)]
 struct Coord {
@@ -187,47 +208,49 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
             };
             
             let n: usize = lnks_.len();
-            let mut v: Vec<usize> = (0..n).collect();
-       
-            v.sort_by(link_order);
+            
+            let v: Vec<usize> = (0..n)
+                .sorted_by(link_order)
+                .collect();
        
             debug!("{:?}", v);
-        
-            for (i, x) in v.iter().enumerate() {
-                debug!("{} {}", i, x);
-            }
-        
-            let result: Vec<_> = v
-                .iter()
-                .enumerate()
-                .map(|(i, x)| lnks_[*x].polyline[0].y - lnks_[i].polyline[0].y)
+            
+            let vv: Vec<usize> = (0..n)
+                .sorted_by(|i: &usize, j: &usize| -> Ordering {
+                    let a = &lnks_[*i].polyline;
+                    let b = &lnks_[*j].polyline;
+                    let order = transform_point(b[0]).y.cmp(&transform_point(a[0]).y);
+                    
+                    match mode {
+                        Orientation::Normal => order,
+                        Orientation::ReverseXY => order.reverse(),
+                        Orientation::SwapXY => order,
+                        Orientation::SwapXYReverseXY => order.reverse()    
+                    }
+                })
                 .collect();
+        
+            for i in 0..n {
+                debug!("{} {}", v[i], vv[i]);
+            }
     
-            let update:Vec<UpdateCommand> = v
-                .iter()
+            let update:Vec<UpdateCommand> = (0..n)
                 .enumerate()
-                .map(|(i, x)| (i, x, lnks_[*x].polyline[0].y - lnks_[i].polyline[0].y))
-                .map(|(i, x, tr)| {
+                .map(|(i, x)| {
+                    let tr : Point = lnks_[vv[i]].polyline[0] - lnks_[x].polyline[0];
                     let pc: Vec<PointCoordinates> = (0..2)
-                    .map(|j| {
-                        let p:&Point=lnks_[i].polyline[j];
-                        let key = p as *const Point;
-                        let (link_idx, point_idx) = point_index[&key];
-                        PointCoordinates{link_idx,point_idx}
-                    })
-                    .collect();
-                    let (xtr, ytr) = match edge {
-                        RectangleEdge::Right => (0,tr),
-                        RectangleEdge::Left => (0,tr),
-                        RectangleEdge::Top => (tr,0),
-                        RectangleEdge::Bottom => (tr,0)
-                    };
-                    UpdateCommand{segment:(pc[0],pc[1]),translation:Point{x:xtr,y:ytr}}
+                        .map(|j| {
+                            let p:&Point=lnks_[x].polyline[j];
+                            let key = p as *const Point;
+                            let (link_idx, point_idx) = point_index[&key];
+                            PointCoordinates{link_idx,point_idx}
+                        })
+                        .collect();
+                    UpdateCommand{segment:(pc[0],pc[1]),translation:tr}
                 })
                 .filter(|uc:&UpdateCommand| uc.translation!=Point{x:0,y:0})
                 .collect();
     
-            debug!("{:?}", result);
             debug!("{:?}", update);
             
             return update;
