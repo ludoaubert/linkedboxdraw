@@ -426,11 +426,13 @@ fn main() {
             })
             .collect();
 
-    let test_ctx : &TestContext = &synthetic_test_contexts[2*4];
-    let update = untangle(&test_ctx.lnks);
-    println!("{:?}", update);
-    let json = serde_json::to_string(&update).unwrap();
-    println!("{}", json);
-    let b:bool = update==test_ctx.update;
-    println!("{}", b);
+    for test_ctx in &synthetic_test_contexts {
+        let update = untangle(&test_ctx.lnks);
+        println!("{:?}", update);
+        let json = serde_json::to_string(&update).unwrap();
+        println!("{}", json);
+        let b:bool = update==test_ctx.update;
+        let status : &str = if b {"OK"} else {"KO"};
+        println!("{}", status);
+    }
 }
