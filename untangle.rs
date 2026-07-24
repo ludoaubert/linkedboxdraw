@@ -61,12 +61,12 @@ enum PolylineDirection {
     Forward,
     Backward
 }
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 struct PointCoordinates {
     link_idx:usize,
     point_idx:usize
 }
-#[derive(Debug, Serialize)]
+#[derive(Debug, PartialEq, Serialize)]
 struct UpdateCommand {
     segment:(PointCoordinates, PointCoordinates),
     translation:Point
@@ -128,7 +128,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
         .sorted_by(|a, b| (a.from,a.edge).cmp(&(b.from,b.edge)))
         .collect();
     
-    let updates : Vec<Vec<UpdateCommand>> = links
+    let update : Vec<Vec<UpdateCommand>> = links
         .iter()
         .chunk_by(|a| (a.from,a.edge))
         .into_iter() // converts ChunkBy into an Iterator
@@ -258,7 +258,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
         })
         .collect();
     
-    return updates;
+    return update;
 }
 
 fn main() {
@@ -280,8 +280,8 @@ fn main() {
                 return;
             }
         };
-        let updates = untangle(&lnks);
-        let json = serde_json::to_string(&updates).unwrap();
+        let update = untangle(&lnks);
+        let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
         return;
     }
@@ -311,11 +311,11 @@ fn main() {
                     translation:Point{x:0,y:-20}}
                 ], 
                 vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
-                    translation:Point{x:0,y:10}},
+                        segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                        translation:Point{x:0,y:10}},
                     UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
-                    translation:Point{x:0,y:-10}}
+                        segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                        translation:Point{x:0,y:-10}}
                 ]
             ]
         },
@@ -338,13 +338,13 @@ fn main() {
 */
             update:vec![
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                    translation:Point{x:0,y:10}},
+                                    translation:Point{x:0,y:10}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
-                    translation:Point{x:0,y:-10}}
+                                    translation:Point{x:0,y:-10}}
                 ],
                 vec![],
                 vec![]
-                ]
+            ]
         },
         TestContext{
             lnks:vec![
@@ -368,16 +368,15 @@ fn main() {
 */
             update:vec![
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                    translation:Point{x:0,y:20}},
+                                    translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:0},PointCoordinates{link_idx:2,point_idx:1}),
-                    translation:Point{x:0,y:-20}}
+                                    translation:Point{x:0,y:-20}}
                     ],
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
-                    translation:Point{x:0,y:20}},
+                                    translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:3},PointCoordinates{link_idx:2,point_idx:2}),
-                    translation:Point{x:0,y:-20}}
+                                    translation:Point{x:0,y:-20}}
                     ]
-                ]
             ]
         }
     ];
@@ -392,32 +391,46 @@ fn main() {
     let synthetic_test_contexts : Vec<TestContext> = test_contexts
         .iter()
         .cartesian_product(modes)
-        .map(|(ctx,mode)| TestContext{
-            lnks:ctx.lnks
-                .iter()
-                .map(|lnk:&Link| Link{
-                    from:lnk.from,
-                    to:lnk.to,
-                    polyline:lnk.polyline
-                        .iter()
-                        .map(|p:&Point|->Point{
-                            match mode {
-                                Orientation::Normal => Point{x:p.x,y:p.y},
-                                Orientation::ReverseXY => Point{x:-p.x,y:-p.y},
-                                Orientation::SwapXY => Point{x:p.y,y:-p.x},
-                                Orientation::SwapXYReverseXY => Point{x:-p.y,y:p.x}     
-                            }
-                        })
-                        .collect(),
-                })
-                .collect(),
-                update:vec![]
+        .map(|(ctx,mode)| {
+            let trf=|p:&Point| match mode {
+                Orientation::Normal => Point{x:p.x,y:p.y},
+                Orientation::ReverseXY => Point{x:-p.x,y:-p.y},
+                Orientation::SwapXY => Point{x:p.y,y:-p.x},
+                Orientation::SwapXYReverseXY => Point{x:-p.y,y:p.x}     
+            };
+            TestContext{
+                lnks:ctx.lnks
+                    .iter()
+                    .map(|lnk:&Link| Link{
+                        from:lnk.from,
+                        to:lnk.to,
+                        polyline:lnk.polyline
+                            .iter()
+                            .map(trf)
+                            .collect(),
+                    })
+                    .collect(),
+                update:ctx.update
+                    .iter()
+                    .map(|v:&Vec<UpdateCommand>|
+                            v
+                            .iter()
+                            .map(|uc:&UpdateCommand| UpdateCommand{
+                                segment:uc.segment,
+                                translation:trf(&uc.translation)
+                            })
+                            .collect()
+                        )
+                        .collect()
+                }
             })
             .collect();
 
     let test_ctx : &TestContext = &synthetic_test_contexts[2*4];
-    let updates = untangle(&test_ctx.lnks);
-    println!("{:?}", updates);
-    let json = serde_json::to_string(&updates).unwrap();
+    let update = untangle(&test_ctx.lnks);
+    println!("{:?}", update);
+    let json = serde_json::to_string(&update).unwrap();
     println!("{}", json);
+    let b:bool = update==test_ctx.update;
+    println!("{}", b);
 }
