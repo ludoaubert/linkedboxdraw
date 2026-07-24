@@ -337,21 +337,14 @@ fn main() {
                             +-----+
 */
             update:vec![
-                vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                    translation:Point{x:0,y:20}}, 
-                    UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
-                    translation:Point{x:0,y:-20}}
-                ], 
-                vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
                     translation:Point{x:0,y:10}},
-                    UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                    UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
                     translation:Point{x:0,y:-10}}
+                ],
+                vec![],
+                vec![]
                 ]
-            ]
         },
         TestContext{
             lnks:vec![
@@ -374,19 +367,16 @@ fn main() {
     +-----+      80 90 100
 */
             update:vec![
-                vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                    translation:Point{x:0,y:20}}, 
-                    UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                    translation:Point{x:0,y:20}},
+                    UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:0},PointCoordinates{link_idx:2,point_idx:1}),
                     translation:Point{x:0,y:-20}}
-                ], 
-                vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
-                    translation:Point{x:0,y:10}},
-                    UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
-                    translation:Point{x:0,y:-10}}
+                    ],
+                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                    translation:Point{x:0,y:20}},
+                    UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:3},PointCoordinates{link_idx:2,point_idx:2}),
+                    translation:Point{x:0,y:-20}}
+                    ]
                 ]
             ]
         }
@@ -425,7 +415,7 @@ fn main() {
             })
             .collect();
 
-    let test_ctx : &TestContext = &synthetic_test_contexts[0];
+    let test_ctx : &TestContext = &synthetic_test_contexts[2*4];
     let updates = untangle(&test_ctx.lnks);
     println!("{:?}", updates);
     let json = serde_json::to_string(&updates).unwrap();
