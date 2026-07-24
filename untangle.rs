@@ -80,7 +80,8 @@ struct ShallowLink<'a>{
     polyline:Vec<&'a Point>
 }
 struct TestContext{
-    lnks:Vec<Link>
+    lnks:Vec<Link>,
+    update:Vec<Vec<UpdateCommand>>
 }
 enum SegmentDirection
 {
@@ -290,7 +291,7 @@ fn main() {
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:70},Point{x:180,y:70}]}
-            ]
+            ],
 /*
          40      90 110    180
     +-----+
@@ -301,12 +302,28 @@ fn main() {
     +-----+          +----->|70   |
                             +-----+
 */
+            update:vec![
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                    translation:Point{x:0,y:20}}, 
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                    translation:Point{x:0,y:-20}}
+                ], 
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                    translation:Point{x:0,y:10}},
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                    translation:Point{x:0,y:-10}}
+                ]
+            ]
         },
         TestContext{
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:60},Point{x:160,y:60}]}
-            ]
+            ],
 /*               110       160
          40                 +-----+
     +-----+                 |     |
@@ -319,14 +336,29 @@ fn main() {
                             |  2  |
                             +-----+
 */
+            update:vec![
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                    translation:Point{x:0,y:20}}, 
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                    translation:Point{x:0,y:-20}}
+                ], 
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                    translation:Point{x:0,y:10}},
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                    translation:Point{x:0,y:-10}}
+                ]
+            ]
         },
         TestContext{
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:120,y:30}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:120,y:40}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:200},Point{x:80,y:200},Point{x:80,y:50},Point{x:120,y:50}]}
-            ]
-        }
+            ],
 /*
                               +-----+
                         +---->|30   |
@@ -341,6 +373,23 @@ fn main() {
     |  0  |
     +-----+      80 90 100
 */
+            update:vec![
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                    translation:Point{x:0,y:20}}, 
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                    translation:Point{x:0,y:-20}}
+                ], 
+                vec![UpdateCommand{
+                    segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                    translation:Point{x:0,y:10}},
+                    UpdateCommand{
+                    segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                    translation:Point{x:0,y:-10}}
+                ]
+            ]
+        }
     ];
     
     let modes:[Orientation;4]=[
@@ -369,14 +418,16 @@ fn main() {
                                 Orientation::SwapXYReverseXY => Point{x:-p.y,y:p.x}     
                             }
                         })
-                        .collect()
+                        .collect(),
                 })
-                .collect()
+                .collect(),
+                update:vec![]
             })
             .collect();
 
     let test_ctx : &TestContext = &synthetic_test_contexts[0];
     let updates = untangle(&test_ctx.lnks);
+    println!("{:?}", updates);
     let json = serde_json::to_string(&updates).unwrap();
     println!("{}", json);
 }
