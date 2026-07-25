@@ -198,7 +198,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
        
             debug!("{:?}", v);
             
-            let vv: Vec<usize> = (0..n)
+            let mut vv: Vec<usize> = (0..n)
                 .sorted_by(|i: &usize, j: &usize| -> Ordering {
                     let a = &lnks_[*i].polyline;
                     let b = &lnks_[*j].polyline;
@@ -206,6 +206,10 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                     order
                 })
                 .collect();
+                
+            if [PI, PI / 2.0].contains(&angle) {
+                vv.reverse()
+            }
         
             for i in 0..n {
                 debug!("{} {}", v[i], vv[i]);
@@ -213,11 +217,15 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
     
             let update:Vec<UpdateCommand> = (0..n)
                 .enumerate()
-                .map(|(i, x)| {
+                .map(|(i,x)|{
                     let tr : Point = lnks_[vv[i]].polyline[0] - lnks_[x].polyline[0];
+                    (x, tr)
+                })
+                .filter(|(x,tr)|->bool {*tr != Point{x:0,y:0}})
+                .map(|(x, tr)| {
                     let pc: Vec<PointCoordinates> = (0..2)
-                        .map(|j| {
-                            let p:&Point=lnks_[x].polyline[j];
+                        .map(|i| {
+                            let p:&Point=lnks_[x].polyline[i];
                             let key = p as *const Point;
                             let (link_idx, point_idx) = point_index[&key];
                             PointCoordinates{link_idx,point_idx}
@@ -225,13 +233,13 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                         .collect();
                     UpdateCommand{segment:(pc[0],pc[1]),translation:tr}
                 })
-                .filter(|uc:&UpdateCommand| uc.translation!=Point{x:0,y:0})
                 .collect();
     
             debug!("{:?}", update);
             
             return update;
         })
+        .filter(|update:&Vec<UpdateCommand>| -> bool {update.is_empty()==false})
         .collect();
     
     return update;
@@ -279,21 +287,16 @@ fn main() {
                             +-----+
 */
             update:vec![
-                vec![UpdateCommand{
-                    segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                    translation:Point{x:0,y:20}}, 
-                    UpdateCommand{
-                    segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
-                    translation:Point{x:0,y:-20}}
-                ], 
-                vec![UpdateCommand{
-                        segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
-                        translation:Point{x:0,y:10}},
-                    UpdateCommand{
-                        segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
-                        translation:Point{x:0,y:-10}}
-                ]
+                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                                translation:Point{x:0,y:20}},
+                    UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                                translation:Point{x:0,y:-20}}],
+                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                                translation:Point{x:0,y:10}},
+                    UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
+                                translation:Point{x:0,y:-10}}]
             ]
+
         },
         TestContext{
             lnks:vec![
@@ -317,9 +320,7 @@ fn main() {
                                     translation:Point{x:0,y:10}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
                                     translation:Point{x:0,y:-10}}
-                ],
-                vec![],
-                vec![]
+                ]
             ]
         },
         TestContext{
@@ -344,15 +345,13 @@ fn main() {
 */
             update:vec![
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
-                                    translation:Point{x:0,y:20}},
+                                translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:0},PointCoordinates{link_idx:2,point_idx:1}),
-                                    translation:Point{x:0,y:-20}}
-                    ],
+                                translation: Point { x: 0, y: -20 } }],
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
-                                    translation:Point{x:0,y:20}},
+                                translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:3},PointCoordinates{link_idx:2,point_idx:2}),
-                                    translation:Point{x:0,y:-20}}
-                    ]
+                                translation:Point{x:0,y:-20}}]
             ]
         }
     ];
