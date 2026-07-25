@@ -347,7 +347,7 @@ fn main() {
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:0},PointCoordinates{link_idx:2,point_idx:1}),
-                                translation: Point { x: 0, y: -20 } }],
+                                translation:Point{x:0,y:-20}}],
                 vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:3},PointCoordinates{link_idx:2,point_idx:2}),
