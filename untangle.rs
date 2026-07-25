@@ -187,12 +187,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                         }
                     }
                 };
-                
-                if angle == 0f64 {order}
-                else if angle == PI {order.reverse()}
-                else if angle == PI / 2.0 {order}
-                else if angle == -PI / 2.0 {order.reverse()} 
-                else {order}
+                order
             };
             
             let n: usize = lnks_.len();
@@ -208,12 +203,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                     let a = &lnks_[*i].polyline;
                     let b = &lnks_[*j].polyline;
                     let order = rotate(b[0],angle).y.cmp(&rotate(a[0],angle).y);
-                    
-                    if angle == 0f64 {order}
-                    else if angle == PI {order.reverse()}
-                    else if angle == PI / 2.0 {order}
-                    else if angle == -PI / 2.0 {order.reverse()}
-                    else {order}
+                    order
                 })
                 .collect();
         
