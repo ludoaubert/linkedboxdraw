@@ -161,9 +161,9 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 let order = match (a.len(), b.len()) {
                     (2, 2) => rotate(a[0],angle).y.cmp(&rotate(b[0],angle).y),
     
-                    (2, _) => Ordering::Equal.cmp(&direction(b)),
+                    (2, _) => direction(b),
     
-                    (_, 2) => Ordering::Equal.cmp(&direction(a)),
+                    (_, 2) => direction(a),
     
                     _ => {
                     
