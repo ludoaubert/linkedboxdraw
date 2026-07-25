@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use std::env;
 use log::{debug};
 use std::ops::Sub;
+use std::f64::consts::PI;
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
 struct Point{
@@ -31,23 +32,11 @@ impl Sub<&Point> for &Point {
         }
     }
 }
-#[derive(Debug, Copy, Clone)]
-struct Coord {
-    x: i32,
-    y: i32,
-}
 #[derive(Deserialize)]
 struct Link{
     from: u32,
     to: u32,
     polyline: Vec<Point>
-}
-#[derive(Debug, Copy, Clone)]
-enum Orientation {
-    Normal,
-    ReverseXY,
-    SwapXY,
-    SwapXYReverseXY
 }
 #[derive(Eq, Ord, Debug, PartialEq, PartialOrd, Copy, Clone)]
 enum RectangleEdge {
@@ -89,6 +78,14 @@ enum SegmentDirection
     Down,
     Left,
     Right
+}
+
+fn rotate(p: &Point, angle: f64) -> Point {
+    let (s, c) = angle.sin_cos();
+    Point {
+        x : ((p.x as f64) * c - (p.y as f64) * s).round() as i32,
+        y : ((p.x as f64) * s + (p.y as f64) * c).round() as i32
+    }
 }
 
 fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
@@ -138,26 +135,17 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 
             debug!("{:?}", lnks_);
             
-            let mode:Orientation=match edge {
-                RectangleEdge::Right => Orientation::Normal,
-                RectangleEdge::Left => Orientation::ReverseXY,
-                RectangleEdge::Top => Orientation::SwapXYReverseXY,
-                RectangleEdge::Bottom => Orientation::SwapXY
+            let angle = match edge {
+                RectangleEdge::Right => 0f64,
+                RectangleEdge::Left => PI,
+                RectangleEdge::Top => PI / 2.0,
+                RectangleEdge::Bottom => -PI / 2.0           
             };
         
-            debug!("{:?}", mode);
-            
-            let transform_point = |p: &Point| -> Coord {
-                match mode {
-                    Orientation::Normal => Coord { x: p.x,  y: p.y },
-                    Orientation::ReverseXY => Coord { x: -p.x, y: -p.y },
-                    Orientation::SwapXY => Coord { x: -p.y,  y: p.x },
-                    Orientation::SwapXYReverseXY => Coord { x: p.y, y: -p.x }
-                }
-            };
+            debug!("angle:{:?}", angle);
        
             let direction = |p: &[&Point]| -> Ordering {
-                transform_point(p[2]).y.cmp(&transform_point(p[1]).y)
+                rotate(p[2],angle).y.cmp(&rotate(p[1],angle).y)
             };
 
 //This returns:
@@ -171,7 +159,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 let b = &lnks_[*j].polyline;
     
                 let order = match (a.len(), b.len()) {
-                    (2, 2) => transform_point(a[0]).y.cmp(&transform_point(b[0]).y),
+                    (2, 2) => rotate(a[0],angle).y.cmp(&rotate(b[0],angle).y),
     
                     (2, _) => Ordering::Equal.cmp(&direction(b)),
     
@@ -180,7 +168,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                     _ => {
                     
                         let segment_direction = |p: &[&Point]| {
-                            if transform_point(p[2]).y > transform_point(p[1]).y {
+                            if rotate(p[2],angle).y > rotate(p[1],angle).y {
                                 SegmentDirection::Down
                             } else {
                                 SegmentDirection::Up
@@ -191,8 +179,8 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                         let dir_b = segment_direction(b);
     
                         match (dir_a, dir_b) {
-                            (SegmentDirection::Up, SegmentDirection::Up) => transform_point(a[1]).x.cmp(&transform_point(b[1]).x),
-                            (SegmentDirection::Down, SegmentDirection::Down) => transform_point(b[1]).x.cmp(&transform_point(a[1]).x),
+                            (SegmentDirection::Up, SegmentDirection::Up) => rotate(a[1],angle).x.cmp(&rotate(b[1],angle).x),
+                            (SegmentDirection::Down, SegmentDirection::Down) => rotate(b[1],angle).x.cmp(&rotate(a[1],angle).x),
                             (SegmentDirection::Up, SegmentDirection::Down) => Ordering::Less,
                             (SegmentDirection::Down, SegmentDirection::Up) => Ordering::Greater,
                             _ => unreachable!("Polyline contains a non-axis-aligned segment")
@@ -200,12 +188,11 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                     }
                 };
                 
-                match mode {
-                    Orientation::Normal => order,
-                    Orientation::ReverseXY => order.reverse(),
-                    Orientation::SwapXY => order,
-                    Orientation::SwapXYReverseXY => order.reverse()    
-                }
+                if angle == 0f64 {order}
+                else if angle == PI {order.reverse()}
+                else if angle == PI / 2.0 {order}
+                else if angle == -PI / 2.0 {order.reverse()} 
+                else {order}
             };
             
             let n: usize = lnks_.len();
@@ -220,14 +207,13 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 .sorted_by(|i: &usize, j: &usize| -> Ordering {
                     let a = &lnks_[*i].polyline;
                     let b = &lnks_[*j].polyline;
-                    let order = transform_point(b[0]).y.cmp(&transform_point(a[0]).y);
+                    let order = rotate(b[0],angle).y.cmp(&rotate(a[0],angle).y);
                     
-                    match mode {
-                        Orientation::Normal => order,
-                        Orientation::ReverseXY => order.reverse(),
-                        Orientation::SwapXY => order,
-                        Orientation::SwapXYReverseXY => order.reverse()    
-                    }
+                    if angle == 0f64 {order}
+                    else if angle == PI {order.reverse()}
+                    else if angle == PI / 2.0 {order}
+                    else if angle == -PI / 2.0 {order.reverse()}
+                    else {order}
                 })
                 .collect();
         
@@ -380,24 +366,13 @@ fn main() {
             ]
         }
     ];
-    
-    let modes:[Orientation;4]=[
-        Orientation::Normal,
-        Orientation::ReverseXY,
-        Orientation::SwapXY,
-        Orientation::SwapXYReverseXY             
-    ];
+
+    let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0  ];
     
     let synthetic_test_contexts : Vec<TestContext> = test_contexts
         .iter()
-        .cartesian_product(modes)
-        .map(|(ctx,mode)| {
-            let trf=|p:&Point| match mode {
-                Orientation::Normal => Point{x:p.x,y:p.y},
-                Orientation::ReverseXY => Point{x:-p.x,y:-p.y},
-                Orientation::SwapXY => Point{x:p.y,y:-p.x},
-                Orientation::SwapXYReverseXY => Point{x:-p.y,y:p.x}     
-            };
+        .cartesian_product(angles)
+        .map(|(ctx,angle)| {
             TestContext{
                 lnks:ctx.lnks
                     .iter()
@@ -406,7 +381,7 @@ fn main() {
                         to:lnk.to,
                         polyline:lnk.polyline
                             .iter()
-                            .map(trf)
+                            .map(|p:&Point|->Point {rotate(p,angle)})
                             .collect(),
                     })
                     .collect(),
@@ -417,7 +392,7 @@ fn main() {
                             .iter()
                             .map(|uc:&UpdateCommand| UpdateCommand{
                                 segment:uc.segment,
-                                translation:trf(&uc.translation)
+                                translation:rotate(&uc.translation,angle)
                             })
                             .collect()
                         )
