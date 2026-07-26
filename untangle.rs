@@ -145,10 +145,6 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
             };
         
             println!("angle:{:?}", angle);
-       
-            let direction = |p: &[&Point]| -> Ordering {
-                rotate(p[2],angle).y.cmp(&rotate(p[1],angle).y)
-            };
 
 //This returns:
 
@@ -163,9 +159,9 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                 let ord = match (a.len(), b.len()) {
                     (2, 2) => rotate(a[0],angle).y.cmp(&rotate(b[0],angle).y),
     
-                    (2, _) => direction(b),
+                    (2, _) => rotate(b[1],angle).y.cmp(&rotate(b[2],angle).y),
     
-                    (_, 2) => direction(a),
+                    (_, 2) => rotate(a[1],angle).y.cmp(&rotate(a[2],angle).y),
     
                     _ => {
                     
@@ -388,6 +384,9 @@ fn main() {
                 }
             })
             .collect();
+            
+    let mut nbOK:u32=0;
+    let mut nbKO:u32=0;
 
     for test_ctx in &synthetic_test_contexts {
         let update = untangle(&test_ctx.lnks);
@@ -397,5 +396,11 @@ fn main() {
         let b:bool = update==test_ctx.update;
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
+        if b{
+            nbOK += 1;
+        }else{
+            nbKO += 1;
+        }
     }
+    println!("{}/{} tests OK.", nbOK, nbOK + nbKO);
 }
