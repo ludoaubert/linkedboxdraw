@@ -6,8 +6,10 @@ use std::env;
 use log::{debug};
 use std::ops::Sub;
 use std::f64::consts::PI;
+use itertools::izip;
+use std::collections::BTreeSet;
 
-#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, Eq, Ord, PartialOrd)]
 struct Point{
     x: i32,
     y: i32
@@ -50,12 +52,12 @@ enum PolylineDirection {
     Forward,
     Backward
 }
-#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Eq, Ord, PartialOrd)]
 struct PointCoordinates {
     link_idx:usize,
     point_idx:usize
 }
-#[derive(Debug, PartialEq, Serialize)]
+#[derive(Debug, PartialEq, Serialize, Eq, Ord, PartialOrd)]
 struct UpdateCommand {
     segment:(PointCoordinates, PointCoordinates),
     translation:Point
@@ -70,7 +72,7 @@ struct ShallowLink<'a>{
 }
 struct TestContext{
     lnks:Vec<Link>,
-    update:Vec<Vec<UpdateCommand>>
+    update:BTreeSet<BTreeSet<UpdateCommand>>
 }
 enum SegmentDirection
 {
@@ -88,7 +90,7 @@ fn rotate(p: &Point, angle: f64) -> Point {
     }
 }
 
-fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
+fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let point_index: HashMap<*const Point, (usize, usize)> = lnks
         .iter()
@@ -125,15 +127,15 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
         .sorted_by(|a, b| (a.from,a.edge).cmp(&(b.from,b.edge)))
         .collect();
     
-    let update : Vec<Vec<UpdateCommand>> = links
+    let update : BTreeSet<BTreeSet<UpdateCommand>> = links
         .iter()
         .chunk_by(|a| (a.from,a.edge))
-        .into_iter() // converts ChunkBy into an Iterator
-        .map(|(key, group)| -> Vec<UpdateCommand> {
+        .into_iter()
+        .map(|(key, group)| -> BTreeSet<UpdateCommand> {
             let (from,edge) = key;
             let lnks_ : Vec<ShallowLink> = group.cloned().collect();
                 
-            debug!("{:?}", lnks_);
+            println!("{:?}", lnks_);
             
             let angle = match edge {
                 RectangleEdge::Right => 0f64,
@@ -142,7 +144,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 RectangleEdge::Bottom => -PI / 2.0           
             };
         
-            debug!("angle:{:?}", angle);
+            println!("angle:{:?}", angle);
        
             let direction = |p: &[&Point]| -> Ordering {
                 rotate(p[2],angle).y.cmp(&rotate(p[1],angle).y)
@@ -158,7 +160,7 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 let a = &lnks_[*i].polyline;
                 let b = &lnks_[*j].polyline;
     
-                let order = match (a.len(), b.len()) {
+                let ord = match (a.len(), b.len()) {
                     (2, 2) => rotate(a[0],angle).y.cmp(&rotate(b[0],angle).y),
     
                     (2, _) => direction(b),
@@ -187,7 +189,8 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                         }
                     }
                 };
-                order
+                
+                ord
             };
             
             let n: usize = lnks_.len();
@@ -196,36 +199,32 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 .sorted_by(link_order)
                 .collect();
        
-            debug!("{:?}", v);
+            println!("{:?}", v);
             
-            let mut vv: Vec<usize> = (0..n)
-                .sorted_by(|i: &usize, j: &usize| -> Ordering {
+            let vv: Vec<usize> = (0..n)
+                .sorted_by(|i, j| {
                     let a = &lnks_[*i].polyline;
                     let b = &lnks_[*j].polyline;
-                    let order = rotate(b[0],angle).y.cmp(&rotate(a[0],angle).y);
-                    order
+            
+                    let ord = rotate(a[0], angle).y.cmp(&rotate(b[0], angle).y);
+                    ord
                 })
                 .collect();
-                
-            if [PI, PI / 2.0].contains(&angle) {
-                vv.reverse()
-            }
         
             for i in 0..n {
-                debug!("{} {}", v[i], vv[i]);
+                println!("{} {} {}", i, v[i], vv[i]);
             }
     
-            let update:Vec<UpdateCommand> = (0..n)
-                .enumerate()
-                .map(|(i,x)|{
-                    let tr : Point = lnks_[vv[i]].polyline[0] - lnks_[x].polyline[0];
+            let update:BTreeSet<UpdateCommand> = izip!(v.iter(), vv.iter())
+                .map(|(x, i)|{
+                    let tr : Point = lnks_[*i].polyline[0] - lnks_[*x].polyline[0];
                     (x, tr)
                 })
                 .filter(|(x,tr)|->bool {*tr != Point{x:0,y:0}})
                 .map(|(x, tr)| {
                     let pc: Vec<PointCoordinates> = (0..2)
                         .map(|i| {
-                            let p:&Point=lnks_[x].polyline[i];
+                            let p:&Point=lnks_[*x].polyline[i];
                             let key = p as *const Point;
                             let (link_idx, point_idx) = point_index[&key];
                             PointCoordinates{link_idx,point_idx}
@@ -235,11 +234,11 @@ fn untangle(lnks:&Vec<Link>)->Vec<Vec<UpdateCommand>>{
                 })
                 .collect();
     
-            debug!("{:?}", update);
+            println!("{:?}", update);
             
             return update;
         })
-        .filter(|update:&Vec<UpdateCommand>| -> bool {update.is_empty()==false})
+        .filter(|update:&BTreeSet<UpdateCommand>| -> bool {update.is_empty()==false})
         .collect();
     
     return update;
@@ -252,7 +251,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     for arg in &args {
-        debug!("{arg}");
+        println!("{arg}");
     }
     
     if args.len()==2
@@ -286,16 +285,16 @@ fn main() {
     +-----+          +----->|70   |
                             +-----+
 */
-            update:vec![
-                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+            update:BTreeSet::from([
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
-                                translation:Point{x:0,y:-20}}],
-                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                                translation:Point{x:0,y:-20}}]),
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
                                 translation:Point{x:0,y:10}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:3},PointCoordinates{link_idx:1,point_idx:2}),
-                                translation:Point{x:0,y:-10}}]
-            ]
+                                translation:Point{x:0,y:-10}}])
+            ])
 
         },
         TestContext{
@@ -315,13 +314,13 @@ fn main() {
                             |  2  |
                             +-----+
 */
-            update:vec![
-                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+            update:BTreeSet::from([
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
                                     translation:Point{x:0,y:10}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
                                     translation:Point{x:0,y:-10}}
-                ]
-            ]
+                ])
+            ])
         },
         TestContext{
             lnks:vec![
@@ -343,20 +342,20 @@ fn main() {
     |  0  |
     +-----+      80 90 100
 */
-            update:vec![
-                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+            update:BTreeSet::from([
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:0},PointCoordinates{link_idx:2,point_idx:1}),
-                                translation:Point{x:0,y:-20}}],
-                vec![UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
+                                translation:Point{x:0,y:-20}}]),
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:3},PointCoordinates{link_idx:0,point_idx:2}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:2,point_idx:3},PointCoordinates{link_idx:2,point_idx:2}),
-                                translation:Point{x:0,y:-20}}]
-            ]
+                                translation:Point{x:0,y:-20}}])
+            ])
         }
     ];
 
-    let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0  ];
+    let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0];
     
     let synthetic_test_contexts : Vec<TestContext> = test_contexts
         .iter()
@@ -370,13 +369,13 @@ fn main() {
                         to:lnk.to,
                         polyline:lnk.polyline
                             .iter()
-                            .map(|p:&Point|->Point {rotate(p,angle)})
+                            .map(|p| rotate(p, angle))
                             .collect(),
                     })
                     .collect(),
                 update:ctx.update
                     .iter()
-                    .map(|v:&Vec<UpdateCommand>|
+                    .map(|v:&BTreeSet<UpdateCommand>|
                             v
                             .iter()
                             .map(|uc:&UpdateCommand| UpdateCommand{
