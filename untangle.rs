@@ -265,7 +265,7 @@ fn main() {
         return;
     }
     
-    let test_contexts : [TestContext;3]=[
+    let test_contexts : [TestContext;4]=[
         TestContext{
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
@@ -315,6 +315,34 @@ fn main() {
                                     translation:Point{x:0,y:10}},
                     UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
                                     translation:Point{x:0,y:-10}}
+                ])
+            ])
+        },
+        TestContext{
+            lnks:vec![
+                Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:70},Point{x:160,y:70}]}
+            ],
+/*
+  10      40     110       160   190
+  40+-----+
+    |   50|-------+
+    |  0  |       |         +-----+60
+    |   70|-------+-------->|70   |
+    |     |       |         |  1  |
+  90+-----+       |         |     |
+                  |         +-----+100
+                  |         +-----+110
+                  +-------->|120  |
+                            |  2  |
+                            |     |
+                            +-----+150
+*/
+            update:BTreeSet::from([
+                BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
+                                    translation:Point{x:0,y:20}},
+                    UpdateCommand{segment:(PointCoordinates{link_idx:1,point_idx:0},PointCoordinates{link_idx:1,point_idx:1}),
+                                    translation:Point{x:0,y:-20}}
                 ])
             ])
         },
