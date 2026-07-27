@@ -115,10 +115,10 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
     let links : Vec<ShallowLink> = lnks
         .iter()
         .cartesian_product([PolylineDirection::Forward,PolylineDirection::Backward])
-        .map(|(lnk,dir)| -> (u32,u32,Vec<&Point>,PolylineDirection) {
+        .map(|(Link { from, to, polyline },dir)| -> (u32,u32,Vec<&Point>,PolylineDirection) {
             match dir {
-                PolylineDirection::Forward => (lnk.from, lnk.to, lnk.polyline.iter().collect(), dir),
-                PolylineDirection::Backward => (lnk.to, lnk.from, lnk.polyline.iter().rev().collect(), dir)
+                PolylineDirection::Forward => (*from, *to, polyline.iter().collect(), dir),
+                PolylineDirection::Backward => (*to, *from, polyline.iter().rev().collect(), dir)
             }
         })
         .map(|(from,to,p,dir)| -> ShallowLink {
@@ -246,7 +246,13 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
     
     return update;
 }
-
+/*
+fn filter(lnks:&Vec<Link>,
+            rects:&Vec<Rectangle>,
+            update:&BTreeSet<BTreeSet<UpdateCommand>>)->BTreeSet<BTreeSet<UpdateCommand>>{
+    
+}
+*/
 fn main() {
 
     env_logger::init();
@@ -428,12 +434,13 @@ fn main() {
     let mut nbOK:u32=0;
     let mut nbKO:u32=0;
 
-    for test_ctx in &synthetic_test_contexts {
-        let update = untangle(&test_ctx.lnks);
+    for TestContext { lnks, rects, update: expected } in &synthetic_test_contexts {
+        let update = untangle(&lnks);
+//        let filtered_update = filter(&rects, &lnks, update);
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
-        let b:bool = update==test_ctx.update;
+        let b:bool = update==*expected;
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
         if b{
