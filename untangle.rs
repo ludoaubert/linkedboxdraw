@@ -89,7 +89,7 @@ struct PointCoordinates {
     point_idx:usize,
     edge:Option<RectangleEdge>
 }
-#[derive(Debug, PartialEq, Serialize, Eq, Ord, PartialOrd)]
+#[derive(Debug, PartialEq, Serialize, Eq, Ord, PartialOrd, Clone)]
 struct UpdateCommand {
     segment:(PointCoordinates, PointCoordinates),
     translation:Point
@@ -321,8 +321,8 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
     return update;
 }
 
-fn filter(lnks:&Vec<Link>,
-            rects:&Vec<Rectangle>,
+fn filter(rects:&Vec<Rectangle>,
+            lnks:&Vec<Link>,
             update:&BTreeSet<BTreeSet<UpdateCommand>>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let filtered_update : BTreeSet<BTreeSet<UpdateCommand>> = update
@@ -372,7 +372,8 @@ fn filter(lnks:&Vec<Link>,
                     check(l1, idx1, e1) && check(l2, idx2, e2)
                 }
             )
-        }).collect();
+        }).cloned()
+        .collect();
     
     return filtered_update;
 }
@@ -593,9 +594,9 @@ fn main() {
     let mut nbOK:u32=0;
     let mut nbKO:u32=0;
 
-    for TestContext { lnks, rects, update: expected } in &synthetic_test_contexts {
+    for TestContext { rects, lnks, update: expected } in &synthetic_test_contexts {
         let update = untangle(&lnks);
-//        let filtered_update = filter(&rects, &lnks, update);
+        let filtered_update = filter(&rects, &lnks, &update);
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
