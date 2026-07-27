@@ -3,7 +3,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use std::env;
-use log::{debug};
 use std::ops::Sub;
 use std::f64::consts::PI;
 use itertools::izip;
@@ -52,6 +51,13 @@ enum PolylineDirection {
     Forward,
     Backward
 }
+#[derive(Clone)]
+struct Rectangle {
+    left:i32,
+    right:i32,
+    top:i32,
+    bottom:i32
+}
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Eq, Ord, PartialOrd)]
 struct PointCoordinates {
     link_idx:usize,
@@ -71,6 +77,7 @@ struct ShallowLink<'a>{
     polyline:Vec<&'a Point>
 }
 struct TestContext{
+    rects:Vec<Rectangle>,
     lnks:Vec<Link>,
     update:BTreeSet<BTreeSet<UpdateCommand>>
 }
@@ -267,19 +274,20 @@ fn main() {
     
     let test_contexts : [TestContext;4]=[
         TestContext{
+            rects:vec![Rectangle{left:10,right:40,top:20,bottom:70},Rectangle{left:180,right:210,top:30,bottom:80}],
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:70},Point{x:180,y:70}]}
             ],
 /*
-         40      90 110    180
-    +-----+
+   10     40      90 110    180  210
+  20+-----+
     |   30|-------+         +-----+
     |     |       |         |     |
     |   50|-------+--+      |  1  |
     |  0  |       +--+----->|60   |
-    +-----+          +----->|70   |
-                            +-----+
+  70+-----+          +----->|70   |
+  80                        +-----+
 */
             update:BTreeSet::from([
                 BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
@@ -294,21 +302,22 @@ fn main() {
 
         },
         TestContext{
+            rects:vec![Rectangle{left:10,right:40,top:40,bottom:80},Rectangle{left:160,right:190,top:30,bottom:70},Rectangle{left:160,right:190,top:80,bottom:140}],
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:60},Point{x:160,y:60}]}
             ],
-/*               110       160
-         40                 +-----+
-    +-----+                 |     |
+/* 10     40     110       160   190
+                            +-----+30
+  40+-----+                 |     |
     |   50|-------+         |  1  |
     |   60|-------+-------->|     |
-    |  0  |       |         +-----+
-    +-----+       |         +-----+
+    |  0  |       |         +-----+70
+  80+-----+       |         +-----+80
                   |         |     |
                   +-------->|120  |
                             |  2  |
-                            +-----+
+                            +-----+140
 */
             update:BTreeSet::from([
                 BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
@@ -319,6 +328,7 @@ fn main() {
             ])
         },
         TestContext{
+            rects:vec![Rectangle{left:10,right:40,top:40,bottom:90},Rectangle{left:160,right:190,top:60,bottom:100},Rectangle{left:160,right:190,top:110,bottom:150}],
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:70},Point{x:160,y:70}]}
@@ -347,24 +357,25 @@ fn main() {
             ])
         },
         TestContext{
+            rects:vec![Rectangle{left:10,right:40,top:170,bottom:220},Rectangle{left:140,right:170,top:20,bottom:70}],
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:120,y:30}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:120,y:40}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:200},Point{x:80,y:200},Point{x:80,y:50},Point{x:120,y:50}]}
             ],
-/*
-                              +-----+
+/*                           140   170
+                              +-----+20
                         +---->|30   |
                      +--+---->|40   |
                   +--+--+---->|50   |
                   |  |  |     |  1  |
-   10    40       |  |  |     +-----+
-    +-----+       |  |  |
+   10    40       |  |  |     +-----+70
+ 170+-----+       |  |  |
     |  180|-------+--+--+
     |  190|-------+--+      
     |  200|-------+
     |  0  |
-    +-----+      80 90 100
+ 220+-----+      80 90 100
 */
             update:BTreeSet::from([
                 BTreeSet::from([UpdateCommand{segment:(PointCoordinates{link_idx:0,point_idx:0},PointCoordinates{link_idx:0,point_idx:1}),
@@ -386,6 +397,7 @@ fn main() {
         .cartesian_product(angles)
         .map(|(ctx,angle)| {
             TestContext{
+                rects:ctx.rects.clone(),
                 lnks:ctx.lnks
                     .iter()
                     .map(|lnk:&Link| Link{
