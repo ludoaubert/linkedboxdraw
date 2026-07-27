@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use std::env;
 use std::ops::Sub;
+use std::ops::Add;
 use std::f64::consts::PI;
 use itertools::izip;
 use std::collections::BTreeSet;
@@ -30,6 +31,16 @@ impl Sub<&Point> for &Point {
         Point {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
+        }
+    }
+}
+impl Add for Point {
+    type Output = Point;
+
+    fn add(self, rhs: Point) -> Point {
+        Point {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
     }
 }
@@ -126,6 +137,22 @@ fn angle_to_steps(angle: f64) -> i32 {
         println!("{}",angle);
         panic!("unsupported angle")
     }
+}
+
+fn is_between(p: Point, p1: Point, p2: Point) -> bool {
+    // Cross product == 0 => collinear
+    let cross =
+        (p.y - p1.y) * (p2.x - p1.x)
+      - (p.x - p1.x) * (p2.y - p1.y);
+
+    if cross != 0 {
+        return false;
+    }
+
+    p.x >= p1.x.min(p2.x)
+        && p.x <= p1.x.max(p2.x)
+        && p.y >= p1.y.min(p2.y)
+        && p.y <= p1.y.max(p2.y)
 }
 
 fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
@@ -293,31 +320,62 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
     
     return update;
 }
-/*
+
 fn filter(lnks:&Vec<Link>,
             rects:&Vec<Rectangle>,
             update:&BTreeSet<BTreeSet<UpdateCommand>>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let filtered_update : BTreeSet<BTreeSet<UpdateCommand>> = update
         .iter()
-        .filter(|v: &BTreeSet<UpdateCommand>| {
+        .filter(|v: &&BTreeSet<UpdateCommand>| {
             v.iter()
             .all(|&UpdateCommand {
                     segment: (
-                        PointCoordinates { link_idx: l1, point_idx: p1 },
-                        PointCoordinates { link_idx: l2, point_idx: p2 },
+                        PointCoordinates { link_idx: l1, point_idx: idx1, edge: e1 },
+                        PointCoordinates { link_idx: l2, point_idx: idx2, edge: e2 }
                     ),
-                    translation: Point { x, y },
-                    edge
+                    translation: tr
                 }| 
                 {
-                        
+                    let rec_edge=|edge:RectangleEdge, rec:&Rectangle|->(Point,Point){
+                        let &Rectangle{left,right,top,bottom}=rec;
+                        match edge{
+                            RectangleEdge::Left => (Point{x:left,y:top},Point{x:left,y:bottom}),
+                            RectangleEdge::Right => (Point{x:right,y:top},Point{x:right,y:bottom}),
+                            RectangleEdge::Top => (Point{x:left,y:top},Point{x:right,y:top}),
+                            RectangleEdge::Bottom => (Point{x:left,y:bottom},Point{x:right,y:bottom})
+                        }
+                    };
+                    
+                    let check = |link_idx, point_idx, edge: Option<RectangleEdge>| {
+                        if let Some(edge) = edge {
+                            let Link { from, to, polyline } = &lnks[link_idx];
+                
+                            let p = polyline[point_idx] + tr ;
+                
+                            let rec_idx = if point_idx == 0 {
+                                *from
+                            } else {
+                                *to
+                            } as usize;
+                
+                            let rec = &rects[rec_idx];
+                
+                            let (a, b) = rec_edge(edge, rec);
+                
+                            is_between(p, a, b)
+                        } else {
+                            true
+                        }
+                    };
+
+                    check(l1, idx1, e1) && check(l2, idx2, e2)
                 }
             )
-        })
+        }).collect();
     
+    return filtered_update;
 }
-*/
 
 fn main() {
 
