@@ -274,8 +274,8 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                             PointCoordinates{
                                 link_idx,
                                 point_idx,
-                                edge:if point_idx==0 {Some(lnks_[*x].from_edge)}
-                                    else if point_idx==lnks_[*x].polyline.len()-1 {Some(lnks_[*x].to_edge)}
+                                edge:if i==0 {Some(lnks_[*x].from_edge)}
+                                    else if i==lnks_[*x].polyline.len()-1 {Some(lnks_[*x].to_edge)}
                                     else {None}
                             }
                         })
@@ -475,11 +475,11 @@ fn main() {
                                 PointCoordinates{link_idx:2,point_idx:1,edge:None}),
                                 translation:Point{x:0,y:-20}}]),
                 BTreeSet::from([UpdateCommand{segment:
-                                (PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Right)},
+                                (PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                 PointCoordinates{link_idx:0,point_idx:2,edge:None}),
                                 translation:Point{x:0,y:20}},
                     UpdateCommand{segment:
-                                (PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Right)},
+                                (PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Left)},
                                 PointCoordinates{link_idx:2,point_idx:2,edge:None}),
                                 translation:Point{x:0,y:-20}}])
             ])
