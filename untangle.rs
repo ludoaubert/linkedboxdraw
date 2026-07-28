@@ -409,26 +409,29 @@ fn detect_crossings(polyline1: &Vec<Point>,
         .into_iter()
         .collect();
         
-    let mut crossing : u32=0;
-        
-    for h in polyline1
+    let crossings : u32 = polyline1
         .iter()
         .tuple_windows()
         .filter(|(p1, p2)| p1.y == p2.y)
-        .map(|(&p1, &p2)| HorizontalSegment{
-            x_min:min(p1.x,p2.x),
-            x_max:max(p1.x,p2.x),
-            y:p1.y
-        }){
-        for (_, verticals) in interval_index.range(h.x_min..=h.x_max) {
-            for v in verticals {
-                if v.y_min <= h.y && h.y <= v.y_max
-                {crossing += 1;}
-            }
-        }
-    }
-    
-    crossing
+        .map(|(&p1, &p2)| HorizontalSegment {
+            x_min: min(p1.x, p2.x),
+            x_max: max(p1.x, p2.x),
+            y: p1.y,
+        })
+        .map(|h| {
+            interval_index
+                .range(h.x_min..=h.x_max)
+                .map(|(_, verticals)| {
+                    verticals
+                        .iter()
+                        .filter(|v| v.y_min <= h.y && h.y <= v.y_max)
+                        .count()
+                })
+                .sum::<usize>()
+        })
+        .sum::<usize>() as u32;
+        
+    crossings
 }
 
 fn main() {
