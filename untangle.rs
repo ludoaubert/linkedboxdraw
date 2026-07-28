@@ -54,7 +54,7 @@ impl AddAssign for Point {
         self.y += rhs.y;
     }
 }
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Link{
     from: u32,
     to: u32,
@@ -464,6 +464,41 @@ fn detect_all_crossings(lnks:&Vec<Link>)->u32{
         }).sum()
 }
 
+fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
+{
+    let current_state=State{lnks:lnks.clone(), crossings:detect_all_crossings(lnks)};
+    println!("current_state.crossings={}", current_state.crossings);
+
+    let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
+        let apply_uc=|mut state:State, &UpdateCommand{
+                segment: (
+                    PointCoordinates { link_idx: l1, point_idx: p1, edge: e1 },
+                    PointCoordinates { link_idx: l2, point_idx: p2, edge: e2 },
+                ),
+                translation: tr
+                }|->State
+        {
+            state.lnks[l1].polyline[p1] += tr;
+            state.lnks[l2].polyline[p2] += tr;
+            state
+        };
+    
+        let next_state = update
+            .iter()
+            .fold(state.clone(), apply_uc);
+        let crossings:u32 = detect_all_crossings(&next_state.lnks);
+        if crossings < state.crossings {State{lnks:next_state.lnks,crossings:crossings}} else {state}
+    };
+
+    
+    let final_state = update
+        .iter()
+        .fold(current_state, apply_update);
+
+    println!("final_state.crossings={}", final_state.crossings);
+    return final_state.lnks;
+}
+
 fn main() {
 
     env_logger::init();
@@ -684,37 +719,13 @@ fn main() {
         let update = untangle(&lnks);
         let filtered_update = filter(&rects, &lnks, &update);
 
-        let current_state=State{lnks:lnks.clone(), crossings:detect_all_crossings(lnks)};
-
-        let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
-            let apply_uc=|mut state:State, &UpdateCommand{
-                    segment: (
-                        PointCoordinates { link_idx: l1, point_idx: p1, edge: e1 },
-                        PointCoordinates { link_idx: l2, point_idx: p2, edge: e2 },
-                    ),
-                    translation: tr
-                    }|->State
-            {
-                state.lnks[l1].polyline[p1] += tr;
-                state.lnks[l2].polyline[p2] += tr;
-                state
-            };
-        
-            let next_state = update
-                .iter()
-                .fold(state.clone(), apply_uc);
-            let crossings:u32 = detect_all_crossings(&next_state.lnks);
-            if crossings < state.crossings {State{lnks:next_state.lnks,crossings:crossings}} else {state}
-        };
-
-        
-        let next_state = filtered_update
-            .iter()
-            .fold(current_state, apply_update);
+        let uncrossed_lnks = apply(lnks, &filtered_update);
     
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
+        let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
+        println!("{}", json_output);
         let b:bool = update==*expected;
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
