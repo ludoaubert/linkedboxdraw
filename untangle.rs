@@ -8,6 +8,9 @@ use std::ops::Add;
 use std::f64::consts::PI;
 use itertools::izip;
 use std::collections::BTreeSet;
+use std::collections::BTreeMap;
+use std::cmp::min;
+use std::cmp::max;
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, Eq, Ord, PartialOrd)]
 struct Point{
@@ -376,6 +379,56 @@ fn filter(rects:&Vec<Rectangle>,
         .collect();
     
     return filtered_update;
+}
+
+fn detect_crossings(polyline1: &Vec<Point>,
+                    polyline2: &Vec<Point>)->u32
+{
+    struct VerticalSegment {
+        y_min: i32,
+        y_max: i32,
+        x: i32
+    }
+    
+    struct HorizontalSegment {
+        x_min: i32,
+        x_max: i32,
+        y: i32
+    }
+    
+    let interval_index : BTreeMap<i32, Vec<VerticalSegment>> = 
+        polyline2
+        .iter()
+        .tuple_windows()
+        .filter(|(p1, p2)| p1.x == p2.x)
+        .map(|(&p1, &p2)| VerticalSegment{
+            y_min:min(p1.y,p2.y),
+            y_max:max(p1.y,p2.y),
+            x:p1.x           
+        }).into_group_map_by(|s| s.x)
+        .into_iter()
+        .collect();
+        
+    let mut crossing : u32=0;
+        
+    for h in polyline1
+        .iter()
+        .tuple_windows()
+        .filter(|(p1, p2)| p1.y == p2.y)
+        .map(|(&p1, &p2)| HorizontalSegment{
+            x_min:min(p1.x,p2.x),
+            x_max:max(p1.x,p2.x),
+            y:p1.y
+        }){
+        for (_, verticals) in interval_index.range(h.x_min..=h.x_max) {
+            for v in verticals {
+                if v.y_min <= h.y && h.y <= v.y_max
+                {crossing += 1;}
+            }
+        }
+    }
+    
+    crossing
 }
 
 fn main() {
