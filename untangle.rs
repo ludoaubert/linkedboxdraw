@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use std::env;
 use std::ops::Sub;
 use std::ops::Add;
+use std::ops::AddAssign;
 use std::f64::consts::PI;
 use itertools::izip;
 use std::collections::BTreeSet;
@@ -47,7 +48,13 @@ impl Add for Point {
         }
     }
 }
-#[derive(Deserialize)]
+impl AddAssign for Point {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+#[derive(Clone, Deserialize)]
 struct Link{
     from: u32,
     to: u32,
@@ -105,6 +112,11 @@ struct ShallowLink<'a>{
     to:u32,
     to_edge:RectangleEdge,
     polyline:Vec<&'a Point>
+}
+#[derive(Clone)]
+struct State{
+    lnks:Vec<Link>,
+    crossings:u32
 }
 struct TestContext{
     rects:Vec<Rectangle>,
@@ -440,6 +452,18 @@ fn detect_crossings(polyline1: &Vec<Point>,
         }).sum()
 }
 
+fn detect_all_crossings(lnks:&Vec<Link>)->u32{
+    lnks
+        .iter()
+        .map(|lnk| &lnk.polyline)
+        .enumerate()
+        .tuple_combinations()
+        .filter(|((i, p1), (j, p2))| i<j)
+        .map(|((i, p1), (j, p2))| {
+            detect_crossings(p1, p2)
+        }).sum()
+}
+
 fn main() {
 
     env_logger::init();
@@ -659,6 +683,35 @@ fn main() {
     for TestContext { rects, lnks, update: expected } in &synthetic_test_contexts {
         let update = untangle(&lnks);
         let filtered_update = filter(&rects, &lnks, &update);
+
+        let current_state=State{lnks:lnks.clone(), crossings:detect_all_crossings(lnks)};
+
+        let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
+            let apply_uc=|mut state:State, &UpdateCommand{
+                    segment: (
+                        PointCoordinates { link_idx: l1, point_idx: p1, edge: e1 },
+                        PointCoordinates { link_idx: l2, point_idx: p2, edge: e2 },
+                    ),
+                    translation: tr
+                    }|->State
+            {
+                state.lnks[l1].polyline[p1] += tr;
+                state.lnks[l2].polyline[p2] += tr;
+                state
+            };
+        
+            let next_state = update
+                .iter()
+                .fold(state.clone(), apply_uc);
+            let crossings:u32 = detect_all_crossings(&next_state.lnks);
+            if crossings < state.crossings {State{lnks:next_state.lnks,crossings:crossings}} else {state}
+        };
+
+        
+        let next_state = filtered_update
+            .iter()
+            .fold(current_state, apply_update);
+    
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
