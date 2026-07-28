@@ -384,54 +384,60 @@ fn filter(rects:&Vec<Rectangle>,
 fn detect_crossings(polyline1: &Vec<Point>,
                     polyline2: &Vec<Point>)->u32
 {
-    struct VerticalSegment {
-        y_min: i32,
-        y_max: i32,
-        x: i32
-    }
+    let arr=[(polyline1,polyline2),(polyline2,polyline1)];
     
-    struct HorizontalSegment {
-        x_min: i32,
-        x_max: i32,
-        y: i32
-    }
+    arr.iter()
+        .map(|(polyline1,polyline2)|{
     
-    let interval_index : BTreeMap<i32, Vec<VerticalSegment>> = 
-        polyline2
-        .iter()
-        .tuple_windows()
-        .filter(|(p1, p2)| p1.x == p2.x)
-        .map(|(&p1, &p2)| VerticalSegment{
-            y_min:min(p1.y,p2.y),
-            y_max:max(p1.y,p2.y),
-            x:p1.x           
-        }).into_group_map_by(|s| s.x)
-        .into_iter()
-        .collect();
-        
-    let crossings : u32 = polyline1
-        .iter()
-        .tuple_windows()
-        .filter(|(p1, p2)| p1.y == p2.y)
-        .map(|(&p1, &p2)| HorizontalSegment {
-            x_min: min(p1.x, p2.x),
-            x_max: max(p1.x, p2.x),
-            y: p1.y,
-        })
-        .map(|h| {
-            interval_index
-                .range(h.x_min..=h.x_max)
-                .map(|(_, verticals)| {
-                    verticals
-                        .iter()
-                        .filter(|v| v.y_min <= h.y && h.y <= v.y_max)
-                        .count()
+            struct VerticalSegment {
+                y_min: i32,
+                y_max: i32,
+                x: i32
+            }
+            
+            struct HorizontalSegment {
+                x_min: i32,
+                x_max: i32,
+                y: i32
+            }
+            
+            let interval_index : BTreeMap<i32, Vec<VerticalSegment>> = 
+                polyline2
+                .iter()
+                .tuple_windows()
+                .filter(|(p1, p2)| p1.x == p2.x)
+                .map(|(&p1, &p2)| VerticalSegment{
+                    y_min:min(p1.y,p2.y),
+                    y_max:max(p1.y,p2.y),
+                    x:p1.x           
+                }).into_group_map_by(|s| s.x)
+                .into_iter()
+                .collect();
+                
+            let crossings : u32 = polyline1
+                .iter()
+                .tuple_windows()
+                .filter(|(p1, p2)| p1.y == p2.y)
+                .map(|(&p1, &p2)| HorizontalSegment {
+                    x_min: min(p1.x, p2.x),
+                    x_max: max(p1.x, p2.x),
+                    y: p1.y,
                 })
-                .sum::<usize>()
-        })
-        .sum::<usize>() as u32;
-        
-    crossings
+                .map(|h| {
+                    interval_index
+                        .range(h.x_min..=h.x_max)
+                        .map(|(_, verticals)| {
+                            verticals
+                                .iter()
+                                .filter(|v| v.y_min <= h.y && h.y <= v.y_max)
+                                .count()
+                        })
+                        .sum::<usize>()
+                })
+                .sum::<usize>() as u32;
+
+            crossings
+        }).sum()
 }
 
 fn main() {
