@@ -222,7 +222,7 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
         .chunk_by(|a| (a.from,a.from_edge))
         .into_iter()
         .map(|(key, group)| -> BTreeSet<UpdateCommand> {
-            let (from,from_edge) = key;
+            let (_from,from_edge) = key;
             let lnks_ : Vec<ShallowLink> = group.cloned().collect();
                 
             println!("{:?}", lnks_);
@@ -306,7 +306,7 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                     let tr : Point = lnks_[*i].polyline[0] - lnks_[*x].polyline[0];
                     (x, tr)
                 })
-                .filter(|(x,tr)|->bool {*tr != Point{x:0,y:0}})
+                .filter(|(_x,tr)|->bool {*tr != Point{x:0,y:0}})
                 .map(|(x, tr)| {
                     let pc: Vec<PointCoordinates> = (0..2)
                         .map(|i| {
@@ -458,8 +458,8 @@ fn detect_all_crossings(lnks:&Vec<Link>)->u32{
         .map(|lnk| &lnk.polyline)
         .enumerate()
         .tuple_combinations()
-        .filter(|((i, p1), (j, p2))| i<j)
-        .map(|((i, p1), (j, p2))| {
+        .filter(|((i, _p1), (j, _p2))| i<j)
+        .map(|((_i, p1), (_j, p2))| {
             detect_crossings(p1, p2)
         }).sum()
 }
@@ -472,8 +472,8 @@ fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
     let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
         let apply_uc=|mut state:State, &UpdateCommand{
                 segment: (
-                    PointCoordinates { link_idx: l1, point_idx: p1, edge: e1 },
-                    PointCoordinates { link_idx: l2, point_idx: p2, edge: e2 },
+                    PointCoordinates { link_idx: l1, point_idx: p1, edge: _e1 },
+                    PointCoordinates { link_idx: l2, point_idx: p2, edge: _e2 },
                 ),
                 translation: tr
                 }|->State
@@ -545,19 +545,19 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}),
-                                            translation:Point{x:0,y:20}},
-                            UpdateCommand{segment:
+                                    translation:Point{x:0,y:20}},
+                                UpdateCommand{segment:
                                     (PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:1,point_idx:1,edge:None}),
-                                            translation:Point{x:0,y:-20}}]),
+                                    translation:Point{x:0,y:-20}}]),
                 BTreeSet::from([UpdateCommand{segment:
                                     (PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:0,point_idx:2,edge:None}),
-                                            translation:Point{x:0,y:10}},
-                            UpdateCommand{segment:
+                                    translation:Point{x:0,y:10}},
+                                UpdateCommand{segment:
                                     (PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:1,point_idx:2,edge:None}),
-                                            translation:Point{x:0,y:-10}}])
+                                    translation:Point{x:0,y:-10}}])
             ])
 
         },
@@ -617,7 +617,7 @@ fn main() {
                                     (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}),
                                     translation:Point{x:0,y:20}},
-                    UpdateCommand{segment:
+                                UpdateCommand{segment:
                                     (PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:1,point_idx:1,edge:Some(RectangleEdge::Left)}),
                                     translation:Point{x:0,y:-20}}
@@ -647,21 +647,21 @@ fn main() {
 */
             update:BTreeSet::from([
                 BTreeSet::from([UpdateCommand{segment:
-                                (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
-                                PointCoordinates{link_idx:0,point_idx:1,edge:None}),
-                                translation:Point{x:0,y:20}},
+                                    (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
+                                    PointCoordinates{link_idx:0,point_idx:1,edge:None}),
+                                    translation:Point{x:0,y:20}},
                                 UpdateCommand{segment:
-                                (PointCoordinates{link_idx:2,point_idx:0,edge:Some(RectangleEdge::Right)},
-                                PointCoordinates{link_idx:2,point_idx:1,edge:None}),
-                                translation:Point{x:0,y:-20}}]),
+                                    (PointCoordinates{link_idx:2,point_idx:0,edge:Some(RectangleEdge::Right)},
+                                    PointCoordinates{link_idx:2,point_idx:1,edge:None}),
+                                    translation:Point{x:0,y:-20}}]),
                 BTreeSet::from([UpdateCommand{segment:
-                                (PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
-                                PointCoordinates{link_idx:0,point_idx:2,edge:None}),
-                                translation:Point{x:0,y:20}},
-                    UpdateCommand{segment:
-                                (PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Left)},
-                                PointCoordinates{link_idx:2,point_idx:2,edge:None}),
-                                translation:Point{x:0,y:-20}}])
+                                    (PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
+                                    PointCoordinates{link_idx:0,point_idx:2,edge:None}),
+                                    translation:Point{x:0,y:20}},
+                                UpdateCommand{segment:
+                                    (PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Left)},
+                                    PointCoordinates{link_idx:2,point_idx:2,edge:None}),
+                                    translation:Point{x:0,y:-20}}])
             ])
         }
     ];
@@ -712,8 +712,8 @@ fn main() {
             })
             .collect();
             
-    let mut nbOK:u32=0;
-    let mut nbKO:u32=0;
+    let mut nb_ok:u32=0;
+    let mut nb_ko:u32=0;
 
     for TestContext { rects, lnks, update: expected } in &synthetic_test_contexts {
         let update = untangle(&lnks);
@@ -730,10 +730,10 @@ fn main() {
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
         if b{
-            nbOK += 1;
+            nb_ok += 1;
         }else{
-            nbKO += 1;
+            nb_ko += 1;
         }
     }
-    println!("{}/{} tests OK.", nbOK, nbOK + nbKO);
+    println!("{}/{} tests OK.", nb_ok, nb_ok + nb_ko);
 }
