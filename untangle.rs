@@ -573,7 +573,11 @@ fn main() {
 
         },
         TestContext{
-            rects:vec![Rectangle{left:10,right:40,top:40,bottom:80},Rectangle{left:160,right:190,top:30,bottom:70},Rectangle{left:160,right:190,top:80,bottom:140}],
+            rects:vec![
+                Rectangle{left:10,right:40,top:40,bottom:80},
+                Rectangle{left:160,right:190,top:30,bottom:70},
+                Rectangle{left:160,right:190,top:80,bottom:140}
+            ],
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:60},Point{x:160,y:60}]}
@@ -603,7 +607,11 @@ fn main() {
             ])
         },
         TestContext{
-            rects:vec![Rectangle{left:10,right:40,top:40,bottom:90},Rectangle{left:160,right:190,top:60,bottom:100},Rectangle{left:160,right:190,top:110,bottom:150}],
+            rects:vec![
+                Rectangle{left:10,right:40,top:40,bottom:90},
+                Rectangle{left:160,right:190,top:60,bottom:100},
+                Rectangle{left:160,right:190,top:110,bottom:150}
+            ],
             lnks:vec![
                 Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:70},Point{x:160,y:70}]}
@@ -636,7 +644,10 @@ fn main() {
             ])
         },
         TestContext{
-            rects:vec![Rectangle{left:10,right:40,top:170,bottom:220},Rectangle{left:140,right:170,top:20,bottom:70}],
+            rects:vec![
+                Rectangle{left:10,right:40,top:170,bottom:220},
+                Rectangle{left:140,right:170,top:20,bottom:70}
+            ],
             lnks:vec![
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:120,y:30}]},
                 Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:120,y:40}]},
@@ -733,6 +744,8 @@ fn main() {
         let update = untangle(&lnks);
         let filtered_update = filter(&rects, &lnks, &update);
 
+        println!("update.len()={}", update.len());
+        println!("filtered_update.len()={}", filtered_update.len());
         let uncrossed_lnks = apply(lnks, &filtered_update);
     
         println!("{:?}", update);
