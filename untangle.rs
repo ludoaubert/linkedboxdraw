@@ -131,11 +131,22 @@ enum SegmentDirection
     Right
 }
 
-fn rotate(p: &Point, angle: f64) -> Point {
+fn rotate_point(p: &Point, angle: f64) -> Point {
     let (s, c) = angle.sin_cos();
     Point {
         x : ((p.x as f64) * c - (p.y as f64) * s).round() as i32,
         y : ((p.x as f64) * s + (p.y as f64) * c).round() as i32
+    }
+}
+
+fn rotate_rectangle(rec: &Rectangle, angle: f64) -> Rectangle {
+    let p=rotate_point(&Point{x:rec.left,y:rec.top}, angle);
+    let q=rotate_point(&Point{x:rec.right,y:rec.bottom}, angle);
+    Rectangle{
+        left:min(p.x, q.x),
+        right:max(p.x, q.x),
+        top:min(p.y, q.y),
+        bottom:max(p.y, q.y)
     }
 }
 
@@ -247,16 +258,16 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                 let b = &lnks_[*j].polyline;
     
                 let ord = match (a.len(), b.len()) {
-                    (2, 2) => rotate(a[0],angle).y.cmp(&rotate(b[0],angle).y),
+                    (2, 2) => rotate_point(a[0],angle).y.cmp(&rotate_point(b[0],angle).y),
     
-                    (2, _) => rotate(b[1],angle).y.cmp(&rotate(b[2],angle).y),
+                    (2, _) => rotate_point(b[1],angle).y.cmp(&rotate_point(b[2],angle).y),
     
-                    (_, 2) => rotate(a[1],angle).y.cmp(&rotate(a[2],angle).y),
+                    (_, 2) => rotate_point(a[1],angle).y.cmp(&rotate_point(a[2],angle).y),
     
                     _ => {
                     
                         let segment_direction = |p: &[&Point]| {
-                            if rotate(p[2],angle).y > rotate(p[1],angle).y {
+                            if rotate_point(p[2],angle).y > rotate_point(p[1],angle).y {
                                 SegmentDirection::Down
                             } else {
                                 SegmentDirection::Up
@@ -267,8 +278,8 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                         let dir_b = segment_direction(b);
     
                         match (dir_a, dir_b) {
-                            (SegmentDirection::Up, SegmentDirection::Up) => rotate(a[1],angle).x.cmp(&rotate(b[1],angle).x),
-                            (SegmentDirection::Down, SegmentDirection::Down) => rotate(b[1],angle).x.cmp(&rotate(a[1],angle).x),
+                            (SegmentDirection::Up, SegmentDirection::Up) => rotate_point(a[1],angle).x.cmp(&rotate_point(b[1],angle).x),
+                            (SegmentDirection::Down, SegmentDirection::Down) => rotate_point(b[1],angle).x.cmp(&rotate_point(a[1],angle).x),
                             (SegmentDirection::Up, SegmentDirection::Down) => Ordering::Less,
                             (SegmentDirection::Down, SegmentDirection::Up) => Ordering::Greater,
                             _ => unreachable!("Polyline contains a non-axis-aligned segment")
@@ -292,7 +303,7 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
                     let a = &lnks_[*i].polyline;
                     let b = &lnks_[*j].polyline;
             
-                    let ord = rotate(a[0], angle).y.cmp(&rotate(b[0], angle).y);
+                    let ord = rotate_point(a[0], angle).y.cmp(&rotate_point(b[0], angle).y);
                     ord
                 })
                 .collect();
@@ -673,7 +684,10 @@ fn main() {
         .cartesian_product(angles)
         .map(|(ctx,angle)| {
             TestContext{
-                rects:ctx.rects.clone(),
+                rects:ctx.rects
+                        .iter()
+                        .map(|rec| rotate_rectangle(rec, angle))
+                        .collect(),
                 lnks:ctx.lnks
                     .iter()
                     .map(|lnk:&Link| Link{
@@ -681,7 +695,7 @@ fn main() {
                         to:lnk.to,
                         polyline:lnk.polyline
                             .iter()
-                            .map(|p| rotate(p, angle))
+                            .map(|p| rotate_point(p, angle))
                             .collect(),
                     })
                     .collect(),
@@ -702,7 +716,7 @@ fn main() {
                                                 link_idx:pc2.link_idx,
                                                 point_idx:pc2.point_idx,
                                                 edge:pc2.edge.map(|e| e.rotate(angle_to_steps(angle)))}),
-                                    translation:rotate(&uc.translation,angle)
+                                    translation:rotate_point(&uc.translation,angle)
                                 }
                             })
                             .collect()
