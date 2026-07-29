@@ -86,7 +86,7 @@ enum PolylineDirection {
     Forward,
     Backward
 }
-#[derive(Clone)]
+#[derive(Clone, Deserialize)]
 struct Rectangle {
     left:i32,
     right:i32,
@@ -121,7 +121,11 @@ struct State{
 struct TestContext{
     rects:Vec<Rectangle>,
     lnks:Vec<Link>,
-    update:BTreeSet<BTreeSet<UpdateCommand>>
+    update:BTreeSet<BTreeSet<UpdateCommand>>,
+    update_count:u32,
+    filtered_update_count:u32,
+    input_crossings:u32,
+    output_crossings:u32
 }
 enum SegmentDirection
 {
@@ -492,6 +496,53 @@ fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
     return final_state.lnks;
 }
 
+fn rotate_test(ctx:&TestContext, angle: f64) -> TestContext {
+    TestContext{
+        rects:ctx.rects
+                .iter()
+                .map(|rec| rotate_rectangle(rec, angle))
+                .collect(),
+        lnks:ctx.lnks
+            .iter()
+            .map(|lnk:&Link| Link{
+                from:lnk.from,
+                to:lnk.to,
+                polyline:lnk.polyline
+                    .iter()
+                    .map(|p| rotate_point(p, angle))
+                    .collect(),
+            })
+            .collect(),
+        update:ctx.update
+            .iter()
+            .map(|v:&BTreeSet<UpdateCommand>|
+                    v
+                    .iter()
+                    .map(|uc:&UpdateCommand| {
+                        let (pc1, pc2) = uc.segment;
+                        //let (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)})
+                        UpdateCommand{
+                            segment:(PointCoordinates{
+                                        link_idx:pc1.link_idx,
+                                        point_idx:pc1.point_idx,
+                                        edge:pc1.edge.map(|e| e.rotate(angle_to_steps(angle)))},
+                                    PointCoordinates{
+                                        link_idx:pc2.link_idx,
+                                        point_idx:pc2.point_idx,
+                                        edge:pc2.edge.map(|e| e.rotate(angle_to_steps(angle)))}),
+                            translation:rotate_point(&uc.translation,angle)
+                        }
+                    })
+                    .collect()
+                )
+                .collect(),
+        update_count: ctx.update_count,
+        filtered_update_count: ctx.filtered_update_count,
+        input_crossings: ctx.input_crossings,
+        output_crossings: ctx.output_crossings
+    }
+}
+
 fn main() {
 
     env_logger::init();
@@ -502,18 +553,36 @@ fn main() {
         println!("{arg}");
     }
     
-    if args.len()==2
+    if args.len()==3
     {
-        let lnks: Vec<Link> = match serde_json::from_str(&args[1]) {
+        let rects: Vec<Rectangle> = match serde_json::from_str(&args[1]) {
             Ok(v) => v,
             Err(e) => {
-                eprintln!("Invalid JSON: {}", e);
+                eprintln!("Invalid JSON for rects: {}", e);
                 return;
             }
         };
+        
+        let lnks: Vec<Link> = match serde_json::from_str(&args[2]) {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("Invalid JSON for lnks: {}", e);
+                return;
+            }
+        };
+        
         let update = untangle(&lnks);
+        let filtered_update = filter(&rects, &lnks, &update);
+
+        println!("update.len()={}", update.len());
+        println!("filtered_update.len()={}", filtered_update.len());
+        let uncrossed_lnks = apply(&lnks, &filtered_update);
+   
+        println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
+        let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
+        println!("{}", json_output);
         return;
     }
     
@@ -551,8 +620,11 @@ fn main() {
                                     (PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:1,point_idx:2,edge:None}),
                                     translation:Point{x:0,y:-10}}])
-            ])
-
+            ]),
+            update_count:2,
+            filtered_update_count:2,
+            input_crossings:2,
+            output_crossings:0
         },
         TestContext{
             rects:vec![
@@ -586,7 +658,11 @@ fn main() {
                                     PointCoordinates{link_idx:1,point_idx:1,edge:Some(RectangleEdge::Left)}),
                                     translation:Point{x:0,y:-10}}
                 ])
-            ])
+            ]),
+            update_count:1,
+            filtered_update_count:1,
+            input_crossings:1,
+            output_crossings:0
         },
         TestContext{
             rects:vec![
@@ -623,7 +699,11 @@ fn main() {
                                     PointCoordinates{link_idx:1,point_idx:1,edge:Some(RectangleEdge::Left)}),
                                     translation:Point{x:0,y:-20}}
                 ])
-            ])
+            ]),
+            update_count:1,
+            filtered_update_count:0,
+            input_crossings:1,
+            output_crossings:1
         },
         TestContext{
             rects:vec![
@@ -666,7 +746,11 @@ fn main() {
                                     (PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:2,point_idx:2,edge:None}),
                                     translation:Point{x:0,y:-20}}])
-            ])
+            ]),
+            update_count:2,
+            filtered_update_count:2,
+            input_crossings:6,
+            output_crossings:0
         }
     ];
 
@@ -675,67 +759,29 @@ fn main() {
     let synthetic_test_contexts : Vec<TestContext> = test_contexts
         .iter()
         .cartesian_product(angles)
-        .map(|(ctx,angle)| {
-            TestContext{
-                rects:ctx.rects
-                        .iter()
-                        .map(|rec| rotate_rectangle(rec, angle))
-                        .collect(),
-                lnks:ctx.lnks
-                    .iter()
-                    .map(|lnk:&Link| Link{
-                        from:lnk.from,
-                        to:lnk.to,
-                        polyline:lnk.polyline
-                            .iter()
-                            .map(|p| rotate_point(p, angle))
-                            .collect(),
-                    })
-                    .collect(),
-                update:ctx.update
-                    .iter()
-                    .map(|v:&BTreeSet<UpdateCommand>|
-                            v
-                            .iter()
-                            .map(|uc:&UpdateCommand| {
-                                let (pc1, pc2) = uc.segment;
-                                //let (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)})
-                                UpdateCommand{
-                                    segment:(PointCoordinates{
-                                                link_idx:pc1.link_idx,
-                                                point_idx:pc1.point_idx,
-                                                edge:pc1.edge.map(|e| e.rotate(angle_to_steps(angle)))},
-                                            PointCoordinates{
-                                                link_idx:pc2.link_idx,
-                                                point_idx:pc2.point_idx,
-                                                edge:pc2.edge.map(|e| e.rotate(angle_to_steps(angle)))}),
-                                    translation:rotate_point(&uc.translation,angle)
-                                }
-                            })
-                            .collect()
-                        )
-                        .collect()
-                }
-            })
+        .map(|(ctx,angle)| rotate_test(ctx, angle))
             .collect();
             
     let mut nb_ok:u32=0;
     let mut nb_ko:u32=0;
 
-    for TestContext { rects, lnks, update: expected } in &synthetic_test_contexts {
+    for TestContext { rects, lnks, update: expected, update_count: expected_update_count,
+                        filtered_update_count, input_crossings,
+                        output_crossings:expected_crossings } in &synthetic_test_contexts {
+
         let update = untangle(&lnks);
         let filtered_update = filter(&rects, &lnks, &update);
 
         println!("update.len()={}", update.len());
         println!("filtered_update.len()={}", filtered_update.len());
         let uncrossed_lnks = apply(lnks, &filtered_update);
-    
+   
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
         println!("{}", json);
         let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
         println!("{}", json_output);
-        let b:bool = update==*expected;
+        let b:bool = update==*expected && *expected_crossings==detect_all_crossings(&uncrossed_lnks);
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
         if b{
