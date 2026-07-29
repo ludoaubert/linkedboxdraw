@@ -165,22 +165,6 @@ fn angle_to_steps(angle: f64) -> i32 {
     }
 }
 
-fn is_between(p: Point, p1: Point, p2: Point) -> bool {
-    // Cross product == 0 => collinear
-    let cross =
-        (p.y - p1.y) * (p2.x - p1.x)
-      - (p.x - p1.x) * (p2.y - p1.y);
-
-    if cross != 0 {
-        return false;
-    }
-
-    p.x >= p1.x.min(p2.x)
-        && p.x <= p1.x.max(p2.x)
-        && p.y >= p1.y.min(p2.y)
-        && p.y <= p1.y.max(p2.y)
-}
-
 fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let point_index: HashMap<*const Point, (usize, usize)> = lnks
@@ -376,20 +360,18 @@ fn filter(rects:&Vec<Rectangle>,
                     let check = |link_idx, point_idx, edge: Option<RectangleEdge>| {
                         if let Some(edge) = edge {
                             let Link { from, to, polyline } = &lnks[link_idx];
-                
-                            let p = polyline[point_idx] + tr ;
-                
-                            let rec_idx = if point_idx == 0 {
-                                *from
-                            } else {
-                                *to
-                            } as usize;
-                
+                            let p:Point = polyline[point_idx] + tr ;
+                            let rec_idx = if point_idx == 0 {*from} else {*to} as usize;
                             let rec = &rects[rec_idx];
-                
                             let (a, b) = rec_edge(edge, rec);
-                
-                            is_between(p, a, b)
+                            let res:bool = p.x >= a.x
+                                && p.x <= b.x
+                                && p.y >= a.y
+                                && p.y <= b.y;
+                            if res==false {
+                                println!("filtering link_id:{link_idx} point_idx:{point_idx} edge:{edge:?} p:{p:?} a:{a:?} b:{b:?}")
+                            }
+                            res
                         } else {
                             true
                         }
@@ -649,9 +631,9 @@ fn main() {
                 Rectangle{left:140,right:170,top:20,bottom:70}
             ],
             lnks:vec![
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:120,y:30}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:120,y:40}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:200},Point{x:80,y:200},Point{x:80,y:50},Point{x:120,y:50}]}
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:140,y:30}]},
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:140,y:40}]},
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:200},Point{x:80,y:200},Point{x:80,y:50},Point{x:140,y:50}]}
             ],
 /*                           140   170
                               +-----+20
