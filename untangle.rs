@@ -12,6 +12,7 @@ use std::collections::BTreeSet;
 use std::collections::BTreeMap;
 use std::cmp::min;
 use std::cmp::max;
+use nalgebra::{Matrix2, Vector2};
 
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, Eq, Ord, PartialOrd)]
 struct Point{
@@ -63,20 +64,29 @@ struct Link{
 #[repr(u8)]
 #[derive(Eq, Ord, Debug, PartialEq, PartialOrd, Copy, Clone, Serialize)]
 enum RectangleEdge {
-    Top = 0,
-    Right = 1,
-    Bottom = 2,
-    Left = 3
+    Top,
+    Right,
+    Bottom,
+    Left
 }
 
 impl RectangleEdge {
-    fn rotate(self, steps: i32) -> Self {
-        match (self as i32 + steps).rem_euclid(4) {
-            0 => RectangleEdge::Top,
-            1 => RectangleEdge::Right,
-            2 => RectangleEdge::Bottom,
-            3 => RectangleEdge::Left,
-            _ => unreachable!(),
+    fn transform(self, m: &Matrix2<f64>) -> Self {
+        let v = match self {
+            RectangleEdge::Top    => Vector2::new( 0.0, -1.0),
+            RectangleEdge::Right  => Vector2::new( 1.0,  0.0),
+            RectangleEdge::Bottom => Vector2::new( 0.0,  1.0),
+            RectangleEdge::Left   => Vector2::new(-1.0,  0.0),
+        };
+
+        let r = m * v;
+
+        match (r.x, r.y) {
+            ( 0.0, -1.0) => RectangleEdge::Top,
+            ( 1.0,  0.0) => RectangleEdge::Right,
+            ( 0.0,  1.0) => RectangleEdge::Bottom,
+            (-1.0,  0.0) => RectangleEdge::Left,
+            _ => panic!("invalid edge transform r.x={}, r.y={}", r.x, r.y),
         }
     }
 }
@@ -143,29 +153,24 @@ fn rotate_point(p: &Point, angle: f64) -> Point {
     }
 }
 
-fn rotate_rectangle(rec: &Rectangle, angle: f64) -> Rectangle {
-    let p=rotate_point(&Point{x:rec.left,y:rec.top}, angle);
-    let q=rotate_point(&Point{x:rec.right,y:rec.bottom}, angle);
+fn transform_point(p: &Point, m: &Matrix2<f64>) -> Point {
+    let v = Vector2::new(p.x as f64, p.y as f64);
+    let r = m * v;
+
+    Point {
+        x: r.x.round() as i32,
+        y: r.y.round() as i32,
+    }  
+}
+
+fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
+    let p=transform_point(&Point{x:rec.left,y:rec.top}, m);
+    let q=transform_point(&Point{x:rec.right,y:rec.bottom}, m);
     Rectangle{
         left:min(p.x, q.x),
         right:max(p.x, q.x),
         top:min(p.y, q.y),
         bottom:max(p.y, q.y)
-    }
-}
-
-fn angle_to_steps(angle: f64) -> i32 {
-    if angle == 0f64 {
-        0
-    } else if angle == PI / 2.0 {
-        1
-    } else if angle == -PI {
-        2
-    } else if angle == -PI / 2.0 {
-        -1
-    } else {
-        println!("{}",angle);
-        panic!("unsupported angle")
     }
 }
 
@@ -496,11 +501,11 @@ fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
     return final_state.lnks;
 }
 
-fn rotate_test(ctx:&TestContext, angle: f64) -> TestContext {
+fn transform_test(ctx:&TestContext, m: &Matrix2<f64>) -> TestContext {
     TestContext{
         rects:ctx.rects
                 .iter()
-                .map(|rec| rotate_rectangle(rec, angle))
+                .map(|rec| transform_rectangle(rec, m))
                 .collect(),
         lnks:ctx.lnks
             .iter()
@@ -509,7 +514,7 @@ fn rotate_test(ctx:&TestContext, angle: f64) -> TestContext {
                 to:lnk.to,
                 polyline:lnk.polyline
                     .iter()
-                    .map(|p| rotate_point(p, angle))
+                    .map(|p| transform_point(p, m))
                     .collect(),
             })
             .collect(),
@@ -519,18 +524,18 @@ fn rotate_test(ctx:&TestContext, angle: f64) -> TestContext {
                     v
                     .iter()
                     .map(|uc:&UpdateCommand| {
+                        let rot=|pc:&PointCoordinates|{
+                            PointCoordinates{
+                                link_idx:pc.link_idx,
+                                point_idx:pc.point_idx,
+                                edge:pc.edge.map(|e| e.transform(m))
+                            }
+                        };
                         let (pc1, pc2) = uc.segment;
-                        //let (PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)})
+
                         UpdateCommand{
-                            segment:(PointCoordinates{
-                                        link_idx:pc1.link_idx,
-                                        point_idx:pc1.point_idx,
-                                        edge:pc1.edge.map(|e| e.rotate(angle_to_steps(angle)))},
-                                    PointCoordinates{
-                                        link_idx:pc2.link_idx,
-                                        point_idx:pc2.point_idx,
-                                        edge:pc2.edge.map(|e| e.rotate(angle_to_steps(angle)))}),
-                            translation:rotate_point(&uc.translation,angle)
+                            segment:(rot(&pc1), rot(&pc2)),
+                            translation:transform_point(&uc.translation,m)
                         }
                     })
                     .collect()
@@ -585,6 +590,49 @@ fn main() {
         println!("{}", json_output);
         return;
     }
+    
+    let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0];
+    
+    let rotations : [Matrix2<f64>;4] = angles.map(|angle|{
+        let (s, c) = angle.sin_cos();
+        let s = s.round() as f64;
+        let c = c.round() as f64;
+        Matrix2::new(
+            c, - s,
+            s, c
+        )
+    });
+    let reflections : [Matrix2<f64>;5] = [
+        //identity
+        Matrix2::new(
+            1.0, 0.0,
+            0.0, 1.0
+        ),        
+        //Reflection around X axis
+        //(x,y)→(x,−y)
+        Matrix2::new(
+            1.0, 0.0,
+            0.0,-1.0
+        ),
+        //Reflection around Y axis
+        //(x,y)→(−x,y)
+        Matrix2::new(
+           -1.0,0.0,
+            0.0,1.0
+        ),
+        //Reflection around line y=x
+        //(x,y)→(y,x)
+        Matrix2::new(
+            0.0,1.0,
+            1.0,0.0
+        ),
+        //Reflection about the line y=−x:
+        //(x,y)→(−y,−x)
+        Matrix2::new(
+            0.0,-1.0,
+            -1.0, 0.0
+        )
+    ];
     
     let test_contexts : [TestContext;4]=[
         TestContext{
@@ -754,13 +802,21 @@ fn main() {
         }
     ];
 
-    let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0];
-    
-    let synthetic_test_contexts : Vec<TestContext> = test_contexts
-        .iter()
-        .cartesian_product(angles)
-        .map(|(ctx,angle)| rotate_test(ctx, angle))
-            .collect();
+let synthetic_test_contexts: Vec<TestContext> = test_contexts
+    .iter()
+    .cartesian_product(
+        rotations.iter().cartesian_product(reflections.iter())
+    )
+    .flat_map(|(ctx, (r, f))| {
+        let rf = r * f;
+        let fr = f * r;
+
+        vec![
+            transform_test(ctx, &rf),
+            transform_test(ctx, &fr),
+        ]
+    })
+    .collect();
             
     let mut nb_ok:u32=0;
     let mut nb_ko:u32=0;
