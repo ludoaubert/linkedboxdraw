@@ -227,7 +227,7 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
         .into_iter()
         .map(|(key, group)| -> BTreeSet<UpdateCommand> {
             let (_from,from_edge) = key;
-            let lnks_ : Vec<ShallowLink> = group.cloned().collect();
+            let lnks_ : Vec<&ShallowLink> = group.collect();
                 
             println!("{:?}", lnks_);
             
