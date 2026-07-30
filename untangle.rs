@@ -174,7 +174,7 @@ fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
     }
 }
 
-fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
+fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let point_index: HashMap<*const Point, (usize, usize)> = lnks
         .iter()
@@ -341,8 +341,8 @@ fn untangle(lnks:&Vec<Link>)->BTreeSet<BTreeSet<UpdateCommand>>{
     return update;
 }
 
-fn filter(rects:&Vec<Rectangle>,
-            lnks:&Vec<Link>,
+fn filter(rects:&[Rectangle],
+            lnks:&[Link],
             update:&BTreeSet<BTreeSet<UpdateCommand>>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
     let filtered_update : BTreeSet<BTreeSet<UpdateCommand>> = update
@@ -396,8 +396,8 @@ fn filter(rects:&Vec<Rectangle>,
     return filtered_update;
 }
 
-fn detect_crossings(polyline1: &Vec<Point>,
-                    polyline2: &Vec<Point>)->u32
+fn detect_crossings(polyline1: &[Point],
+                    polyline2: &[Point])->u32
 {
     let arr=[(polyline1,polyline2),(polyline2,polyline1)];
     
