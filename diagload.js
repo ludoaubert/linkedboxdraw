@@ -692,6 +692,8 @@ function addEventListeners()
 
 window.main = async function main()
 {
+	await initUntangle();
+	
 	createMyModule().then(function(mymod){
 		Module = mymod;
 	});
