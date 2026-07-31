@@ -2,7 +2,6 @@ use itertools::Itertools;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
-use std::env;
 use std::ops::Sub;
 use std::ops::Add;
 use std::ops::AddAssign;
@@ -547,49 +546,44 @@ fn transform_test(ctx:&TestContext, m: &Matrix2<f64>) -> TestContext {
     }
 }
 
+pub fn untangle_links(
+    json_rects: &str,
+    json_links: &str,
+) -> String {
+
+    let rects: Vec<Rectangle> = match serde_json::from_str(json_rects) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Invalid JSON for rects: {}", e);
+            vec![]
+        }
+    };
+    
+    let lnks: Vec<Link> = match serde_json::from_str(json_links) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Invalid JSON for lnks: {}", e);
+            vec![]
+        }
+    };
+        
+    let update = untangle(&lnks);
+    let filtered_update = filter(&rects, &lnks, &update);
+
+    println!("update.len()={}", update.len());
+    println!("filtered_update.len()={}", filtered_update.len());
+    let uncrossed_lnks = apply(&lnks, &filtered_update);
+
+    println!("{:?}", update);
+    let json = serde_json::to_string(&update).unwrap();
+    println!("{}", json);
+    let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
+    println!("{}", json_output);
+    json_output
+}
+
 fn main() {
 
-    env_logger::init();
-
-    let args: Vec<String> = env::args().collect();
-
-    for arg in &args {
-        println!("{arg}");
-    }
-    
-    if args.len()==3
-    {
-        let rects: Vec<Rectangle> = match serde_json::from_str(&args[1]) {
-            Ok(v) => v,
-            Err(e) => {
-                eprintln!("Invalid JSON for rects: {}", e);
-                return;
-            }
-        };
-        
-        let lnks: Vec<Link> = match serde_json::from_str(&args[2]) {
-            Ok(v) => v,
-            Err(e) => {
-                eprintln!("Invalid JSON for lnks: {}", e);
-                return;
-            }
-        };
-        
-        let update = untangle(&lnks);
-        let filtered_update = filter(&rects, &lnks, &update);
-
-        println!("update.len()={}", update.len());
-        println!("filtered_update.len()={}", filtered_update.len());
-        let uncrossed_lnks = apply(&lnks, &filtered_update);
-   
-        println!("{:?}", update);
-        let json = serde_json::to_string(&update).unwrap();
-        println!("{}", json);
-        let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
-        println!("{}", json_output);
-        return;
-    }
-    
     let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0];
     
     let rotations : [Matrix2<f64>;4] = angles.map(|angle|{
@@ -801,21 +795,21 @@ fn main() {
         }
     ];
 
-let synthetic_test_contexts: Vec<TestContext> = test_contexts
-    .iter()
-    .cartesian_product(
-        rotations.iter().cartesian_product(reflections.iter())
-    )
-    .flat_map(|(ctx, (r, f))| {
-        let rf = r * f;
-        let fr = f * r;
-
-        vec![
-            transform_test(ctx, &rf),
-            transform_test(ctx, &fr),
-        ]
-    })
-    .collect();
+    let synthetic_test_contexts: Vec<TestContext> = test_contexts
+        .iter()
+        .cartesian_product(
+            rotations.iter().cartesian_product(reflections.iter())
+        )
+        .flat_map(|(ctx, (r, f))| {
+            let rf = r * f;
+            let fr = f * r;
+    
+            [
+                transform_test(ctx, &rf),
+                transform_test(ctx, &fr),
+            ]
+        })
+        .collect();
             
     let mut nb_ok:u32=0;
     let mut nb_ko:u32=0;
