@@ -454,7 +454,7 @@ fn detect_crossings(polyline1: &[Point],
         }).sum()
 }
 
-fn detect_all_crossings(lnks:&Vec<Link>)->u32{
+fn detect_all_crossings(lnks:&[Link])->u32{
     lnks
         .iter()
         .map(|lnk| &lnk.polyline)
