@@ -416,7 +416,7 @@ async function compute_links(selectedContextIndex)
 	const bombix = Module.cwrap("bombix","string",["string","string","string","string"])
 	const jsonResponse = await bombix(rectdim, translations, sframe, slinks);
 	const srectangles = JSON.stringify(rectangles);
-	const untangled_links = await untangle_links(srectangles, slinks);
+	const untangled_links = await untangle_links(srectangles, jsonResponse);
 	console.log({srectangles, slinks, untangled_links});
 	const links = await JSON.parse(jsonResponse)
 				.map(({polyline, from, to}) => ({
