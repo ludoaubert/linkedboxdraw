@@ -1,7 +1,7 @@
 import sample_contexts from "./contexts.json" with {type: "json"};
 
 import {default as createMyModule} from "./latuile-origine.js";
-import initUntangle, { untangle } from "./untangle.js";
+import initUntangle, { untangle_links } from "./untangle.js";
 import {init, mydata, data, resetData, displayCurrent, createMutationObserver} from "./table_edit.js";
 import {initClient} from "./client.js";
 import {getFileData, download} from "./iocomponent.js";
