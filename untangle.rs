@@ -546,6 +546,12 @@ fn transform_test(ctx:&TestContext, m: &Matrix2<f64>) -> TestContext {
     }
 }
 
+// WASM only
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
 pub fn untangle_links(
     json_rects: &str,
     json_links: &str,
@@ -582,6 +588,8 @@ pub fn untangle_links(
     json_output
 }
 
+// Native executable only
+#[cfg(not(target_arch = "wasm32"))]
 fn main() {
 
     let angles:[f64;4]=[0f64, -PI, -PI / 2.0, PI / 2.0];
