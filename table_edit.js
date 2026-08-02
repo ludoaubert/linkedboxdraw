@@ -219,7 +219,7 @@ function init() {
 			else if ("documentTitle" in json && "boxes" in json && "links" in json)
 			{
 				setData(json);
-				setContexts(data2contexts(mydata));
+				setContexts(await data2contexts(mydata));
 				drawDiag();
 				currentBoxIndex = -1;
 				displayCurrent();
