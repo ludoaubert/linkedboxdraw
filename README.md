@@ -7,6 +7,13 @@ Typical use case:
 Just been hired on a software (or data) project. You need to quickly understand how the data is structured. With linkedboxdraw, you can quickly create your own map.
 To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/table_edit_ti.html
 
+An example of diagram file : 
+https://ludoaubert.github.io/linkedboxdraw/diagdata.json
+Go to Input Output -> choose file
+to load your own diagram file
+Go to Input Output -> save as
+to save your diagram file with added geometric information
+
 In the case of relational diagrams, there are some SQL scripts that are available to produce a diagram file.
 
 SQL Server : https://ludoaubert.github.io/linkedboxdraw/SelectMetaData_SQLServer.sql
