@@ -142,7 +142,7 @@ function loadPicture(blob)
 	});
 }
 
-function init() {
+async function init() {
 
 	editTitle = document.getElementById("title");
 	newDiagramButton = document.getElementById("new diagram");
