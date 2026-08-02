@@ -9,9 +9,13 @@ To look at an example of map : https://ludoaubert.github.io/linkedboxdraw/table_
 
 An example of diagram file : 
 https://ludoaubert.github.io/linkedboxdraw/diagdata.json
+
 Go to Input Output -> choose file
+
 to load your own diagram file
+
 Go to Input Output -> save as
+
 to save your diagram file with added geometric information
 
 In the case of relational diagrams, there are some SQL scripts that are available to produce a diagram file.
