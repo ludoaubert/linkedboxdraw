@@ -142,7 +142,7 @@ function loadPicture(blob)
 	});
 }
 
-async function init() {
+function init() {
 
 	editTitle = document.getElementById("title");
 	newDiagramButton = document.getElementById("new diagram");
@@ -206,7 +206,7 @@ async function init() {
 	let fi = document.querySelector("input[id=fi]");
 
 	fi.addEventListener("change", (event) => {
-		getFileData(fi).then(function(result){
+		getFileData(fi).then(async function(result){
 			const json = JSON.parse(result);
 			if ("data" in json && "contexts" in json)
 			{
