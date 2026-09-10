@@ -291,13 +291,7 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
             println!("{:?}", v);
             
             let vv: Vec<usize> = (0..n)
-                .sorted_by(|i, j| {
-                    let a = &lnks_[*i].polyline;
-                    let b = &lnks_[*j].polyline;
-            
-                    let ord = rotate_point(a[0], angle).y.cmp(&rotate_point(b[0], angle).y);
-                    ord
-                })
+                .sorted_by_key(|&i| rotate_point(lnks_[i].polyline[0], angle).y)
                 .collect();
         
             for i in 0..n {
