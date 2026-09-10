@@ -283,24 +283,13 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
             };
             
             let n: usize = lnks_.len();
-            
-            let v: Vec<usize> = (0..n)
-                .sorted_by(link_order)
-                .collect();
-       
-            println!("{:?}", v);
-            
-            let vv: Vec<usize> = (0..n)
-                .sorted_by_key(|&i| rotate_point(lnks_[i].polyline[0], angle).y)
-                .collect();
-        
-            for i in 0..n {
-                println!("{} {} {}", i, v[i], vv[i]);
-            }
     
-            let update:BTreeSet<UpdateCommand> = izip!(v.iter(), vv.iter())
+            let update:BTreeSet<UpdateCommand> = izip!(
+                    (0..n).sorted_by(link_order),
+                    (0..n).sorted_by_key(|i| rotate_point(lnks_[*i].polyline[0], angle).y)
+                )
                 .map(|(x, i)|{
-                    let tr : Point = lnks_[*i].polyline[0] - lnks_[*x].polyline[0];
+                    let tr : Point = lnks_[i].polyline[0] - lnks_[x].polyline[0];
                     (x, tr)
                 })
                 .filter(|(_x,tr)|->bool {*tr != Point{x:0,y:0}})
@@ -308,14 +297,14 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
                     UpdateCommand{
                         segment: [0,1]
                             .map(|i| {
-                                let p:&Point=lnks_[*x].polyline[i];
+                                let p:&Point=lnks_[x].polyline[i];
                                 let key = p as *const Point;
                                 let (link_idx, point_idx) = point_index[&key];
                                 PointCoordinates{
                                     link_idx,
                                     point_idx,
-                                    edge:if i==0 {Some(lnks_[*x].from_edge)}
-                                        else if i==lnks_[*x].polyline.len()-1 {Some(lnks_[*x].to_edge)}
+                                    edge:if i==0 {Some(lnks_[x].from_edge)}
+                                        else if i==lnks_[x].polyline.len()-1 {Some(lnks_[x].to_edge)}
                                         else {None}
                                 }
                             }),
