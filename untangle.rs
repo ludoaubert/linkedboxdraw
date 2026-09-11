@@ -323,7 +323,7 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
     return update;
 }
 
-fn filter(rects:&[Rectangle],
+fn filter_update(rects:&[Rectangle],
             lnks:&[Link],
             update:&BTreeSet<BTreeSet<UpdateCommand>>)->BTreeSet<BTreeSet<UpdateCommand>>{
 
@@ -437,7 +437,7 @@ fn detect_crossings(polyline1: &[Point],
         }).sum()
 }
 
-fn detect_all_crossings(lnks:&[Link])->u32{
+fn detect_all_polyline_crossings(lnks:&[Link])->u32{
     lnks
         .iter()
         .map(|lnk| &lnk.polyline)
@@ -449,9 +449,23 @@ fn detect_all_crossings(lnks:&[Link])->u32{
         }).sum()
 }
 
+fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u32
+{
+    lnks.iter()
+        .map(|lnk| &lnk.polyline)
+        .cartesian_product(rectangles
+            .iter()
+            .map(|&Rectangle {left, right, top, bottom}|{
+                [Point{x:left,y:top},Point{x:right,y:top},Point{x:right,y:bottom},Point{x:left,y:bottom}]
+            })
+        ).map(|(p1, p2)| {
+            detect_crossings(p1, &p2)
+        }).sum()
+}
+
 fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
 {
-    let current_state=State{lnks:lnks.clone(), crossings:detect_all_crossings(lnks)};
+    let current_state=State{lnks:lnks.clone(), crossings:detect_all_polyline_crossings(lnks)};
     println!("current_state.crossings={}", current_state.crossings);
 
     let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
@@ -471,7 +485,7 @@ fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
         let next_state = update
             .iter()
             .fold(state.clone(), apply_uc);
-        let crossings:u32 = detect_all_crossings(&next_state.lnks);
+        let crossings:u32 = detect_all_polyline_crossings(&next_state.lnks);
         if crossings < state.crossings {State{lnks:next_state.lnks,crossings:crossings}} else {state}
     };
 
@@ -557,7 +571,7 @@ pub fn untangle_links(
     };
         
     let update = untangle(&lnks);
-    let filtered_update = filter(&rects, &lnks, &update);
+    let filtered_update = filter_update(&rects, &lnks, &update);
 
     println!("update.len()={}", update.len());
     println!("filtered_update.len()={}", filtered_update.len());
@@ -849,7 +863,7 @@ fn main() {
                         output_crossings:expected_crossings } in &synthetic_test_contexts {
 
         let update = untangle(&lnks);
-        let filtered_update = filter(&rects, &lnks, &update);
+        let filtered_update = filter_update(&rects, &lnks, &update);
 
         println!("update.len()={}", update.len());
         println!("filtered_update.len()={}", filtered_update.len());
@@ -860,7 +874,7 @@ fn main() {
         println!("{}", json);
         let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
         println!("{}", json_output);
-        let b:bool = update==*expected && *expected_crossings==detect_all_crossings(&uncrossed_lnks);
+        let b:bool = update==*expected && *expected_crossings==detect_all_polyline_crossings(&uncrossed_lnks);
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
         if b{
