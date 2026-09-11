@@ -618,7 +618,7 @@ fn main() {
         )
     ];
     
-    let test_contexts : [TestContext;4]=[
+    let test_contexts : [TestContext;5]=[
         TestContext{
             rects:vec![Rectangle{left:10,right:40,top:20,bottom:70},Rectangle{left:180,right:210,top:30,bottom:80}],
             lnks:vec![
@@ -782,6 +782,53 @@ fn main() {
             update_count:2,
             filtered_update_count:2,
             input_crossings:6,
+            output_crossings:0
+        },
+        TestContext{
+            rects:vec![
+                Rectangle{left:10,right:40,top:20,bottom:70},
+                Rectangle{left:180,right:210,top:40,bottom:90},
+                Rectangle{left:60,right:100,top:70,bottom:120}
+            ],
+            lnks:vec![
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:80},Point{x:180,y:80}]}
+            ],
+/*
+   10     40      90 110    180  210
+  20+-----+
+    |   30|-------+
+    |     |       |         +-----+40
+    |   50|-------+--+      |  1  |
+    |  0  |       +--+----->|60   |
+  70+-----+   +-----+|      |     |
+              |     |+----->|80   |
+  90          |     |       +-----+
+              |     |
+ 120          +-----+
+             60    100
+*/
+            update:BTreeSet::from([
+                BTreeSet::from([UpdateCommand{segment:
+                                    [PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
+                                    PointCoordinates{link_idx:0,point_idx:1,edge:None}],
+                                    translation:Point{x:0,y:20}},
+                                UpdateCommand{segment:
+                                    [PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
+                                    PointCoordinates{link_idx:1,point_idx:1,edge:None}],
+                                    translation:Point{x:0,y:-20}}]),
+                BTreeSet::from([UpdateCommand{segment:
+                                    [PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
+                                    PointCoordinates{link_idx:0,point_idx:2,edge:None}],
+                                    translation:Point{x:0,y:10}},
+                                UpdateCommand{segment:
+                                    [PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
+                                    PointCoordinates{link_idx:1,point_idx:2,edge:None}],
+                                    translation:Point{x:0,y:-10}}])
+            ]),
+            update_count:2,
+            filtered_update_count:2,
+            input_crossings:2,
             output_crossings:0
         }
     ];
