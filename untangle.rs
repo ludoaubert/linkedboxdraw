@@ -463,7 +463,7 @@ fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u
         }).sum()
 }
 
-fn apply(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
+fn apply_update(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
 {
     let current_state=State{lnks:lnks.clone(), crossings:detect_all_polyline_crossings(lnks)};
     println!("current_state.crossings={}", current_state.crossings);
@@ -575,7 +575,7 @@ pub fn untangle_links(
 
     println!("update.len()={}", update.len());
     println!("filtered_update.len()={}", filtered_update.len());
-    let uncrossed_lnks = apply(&lnks, &filtered_update);
+    let uncrossed_lnks = apply_update(&lnks, &filtered_update);
 
     println!("{:?}", update);
     let json = serde_json::to_string(&update).unwrap();
@@ -867,7 +867,7 @@ fn main() {
 
         println!("update.len()={}", update.len());
         println!("filtered_update.len()={}", filtered_update.len());
-        let uncrossed_lnks = apply(lnks, &filtered_update);
+        let uncrossed_lnks = apply_update(lnks, &filtered_update);
    
         println!("{:?}", update);
         let json = serde_json::to_string(&update).unwrap();
