@@ -791,8 +791,8 @@ fn main() {
                 Rectangle{left:60,right:100,top:70,bottom:120}
             ],
             lnks:vec![
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:110,y:30},Point{x:110,y:60},Point{x:180,y:60}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:90,y:50},Point{x:90,y:80},Point{x:180,y:80}]}
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:110,y:30},Point{x:110,y:80},Point{x:180,y:80}]},
+                Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:90,y:50},Point{x:90,y:60},Point{x:180,y:60}]}
             ],
 /*
    10     40      90 110    180  210
