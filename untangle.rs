@@ -5,6 +5,7 @@ use serde::{Serialize, Deserialize};
 use std::ops::Sub;
 use std::ops::Add;
 use std::ops::AddAssign;
+use std::ops::Neg;
 use std::f64::consts::PI;
 use itertools::izip;
 use std::collections::BTreeSet;
@@ -52,6 +53,16 @@ impl AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
+    }
+}
+impl Neg for Point {
+    type Output = Point;
+
+    fn neg(self) -> Point {
+        Point {
+            x: -self.x,
+            y: -self.y,
+        }
     }
 }
 #[derive(Clone, Serialize, Deserialize)]
@@ -122,11 +133,7 @@ struct ShallowLink<'a>{
     to_edge:RectangleEdge,
     polyline:Vec<&'a Point>
 }
-#[derive(Clone)]
-struct State{
-    lnks:Vec<Link>,
-    crossings:u32
-}
+
 struct TestContext{
     rects:Vec<Rectangle>,
     lnks:Vec<Link>,
@@ -451,7 +458,8 @@ fn detect_all_polyline_crossings(lnks:&[Link])->u32{
 
 fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u32
 {
-    lnks.iter()
+    lnks
+        .iter()
         .map(|lnk| &lnk.polyline)
         .cartesian_product(rectangles
             .iter()
@@ -463,8 +471,63 @@ fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u
         }).sum()
 }
 
+fn integrity_filter_update(rectangles:&[Rectangle],lnks:&Vec<Link>, updates:&BTreeSet<BTreeSet<UpdateCommand>>)->
+  BTreeSet<BTreeSet<UpdateCommand>>
+{
+    struct State {
+        lnks: Vec<Link>,
+        accepted: BTreeSet<BTreeSet<UpdateCommand>>
+    }
+    let state=State{lnks:lnks.clone(), accepted:BTreeSet::new()};
+
+    let run_update=|state, update:&BTreeSet<UpdateCommand>| {
+        let move_uc = |mut state: State, uc: &UpdateCommand, sign: i32| -> State {
+            let UpdateCommand {
+                segment: [
+                    PointCoordinates { link_idx: l1, point_idx: p1, .. },
+                    PointCoordinates { link_idx: l2, point_idx: p2, .. },
+                ],
+                translation,
+            } = *uc;
+        
+            let delta = if sign > 0 { translation } else { -translation };
+        
+            state.lnks[l1].polyline[p1] += delta;
+            state.lnks[l2].polyline[p2] += delta;
+        
+            state
+        };
+        let apply_uc = |state, uc| move_uc(state, uc, 1);
+        let reverse_uc = |state, uc| move_uc(state, uc, -1);
+            
+        let mut state = update
+            .iter()
+            .fold(state, apply_uc);
+            
+        let crossings:u32=detect_polyline_rectangle_crossings(&state.lnks, rectangles);
+        if crossings==0{state.accepted.insert(update.clone());}else{
+            state = update.iter()
+                .rev()
+                .fold(state, reverse_uc);}
+            
+        state
+    };
+    
+    let final_state = updates
+        .iter()
+        .fold(state, run_update);
+
+    return final_state.accepted;    
+}
+
 fn apply_update(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
 {
+    #[derive(Clone)]
+    struct State{
+        lnks:Vec<Link>,
+        crossings:u32
+    }
+
     let current_state=State{lnks:lnks.clone(), crossings:detect_all_polyline_crossings(lnks)};
     println!("current_state.crossings={}", current_state.crossings);
 
@@ -571,7 +634,8 @@ pub fn untangle_links(
     };
         
     let update = untangle(&lnks);
-    let filtered_update = filter_update(&rects, &lnks, &update);
+    let filtered_update_ = filter_update(&rects, &lnks, &update);
+    let filtered_update = integrity_filter_update(&rects, &lnks, filtered_update_);
 
     println!("update.len()={}", update.len());
     println!("filtered_update.len()={}", filtered_update.len());
@@ -863,7 +927,8 @@ fn main() {
                         output_crossings:expected_crossings } in &synthetic_test_contexts {
 
         let update = untangle(&lnks);
-        let filtered_update = filter_update(&rects, &lnks, &update);
+        let filtered_update_ = filter_update(&rects, &lnks, &update);
+        let filtered_update = integrity_filter_update(&rects, &lnks, &filtered_update_);
 
         println!("update.len()={}", update.len());
         println!("filtered_update.len()={}", filtered_update.len());
