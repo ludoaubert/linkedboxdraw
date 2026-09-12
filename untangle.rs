@@ -429,11 +429,11 @@ fn detect_crossings(polyline1: &[Point],
                 })
                 .map(|h| {
                     interval_index
-                        .range(h.x_min..=h.x_max)
+                        .range(h.x_min+1..=h.x_max-1)
                         .map(|(_, verticals)| {
                             verticals
                                 .iter()
-                                .filter(|v| v.y_min <= h.y && h.y <= v.y_max)
+                                .filter(|v| v.y_min < h.y && h.y < v.y_max)
                                 .count()
                         })
                         .sum::<usize>()
