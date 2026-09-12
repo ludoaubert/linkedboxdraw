@@ -505,10 +505,13 @@ fn integrity_filter_update(rectangles:&[Rectangle],lnks:&Vec<Link>, updates:&BTr
             .fold(state, apply_uc);
             
         let crossings:u32=detect_polyline_rectangle_crossings(&state.lnks, rectangles);
-        if crossings==0{state.accepted.insert(update.clone());}else{
+        if crossings==0
+        {state.accepted.insert(update.clone());}
+        else{
             state = update.iter()
                 .rev()
-                .fold(state, reverse_uc);}
+                .fold(state, reverse_uc);
+        }
             
         state
     };
@@ -890,16 +893,16 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:0,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:20}},
+                                    translation:Point{x:0,y:-20}},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:1,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:-20}}])
+                                    translation:Point{x:0,y:20}}])
             ]),
             update_count:1,
-            filtered_update_count:1,
+            filtered_update_count:0,
             input_crossings:1,
-            output_crossings:0
+            output_crossings:1
         }
     ];
 
