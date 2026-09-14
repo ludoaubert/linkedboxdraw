@@ -525,43 +525,28 @@ fn integrity_filter_update(rectangles:&[Rectangle],lnks:&Vec<Link>, updates:&BTr
 
 fn apply_update(lnks:&Vec<Link>, update:&BTreeSet<BTreeSet<UpdateCommand>>)->Vec<Link>
 {
-    #[derive(Clone)]
-    struct State{
-        lnks:Vec<Link>,
-        crossings:u32
+    fn apply_uc(
+        mut lnks: Vec<Link>,
+        uc: &UpdateCommand,
+    ) -> Vec<Link> {
+        let UpdateCommand {
+            segment: [
+                PointCoordinates { link_idx: l1, point_idx: p1, .. },
+                PointCoordinates { link_idx: l2, point_idx: p2, .. },
+            ],
+            translation,
+        } = *uc;
+
+        lnks[l1].polyline[p1] += translation;
+        lnks[l2].polyline[p2] += translation;
+
+        lnks
     }
-
-    let current_state=State{lnks:lnks.clone(), crossings:detect_all_polyline_crossings(lnks)};
-    println!("current_state.crossings={}", current_state.crossings);
-
-    let apply_update=|state:State,update:&BTreeSet<UpdateCommand>| {
-        let apply_uc=|mut state:State, &UpdateCommand{
-                segment: [
-                    PointCoordinates { link_idx: l1, point_idx: p1, edge: _e1 },
-                    PointCoordinates { link_idx: l2, point_idx: p2, edge: _e2 }
-                ],
-                translation: tr
-                }|->State
-        {
-            state.lnks[l1].polyline[p1] += tr;
-            state.lnks[l2].polyline[p2] += tr;
-            state
-        };
     
-        let next_state = update
-            .iter()
-            .fold(state.clone(), apply_uc);
-        let crossings:u32 = detect_all_polyline_crossings(&next_state.lnks);
-        if crossings < state.crossings {State{lnks:next_state.lnks,crossings:crossings}} else {state}
-    };
-
-    
-    let final_state = update
+    update
         .iter()
-        .fold(current_state, apply_update);
-
-    println!("final_state.crossings={}", final_state.crossings);
-    return final_state.lnks;
+        .flatten()
+        .fold(lnks.clone(), apply_uc)
 }
 
 fn transform_test(ctx:&TestContext, m: &Matrix2<f64>) -> TestContext {
