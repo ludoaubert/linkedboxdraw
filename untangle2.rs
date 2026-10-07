@@ -186,6 +186,23 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->{
         RECTANGLE_EDGE{rectangle:&Rectangle,edge:RectangleEdge},
         VALUE_AT_TURN{axis:Axis,value:i32}
     };
+    let edge = |p0:&Point, p1:&Point| -> RectangleEdge {
+        match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
+            (Ordering::Equal, Ordering::Greater) => RectangleEdge::Top,
+            (Ordering::Equal, Ordering::Less)    => RectangleEdge::Bottom,
+            (Ordering::Greater, Ordering::Equal) => RectangleEdge::Left,
+            (Ordering::Less, Ordering::Equal)    => RectangleEdge::Right,
+            _ => unreachable!("Polyline contains a non-axis-aligned segment")
+        }
+    };
+
+    let compact_polylines : Vect<PolylineValue> = lnks
+        .iter()
+        .map(|from,to,polyline|{
+            std::iter::once(PolylineValue.RECTANGLE_EDGE{rectangle=&rects[from],edge:edge(polyline[0],polyline[1])})
+            .chain(polyline)
+            .chain(std::iter::once(PolylineValue.RECTANGE_EDGE{rectangle=&rects[to],edge:edge(last, before_last)}))
+        })
 }
 
 fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
