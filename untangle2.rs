@@ -224,7 +224,9 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         .collect();
         
         let polylines = compact_polylines
-            .chunk_by(|a,b|{})
+            .chunk_by(|a,b|{
+                matches!(a, PolylineValue::Edge { .. }) && matches!(b, PolylineValue::Edge { .. })
+            })
         
         return 0;
 }
