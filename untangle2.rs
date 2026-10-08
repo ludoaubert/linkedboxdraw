@@ -67,8 +67,8 @@ impl Neg for Point {
 }
 #[derive(Clone, Serialize, Deserialize)]
 struct Link{
-    from: u32,
-    to: u32,
+    from: usize,
+    to: usize,
     polyline: Vec<Point>
 }
 #[repr(u8)]
@@ -127,9 +127,9 @@ struct UpdateCommand {
 #[derive(Debug, Clone)]
 struct ShallowLink<'a>{
     direction: PolylineDirection,
-    from:u32,
+    from:usize,
     from_edge:RectangleEdge,
-    to:u32,
+    to:usize,
     to_edge:RectangleEdge,
     polyline:Vec<&'a Point>
 }
@@ -186,7 +186,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
     enum PolylineValue{
         Edge{rectangle:usize,edge:RectangleEdge},
         BreakOff{axis:Axis,value:i32}
-    };
+    }
     let edge = |p0:&Point, p1:&Point| -> RectangleEdge {
         match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
             (Ordering::Equal, Ordering::Greater) => RectangleEdge::Top,
@@ -201,25 +201,29 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         .iter()
         .map(|Link{from,to,polyline}|{
             let [.., before_last, last] = polyline.as_slice() else { todo!()};
-            std::iter::once(PolylineValue::Edge{rectangle:from,edge:edge(polyline[0],polyline[1])})
+            std::iter::once(PolylineValue::Edge{rectangle:from,edge:edge(&polyline[0],&polyline[1])})
             .chain(polyline
                 .iter()
                 .zip(
-                    match (edge(polyline[0],polyline[1])){
+                    match edge(&polyline[0],&polyline[1]){
                         RectangleEdge::Left | RectangleEdge::Right => [Axis::ORDONNEE, Axis::ABSCISSE],
                         RectangleEdge::Top | RectangleEdge::Bottom => [Axis::ABSCISSE, Axis::ORDONNEE]
                     }
                     .into_iter()
                     .cycle()
                 )
-                .map(|(&Point{x,y},axis)|{match (axis) {
-                    Axis::ABSCISSE => PolylineValue::BreakOff{axis:axis,value:x},
-                    Axis::ORDONNEE => PolylineValue::BreakOff{axis:axis,value:y}
-                }})
+                .map(|(&Point{x,y},axis)|{
+                    match axis {
+                        Axis::ABSCISSE => PolylineValue::BreakOff{axis:axis,value:x},
+                        Axis::ORDONNEE => PolylineValue::BreakOff{axis:axis,value:y}
+                    }
+                })
             )
             .chain(std::iter::once(PolylineValue::Edge{rectangle:to,edge:edge(last, before_last)}))
         }).flatten()
         .collect();
+        
+        return 0;
 }
 
 fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
@@ -240,7 +244,7 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
     let links : Vec<ShallowLink> = lnks
         .iter()
         .cartesian_product([PolylineDirection::Forward,PolylineDirection::Backward])
-        .map(|(Link { from, to, polyline },dir)| -> (u32,u32,Vec<&Point>,PolylineDirection) {
+        .map(|(Link { from, to, polyline },dir)| -> (usize,usize,Vec<&Point>,PolylineDirection) {
             match dir {
                 PolylineDirection::Forward => (*from, *to, polyline.iter().collect(), dir),
                 PolylineDirection::Backward => (*to, *from, polyline.iter().rev().collect(), dir)
