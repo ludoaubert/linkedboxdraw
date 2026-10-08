@@ -201,7 +201,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         .iter()
         .map(|Link{from,to,polyline}|{
             let [.., before_last, last] = polyline.as_slice() else { todo!()};
-            std::iter::once(PolylineValue::Edge{rectangle:from,edge:edge(&polyline[0],&polyline[1])})
+            std::iter::once(PolylineValue::Edge{rectangle:*from,edge:edge(&polyline[0],&polyline[1])})
             .chain(polyline
                 .iter()
                 .zip(
@@ -219,7 +219,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     }
                 })
             )
-            .chain(std::iter::once(PolylineValue::Edge{rectangle:to,edge:edge(last, before_last)}))
+            .chain(std::iter::once(PolylineValue::Edge{rectangle:*to,edge:edge(last, before_last)}))
         }).flatten()
         .collect();
         
