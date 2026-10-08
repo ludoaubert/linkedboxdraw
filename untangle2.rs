@@ -181,10 +181,11 @@ fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
 }
 
 fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
+    #[derive(Clone, Copy)]
     enum Axis{ABSCISSE,ORDONNEE};
     enum PolylineValue{
         RECTANGLE_EDGE{rectangle:&Rectangle,edge:RectangleEdge},
-        VALUE_AT_TURN{axis:Axis,value:i32}
+        BREAK_OFF{axis:Axis,value:i32}
     };
     let edge = |p0:&Point, p1:&Point| -> RectangleEdge {
         match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
@@ -196,9 +197,9 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         }
     };
 
-    let compact_polylines : Vect<PolylineValue> = lnks
+    let compact_polylines : Vec<PolylineValue> = lnks
         .iter()
-        .map(|from,to,polyline|{
+        .map(|Link{from,to,polyline}|{
             std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[from],edge:edge(polyline[0],polyline[1])})
             .chain(polyline
                 .iter()
@@ -207,16 +208,17 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                         RectangleEdge::Left | RectangleEdge::Right => [Axis::ORDONNEE, Axis::ABSCISSE],
                         RectangleEdge::Top | RectangleEdge::Bottom => [Axis::ABSCISSE, Axis::ORDONNEE]
                     }
-                    .into_iter
+                    .into_iter()
                     .cycle()
                 )
-                .map(|(Point{x,y},axis)|{match (axis) {
-                    Axis::ABSCISSE => x,
-                    Axis::ORDONNEE => y
+                .map(|(&Point{x,y},axis)|{match (axis) {
+                    Axis::ABSCISSE => PolylineValue::BREAK_OFF{axis:axis,value:x},
+                    Axis::ORDONNEE => PolylineValue::BREAK_OFF{axis:axis,value:y}
                 }})
             )
-            .chain(std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangl:&rects[to],edge:edge(last, before_last)}))
-        })
+            .chain(std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[to],edge:edge(last, before_last)}))
+        }).flatten()
+        .collect();
 }
 
 fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
