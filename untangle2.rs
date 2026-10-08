@@ -184,8 +184,8 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
     #[derive(Clone, Copy)]
     enum Axis{ABSCISSE,ORDONNEE}
     enum PolylineValue{
-        RECTANGLE_EDGE{rectangle:&Rectangle,edge:RectangleEdge},
-        BREAK_OFF{axis:Axis,value:i32}
+        Edge{rectangle:usize,edge:RectangleEdge},
+        BreakOff{axis:Axis,value:i32}
     };
     let edge = |p0:&Point, p1:&Point| -> RectangleEdge {
         match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
@@ -201,7 +201,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         .iter()
         .map(|Link{from,to,polyline}|{
             let [.., before_last, last] = polyline.as_slice() else { todo!()};
-            std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[from],edge:edge(polyline[0],polyline[1])})
+            std::iter::once(PolylineValue::Edge{rectangle:from,edge:edge(polyline[0],polyline[1])})
             .chain(polyline
                 .iter()
                 .zip(
@@ -213,11 +213,11 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     .cycle()
                 )
                 .map(|(&Point{x,y},axis)|{match (axis) {
-                    Axis::ABSCISSE => PolylineValue::BREAK_OFF{axis:axis,value:x},
-                    Axis::ORDONNEE => PolylineValue::BREAK_OFF{axis:axis,value:y}
+                    Axis::ABSCISSE => PolylineValue::BreakOff{axis:axis,value:x},
+                    Axis::ORDONNEE => PolylineValue::BreakOff{axis:axis,value:y}
                 }})
             )
-            .chain(std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[to],edge:edge(last, before_last)}))
+            .chain(std::iter::once(PolylineValue::Edge{rectangle:to,edge:edge(last, before_last)}))
         }).flatten()
         .collect();
 }
