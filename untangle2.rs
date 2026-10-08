@@ -182,7 +182,7 @@ fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
 
 fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
     #[derive(Clone, Copy)]
-    enum Axis{ABSCISSE,ORDONNEE};
+    enum Axis{ABSCISSE,ORDONNEE}
     enum PolylineValue{
         RECTANGLE_EDGE{rectangle:&Rectangle,edge:RectangleEdge},
         BREAK_OFF{axis:Axis,value:i32}
@@ -200,6 +200,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
     let compact_polylines : Vec<PolylineValue> = lnks
         .iter()
         .map(|Link{from,to,polyline}|{
+            let [.., before_last, last] = polyline.as_slice() else { todo!()};
             std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[from],edge:edge(polyline[0],polyline[1])})
             .chain(polyline
                 .iter()
