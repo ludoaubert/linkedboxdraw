@@ -180,7 +180,7 @@ fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
     }
 }
 
-fn untangle2(rects:&[Rectangle], lnks:&[Link])->{
+fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
     enum Axis{ABSCISSE,ORDONNEE};
     enum PolylineValue{
         RECTANGLE_EDGE{rectangle:&Rectangle,edge:RectangleEdge},
@@ -199,26 +199,23 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->{
     let compact_polylines : Vect<PolylineValue> = lnks
         .iter()
         .map(|from,to,polyline|{
-            std::iter::once(PolylineValue.RECTANGLE_EDGE{rectangle=&rects[from],edge:edge(polyline[0],polyline[1])})
+            std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangle:&rects[from],edge:edge(polyline[0],polyline[1])})
             .chain(polyline
                 .iter()
                 .zip(
-                    map edge(polyline[0],polyline[1]) {
-                        RectangleEdge::Left, RectangleEdge::Right{
-                            {Axis::ORDONNEE, Axis::ABSCISSE}
-                        }
-                        RectangleEdge::Top, RectangleEdge::Bottom{
-                            {Axis::ABSCISSE, Axis::ORDONNEE}
-                        }
+                    match (edge(polyline[0],polyline[1])){
+                        RectangleEdge::Left | RectangleEdge::Right => [Axis::ORDONNEE, Axis::ABSCISSE],
+                        RectangleEdge::Top | RectangleEdge::Bottom => [Axis::ABSCISSE, Axis::ORDONNEE]
                     }
-                    .std::iter::repeat
+                    .into_iter
+                    .cycle()
                 )
-                .map(|Point{x,y},axis|{map axis {
-                    Axis::ABSCISSE{x}
-                    Axis::ORDONNEE{y}
+                .map(|(Point{x,y},axis)|{match (axis) {
+                    Axis::ABSCISSE => x,
+                    Axis::ORDONNEE => y
                 }})
             )
-            .chain(std::iter::once(PolylineValue.RECTANGE_EDGE{rectangle=&rects[to],edge:edge(last, before_last)}))
+            .chain(std::iter::once(PolylineValue::RECTANGLE_EDGE{rectangl:&rects[to],edge:edge(last, before_last)}))
         })
 }
 
