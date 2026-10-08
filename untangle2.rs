@@ -223,6 +223,9 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         }).flatten()
         .collect();
         
+        let polylines = compact_polylines
+            .chunk_by(|a,b|{})
+        
         return 0;
 }
 
