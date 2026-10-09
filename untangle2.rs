@@ -223,10 +223,77 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         }).flatten()
         .collect();
         
-        let polylines = compact_polylines
-            .chunk_by(|a,b|{
+        let polylines : Vec<Link> = compact_polylines
+            .chunk_by(|a, b|{
                 matches!(a, PolylineValue::Edge { .. }) && matches!(b, PolylineValue::Edge { .. })
-            })
+            }).map(|p|{
+                p.windows(2)
+                .map(|pair|{
+                    let [a, b] = pair else {unreachable!()};
+                    match (a, b) {
+                        (
+                            PolylineValue::Edge{
+                                rectangle,
+                                edge
+                            }, 
+                            PolylineValue::BreakOff{
+                                axis:Axis::ABSCISSE,
+                                value:x
+                            }
+                        ) => Point{x:*x,y:*x},
+                        (
+                            PolylineValue::Edge{
+                                rectangle,
+                                edge
+                            }, 
+                            PolylineValue::BreakOff{
+                                axis:Axis::ORDONNEE,
+                                value:y
+                            }
+                        ) => Point{x:*y,y:*y},
+                        (
+                            PolylineValue::BreakOff{
+                                axis:Axis::ABSCISSE,
+                                value:x
+                            }, 
+                            PolylineValue::Edge{
+                                rectangle,
+                                edge
+                            }
+                        ) => Point{x:*x,y:*x},
+                        (
+                            PolylineValue::BreakOff{
+                                axis:Axis::ORDONNEE,
+                                value:y
+                            }, 
+                            PolylineValue::Edge{
+                                rectangle,
+                                edge
+                            }
+                        ) => Point{x:*y,y:*y},
+                        (
+                            PolylineValue::BreakOff{
+                                axis:Axis::ABSCISSE,
+                                value:x
+                            }, 
+                            PolylineValue::BreakOff{
+                                axis:Axis::ORDONNEE,
+                                value:y
+                            }
+                        ) => Point{x:*x,y:*y},
+                        (
+                            PolylineValue::BreakOff{
+                                axis:Axis::ORDONNEE,
+                                value:y
+                            }, 
+                            PolylineValue::BreakOff{
+                                axis:Axis::ABSCISSE,
+                                value:x
+                            }
+                        ) => Point{x:*x,y:*y}
+                    }
+                })
+            }).collect()
         
         return 0;
 }
