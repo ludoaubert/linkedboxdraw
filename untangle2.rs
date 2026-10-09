@@ -243,73 +243,95 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
             .chunk_by(|a, b|{
                 matches!(a, PolylineValue::Edge { .. }) && matches!(b, PolylineValue::Edge { .. })
             }).map(|p|{
-                p.windows(2)
-                .map(|pair|{
-                    let [a, b] = pair else {unreachable!()};
-                    match (a, b) {
-                        (
-                            PolylineValue::Edge{
-                                rectangle,
-                                edge
-                            }, 
-                            PolylineValue::BreakOff{
-                                axis:Axis::ABSCISSE,
-                                value:x
-                            }
-                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
-                        (
-                            PolylineValue::Edge{
-                                rectangle,
-                                edge
-                            }, 
-                            PolylineValue::BreakOff{
-                                axis:Axis::ORDONNEE,
-                                value:y
-                            }
-                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
-                        (
-                            PolylineValue::BreakOff{
-                                axis:Axis::ABSCISSE,
-                                value:x
-                            }, 
-                            PolylineValue::Edge{
-                                rectangle,
-                                edge
-                            }
-                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
-                        (
-                            PolylineValue::BreakOff{
-                                axis:Axis::ORDONNEE,
-                                value:y
-                            }, 
-                            PolylineValue::Edge{
-                                rectangle,
-                                edge
-                            }
-                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
-                        (
-                            PolylineValue::BreakOff{
-                                axis:Axis::ABSCISSE,
-                                value:x
-                            }, 
-                            PolylineValue::BreakOff{
-                                axis:Axis::ORDONNEE,
-                                value:y
-                            }
-                        ) => Point{x:*x,y:*y},
-                        (
-                            PolylineValue::BreakOff{
-                                axis:Axis::ORDONNEE,
-                                value:y
-                            }, 
-                            PolylineValue::BreakOff{
-                                axis:Axis::ABSCISSE,
-                                value:x
-                            }
-                        ) => Point{x:*x,y:*y}
+                let polyline : Vec<Point> = p.windows(2)
+                    .map(|pair|{
+                        let [a, b] = pair else {unreachable!()};
+                        match (a, b) {
+                            (
+                                PolylineValue::Edge{
+                                    rectangle,
+                                    edge
+                                }, 
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ABSCISSE,
+                                    value:x
+                                }
+                            ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
+                            (
+                                PolylineValue::Edge{
+                                    rectangle,
+                                    edge
+                                }, 
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ORDONNEE,
+                                    value:y
+                                }
+                            ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
+                            (
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ABSCISSE,
+                                    value:x
+                                }, 
+                                PolylineValue::Edge{
+                                    rectangle,
+                                    edge
+                                }
+                            ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
+                            (
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ORDONNEE,
+                                    value:y
+                                }, 
+                                PolylineValue::Edge{
+                                    rectangle,
+                                    edge
+                                }
+                            ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
+                            (
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ABSCISSE,
+                                    value:x
+                                }, 
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ORDONNEE,
+                                    value:y
+                                }
+                            ) => Point{x:*x,y:*y},
+                            (
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ORDONNEE,
+                                    value:y
+                                }, 
+                                PolylineValue::BreakOff{
+                                    axis:Axis::ABSCISSE,
+                                    value:x
+                                }
+                            ) => Point{x:*x,y:*y}
+                        }
+                    }).collect();
+                    
+                    let PolylineValue::Edge {
+                        rectangle: from_rectangle,
+                        edge: from_edge,
+                    } = p.first().unwrap()
+                    else {
+                        unreachable!();
+                    };
+
+                    let PolylineValue::Edge {
+                        rectangle: to_rectangle,
+                        edge: to_edge,
+                    } = p.last().unwrap()
+                    else {
+                        unreachable!();
+                    };
+
+                    Link{
+                        from:rects[*from_rectangle].get_rectangle_edge(*from_edge)
+                        to:rects[*to_rectangle].get_rectangle_edge(*to_edge)
+                        polyline:polyline
                     }
-                })
-            }).collect();
+                }).collect();
         
         return 0;
 }
