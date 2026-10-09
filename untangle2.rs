@@ -306,7 +306,8 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                     axis:Axis::ABSCISSE,
                                     value:x
                                 }
-                            ) => Point{x:*x,y:*y}
+                            ) => Point{x:*x,y:*y},
+                            _ => unreachable!()
                         }
                     }).collect();
                     
@@ -327,8 +328,8 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     };
 
                     Link{
-                        from:rects[*from_rectangle].get_rectangle_edge(*from_edge)
-                        to:rects[*to_rectangle].get_rectangle_edge(*to_edge)
+                        from:*from_rectangle,
+                        to:*to_rectangle,
                         polyline:polyline
                     }
                 }).collect();
