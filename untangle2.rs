@@ -113,6 +113,22 @@ struct Rectangle {
     top:i32,
     bottom:i32
 }
+
+trait GetRectangleEdge {
+    fn get_rectangle_edge(&self, edge: RectangleEdge) -> i32;
+}
+
+impl GetRectangleEdge for Rectangle {
+    fn get_rectangle_edge(&self, edge: RectangleEdge) -> i32 {
+        match edge {
+            RectangleEdge::Top => self.top,
+            RectangleEdge::Bottom => self.bottom,
+            RectangleEdge::Left => self.left,
+            RectangleEdge::Right => self.right
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Eq, Ord, PartialOrd)]
 struct PointCoordinates {
     link_idx:usize,
@@ -240,7 +256,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ABSCISSE,
                                 value:x
                             }
-                        ) => Point{x:*x,y:*x},
+                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
                         (
                             PolylineValue::Edge{
                                 rectangle,
@@ -250,7 +266,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ORDONNEE,
                                 value:y
                             }
-                        ) => Point{x:*y,y:*y},
+                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ABSCISSE,
@@ -260,7 +276,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 rectangle,
                                 edge
                             }
-                        ) => Point{x:*x,y:*x},
+                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ORDONNEE,
@@ -270,7 +286,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 rectangle,
                                 edge
                             }
-                        ) => Point{x:*y,y:*y},
+                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ABSCISSE,
@@ -293,7 +309,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                         ) => Point{x:*x,y:*y}
                     }
                 })
-            }).collect()
+            }).collect();
         
         return 0;
 }
