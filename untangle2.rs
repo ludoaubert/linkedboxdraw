@@ -154,10 +154,10 @@ struct TestContext{
     rects:Vec<Rectangle>,
     lnks:Vec<Link>,
     update:BTreeSet<BTreeSet<UpdateCommand>>,
-    update_count:u32,
-    filtered_update_count:u32,
-    input_crossings:u32,
-    output_crossings:u32
+    update_count:usize,
+    filtered_update_count:usize,
+    input_crossings:usize,
+    output_crossings:usize
 }
 enum SegmentDirection
 {
@@ -543,11 +543,11 @@ fn filter_update(rects:&[Rectangle],
 }
 
 fn detect_crossings(polyline1: &[Point],
-                    polyline2: &[Point])->u32
+                    polyline2: &[Point])->usize
 {
     let arr=[(polyline1,polyline2),(polyline2,polyline1)];
     
-    arr.iter()
+    let crossings:Vec<Point>=arr.iter()
         .map(|(polyline1,polyline2)|{
     
             struct VerticalSegment {
@@ -575,34 +575,34 @@ fn detect_crossings(polyline1: &[Point],
                 .into_iter()
                 .collect();
                 
-            let crossings : u32 = polyline1
-                .iter()
-                .tuple_windows()
-                .filter(|(p1, p2)| p1.y == p2.y)
-                .map(|(&p1, &p2)| HorizontalSegment {
-                    x_min: min(p1.x, p2.x),
-                    x_max: max(p1.x, p2.x),
-                    y: p1.y,
-                })
-                .map(|h| {
-                    interval_index
-                        .range(h.x_min+1..=h.x_max-1)
-                        .map(|(_, verticals)| {
-                            verticals
-                                .iter()
-                                .filter(|v| v.y_min < h.y && h.y < v.y_max)
-                                .map(|v| { Point{x:v.x, y:h.y}})
-                                .count()
-                        })
-                        .sum::<usize>()
-                })
-                .sum::<usize>() as u32;
-
-            crossings
-        }).sum()
+                let inter: Vec<Point> = polyline1
+                    .iter()
+                    .tuple_windows()
+                    .filter(|(p1, p2)| p1.y == p2.y)
+                    .map(|(&p1, &p2)| HorizontalSegment {
+                        x_min: min(p1.x, p2.x),
+                        x_max: max(p1.x, p2.x),
+                        y: p1.y,
+                    })
+                    .flat_map(|h| {
+                        interval_index
+                            .range(h.x_min + 1..=h.x_max - 1)
+                            .flat_map(move |(_, verticals)| {
+                                verticals
+                                    .iter()
+                                    .filter(move |v| v.y_min < h.y && h.y < v.y_max)
+                                    .map(move |v| Point { x: v.x, y: h.y })
+                            })
+                    })
+                    .collect();
+                inter
+        }).flatten()
+        .collect();
+        
+        crossings.len()
 }
 
-fn detect_all_polyline_crossings(lnks:&[Link])->u32{
+fn detect_all_polyline_crossings(lnks:&[Link])->usize{
     lnks
         .iter()
         .map(|lnk| &lnk.polyline)
@@ -614,7 +614,7 @@ fn detect_all_polyline_crossings(lnks:&[Link])->u32{
         }).sum()
 }
 
-fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u32
+fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->usize
 {
     lnks
         .iter()
@@ -662,7 +662,7 @@ fn integrity_filter_update(rectangles:&[Rectangle],lnks:&Vec<Link>, updates:&BTr
             .iter()
             .fold(state, apply_uc);
             
-        let crossings:u32=detect_polyline_rectangle_crossings(&state.lnks, rectangles);
+        let crossings:usize=detect_polyline_rectangle_crossings(&state.lnks, rectangles);
         if crossings==0
         {state.accepted.insert(update.clone());}
         else{
