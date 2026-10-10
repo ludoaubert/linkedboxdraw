@@ -17,36 +17,39 @@ use nalgebra::{Matrix2, Vector2};
 #[derive(Debug, PartialEq, Copy, Clone, Serialize, Deserialize, Eq, Ord, PartialOrd)]
 struct Point{
     x: i32,
-    y: i32
+    y: i32,
+    index_x: usize,
+    index_y: usize
+}
+impl Point {
+    fn new(x: i32, y: i32) -> Self {
+        Self {
+            x,
+            y,
+            index_x: usize::MAX,
+            index_y: usize::MAX,
+        }
+    }
 }
 impl Sub for Point {
     type Output = Point;
 
     fn sub(self, rhs: Point) -> Point {
-        Point {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-        }
+        Point::new(self.x - rhs.x,self.y - rhs.y)
     }
 }
 impl Sub<&Point> for &Point {
     type Output = Point;
 
     fn sub(self, rhs: &Point) -> Point {
-        Point {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-        }
+        Point::new(self.x - rhs.x,self.y - rhs.y)
     }
 }
 impl Add for Point {
     type Output = Point;
 
     fn add(self, rhs: Point) -> Point {
-        Point {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-        }
+        Point::new(self.x + rhs.x,self.y + rhs.y)
     }
 }
 impl AddAssign for Point {
@@ -59,10 +62,7 @@ impl Neg for Point {
     type Output = Point;
 
     fn neg(self) -> Point {
-        Point {
-            x: -self.x,
-            y: -self.y,
-        }
+        Point::new(-self.x,-self.y)
     }
 }
 #[derive(Clone, Serialize, Deserialize)]
@@ -169,25 +169,25 @@ enum SegmentDirection
 
 fn rotate_point(p: &Point, angle: f64) -> Point {
     let (s, c) = angle.sin_cos();
-    Point {
-        x : ((p.x as f64) * c - (p.y as f64) * s).round() as i32,
-        y : ((p.x as f64) * s + (p.y as f64) * c).round() as i32
-    }
+    Point::new(
+            ((p.x as f64) * c - (p.y as f64) * s).round() as i32,
+            ((p.x as f64) * s + (p.y as f64) * c).round() as i32
+    )
 }
 
 fn transform_point(p: &Point, m: &Matrix2<f64>) -> Point {
     let v = Vector2::new(p.x as f64, p.y as f64);
     let r = m * v;
 
-    Point {
-        x: r.x.round() as i32,
-        y: r.y.round() as i32,
-    }  
+    Point::new(
+        r.x.round() as i32,
+        r.y.round() as i32,
+    )  
 }
 
 fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
-    let p=transform_point(&Point{x:rec.left,y:rec.top}, m);
-    let q=transform_point(&Point{x:rec.right,y:rec.bottom}, m);
+    let p=transform_point(&Point::new(rec.left,rec.top), m);
+    let q=transform_point(&Point::new(rec.right,rec.bottom), m);
     Rectangle{
         left:min(p.x, q.x),
         right:max(p.x, q.x),
@@ -228,7 +228,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     .into_iter()
                     .cycle()
                 )
-                .map(|(&Point{x,y},axis)|{
+                .map(|(&Point{x,y,index_x,index_y},axis)|{
                     match axis {
                         Axis::ABSCISSE => PolylineValue::BreakOff{axis:axis,value:x},
                         Axis::ORDONNEE => PolylineValue::BreakOff{axis:axis,value:y}
@@ -239,13 +239,18 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         }).flatten()
         .collect();
         
-    let lnks : Vec<Link> = compact_polylines
-        .chunk_by(|a, b|{
+    let indexed_compact_polylines: Vec<(usize, PolylineValue)> = compact_polylines
+        .into_iter()
+        .enumerate()
+        .collect();
+        
+    let lnks : Vec<Link> = indexed_compact_polylines
+        .chunk_by(|(index_a,a), (index_b,b)|{
             matches!(a, PolylineValue::Edge { .. }) && matches!(b, PolylineValue::Edge { .. })
         }).map(|p|{
             let polyline : Vec<Point> = p.windows(2)
                 .map(|pair|{
-                    let [a, b] = pair else {unreachable!()};
+                    let [(index_a,a), (index_b,b)] = pair else {unreachable!()};
                     match (a, b) {
                         (
                             PolylineValue::Edge{
@@ -256,7 +261,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ABSCISSE,
                                 value:x
                             }
-                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
+                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge),index_x:*index_b,index_y:*index_a},
                         (
                             PolylineValue::Edge{
                                 rectangle,
@@ -266,7 +271,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ORDONNEE,
                                 value:y
                             }
-                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
+                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y,index_x:*index_a,index_y:*index_b},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ABSCISSE,
@@ -276,7 +281,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 rectangle,
                                 edge
                             }
-                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge)},
+                        ) => Point{x:*x,y:rects[*rectangle].get_rectangle_edge(*edge),index_x:*index_a,index_y:*index_b},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ORDONNEE,
@@ -286,7 +291,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 rectangle,
                                 edge
                             }
-                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y},
+                        ) => Point{x:rects[*rectangle].get_rectangle_edge(*edge),y:*y,index_x:*index_b,index_y:*index_a},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ABSCISSE,
@@ -296,7 +301,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ORDONNEE,
                                 value:y
                             }
-                        ) => Point{x:*x,y:*y},
+                        ) => Point{x:*x,y:*y,index_x:*index_a,index_y:*index_b},
                         (
                             PolylineValue::BreakOff{
                                 axis:Axis::ORDONNEE,
@@ -306,23 +311,23 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                                 axis:Axis::ABSCISSE,
                                 value:x
                             }
-                        ) => Point{x:*x,y:*y},
+                        ) => Point{x:*x,y:*y,index_x:*index_b,index_y:*index_a},
                         _ => unreachable!()
                     }
                 }).collect();
                 
-                let PolylineValue::Edge {
+                let (_,PolylineValue::Edge {
                     rectangle: from_rectangle,
                     edge: from_edge,
-                } = p.first().unwrap()
+                }) = p.first().unwrap()
                 else {
                     unreachable!();
                 };
 
-                let PolylineValue::Edge {
+                let (_,PolylineValue::Edge {
                     rectangle: to_rectangle,
                     edge: to_edge,
-                } = p.last().unwrap()
+                }) = p.last().unwrap()
                 else {
                     unreachable!();
                 };
@@ -458,7 +463,7 @@ fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
                     let tr : Point = lnks_[i].polyline[0] - lnks_[x].polyline[0];
                     (x, tr)
                 })
-                .filter(|(_x,tr)|->bool {*tr != Point{x:0,y:0}})
+                .filter(|(_x,tr)|->bool {*tr != Point::new(0,0)})
                 .map(|(x, tr)| {
                     UpdateCommand{
                         segment: [0,1]
@@ -508,10 +513,10 @@ fn filter_update(rects:&[Rectangle],
                     let rec_edge=|edge:RectangleEdge, rec:&Rectangle|->(Point,Point){
                         let &Rectangle{left,right,top,bottom}=rec;
                         match edge{
-                            RectangleEdge::Left => (Point{x:left,y:top},Point{x:left,y:bottom}),
-                            RectangleEdge::Right => (Point{x:right,y:top},Point{x:right,y:bottom}),
-                            RectangleEdge::Top => (Point{x:left,y:top},Point{x:right,y:top}),
-                            RectangleEdge::Bottom => (Point{x:left,y:bottom},Point{x:right,y:bottom})
+                            RectangleEdge::Left => (Point::new(left,top),Point::new(left,bottom)),
+                            RectangleEdge::Right => (Point::new(right,top),Point::new(right,bottom)),
+                            RectangleEdge::Top => (Point::new(left,top),Point::new(right,top)),
+                            RectangleEdge::Bottom => (Point::new(left,bottom),Point::new(right,bottom))
                         }
                     };
                     
@@ -555,13 +560,15 @@ fn detect_crossings(polyline1: &[Point],
             struct VerticalSegment {
                 y_min: i32,
                 y_max: i32,
-                x: i32
+                x: i32,
+                index_x: usize
             }
             
             struct HorizontalSegment {
                 x_min: i32,
                 x_max: i32,
-                y: i32
+                y: i32,
+                index_y: usize
             }
             
             let interval_index : BTreeMap<i32, Vec<VerticalSegment>> = 
@@ -572,7 +579,8 @@ fn detect_crossings(polyline1: &[Point],
                 .map(|(&p1, &p2)| VerticalSegment{
                     y_min:min(p1.y,p2.y),
                     y_max:max(p1.y,p2.y),
-                    x:p1.x           
+                    x:p1.x,
+                    index_x:p1.index_x
                 }).into_group_map_by(|s| s.x)
                 .into_iter()
                 .collect();
@@ -585,6 +593,7 @@ fn detect_crossings(polyline1: &[Point],
                         x_min: min(p1.x, p2.x),
                         x_max: max(p1.x, p2.x),
                         y: p1.y,
+                        index_y:p1.index_y
                     })
                     .flat_map(|h| {
                         interval_index
@@ -593,7 +602,7 @@ fn detect_crossings(polyline1: &[Point],
                                 verticals
                                     .iter()
                                     .filter(move |v| v.y_min < h.y && h.y < v.y_max)
-                                    .map(move |v| Point { x: v.x, y: h.y })
+                                    .map(move |v| Point { x: v.x, y: h.y, index_x: v.index_x, index_y: h.index_y })
                             })
                     })
                     .collect();
@@ -624,7 +633,7 @@ fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u
         .cartesian_product(rectangles
             .iter()
             .map(|&Rectangle {left, right, top, bottom}|{
-                [Point{x:left,y:top},Point{x:right,y:top},Point{x:right,y:bottom},Point{x:left,y:bottom}]
+                [Point::new(left,top),Point::new(right,top),Point::new(right,bottom),Point::new(left,bottom)]
             })
         ).flat_map(|(p1, p2)| {
             detect_crossings(p1, &p2)
@@ -848,8 +857,8 @@ fn main() {
         TestContext{
             rects:vec![Rectangle{left:10,right:40,top:20,bottom:70},Rectangle{left:180,right:210,top:30,bottom:80}],
             lnks:vec![
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:90,y:30},Point{x:90,y:60},Point{x:180,y:60}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:70},Point{x:180,y:70}]}
+                Link{from:0,to:1,polyline:vec![Point::new(40, 30), Point::new(90, 30), Point::new(90, 60), Point::new(180, 60)] },
+                Link{from:0,to:1,polyline:vec![Point::new(40, 50), Point::new(110, 50), Point::new(110, 70), Point::new(180, 70)] },
             ],
 /*
    10     40      90 110    180  210
@@ -865,19 +874,19 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:20}},
+                                    translation:Point::new(0,20)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:1,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:-20}}]),
+                                    translation:Point::new(0,-20)}]),
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:0,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:10}},
+                                    translation:Point::new(0,10)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:1,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:-10}}])
+                                    translation:Point::new(0,-10)}])
             ]),
             update_count:2,
             filtered_update_count:2,
@@ -891,8 +900,8 @@ fn main() {
                 Rectangle{left:160,right:190,top:80,bottom:140}
             ],
             lnks:vec![
-                Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:60},Point{x:160,y:60}]}
+                Link{from:0,to:2,polyline:vec![Point::new(40,50),Point::new(110,50),Point::new(110,120),Point::new(160,120)]},
+                Link{from:0,to:1,polyline:vec![Point::new(40,60),Point::new(160,60)]}
             ],
 /* 10     40     110       160   190
                             +-----+30
@@ -910,11 +919,11 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:10}},
+                                    translation:Point::new(0,10)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:1,point_idx:1,edge:Some(RectangleEdge::Left)}],
-                                    translation:Point{x:0,y:-10}}
+                                    translation:Point::new(0,-10)}
                 ])
             ]),
             update_count:1,
@@ -929,8 +938,8 @@ fn main() {
                 Rectangle{left:160,right:190,top:110,bottom:150}
             ],
             lnks:vec![
-                Link{from:0,to:2,polyline:vec![Point{x:40,y:50},Point{x:110,y:50},Point{x:110,y:120},Point{x:160,y:120}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:70},Point{x:160,y:70}]}
+                Link{from:0,to:2,polyline:vec![Point::new(40,50),Point::new(110,50),Point::new(110,120),Point::new(160,120)]},
+                Link{from:0,to:1,polyline:vec![Point::new(40,70),Point::new(160,70)]}
             ],
 /*
   10      40     110       160   190
@@ -951,11 +960,11 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:20}},
+                                    translation:Point::new(0,20)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:1,point_idx:1,edge:Some(RectangleEdge::Left)}],
-                                    translation:Point{x:0,y:-20}}
+                                    translation:Point::new(0,-20)}
                 ])
             ]),
             update_count:1,
@@ -969,9 +978,9 @@ fn main() {
                 Rectangle{left:140,right:170,top:20,bottom:70}
             ],
             lnks:vec![
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:180},Point{x:100,y:180},Point{x:100,y:30},Point{x:140,y:30}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:190},Point{x:90,y:190},Point{x:90,y:40},Point{x:140,y:40}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:200},Point{x:80,y:200},Point{x:80,y:50},Point{x:140,y:50}]}
+                Link{from:0,to:1,polyline:vec![Point::new(40,180),Point::new(100,180),Point::new(100,30),Point::new(140,30)]},
+                Link{from:0,to:1,polyline:vec![Point::new(40,190),Point::new(90,190),Point::new(90,40),Point::new(140,40)]},
+                Link{from:0,to:1,polyline:vec![Point::new(40,200),Point::new(80,200),Point::new(80,50),Point::new(140,50)]}
             ],
 /*                           140   170
                               +-----+20
@@ -991,19 +1000,19 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:0,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:20}},
+                                    translation:Point::new(0,20)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:2,point_idx:0,edge:Some(RectangleEdge::Right)},
                                     PointCoordinates{link_idx:2,point_idx:1,edge:None}],
-                                    translation:Point{x:0,y:-20}}]),
+                                    translation:Point::new(0,-20)}]),
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:0,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:20}},
+                                    translation:Point::new(0,20)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:2,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:2,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:-20}}])
+                                    translation:Point::new(0,-20)}])
             ]),
             update_count:2,
             filtered_update_count:2,
@@ -1017,8 +1026,8 @@ fn main() {
                 Rectangle{left:60,right:100,top:70,bottom:120}
             ],
             lnks:vec![
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:30},Point{x:110,y:30},Point{x:110,y:80},Point{x:180,y:80}]},
-                Link{from:0,to:1,polyline:vec![Point{x:40,y:50},Point{x:90,y:50},Point{x:90,y:60},Point{x:180,y:60}]}
+                Link{from:0,to:1,polyline:vec![Point::new(40,30),Point::new(110,30),Point::new(110,80),Point::new(180,80)]},
+                Link{from:0,to:1,polyline:vec![Point::new(40,50),Point::new(90,50),Point::new(90,60),Point::new(180,60)]}
             ],
 /*
    10     40      90 110    180  210
@@ -1038,11 +1047,11 @@ fn main() {
                 BTreeSet::from([UpdateCommand{segment:
                                     [PointCoordinates{link_idx:0,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:0,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:-20}},
+                                    translation:Point::new(0,-20)},
                                 UpdateCommand{segment:
                                     [PointCoordinates{link_idx:1,point_idx:3,edge:Some(RectangleEdge::Left)},
                                     PointCoordinates{link_idx:1,point_idx:2,edge:None}],
-                                    translation:Point{x:0,y:20}}])
+                                    translation:Point::new(0,20)}])
             ]),
             update_count:1,
             filtered_update_count:0,
