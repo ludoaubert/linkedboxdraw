@@ -602,7 +602,7 @@ fn detect_crossings(polyline1: &[Point],
         crossings
 }
 
-fn detect_all_polyline_crossings(lnks:&[Link])->usize{
+fn detect_all_polyline_crossings(lnks:&[Link])->Vec<Point>{
     lnks
         .iter()
         .map(|lnk| &lnk.polyline)
@@ -611,7 +611,7 @@ fn detect_all_polyline_crossings(lnks:&[Link])->usize{
         .filter(|((i, _p1), (j, _p2))| i<j)
         .flat_map(|((_i, p1), (_j, p2))| {
             detect_crossings(p1, p2)
-        }).count()
+        }).collect()
 }
 
 fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->usize
@@ -1085,7 +1085,7 @@ fn main() {
         println!("{}", json);
         let json_output = serde_json::to_string(&uncrossed_lnks).unwrap();
         println!("{}", json_output);
-        let b:bool = update==*expected && *expected_crossings==detect_all_polyline_crossings(&uncrossed_lnks);
+        let b:bool = update==*expected && *expected_crossings==detect_all_polyline_crossings(&uncrossed_lnks).len();
         let status : &str = if b {"OK"} else {"KO"};
         println!("{}", status);
         if b{
