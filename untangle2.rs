@@ -543,7 +543,7 @@ fn filter_update(rects:&[Rectangle],
 }
 
 fn detect_crossings(polyline1: &[Point],
-                    polyline2: &[Point])->usize
+                    polyline2: &[Point])->Vec<Point>
 {
     let arr=[(polyline1,polyline2),(polyline2,polyline1)];
     
@@ -599,7 +599,7 @@ fn detect_crossings(polyline1: &[Point],
         }).flatten()
         .collect();
         
-        crossings.len()
+        crossings
 }
 
 fn detect_all_polyline_crossings(lnks:&[Link])->usize{
@@ -609,9 +609,9 @@ fn detect_all_polyline_crossings(lnks:&[Link])->usize{
         .enumerate()
         .tuple_combinations()
         .filter(|((i, _p1), (j, _p2))| i<j)
-        .map(|((_i, p1), (_j, p2))| {
+        .flat_map(|((_i, p1), (_j, p2))| {
             detect_crossings(p1, p2)
-        }).sum()
+        }).count()
 }
 
 fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->usize
@@ -624,9 +624,9 @@ fn detect_polyline_rectangle_crossings(lnks:&[Link], rectangles:&[Rectangle])->u
             .map(|&Rectangle {left, right, top, bottom}|{
                 [Point{x:left,y:top},Point{x:right,y:top},Point{x:right,y:bottom},Point{x:left,y:bottom}]
             })
-        ).map(|(p1, p2)| {
+        ).flat_map(|(p1, p2)| {
             detect_crossings(p1, &p2)
-        }).sum()
+        }).count()
 }
 
 fn integrity_filter_update(rectangles:&[Rectangle],lnks:&Vec<Link>, updates:&BTreeSet<BTreeSet<UpdateCommand>>)->
