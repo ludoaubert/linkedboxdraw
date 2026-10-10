@@ -239,7 +239,7 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
         }).flatten()
         .collect();
         
-    let polylines : Vec<Link> = compact_polylines
+    let lnks : Vec<Link> = compact_polylines
         .chunk_by(|a, b|{
             matches!(a, PolylineValue::Edge { .. }) && matches!(b, PolylineValue::Edge { .. })
         }).map(|p|{
@@ -333,6 +333,8 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     polyline:polyline
                 }
             }).collect();
+            
+        let crossings:Vec<Point> = detect_all_polyline_crossings(&lnks);
         
         return 0;
 }
