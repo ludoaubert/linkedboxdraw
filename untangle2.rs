@@ -65,6 +65,12 @@ impl Neg for Point {
         Point::new(-self.x,-self.y)
     }
 }
+#[derive(Clone, Copy)]
+enum Axis{ABSCISSE,ORDONNEE}
+enum PolylineValue{
+    Edge{rectangle:usize,edge:RectangleEdge},
+    BreakOff{axis:Axis,value:i32}
+}
 #[derive(Clone, Serialize, Deserialize)]
 struct Link{
     from: usize,
@@ -196,23 +202,18 @@ fn transform_rectangle(rec: &Rectangle, m: &Matrix2<f64>) -> Rectangle {
     }
 }
 
-fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
-    #[derive(Clone, Copy)]
-    enum Axis{ABSCISSE,ORDONNEE}
-    enum PolylineValue{
-        Edge{rectangle:usize,edge:RectangleEdge},
-        BreakOff{axis:Axis,value:i32}
+fn edge(p0:&Point, p1:&Point) -> RectangleEdge {
+    match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
+        (Ordering::Equal, Ordering::Greater) => RectangleEdge::Top,
+        (Ordering::Equal, Ordering::Less)    => RectangleEdge::Bottom,
+        (Ordering::Greater, Ordering::Equal) => RectangleEdge::Left,
+        (Ordering::Less, Ordering::Equal)    => RectangleEdge::Right,
+        _ => unreachable!("Polyline contains a non-axis-aligned segment")
     }
-    let edge = |p0:&Point, p1:&Point| -> RectangleEdge {
-        match (p0.x.cmp(&p1.x), p0.y.cmp(&p1.y)) {
-            (Ordering::Equal, Ordering::Greater) => RectangleEdge::Top,
-            (Ordering::Equal, Ordering::Less)    => RectangleEdge::Bottom,
-            (Ordering::Greater, Ordering::Equal) => RectangleEdge::Left,
-            (Ordering::Less, Ordering::Equal)    => RectangleEdge::Right,
-            _ => unreachable!("Polyline contains a non-axis-aligned segment")
-        }
-    };
+}
 
+fn lnks_to_compact_polylines(lnks:&[Link])->Vec<PolylineValue>
+{
     let compact_polylines : Vec<PolylineValue> = lnks
         .iter()
         .map(|Link{from,to,polyline}|{
@@ -237,8 +238,13 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
             )
             .chain(std::iter::once(PolylineValue::Edge{rectangle:*to,edge:edge(last, before_last)}))
         }).flatten()
-        .collect();
+        .collect(); 
         
+    compact_polylines
+}
+
+fn compact_polylines_to_lnks(rects:&[Rectangle], compact_polylines : Vec<PolylineValue>)->Vec<Link>
+{
     let indexed_compact_polylines: Vec<(usize, PolylineValue)> = compact_polylines
         .into_iter()
         .enumerate()
@@ -338,10 +344,18 @@ fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
                     polyline:polyline
                 }
             }).collect();
-            
-        let crossings:Vec<Point> = detect_all_polyline_crossings(&lnks);
+    
+    lnks
+}
+
+fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
+
+    let compact_polylines : Vec<PolylineValue> = lnks_to_compact_polylines(lnks);
+    
+    let lnks2 : Vec<Link> = compact_polylines_to_lnks(rects, compact_polylines);
+    let crossings:Vec<Point> = detect_all_polyline_crossings(&lnks2);
         
-        return 0;
+    return 0;
 }
 
 fn untangle(lnks:&[Link])->BTreeSet<BTreeSet<UpdateCommand>>{
