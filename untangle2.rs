@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use pathfinding::directed::bfs::bfs_reach;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
@@ -348,12 +349,41 @@ fn compact_polylines_to_lnks(rects:&[Rectangle], compact_polylines : Vec<Polylin
     lnks
 }
 
-fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32{
+fn untangle2(rects:&[Rectangle], lnks:&[Link])->i32
+{
+    let start_compact_polylines : Vec<PolylineValue> = lnks_to_compact_polylines(lnks);
 
-    let compact_polylines : Vec<PolylineValue> = lnks_to_compact_polylines(lnks);
+    fn neighbours(rects: &[Rect], compact_polylines: &Vec<PolylineValue>) -> Vec<Vec<PolylineValue>> {
+        let lnks = compact_polylines_to_lnks(rects, compact_polylines);
+        let crossings = detect_all_polyline_crossings(&lnks);
     
-    let lnks2 : Vec<Link> = compact_polylines_to_lnks(rects, compact_polylines);
-    let crossings:Vec<Point> = detect_all_polyline_crossings(&lnks2);
+        crossings
+            .iter()
+            .flat_map(|&Point {x,y,index_x,index_y}| {
+                [(index_x, index_y-1),
+                (index_x, index_y+1),
+                (index_x-1,index_y),
+                (index_x+1,index_y)]
+            }).filter(|i,j|{
+                matches!(compact_polylines[i], PolylineValue::Value { .. }) && 
+                matches!(compact_polylines[j], PolylineValue::Value { .. })
+            })
+            .map(|(i, j)| {
+                let mut next = cps.clone();
+                next.swap(i, j);
+                next
+            })
+            .filter(|next| {
+                let lnks2 : Vec<Link> = compact_polylines_to_lnks(rects, next);
+                let crossings : Vec<Point> = detect_all_polyline_crossings(&lnks2); 
+                let n1 = detect_polyline_rectangle_crossings(lnks2, rects);
+                let n2 = crossings.len();
+            })
+            .collect()
+    }
+
+    let ancestors: Vec<Vec<PolylineValue>> =
+        bfs_reach(start_compact_polyline, |cps| neighbours(rects, cps)).collect();
         
     return 0;
 }
